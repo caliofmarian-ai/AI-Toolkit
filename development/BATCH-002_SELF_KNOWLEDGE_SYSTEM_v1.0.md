@@ -2151,3 +2151,161 @@ MACRO BLOCK 2
 
 COMPLETE
 
+
+============================================================
+MACRO BLOCK 3
+DEPENDENCY INTELLIGENCE
+PART 1
+============================================================
+
+PURPOSE
+
+Dependency Intelligence provides a complete understanding of
+all dependencies inside AI Toolkit.
+
+Every dependency shall be explicitly represented, validated
+and traceable.
+
+Dependency Intelligence enables autonomous impact analysis,
+planning and safe implementation.
+
+============================================================
+
+OBJECTIVES
+
+Discover dependencies.
+
+Validate dependencies.
+
+Classify dependencies.
+
+Maintain dependency graph.
+
+Support impact analysis.
+
+Support autonomous planning.
+
+============================================================
+
+DEPENDENCY TYPES
+
+Subsystem Dependencies
+
+Engine Dependencies
+
+Module Dependencies
+
+Canonical Dependencies
+
+Development Dependencies
+
+Workflow Dependencies
+
+CLI Dependencies
+
+Plugin Dependencies
+
+Test Dependencies
+
+Audit Dependencies
+
+============================================================
+
+DEPENDENCY MODEL
+
+Dependency Identifier
+
+Source Entity
+
+Target Entity
+
+Dependency Type
+
+Dependency Direction
+
+Dependency Strength
+
+Dependency Status
+
+Validation Status
+
+Version Compatibility
+
+============================================================
+
+DEPENDENCY STATES
+
+Declared
+
+Discovered
+
+Validated
+
+Deprecated
+
+Broken
+
+Unknown
+
+============================================================
+
+DISCOVERY PROCESS
+
+Repository Mapping
+
+↓
+
+Relationship Discovery
+
+↓
+
+Dependency Detection
+
+↓
+
+Dependency Validation
+
+↓
+
+Dependency Classification
+
+↓
+
+Knowledge Graph Update
+
+============================================================
+
+DEPENDENCY RULES
+
+Every dependency shall have
+one source.
+
+Every dependency shall have
+one target.
+
+Circular dependencies shall
+be explicitly detected.
+
+Broken dependencies shall
+generate validation warnings.
+
+============================================================
+
+OUTPUTS
+
+Dependency Inventory
+
+Dependency Graph
+
+Dependency Report
+
+Dependency Validation Report
+
+============================================================
+
+STATUS
+
+Dependency Intelligence
+
+IN DEVELOPMENT
+
