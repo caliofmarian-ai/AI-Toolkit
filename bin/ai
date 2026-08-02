@@ -1,6 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
-VERSION="0.5.0"
+VERSION="0.6.0"
 
 ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
 
@@ -12,75 +12,79 @@ echo "=============================================="
 echo
 }
 
-context() {
+work() {
 
-[ -z "$ROOT" ] && {
-    echo "Not inside a Git repository."
+TYPE="$1"
+TARGET="$2"
+
+if [ -z "$TYPE" ] || [ -z "$TARGET" ]; then
+    echo "Usage:"
+    echo "  ai work issue <number>"
+    echo "  ai work pr <number>"
+    echo "  ai work feature <name>"
     exit 1
-}
+fi
 
-mkdir -p "$ROOT/.ai/context"
+mkdir -p "$ROOT/.ai/work"
 
-OUT="$ROOT/.ai/context/project-context.md"
+REPORT="$ROOT/.ai/work/session.md"
 
 {
-echo "# AI Project Context"
+echo "# AI Work Session"
 echo
 echo "Generated: $(date)"
 echo
-echo "## Repository"
+echo "Repository:"
 basename "$ROOT"
 echo
-echo "## Branch"
+echo "Branch:"
 git branch --show-current
 echo
-echo "## Remote"
-git remote -v
+echo "Type: $TYPE"
+echo "Target: $TARGET"
 echo
-echo "## Last Commit"
+echo "Last Commit:"
 git log -1 --oneline
 echo
-echo "## Git Status"
+echo "Git Status:"
 git status --short
 echo
-echo "## Top-level Directories"
-find "$ROOT" -maxdepth 1 -type d | sort
+echo "Modified Files:"
+git diff --name-only
 echo
-echo "## Python Files"
-find "$ROOT" -name "*.py" | wc -l
-echo
-echo "## Markdown Files"
-find "$ROOT" -name "*.md" | wc -l
-echo
-echo "## Test Directories"
-find "$ROOT" -type d -name tests
-echo
-echo "## Canonical Documents"
-find "$ROOT" -iname "*canon*" -o -path "*/canonical/*" 2>/dev/null
-} > "$OUT"
+echo "Untracked:"
+git ls-files --others --exclude-standard
+} > "$REPORT"
 
 echo
-echo "Context generated:"
-echo "$OUT"
+echo "Session created:"
+echo "$REPORT"
+
 }
 
-case "${1:-help}" in
-
-context)
-header
-context
-;;
+case "$1" in
 
 version)
 echo "$VERSION"
 ;;
 
-*)
-echo
-echo "AI Toolkit"
-echo
-echo "Commands:"
-echo "  ai context"
-echo "  ai version"
+work)
+shift
+work "$@"
 ;;
+
+*)
+cat <<HELP
+
+AI Toolkit
+
+Commands
+
+  ai work issue <id>
+  ai work pr <id>
+  ai work feature <name>
+
+HELP
+;;
+
 esac
