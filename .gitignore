@@ -34,3 +34,26 @@ htmlcov/
 
 # Audit output
 .ai/audit/*.tmp
+
+
+# ==================================================
+# AI Toolkit Runtime Artifacts
+# ==================================================
+
+.ai/audit/
+.ai/memory/
+.ai/work/*
+
+!.ai/work/.gitkeep
+!.ai/context/.gitkeep
+
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+*.log
