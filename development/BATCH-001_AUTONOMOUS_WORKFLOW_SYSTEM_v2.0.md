@@ -1,0 +1,284 @@
+# BATCH-001 — AUTONOMOUS WORKFLOW SYSTEM v2.0
+
+Status: IN DEVELOPMENT
+
+Owner: Marian Caliof
+
+Project: AI Toolkit
+
+---
+
+# CANONICAL DEPENDENCIES
+
+- AI_TOOLKIT_SYSTEM_ARCHITECTURE_v1.0.0
+- ENGINE_INTERFACE_SPEC_v1.0.0
+- AUTONOMOUS_WORKFLOW_SPEC_v1.0.0
+- DECISION_ENGINE_SPEC_v1.0.0
+- MEMORY_SYSTEM_SPEC_v1.0.0
+- KNOWLEDGE_GRAPH_SPEC_v1.0.0
+- SYSTEM_INVARIANTS_v1.0.0
+
+---
+
+# PURPOSE
+
+Implement the complete Autonomous Workflow System.
+
+This document is the authoritative implementation source.
+
+Nothing is materialized into the production repository until this document reaches COMPLETE status.
+
+---
+
+# OBJECTIVES
+
+The Autonomous Workflow System shall:
+
+- Coordinate every engine.
+- Resume interrupted execution.
+- Preserve execution history.
+- Recover from failures.
+- Maintain deterministic execution.
+- Expose workflow state.
+- Provide execution metrics.
+- Generate execution journals.
+
+---
+
+# HIGH LEVEL ARCHITECTURE
+
+Repository
+
+↓
+
+Repository Inspector
+
+↓
+
+Repository Profile
+
+↓
+
+Memory Engine
+
+↓
+
+Knowledge Graph
+
+↓
+
+Decision Engine
+
+↓
+
+Planner Engine
+
+↓
+
+Execution Engine
+
+↓
+
+Review Engine
+
+↓
+
+Workflow Complete
+
+---
+
+# STATE MACHINE
+
+READY
+
+↓
+
+ANALYZING
+
+↓
+
+PLANNING
+
+↓
+
+EXECUTING
+
+↓
+
+VALIDATING
+
+↓
+
+REVIEWING
+
+↓
+
+COMPLETE
+
+Additional States
+
+FAILED
+
+PAUSED
+
+RESUMING
+
+CANCELLED
+
+---
+
+# CORE MODULES
+
+- Workflow Manager
+- Workflow State Machine
+- Dependency Resolver
+- Execution Queue
+- Resume Manager
+- Recovery Manager
+- Execution Journal
+- Workflow Metrics
+- Workflow Validator
+- Workflow Serializer
+
+---
+
+# DATA STRUCTURES
+
+- Workflow
+- Workflow Step
+- Execution State
+- Dependency Graph
+- Execution Queue
+- Checkpoint
+- Execution Journal
+- Metrics
+- Decision Snapshot
+- Review Snapshot
+
+---
+
+# DIRECTORY STRUCTURE
+
+lib/python/workflow/
+
+tests/workflow/
+
+docs/canonical/
+
+.ai/work/
+
+.ai/memory/
+
+development/
+
+---
+
+# IMPLEMENTATION PHASES
+
+## Phase 1
+
+Workflow Manager
+
+Status: PENDING
+
+Estimated Size: 900 LOC
+
+---
+
+## Phase 2
+
+Dependency Resolver
+
+Status: PENDING
+
+Estimated Size: 700 LOC
+
+---
+
+## Phase 3
+
+Resume Engine
+
+Status: PENDING
+
+Estimated Size: 600 LOC
+
+---
+
+## Phase 4
+
+Recovery Engine
+
+Status: PENDING
+
+Estimated Size: 600 LOC
+
+---
+
+## Phase 5
+
+Execution Journal
+
+Status: PENDING
+
+Estimated Size: 500 LOC
+
+---
+
+## Phase 6
+
+Metrics Engine
+
+Status: PENDING
+
+Estimated Size: 500 LOC
+
+---
+
+## Phase 7
+
+Materialization
+
+Generate production files
+
+Run complete tests
+
+Canonical validation
+
+Git commit
+
+---
+
+# ACCEPTANCE CRITERIA
+
+- Workflow survives interruption.
+- Workflow resumes correctly.
+- Execution history preserved.
+- State transitions validated.
+- Metrics generated.
+- Deterministic execution verified.
+- Canonical validation passes.
+- All automated tests pass.
+
+---
+
+# DEVELOPMENT RULES
+
+This document is the single source of truth.
+
+Implementation is written here first.
+
+Production code is generated only after review.
+
+Repository changes occur only during materialization.
+
+---
+
+# CHANGE LOG
+
+## Version 0.1.0
+
+Initial Development Batch Document.
+
+Status: IN DEVELOPMENT
+
