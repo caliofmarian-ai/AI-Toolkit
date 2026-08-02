@@ -2700,3 +2700,203 @@ Impact Analysis
 
 IN DEVELOPMENT
 
+
+============================================================
+MACRO BLOCK 3
+EXECUTION DEPENDENCIES
+PART 4
+============================================================
+
+PURPOSE
+
+Execution Dependencies define the runtime relationships required
+to execute AI Toolkit workflows correctly.
+
+Execution order shall be deterministic.
+
+No execution shall violate dependency constraints.
+
+============================================================
+
+OBJECTIVES
+
+Define execution dependencies.
+
+Validate execution order.
+
+Support scheduler decisions.
+
+Prevent invalid execution.
+
+Support autonomous execution.
+
+============================================================
+
+EXECUTION MODEL
+
+Execution Request
+
+↓
+
+Dependency Resolution
+
+↓
+
+Execution Graph
+
+↓
+
+Execution Queue
+
+↓
+
+Execution Scheduler
+
+↓
+
+Execution Completion
+
+============================================================
+
+EXECUTION ENTITIES
+
+Workflow
+
+Task
+
+Engine
+
+Module
+
+CLI Command
+
+Plugin
+
+Validation Step
+
+Review Step
+
+============================================================
+
+EXECUTION DEPENDENCY TYPES
+
+Hard Dependency
+
+Soft Dependency
+
+Runtime Dependency
+
+Validation Dependency
+
+Conditional Dependency
+
+Optional Dependency
+
+============================================================
+
+EXECUTION STATES
+
+Waiting
+
+Ready
+
+Scheduled
+
+Running
+
+Blocked
+
+Completed
+
+Failed
+
+Cancelled
+
+============================================================
+
+DEPENDENCY RESOLUTION
+
+Locate Entity
+
+↓
+
+Resolve Direct Dependencies
+
+↓
+
+Resolve Transitive Dependencies
+
+↓
+
+Validate Graph
+
+↓
+
+Build Execution Queue
+
+============================================================
+
+EXECUTION RULES
+
+Every execution dependency shall be validated.
+
+Execution order shall be deterministic.
+
+Circular execution dependencies shall be rejected.
+
+Blocked entities shall not execute.
+
+Failed dependencies shall stop dependent execution.
+
+============================================================
+
+EXECUTION PRIORITIES
+
+Critical
+
+High
+
+Normal
+
+Low
+
+Background
+
+============================================================
+
+OUTPUTS
+
+Execution Dependency Graph
+
+Execution Queue
+
+Execution Plan
+
+Execution Validation Report
+
+============================================================
+
+VALIDATION
+
+Every execution dependency shall include
+
+Identifier
+
+Source
+
+Target
+
+Priority
+
+Execution State
+
+Validation Status
+
+============================================================
+
+STATUS
+
+Execution Dependencies
+
+IN DEVELOPMENT
+
