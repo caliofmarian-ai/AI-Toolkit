@@ -1,6 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
-VERSION="0.6.0"
+VERSION="0.7.0"
 
 show_help() {
 cat <<HELP
@@ -12,7 +12,8 @@ Commands:
   inspect [path]
   context [path]
   work [path]
-  git [path]
+  git [command] [path]
+  issue start <number>
 HELP
 }
 
@@ -39,7 +40,13 @@ bash "$(dirname "$0")/../lib/work_engine.sh" "${1:-.}"
 }
 
 git_repo() {
-bash "$(dirname "$0")/../lib/git_engine.sh" "${1:-.}"
+CMD="${1:-status}"
+shift
+bash "$(dirname "$0")/../lib/git_engine.sh" "$CMD" "${1:-.}"
+}
+
+issue_repo() {
+bash "$(dirname "$0")/../lib/issue_engine.sh" "$@"
 }
 
 case "${1:-help}" in
@@ -64,6 +71,10 @@ case "${1:-help}" in
     git)
         shift
         git_repo "$@"
+        ;;
+    issue)
+        shift
+        issue_repo "$@"
         ;;
     *)
         show_help
