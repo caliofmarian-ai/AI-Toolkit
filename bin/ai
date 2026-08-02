@@ -37,6 +37,11 @@ case "${1:-help}" in
         discover
         ;;
     inspect)
+    context)
+        shift
+        ROOT="${1:-.}"
+        bash "$(dirname "$0")/../lib/context_engine.sh" "$ROOT"
+        ;;
         shift
         inspect_repo "$@"
         ;;
