@@ -14,7 +14,7 @@ class GitHubMaterializationEngine:
 
         for batch in batches:
 
-            directory = self.ROOT / batch["identifier"]
+            directory = self.ROOT / batch.identifier
             directory.mkdir(parents=True, exist_ok=True)
 
             metadata = batch.to_dict()
@@ -25,23 +25,23 @@ class GitHubMaterializationEngine:
             )
 
             (directory / "issue.md").write_text(
-f"""# {batch["identifier"]}
+f"""# {batch.identifier}
 
 ## Title
 
-{batch["title"]}
+{batch.title}
 
 ## Priority
 
-{batch["priority"]}
+{batch.priority}
 
 ## Reason
 
-{batch["reason"]}
+{batch.reason}
 
 ## Estimated Work
 
-{batch["estimated_hours"]} hours
+{batch.estimated_hours} hours
 """,
                 encoding="utf-8"
             )
@@ -60,10 +60,10 @@ f"""# {batch["identifier"]}
 f"""# Implementation Plan
 
 Target:
-{batch["title"]}
+{batch.title}
 
 Reason:
-{batch["reason"]}
+{batch.reason}
 """,
                 encoding="utf-8"
             )
@@ -73,11 +73,11 @@ f"""# Pull Request
 
 Implements:
 
-{batch["identifier"]}
+{batch.identifier}
 
 Summary
 
-{batch["title"]}
+{batch.title}
 """,
                 encoding="utf-8"
             )
