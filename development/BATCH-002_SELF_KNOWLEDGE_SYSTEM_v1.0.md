@@ -1073,3 +1073,165 @@ MACRO BLOCK 1
 
 COMPLETE
 
+
+============================================================
+MACRO BLOCK 2
+REPOSITORY MAPPING
+PART 1
+============================================================
+
+PURPOSE
+
+Repository Mapping builds a complete and authoritative model
+of the AI Toolkit repository.
+
+Every repository artifact shall become a mapped knowledge entity.
+
+============================================================
+
+OBJECTIVES
+
+Discover repository contents.
+
+Identify repository entities.
+
+Classify repository artifacts.
+
+Assign unique identifiers.
+
+Build repository topology.
+
+Support autonomous navigation.
+
+============================================================
+
+REPOSITORY DOMAINS
+
+Source Code
+
+Documentation
+
+Canonical Specifications
+
+Development Batches
+
+Tests
+
+CLI
+
+Configuration
+
+Plugins
+
+Assets
+
+Examples
+
+Runtime
+
+============================================================
+
+DISCOVERY SOURCES
+
+Repository Inventory
+
+Git Repository
+
+Directory Structure
+
+Canonical Specifications
+
+Development Documents
+
+Workflow Metadata
+
+============================================================
+
+MAPPING PROCESS
+
+Repository Discovery
+
+↓
+
+Artifact Identification
+
+↓
+
+Artifact Classification
+
+↓
+
+Identifier Assignment
+
+↓
+
+Relationship Discovery
+
+↓
+
+Repository Graph Update
+
+============================================================
+
+ARTIFACT TYPES
+
+Directory
+
+File
+
+Module
+
+Engine
+
+Specification
+
+Batch
+
+Workflow
+
+Audit
+
+Test
+
+Command
+
+Plugin
+
+============================================================
+
+IDENTIFIER MODEL
+
+Repository Identifier
+
+Artifact Identifier
+
+Subsystem Identifier
+
+Engine Identifier
+
+Specification Identifier
+
+Batch Identifier
+
+Test Identifier
+
+============================================================
+
+CLASSIFICATION RULES
+
+Every artifact has one primary type.
+
+Every artifact belongs to one subsystem.
+
+Every artifact has one lifecycle.
+
+Every artifact is version aware.
+
+============================================================
+
+STATUS
+
+Repository Mapping
+
+IN DEVELOPMENT
+
