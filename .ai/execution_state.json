@@ -1,0 +1,25 @@
+{
+  "status": "RUNNING",
+  "phases": [
+    {
+      "name": "Phase 1 - Critical",
+      "priority": "CRITICAL",
+      "status": "READY",
+      "items": [
+        "Implement missing canonical modules"
+      ]
+    },
+    {
+      "name": "Phase 2 - Improvements",
+      "priority": "MEDIUM",
+      "status": "SKIPPED",
+      "items": []
+    },
+    {
+      "name": "Phase 3 - Enhancements",
+      "priority": "LOW",
+      "status": "SKIPPED",
+      "items": []
+    }
+  ]
+}

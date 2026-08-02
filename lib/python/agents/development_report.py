@@ -20,6 +20,18 @@ class DevelopmentReport:
         report.append(f"Semantic files: {len(result['semantic'])}")
         report.append(f"Knowledge graph nodes: {len(result['knowledge_graph']['nodes'])}")
 
+        if "workspace_index" in result:
+            wi = result["workspace_index"]
+            report.append("")
+            report.append("## Workspace Index")
+            report.append("")
+            report.append(f"Scanned files: {wi['files']}")
+            report.append(f"Scanned directories: {wi['directories']}")
+            report.append(f"Ignored files: {wi['ignored_files']}")
+            report.append(f"Ignored directories: {wi['ignored_directories']}")
+            report.append(f"Scan duration: {wi['scan_duration']:.4f}s")
+            report.append(f"Files per second: {wi['files_per_second']:.0f}")
+
         report.append("")
         report.append("## Health")
         report.append("")

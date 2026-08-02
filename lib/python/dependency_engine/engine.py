@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 from .models import Dependency
@@ -5,32 +6,30 @@ from .models import Dependency
 
 class DependencyEngine:
 
-    def __init__(self, root="."):
+    def __init__(self, root=".", workspace_index=None):
 
         self.root = Path(root).resolve()
+        self._workspace_index = workspace_index
+
+    def _get_index(self):
+        if self._workspace_index is not None:
+            return self._workspace_index
+        from python.workspace_index import WorkspaceIndexBuilder
+        return WorkspaceIndexBuilder(self.root).build()
 
     def discover(self):
 
+        index = self._get_index()
+
         dependencies = []
 
-        for file in self.root.rglob("*"):
-
-            if not file.is_file():
-                continue
-
-            if ".git" in file.parts:
-                continue
-
-            if "__pycache__" in file.parts:
-                continue
-
-            parent = str(file.parent.relative_to(self.root))
-
+        for f in index.files:
+            parent = os.path.dirname(f.path) or "."
             dependencies.append(
                 Dependency(
-                    source=parent if parent else ".",
-                    target=str(file.relative_to(self.root)),
-                    dependency_type="contains"
+                    source=parent,
+                    target=f.path,
+                    dependency_type="contains",
                 )
             )
 
@@ -43,5 +42,5 @@ class DependencyEngine:
         return {
             "dependencies": len(deps),
             "directories": len(set(d.source for d in deps)),
-            "files": len(set(d.target for d in deps))
+            "files": len(set(d.target for d in deps)),
         }

@@ -3,11 +3,20 @@ from python.evidence_engine.engine import EvidenceEngine
 
 class CanonicalAuditEngine:
 
-    def __init__(self, repository="."):
+    def __init__(self, repository=".", workspace_index=None):
 
         self.root = Path(repository).resolve()
+        self._workspace_index = workspace_index
+
+    def _get_index(self):
+        if self._workspace_index is not None:
+            return self._workspace_index
+        from python.workspace_index import WorkspaceIndexBuilder
+        return WorkspaceIndexBuilder(self.root).build()
 
     def audit(self):
+
+        index = self._get_index()
 
         report = {
             "canonical_documents": [],
@@ -15,20 +24,18 @@ class CanonicalAuditEngine:
             "missing_modules": [],
         }
 
-        for doc in self.root.rglob("*SPEC*.md"):
-            if ".git" not in doc.parts:
-                report["canonical_documents"].append(doc.stem)
+        for doc in index.markdown_files():
+            if "SPEC" in doc.name:
+                report["canonical_documents"].append(Path(doc.name).stem)
 
-        for module in self.root.rglob("*.py"):
-            if ".git" not in module.parts:
-                report["python_modules"].append(module.stem)
+        for module in index.python_files():
+            report["python_modules"].append(Path(module.name).stem)
 
         module_names = set(report["python_modules"])
 
         evidence_engine = EvidenceEngine(self.root)
 
         report["evidence"] = {}
-
 
         for doc in report["canonical_documents"]:
 

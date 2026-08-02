@@ -1,7 +1,12 @@
+"""
+AI Toolkit Agents
+"""
 from pathlib import Path
 
 from python.agent_runtime.base import BaseAgent
 from python.agent_runtime.models import AgentResult
+
+from python.workspace_index import WorkspaceIndexBuilder, RepositoryPolicy
 
 from python.repository_engine.engine import RepositoryEngine
 from python.dependency_engine.engine import DependencyEngine
@@ -35,21 +40,73 @@ class DevelopmentAgent(BaseAgent):
 
         profiler = Profiler()
 
-        report["repository"] = profiler.run("RepositoryEngine", lambda: RepositoryEngine(repository).statistics())
+        # ------------------------------------------------------------------
+        # Phase 1 — Single repository traversal via WorkspaceIndexBuilder
+        # ------------------------------------------------------------------
 
-        report["dependencies"] = profiler.run("DependencyEngine", lambda: DependencyEngine(repository).statistics())
+        policy = RepositoryPolicy()
 
-        report["validation"] = profiler.run("ValidationEngine", lambda: ValidationEngine(repository).statistics())
+        workspace_index = profiler.run(
+            "WorkspaceIndexBuilder",
+            lambda: WorkspaceIndexBuilder(repository, policy=policy).build(),
+        )
 
-        report["planning"] = profiler.run("PlanningEngine", lambda: PlanningEngine(repository).build_plan())
+        report["workspace_index"] = {
+            "files": workspace_index.statistics.total_files,
+            "directories": workspace_index.statistics.total_directories,
+            "ignored_files": workspace_index.statistics.ignored_files,
+            "ignored_directories": workspace_index.statistics.ignored_directories,
+            "scan_duration": workspace_index.statistics.scan_duration,
+            "files_per_second": workspace_index.statistics.files_per_second,
+        }
 
-        report["inspection"] = profiler.run("RepositoryInspector", lambda: RepositoryInspectorV2(repository).inspect())
+        # ------------------------------------------------------------------
+        # Phase 2 — All engines consume the same immutable WorkspaceIndex
+        # ------------------------------------------------------------------
 
-        report["canonical"] = profiler.run("CanonicalAudit", lambda: CanonicalAuditEngine(repository).audit())
+        report["repository"] = profiler.run(
+            "RepositoryEngine",
+            lambda: RepositoryEngine(repository, workspace_index=workspace_index).statistics(),
+        )
 
-        report["semantic"] = profiler.run("SemanticEngine", lambda: SemanticEngine(repository).analyze())
+        report["dependencies"] = profiler.run(
+            "DependencyEngine",
+            lambda: DependencyEngine(repository, workspace_index=workspace_index).statistics(),
+        )
 
-        report["knowledge_graph"] = profiler.run("KnowledgeGraph", lambda: KnowledgeGraphEngine(repository).build())
+        report["validation"] = profiler.run(
+            "ValidationEngine",
+            lambda: ValidationEngine(repository).statistics(),
+        )
+
+        report["planning"] = profiler.run(
+            "PlanningEngine",
+            lambda: PlanningEngine(repository, workspace_index=workspace_index).build_plan(),
+        )
+
+        report["inspection"] = profiler.run(
+            "RepositoryInspector",
+            lambda: RepositoryInspectorV2(repository, workspace_index=workspace_index).inspect(),
+        )
+
+        report["canonical"] = profiler.run(
+            "CanonicalAudit",
+            lambda: CanonicalAuditEngine(repository, workspace_index=workspace_index).audit(),
+        )
+
+        report["semantic"] = profiler.run(
+            "SemanticEngine",
+            lambda: SemanticEngine(repository, workspace_index=workspace_index).analyze(),
+        )
+
+        report["knowledge_graph"] = profiler.run(
+            "KnowledgeGraph",
+            lambda: KnowledgeGraphEngine(repository, workspace_index=workspace_index).build(),
+        )
+
+        # ------------------------------------------------------------------
+        # Phase 3 — Downstream pipeline (unchanged)
+        # ------------------------------------------------------------------
 
         report["recommendations_generated"] = (
             RecommendationEngine().build(report)
