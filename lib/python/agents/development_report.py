@@ -62,6 +62,20 @@ class DevelopmentReport:
             report.append(f"  Estimated: {item['estimated_hours']} h")
             report.append("")
 
+
+        report.append("")
+        report.append("## Generated Batches")
+        report.append("")
+
+        for batch in result["generated_batches"]:
+            report.append(
+                f'- {batch["identifier"]} [{batch["priority"]}] {batch["title"]}'
+            )
+            report.append(
+                f'  Estimate: {batch["estimated_hours"]} h'
+            )
+            report.append("")
+
         report.append("## Planning Tasks")
         report.append("")
 
