@@ -19,17 +19,14 @@ class DevelopmentReport:
         report.append(f"Canonical documents: {len(result['canonical']['canonical_documents'])}")
         report.append(f"Semantic files: {len(result['semantic'])}")
         report.append(f"Knowledge graph nodes: {len(result['knowledge_graph']['nodes'])}")
-        report.append("")
 
+        report.append("")
         report.append("## Health")
         report.append("")
-        health = result["inspection"]["repository_health"]
-        score = result["inspection"]["repository_score"]
+        report.append(f"Health: **{result['inspection']['repository_health']}**")
+        report.append(f"Score: **{result['inspection']['repository_score']}/100**")
 
-        report.append(f"Health: **{health}**")
-        report.append(f"Score: **{score}/100**")
         report.append("")
-
         report.append("## Findings")
         report.append("")
 
@@ -56,6 +53,15 @@ class DevelopmentReport:
             report.append("- No recommendations.")
 
         report.append("")
+        report.append("## Next Actions")
+        report.append("")
+
+        for item in result["recommendations_generated"]:
+            report.append(f"- [{item['priority']}] {item['title']}")
+            report.append(f"  Reason: {item['reason']}")
+            report.append(f"  Estimated: {item['estimated_hours']} h")
+            report.append("")
+
         report.append("## Planning Tasks")
         report.append("")
 
@@ -64,29 +70,12 @@ class DevelopmentReport:
                 f"- [{task.priority}] {task.identifier}: {task.title}"
             )
 
+        output = Path(".ai/audit/development_report.md")
+        output.parent.mkdir(parents=True, exist_ok=True)
 
-
-        report.append("")
-        report.append("## Next Actions")
-        report.append("")
-
-        for item in result["recommendations_generated"]:
-            report.append(
-                f'- [{item["priority"]}] {item["title"]}'
-            )
-            report.append(
-                f'  Reason: {item["reason"]}'
-            )
-            report.append(
-                f'  Estimated: {item["estimated_hours"]} h'
-            )
-            report.append("")
-
-                path = Path(".ai/audit/development_report.md")
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(
+        output.write_text(
             "\n".join(report),
             encoding="utf-8"
         )
 
-        return path
+        return output
