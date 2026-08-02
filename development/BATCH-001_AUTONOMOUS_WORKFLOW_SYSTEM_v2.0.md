@@ -1335,3 +1335,329 @@ Dynamic Scheduler
 
 IN DEVELOPMENT
 
+
+============================================================
+PHASE 3 — DEPENDENCY RESOLVER
+PART 3
+============================================================
+
+# PURPOSE
+
+The Dependency Resolver transforms the dependency graph into a
+validated execution plan.
+
+Its responsibility is to determine whether every workflow node
+may execute.
+
+The resolver executes before the Scheduler.
+
+------------------------------------------------------------
+
+# RESPONSIBILITIES
+
+Load Dependency Graph.
+
+Validate node integrity.
+
+Validate edge integrity.
+
+Resolve execution order.
+
+Detect circular dependencies.
+
+Detect orphan nodes.
+
+Resolve optional dependencies.
+
+Generate execution batches.
+
+Generate diagnostics.
+
+------------------------------------------------------------
+
+# INPUTS
+
+Workflow Definition
+
+Dependency Graph
+
+Workflow State
+
+Memory Index
+
+Knowledge Graph
+
+Execution Context
+
+Repository Profile
+
+------------------------------------------------------------
+
+# OUTPUTS
+
+Validated Dependency Graph
+
+Execution Order
+
+Execution Batches
+
+Dependency Diagnostics
+
+Execution Constraints
+
+------------------------------------------------------------
+
+# RESOLUTION PROCESS
+
+Load Graph
+
+↓
+
+Validate Nodes
+
+↓
+
+Validate Edges
+
+↓
+
+Resolve Mandatory Dependencies
+
+↓
+
+Resolve Optional Dependencies
+
+↓
+
+Topological Ordering
+
+↓
+
+Execution Groups
+
+↓
+
+Validation
+
+↓
+
+Execution Queue
+
+------------------------------------------------------------
+
+# NODE VALIDATION
+
+Every node shall contain
+
+Unique Identifier
+
+Engine Name
+
+Execution State
+
+Priority
+
+Dependencies
+
+Outputs
+
+Health
+
+Retry Policy
+
+Timeout
+
+------------------------------------------------------------
+
+# EDGE VALIDATION
+
+Every edge shall contain
+
+Source
+
+Target
+
+Dependency Type
+
+Mandatory Flag
+
+Condition
+
+Validation Rule
+
+------------------------------------------------------------
+
+# DEPENDENCY TYPES
+
+Mandatory
+
+Optional
+
+Conditional
+
+Runtime
+
+External
+
+Plugin
+
+------------------------------------------------------------
+
+# RESOLUTION RULES
+
+Mandatory dependencies must succeed.
+
+Optional dependencies may be skipped.
+
+Conditional dependencies evaluate runtime context.
+
+External dependencies require availability checks.
+
+Plugin dependencies require registration.
+
+------------------------------------------------------------
+
+# TOPOLOGICAL SORT
+
+Execution order shall be produced using
+Topological Sorting.
+
+Cycles are forbidden.
+
+Invalid graphs are rejected.
+
+------------------------------------------------------------
+
+# EXECUTION GROUPS
+
+Independent nodes belong to the same execution group.
+
+Execution groups may run in parallel.
+
+Execution groups preserve dependency ordering.
+
+------------------------------------------------------------
+
+# ORPHAN DETECTION
+
+A node without incoming and outgoing edges
+shall be reported.
+
+Orphan nodes never execute automatically.
+
+------------------------------------------------------------
+
+# CIRCULAR DEPENDENCY DETECTION
+
+If
+
+A → B
+
+B → C
+
+C → A
+
+↓
+
+Resolution fails.
+
+Workflow becomes INVALID.
+
+------------------------------------------------------------
+
+# EXECUTION CONSTRAINTS
+
+Maximum Parallel Tasks
+
+Maximum Active Engines
+
+Maximum Runtime
+
+Maximum Memory Usage
+
+Maximum Retry Attempts
+
+------------------------------------------------------------
+
+# VALIDATION RESULTS
+
+VALID
+
+WARNING
+
+FAILED
+
+------------------------------------------------------------
+
+# FAILURE REPORT
+
+Invalid Node
+
+Missing Dependency
+
+Circular Dependency
+
+Duplicate Identifier
+
+Broken Edge
+
+Unknown Engine
+
+------------------------------------------------------------
+
+# EXECUTION BATCH MODEL
+
+Execution Batch
+
+Batch Identifier
+
+Execution Group
+
+Nodes
+
+Priority
+
+Dependencies
+
+Estimated Duration
+
+------------------------------------------------------------
+
+# OBSERVABILITY
+
+Resolver exposes
+
+Resolved Nodes
+
+Pending Nodes
+
+Skipped Nodes
+
+Failed Nodes
+
+Execution Groups
+
+Dependency Metrics
+
+------------------------------------------------------------
+
+# INVARIANTS
+
+No circular dependencies.
+
+No duplicated identifiers.
+
+No unresolved mandatory dependency.
+
+Execution order deterministic.
+
+Execution batches reproducible.
+
+------------------------------------------------------------
+
+STATUS
+
+Dependency Resolver
+
+IN DEVELOPMENT
+
