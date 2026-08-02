@@ -1,3 +1,5 @@
+from python.planning_optimizer.engine import PlanningOptimizer
+
 from .models import ExecutionPlan, PlanningTask
 
 from python.repository_engine.engine import RepositoryEngine
