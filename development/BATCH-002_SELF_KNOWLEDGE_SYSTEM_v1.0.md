@@ -3277,3 +3277,182 @@ MACRO BLOCK 3
 
 COMPLETE
 
+
+============================================================
+MACRO BLOCK 4
+VALIDATION INTELLIGENCE
+PART 1
+============================================================
+
+PURPOSE
+
+Validation Intelligence provides the authoritative framework
+for verifying the correctness, consistency and readiness of
+every subsystem inside AI Toolkit.
+
+Validation shall be deterministic, reproducible and auditable.
+
+============================================================
+
+OBJECTIVES
+
+Validate repository integrity.
+
+Validate subsystem consistency.
+
+Validate implementation readiness.
+
+Validate canonical compliance.
+
+Support autonomous review.
+
+Support release decisions.
+
+============================================================
+
+VALIDATION DOMAINS
+
+Repository
+
+Subsystem
+
+Engine
+
+Module
+
+Workflow
+
+Canonical Specification
+
+Development Batch
+
+Knowledge Graph
+
+Memory
+
+Planner
+
+CLI
+
+Tests
+
+============================================================
+
+VALIDATION MODEL
+
+Validation Request
+
+↓
+
+Validation Rules
+
+↓
+
+Validation Execution
+
+↓
+
+Result Analysis
+
+↓
+
+Scoring
+
+↓
+
+Knowledge Graph Update
+
+↓
+
+Validation Report
+
+============================================================
+
+VALIDATION TYPES
+
+Structural Validation
+
+Canonical Validation
+
+Implementation Validation
+
+Dependency Validation
+
+Workflow Validation
+
+Execution Validation
+
+Planning Validation
+
+Repository Validation
+
+============================================================
+
+VALIDATION ATTRIBUTES
+
+Validation Identifier
+
+Validation Type
+
+Target Entity
+
+Validation Rule
+
+Execution Time
+
+Result
+
+Score
+
+Status
+
+============================================================
+
+VALIDATION STATES
+
+Pending
+
+Running
+
+Passed
+
+Warning
+
+Failed
+
+Blocked
+
+Deprecated
+
+============================================================
+
+VALIDATION RULES
+
+Every validation shall have an identifier.
+
+Every validation shall reference its target.
+
+Validation results shall be immutable.
+
+Validation history shall be preserved.
+
+============================================================
+
+OUTPUTS
+
+Validation Report
+
+Validation Inventory
+
+Validation Graph
+
+Validation Summary
+
+============================================================
+
+STATUS
+
+Validation Intelligence
+
+IN DEVELOPMENT
+
