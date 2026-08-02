@@ -10,6 +10,7 @@ from python.canonical_audit.engine import CanonicalAuditEngine
 from python.semantic_engine.engine import SemanticEngine
 from python.knowledge_graph_v2.engine import KnowledgeGraphEngine
 from python.agents.development_report import DevelopmentReport
+from python.recommendation_engine.engine import RecommendationEngine
 
 
 class DevelopmentAgent(BaseAgent):
@@ -53,6 +54,10 @@ class DevelopmentAgent(BaseAgent):
         report["knowledge_graph"] = KnowledgeGraphEngine(
             repository
         ).build()
+
+        report["recommendations_generated"] = (
+            RecommendationEngine().build(report)
+        )
 
         DevelopmentReport.generate(report)
 

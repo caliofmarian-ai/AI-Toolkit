@@ -64,7 +64,25 @@ class DevelopmentReport:
                 f"- [{task.priority}] {task.identifier}: {task.title}"
             )
 
-        path = Path(".ai/audit/development_report.md")
+
+
+        report.append("")
+        report.append("## Next Actions")
+        report.append("")
+
+        for item in result["recommendations_generated"]:
+            report.append(
+                f'- [{item["priority"]}] {item["title"]}'
+            )
+            report.append(
+                f'  Reason: {item["reason"]}'
+            )
+            report.append(
+                f'  Estimated: {item["estimated_hours"]} h'
+            )
+            report.append("")
+
+                path = Path(".ai/audit/development_report.md")
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(
             "\n".join(report),
