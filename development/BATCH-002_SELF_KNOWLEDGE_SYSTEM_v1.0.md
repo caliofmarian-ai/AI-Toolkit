@@ -412,3 +412,250 @@ Knowledge Model
 
 IN DEVELOPMENT
 
+
+============================================================
+MACRO BLOCK 1
+KNOWLEDGE RELATIONSHIPS
+PART 2
+============================================================
+
+PURPOSE
+
+Knowledge becomes valuable only when entities are connected.
+
+The Self Knowledge System shall maintain explicit,
+deterministic and bidirectional relationships between every
+entity in the repository.
+
+============================================================
+
+RELATIONSHIP MODEL
+
+Every relationship contains
+
+Relationship Identifier
+
+Source Entity
+
+Target Entity
+
+Relationship Type
+
+Creation Date
+
+Last Validation
+
+Confidence
+
+Version
+
+Status
+
+============================================================
+
+RELATIONSHIP TYPES
+
+Implements
+
+Depends On
+
+Uses
+
+Extends
+
+Contains
+
+Owns
+
+Generates
+
+Consumes
+
+References
+
+Documents
+
+Validates
+
+Creates
+
+Updates
+
+Executes
+
+Produces
+
+============================================================
+
+CARDINALITY
+
+One to One
+
+One to Many
+
+Many to One
+
+Many to Many
+
+============================================================
+
+DEPENDENCY RELATIONSHIPS
+
+Subsystem -> Engine
+
+Engine -> Module
+
+Engine -> Test
+
+Engine -> Canonical Specification
+
+Engine -> Development Batch
+
+Workflow -> Engine
+
+Planner -> Workflow
+
+Audit -> Subsystem
+
+CLI -> Engine
+
+============================================================
+
+CANONICAL RELATIONSHIPS
+
+Canonical Specification
+
+↓
+
+Development Batch
+
+↓
+
+Implementation
+
+↓
+
+Tests
+
+↓
+
+Audit
+
+↓
+
+Release
+
+============================================================
+
+WORKFLOW RELATIONSHIPS
+
+Workflow
+
+↓
+
+Planner
+
+↓
+
+Decision Engine
+
+↓
+
+Execution Engine
+
+↓
+
+Review Engine
+
+↓
+
+Knowledge Update
+
+============================================================
+
+VALIDATION RELATIONSHIPS
+
+Validation Rules
+
+↓
+
+Validation Engine
+
+↓
+
+Validation Report
+
+↓
+
+Repository Status
+
+============================================================
+
+QUERY CAPABILITIES
+
+Find dependencies.
+
+Find implementations.
+
+Find owners.
+
+Find validation status.
+
+Find related entities.
+
+Find impacted modules.
+
+Find missing links.
+
+============================================================
+
+CONSISTENCY RULES
+
+Every entity shall have a valid identifier.
+
+Broken references are forbidden.
+
+Circular dependencies must be detected.
+
+Duplicate relationships are forbidden.
+
+Unknown entity types are forbidden.
+
+============================================================
+
+GRAPH REQUIREMENTS
+
+Directed Graph
+
+Version Aware
+
+Deterministic
+
+Queryable
+
+Auditable
+
+Recoverable
+
+============================================================
+
+OUTPUTS
+
+Relationship Graph
+
+Dependency Graph
+
+Validation Graph
+
+Execution Graph
+
+Canonical Graph
+
+============================================================
+
+STATUS
+
+Knowledge Relationships
+
+IN DEVELOPMENT
+
