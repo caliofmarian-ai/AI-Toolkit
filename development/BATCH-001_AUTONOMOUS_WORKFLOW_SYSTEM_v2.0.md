@@ -1002,3 +1002,336 @@ Dependency Graph
 
 IN DEVELOPMENT
 
+
+============================================================
+PHASE 3 — DYNAMIC SCHEDULER
+PART 2
+============================================================
+
+# PURPOSE
+
+The Dynamic Scheduler transforms the Dependency Graph into an
+execution plan.
+
+The scheduler decides:
+
+- execution order
+
+- parallel execution
+
+- retries
+
+- recovery
+
+- priorities
+
+- queue balancing
+
+------------------------------------------------------------
+
+# RESPONSIBILITIES
+
+Resolve dependencies.
+
+Detect runnable nodes.
+
+Build execution queue.
+
+Monitor execution.
+
+Update priorities.
+
+Dispatch engines.
+
+Collect execution results.
+
+Notify Workflow Manager.
+
+------------------------------------------------------------
+
+# EXECUTION MODEL
+
+Input
+
+↓
+
+Dependency Graph
+
+↓
+
+Validation
+
+↓
+
+Priority Resolution
+
+↓
+
+Execution Queue
+
+↓
+
+Dispatcher
+
+↓
+
+Engine Results
+
+↓
+
+Queue Update
+
+↓
+
+Completion
+
+------------------------------------------------------------
+
+# EXECUTION QUEUE
+
+Each queue item contains
+
+Task ID
+
+Engine
+
+Priority
+
+Dependencies
+
+Retry Count
+
+Timeout
+
+Checkpoint
+
+Status
+
+Created Time
+
+Started Time
+
+Finished Time
+
+Duration
+
+------------------------------------------------------------
+
+# TASK STATES
+
+WAITING
+
+READY
+
+RUNNING
+
+BLOCKED
+
+RETRY
+
+FAILED
+
+SKIPPED
+
+COMPLETED
+
+------------------------------------------------------------
+
+# READY RULE
+
+A task becomes READY only if
+
+All mandatory dependencies
+
+↓
+
+Completed Successfully
+
+------------------------------------------------------------
+
+# PRIORITY LEVELS
+
+CRITICAL
+
+HIGH
+
+NORMAL
+
+LOW
+
+BACKGROUND
+
+------------------------------------------------------------
+
+# PRIORITY RESOLUTION
+
+CRITICAL tasks always execute first.
+
+HIGH tasks execute before NORMAL.
+
+NORMAL execute before LOW.
+
+BACKGROUND tasks execute only when resources are available.
+
+------------------------------------------------------------
+
+# PARALLEL EXECUTION
+
+Independent nodes may execute simultaneously.
+
+Maximum concurrency is configurable.
+
+Critical tasks never wait for lower priority tasks.
+
+------------------------------------------------------------
+
+# RESOURCE LIMITS
+
+Maximum running tasks
+
+Maximum retries
+
+Maximum execution time
+
+Maximum queue size
+
+Maximum recovery attempts
+
+------------------------------------------------------------
+
+# RETRY POLICY
+
+Retry immediately
+
+Retry after delay
+
+Retry after dependency recovery
+
+Abort
+
+Manual review
+
+------------------------------------------------------------
+
+# TIMEOUT POLICY
+
+Soft timeout
+
+Hard timeout
+
+Abort timeout
+
+Recovery timeout
+
+------------------------------------------------------------
+
+# FAILURE POLICY
+
+Retry
+
+↓
+
+Recovery
+
+↓
+
+Checkpoint Restore
+
+↓
+
+Resume
+
+↓
+
+Abort
+
+------------------------------------------------------------
+
+# QUEUE OPTIMIZATION
+
+Remove completed tasks.
+
+Compress queue.
+
+Recalculate priorities.
+
+Detect deadlocks.
+
+Detect starvation.
+
+Rebalance execution.
+
+------------------------------------------------------------
+
+# DEADLOCK DETECTION
+
+No runnable tasks
+
++
+
+Pending tasks exist
+
+↓
+
+Deadlock
+
+↓
+
+Generate diagnostics
+
+↓
+
+Stop execution
+
+------------------------------------------------------------
+
+# STARVATION DETECTION
+
+Task waiting longer than configured threshold
+
+↓
+
+Increase priority
+
+------------------------------------------------------------
+
+# OBSERVABILITY
+
+Scheduler exposes
+
+Current queue
+
+Running tasks
+
+Blocked tasks
+
+Retry tasks
+
+Completed tasks
+
+Queue metrics
+
+Execution metrics
+
+------------------------------------------------------------
+
+# OUTPUTS
+
+Execution Queue
+
+Execution Timeline
+
+Scheduler Metrics
+
+Recovery Actions
+
+Execution Report
+
+------------------------------------------------------------
+
+STATUS
+
+Dynamic Scheduler
+
+IN DEVELOPMENT
+
