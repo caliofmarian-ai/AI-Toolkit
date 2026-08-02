@@ -1420,3 +1420,180 @@ Repository Discovery
 
 IN DEVELOPMENT
 
+
+============================================================
+MACRO BLOCK 2
+SUBSYSTEM CLASSIFICATION
+PART 3
+============================================================
+
+PURPOSE
+
+Subsystem Classification organizes every repository artifact
+into logical architectural domains.
+
+Classification enables AI Toolkit to understand repository
+structure independently of the physical directory layout.
+
+============================================================
+
+OBJECTIVES
+
+Identify every subsystem.
+
+Assign artifacts.
+
+Maintain deterministic grouping.
+
+Support autonomous navigation.
+
+Support dependency analysis.
+
+============================================================
+
+SUBSYSTEMS
+
+Core
+
+CLI
+
+Repository
+
+Workflow
+
+Planner
+
+Execution
+
+Review
+
+Decision
+
+Knowledge
+
+Memory
+
+Audit
+
+Validation
+
+Development
+
+Canonical
+
+Plugins
+
+Infrastructure
+
+============================================================
+
+CLASSIFICATION PROCESS
+
+Artifact Discovery
+
+↓
+
+Artifact Validation
+
+↓
+
+Subsystem Identification
+
+↓
+
+Classification Rules
+
+↓
+
+Knowledge Graph Update
+
+============================================================
+
+CLASSIFICATION RULES
+
+Every artifact belongs to exactly one primary subsystem.
+
+Secondary relationships may exist.
+
+Classification shall remain deterministic.
+
+Unknown artifacts shall be classified as Unassigned.
+
+============================================================
+
+ARTIFACT CATEGORIES
+
+Executable
+
+Library
+
+Configuration
+
+Documentation
+
+Canonical Specification
+
+Development Batch
+
+Test
+
+Audit
+
+Plugin
+
+Asset
+
+============================================================
+
+SUBSYSTEM ATTRIBUTES
+
+Identifier
+
+Name
+
+Purpose
+
+Owner
+
+Version
+
+Lifecycle
+
+Dependencies
+
+Related Subsystems
+
+============================================================
+
+VALIDATION
+
+Every subsystem has
+
+Identifier
+
+Description
+
+Owner
+
+Canonical Reference
+
+============================================================
+
+OUTPUTS
+
+Subsystem Inventory
+
+Subsystem Graph
+
+Classification Report
+
+Repository Topology
+
+============================================================
+
+STATUS
+
+Subsystem Classification
+
+IN DEVELOPMENT
+
