@@ -1,6 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
-VERSION="0.5.0"
+VERSION="0.6.0"
 
 show_help() {
 cat <<HELP
@@ -12,6 +12,7 @@ Commands:
   inspect [path]
   context [path]
   work [path]
+  git [path]
 HELP
 }
 
@@ -26,18 +27,19 @@ git branch --show-current 2>/dev/null
 }
 
 inspect_repo() {
-ROOT="${1:-.}"
-bash "$(dirname "$0")/../lib/repository_inspector.sh" "$ROOT"
+bash "$(dirname "$0")/../lib/repository_inspector.sh" "${1:-.}"
 }
 
 context_repo() {
-ROOT="${1:-.}"
-bash "$(dirname "$0")/../lib/context_engine.sh" "$ROOT"
+bash "$(dirname "$0")/../lib/context_engine.sh" "${1:-.}"
 }
 
 work_repo() {
-ROOT="${1:-.}"
-bash "$(dirname "$0")/../lib/work_engine.sh" "$ROOT"
+bash "$(dirname "$0")/../lib/work_engine.sh" "${1:-.}"
+}
+
+git_repo() {
+bash "$(dirname "$0")/../lib/git_engine.sh" "${1:-.}"
 }
 
 case "${1:-help}" in
@@ -58,6 +60,10 @@ case "${1:-help}" in
     work)
         shift
         work_repo "$@"
+        ;;
+    git)
+        shift
+        git_repo "$@"
         ;;
     *)
         show_help
