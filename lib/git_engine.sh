@@ -1,36 +1,64 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
-ROOT="${1:-.}"
+ROOT="${2:-.}"
 
 cd "$ROOT" || exit 1
 
-echo "=================================="
-echo "Git Engine"
-echo "=================================="
-echo
+COMMAND="${1:-status}"
 
-echo "Repository:"
-git rev-parse --show-toplevel 2>/dev/null
-echo
+case "$COMMAND" in
 
-echo "Branch:"
-git branch --show-current
-echo
+status)
+echo "========== GIT STATUS =========="
+git status
+;;
 
-echo "Status:"
-git status --short
-echo
+branch)
+echo "========== BRANCH =========="
+git branch -vv
+;;
 
-echo "Last Commit:"
-git log -1 --oneline
-echo
+log)
+echo "========== LAST 20 COMMITS =========="
+git log --graph --decorate --oneline -20
+;;
 
-echo "Remotes:"
+diff)
+echo "========== DIFF =========="
+git diff
+;;
+
+remote)
+echo "========== REMOTES =========="
 git remote -v
-echo
+;;
 
-echo "Local Branches:"
-git branch
-echo
+fetch)
+echo "========== FETCH =========="
+git fetch --all --prune
+;;
 
-echo "Done."
+pull)
+echo "========== PULL =========="
+git pull
+;;
+
+push)
+echo "========== PUSH =========="
+git push
+;;
+
+*)
+echo "Available commands:"
+echo
+echo "status"
+echo "branch"
+echo "log"
+echo "diff"
+echo "remote"
+echo "fetch"
+echo "pull"
+echo "push"
+;;
+
+esac
