@@ -1,2 +1,16 @@
 cache/
 *.log
+
+# Runtime state (must never be committed)
+.ai/runtime/state/*
+.ai/runtime/cache/*
+.ai/runtime/logs/*
+.ai/runtime/checkpoints/*
+.ai/runtime/sessions/*
+
+# Keep canonical runtime layout templates versioned
+!.ai/runtime/state/.gitkeep
+!.ai/runtime/cache/.gitkeep
+!.ai/runtime/logs/.gitkeep
+!.ai/runtime/checkpoints/.gitkeep
+!.ai/runtime/sessions/.gitkeep
