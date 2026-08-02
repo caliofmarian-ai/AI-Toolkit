@@ -2285,3 +2285,259 @@ Resume Engine
 
 IN DEVELOPMENT
 
+
+============================================================
+MACRO BLOCK 2
+CHECKPOINT MANAGER
+PART 2
+============================================================
+
+# PURPOSE
+
+The Checkpoint Manager provides persistent recovery points for
+every workflow execution.
+
+A checkpoint represents a complete snapshot of the workflow state.
+
+Every checkpoint shall allow deterministic execution recovery.
+
+------------------------------------------------------------
+
+# OBJECTIVES
+
+Persist workflow state.
+
+Persist execution queue.
+
+Persist runtime context.
+
+Persist metrics.
+
+Persist scheduler state.
+
+Support rollback.
+
+Support resume.
+
+Guarantee consistency.
+
+------------------------------------------------------------
+
+# COMPONENTS
+
+Checkpoint Manager
+
+Checkpoint Writer
+
+Checkpoint Loader
+
+Checkpoint Validator
+
+Checkpoint Serializer
+
+Checkpoint Garbage Collector
+
+Checkpoint Integrity Verifier
+
+------------------------------------------------------------
+
+# CHECKPOINT CONTENT
+
+Workflow Identifier
+
+Checkpoint Identifier
+
+Creation Timestamp
+
+Workflow State
+
+Execution Queue
+
+Current Engine
+
+Completed Tasks
+
+Pending Tasks
+
+Running Tasks
+
+Blocked Tasks
+
+Retry Counters
+
+Metrics Snapshot
+
+Execution Journal Offset
+
+Repository Profile Version
+
+Knowledge Graph Version
+
+Decision Snapshot Version
+
+Planner Snapshot Version
+
+------------------------------------------------------------
+
+# CHECKPOINT TYPES
+
+Automatic
+
+Manual
+
+Scheduled
+
+Recovery
+
+Pre-Execution
+
+Post-Execution
+
+------------------------------------------------------------
+
+# CREATION EVENTS
+
+Before workflow execution.
+
+After successful engine completion.
+
+Before risky operations.
+
+Before repository modifications.
+
+Before rollback.
+
+After recovery.
+
+Before workflow completion.
+
+------------------------------------------------------------
+
+# STORAGE MODEL
+
+.ai/work/checkpoints/
+
+checkpoint-000001.json
+
+checkpoint-000002.json
+
+checkpoint-000003.json
+
+...
+
+------------------------------------------------------------
+
+# RETENTION POLICY
+
+Keep latest checkpoint.
+
+Keep latest successful checkpoint.
+
+Keep latest failed checkpoint.
+
+Remove obsolete checkpoints.
+
+Preserve recovery checkpoints.
+
+------------------------------------------------------------
+
+# VALIDATION
+
+Checkpoint Identifier valid.
+
+Workflow Identifier valid.
+
+Integrity hash valid.
+
+Timestamp valid.
+
+Execution queue valid.
+
+Metrics valid.
+
+Workflow state valid.
+
+------------------------------------------------------------
+
+# INTEGRITY VERIFICATION
+
+Checksum.
+
+Workflow UUID.
+
+Repository Identifier.
+
+Canonical Version.
+
+Engine Versions.
+
+Dependency Graph Version.
+
+------------------------------------------------------------
+
+# RECOVERY MODES
+
+Resume Latest
+
+Resume Selected
+
+Rollback Previous
+
+Rollback Successful
+
+Clean Restart
+
+------------------------------------------------------------
+
+# FAILURE SCENARIOS
+
+Checkpoint missing.
+
+Checkpoint corrupted.
+
+Invalid checksum.
+
+Missing workflow.
+
+Missing queue.
+
+Repository mismatch.
+
+Unknown workflow version.
+
+------------------------------------------------------------
+
+# GARBAGE COLLECTION
+
+Delete obsolete checkpoints.
+
+Compress archived checkpoints.
+
+Keep recovery history.
+
+Maintain storage limits.
+
+------------------------------------------------------------
+
+# OBSERVABILITY
+
+Expose
+
+Latest checkpoint
+
+Checkpoint count
+
+Checkpoint size
+
+Checkpoint health
+
+Checkpoint history
+
+------------------------------------------------------------
+
+STATUS
+
+Checkpoint Manager
+
+IN DEVELOPMENT
+
