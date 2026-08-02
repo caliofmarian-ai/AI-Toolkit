@@ -2541,3 +2541,306 @@ Checkpoint Manager
 
 IN DEVELOPMENT
 
+
+============================================================
+MACRO BLOCK 2
+RECOVERY ENGINE
+PART 3
+============================================================
+
+# PURPOSE
+
+The Recovery Engine restores workflow execution after failures.
+
+Recovery shall always preserve workflow consistency.
+
+Recovery shall never violate deterministic execution.
+
+------------------------------------------------------------
+
+# OBJECTIVES
+
+Recover execution.
+
+Recover scheduler.
+
+Recover runtime.
+
+Recover checkpoints.
+
+Recover execution queue.
+
+Recover metrics.
+
+Recover execution journal.
+
+Recover workflow state.
+
+------------------------------------------------------------
+
+# COMPONENTS
+
+Recovery Engine
+
+Recovery Coordinator
+
+Recovery Validator
+
+Recovery Planner
+
+Recovery Executor
+
+Rollback Manager
+
+Integrity Validator
+
+Failure Analyzer
+
+Recovery Reporter
+
+------------------------------------------------------------
+
+# FAILURE TYPES
+
+Engine Failure
+
+Workflow Failure
+
+Repository Failure
+
+Checkpoint Failure
+
+Dependency Failure
+
+Validation Failure
+
+Timeout Failure
+
+Resource Failure
+
+Plugin Failure
+
+External Service Failure
+
+------------------------------------------------------------
+
+# RECOVERY STRATEGIES
+
+Retry
+
+Resume
+
+Rollback
+
+Skip
+
+Replace Engine
+
+Abort Workflow
+
+Manual Recovery
+
+------------------------------------------------------------
+
+# RETRY POLICY
+
+Immediate Retry
+
+Delayed Retry
+
+Exponential Backoff
+
+Maximum Retry Count
+
+Manual Retry
+
+------------------------------------------------------------
+
+# ROLLBACK POLICY
+
+Rollback Latest Checkpoint
+
+Rollback Successful Checkpoint
+
+Rollback Selected Checkpoint
+
+Rollback Initial State
+
+------------------------------------------------------------
+
+# RECOVERY PROCESS
+
+Failure Detected
+
+↓
+
+Failure Classification
+
+↓
+
+Recovery Strategy Selection
+
+↓
+
+Checkpoint Validation
+
+↓
+
+Restore Runtime
+
+↓
+
+Restore Queue
+
+↓
+
+Restore Metrics
+
+↓
+
+Resume Scheduler
+
+↓
+
+Continue Execution
+
+------------------------------------------------------------
+
+# FAILURE CLASSIFICATION
+
+Recoverable
+
+Partially Recoverable
+
+Non Recoverable
+
+Critical
+
+Fatal
+
+------------------------------------------------------------
+
+# RECOVERY RULES
+
+Never execute completed tasks twice.
+
+Never ignore mandatory failures.
+
+Always validate checkpoint before restore.
+
+Always validate dependency graph.
+
+Always restore deterministic ordering.
+
+------------------------------------------------------------
+
+# RUNTIME RESTORATION
+
+Restore Workflow State
+
+Restore Execution Queue
+
+Restore Active Tasks
+
+Restore Pending Tasks
+
+Restore Metrics
+
+Restore Execution Journal
+
+Restore Scheduler
+
+------------------------------------------------------------
+
+# VALIDATION AFTER RECOVERY
+
+Workflow Integrity
+
+Queue Integrity
+
+Checkpoint Integrity
+
+Metrics Integrity
+
+Dependency Integrity
+
+Execution Order Integrity
+
+------------------------------------------------------------
+
+# RECOVERY METRICS
+
+Recovery Count
+
+Recovery Duration
+
+Rollback Count
+
+Retry Count
+
+Recovered Tasks
+
+Skipped Tasks
+
+Failed Tasks
+
+------------------------------------------------------------
+
+# ERROR REPORT
+
+Failure Identifier
+
+Workflow Identifier
+
+Engine
+
+Failure Type
+
+Root Cause
+
+Recovery Strategy
+
+Recovery Result
+
+Duration
+
+Timestamp
+
+------------------------------------------------------------
+
+# OBSERVABILITY
+
+Expose
+
+Current Recovery
+
+Recovery History
+
+Recovery Statistics
+
+Rollback Statistics
+
+Failure Statistics
+
+------------------------------------------------------------
+
+# DESIGN INVARIANTS
+
+Recovery is deterministic.
+
+Recovery is auditable.
+
+Recovery never corrupts workflow.
+
+Recovery preserves execution history.
+
+Recovery preserves checkpoints.
+
+------------------------------------------------------------
+
+STATUS
+
+Recovery Engine
+
+IN DEVELOPMENT
+
