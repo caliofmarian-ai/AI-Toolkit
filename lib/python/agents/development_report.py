@@ -121,6 +121,18 @@ class DevelopmentReport:
 
         report.append("")
 
+
+        report.append("")
+        report.append("## Workspace")
+        report.append("")
+
+        for repo in result["workspace"]:
+            report.append(
+                f'- {repo["name"]}'
+            )
+
+        report.append("")
+
         report.append("## Planning Tasks")
         report.append("")
 

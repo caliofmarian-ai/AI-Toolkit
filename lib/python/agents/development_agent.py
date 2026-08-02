@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from python.agent_runtime.base import BaseAgent
 from python.agent_runtime.models import AgentResult
 
@@ -17,6 +19,7 @@ from python.execution_engine.engine import ExecutionEngine
 from python.review_agent.engine import ReviewAgent
 from python.autonomous_planner.engine import AutonomousPlanner
 from python.execution_coordinator.engine import ExecutionCoordinator
+from python.workspace_manager.engine import WorkspaceManager
 
 
 class DevelopmentAgent(BaseAgent):
@@ -92,6 +95,12 @@ class DevelopmentAgent(BaseAgent):
         report["execution_state"] = (
             ExecutionCoordinator().coordinate(
                 report["roadmap"]
+            )
+        )
+
+        report["workspace"] = (
+            WorkspaceManager().discover(
+                Path(repository).parent
             )
         )
 
