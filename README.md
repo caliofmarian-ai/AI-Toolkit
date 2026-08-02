@@ -17,6 +17,7 @@ Current status: v0.1.0 (Bootstrap)
 ## Runtime Layout
 
 AI Toolkit separates persistent source artifacts from generated runtime artifacts.
+The canonical runtime root is `.ai/runtime/`; legacy runtime paths are not used.
 
 - **Source Artifacts**: versioned project sources (`bin/`, `docs/`, canonical templates).
 - **Generated Artifacts**: implementation outputs stored under `.ai/batches/` (issue checklists, plans, PR metadata, steps).
