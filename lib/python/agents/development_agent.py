@@ -12,6 +12,7 @@ from python.knowledge_graph_v2.engine import KnowledgeGraphEngine
 from python.agents.development_report import DevelopmentReport
 from python.recommendation_engine.engine import RecommendationEngine
 from python.batch_generator.engine import BatchGenerator
+from python.github_materialization.engine import GitHubMaterializationEngine
 
 
 class DevelopmentAgent(BaseAgent):
@@ -63,6 +64,12 @@ class DevelopmentAgent(BaseAgent):
         report["generated_batches"] = (
             BatchGenerator().generate(
                 report["recommendations_generated"]
+            )
+        )
+
+        report["materialized_batches"] = (
+            GitHubMaterializationEngine().generate(
+                report["generated_batches"]
             )
         )
 
