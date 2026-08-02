@@ -41,6 +41,36 @@ class MarkdownReport:
                 f"- [{task['priority']}] {task['identifier']} — {task['title']}"
             )
 
+
+
+        lines.append("")
+        lines.append("## Repository Score")
+        lines.append("")
+        lines.append(f'**{report["repository_score"]}/100**')
+
+        lines.append("")
+        lines.append("## Findings")
+        lines.append("")
+
+        if report["findings"]:
+            for item in report["findings"]:
+                lines.append(
+                    f'- **{item["severity"]}**: {item["message"]}'
+                )
+        else:
+            lines.append("- No findings.")
+
+        lines.append("")
+        lines.append("## Recommendations")
+        lines.append("")
+
+        if report["recommendations"]:
+            for item in report["recommendations"]:
+                lines.append(f"- {item}")
+        else:
+            lines.append("- No recommendations.")
+
+
         path.write_text(
             "\n".join(lines),
             encoding="utf-8"

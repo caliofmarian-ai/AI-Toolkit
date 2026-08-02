@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 from .report import MarkdownReport
+from .analyzer import RepositoryAnalyzer
 
 from python.repository_engine.engine import RepositoryEngine
 from python.dependency_engine.engine import DependencyEngine
@@ -45,6 +46,10 @@ class RepositoryInspectorV2:
             if report["validation"]["failed"] == 0
             else "ATTENTION"
         )
+
+        analyzer = RepositoryAnalyzer()
+
+        report = analyzer.analyze(report)
 
         return report
 
