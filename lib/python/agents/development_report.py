@@ -76,6 +76,19 @@ class DevelopmentReport:
             )
             report.append("")
 
+
+        report.append("")
+        report.append("## Review")
+        report.append("")
+        report.append(f'Status: **{result["review"]["status"]}**')
+        report.append(f'Score: **{result["review"]["score"]}/100**')
+        report.append("")
+
+        for item in result["review"]["summary"]:
+            report.append(f"- {item}")
+
+        report.append("")
+
         report.append("## Planning Tasks")
         report.append("")
 
