@@ -3,19 +3,19 @@ set -e
 
 echo
 echo "=== INVENTORY ==="
-bin/ai inventory
+bash bin/ai inventory
 
 echo
 echo "=== DEPENDENCIES ==="
-bin/ai dependencies
+bash bin/ai dependencies
 
 echo
 echo "=== VALIDATE ==="
-bin/ai validate
+bash bin/ai validate
 
 echo
 echo "=== PLAN ==="
-bin/ai plan
+bash bin/ai plan
 
 echo
 echo "CLI PASS"
