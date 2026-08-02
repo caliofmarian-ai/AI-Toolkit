@@ -714,3 +714,291 @@ Workflow State Machine
 
 IN DEVELOPMENT
 
+
+============================================================
+PHASE 3 — DEPENDENCY GRAPH
+============================================================
+
+# PURPOSE
+
+The Dependency Graph defines execution ordering.
+
+Every engine declares:
+
+- required inputs
+- produced outputs
+- mandatory dependencies
+- optional dependencies
+- execution priority
+- recovery policy
+
+The graph is a Directed Acyclic Graph.
+
+Cycles are forbidden.
+
+------------------------------------------------------------
+
+# CORE OBJECTIVES
+
+Automatically discover execution order.
+
+Prevent invalid execution.
+
+Detect dependency failures.
+
+Enable resume after interruption.
+
+Support future plugins.
+
+------------------------------------------------------------
+
+# GRAPH NODE MODEL
+
+Every node contains
+
+Node ID
+
+Engine Name
+
+Version
+
+Category
+
+Priority
+
+Enabled
+
+Retry Count
+
+Timeout
+
+Dependencies
+
+Outputs
+
+Health
+
+Execution State
+
+Checkpoint
+
+Metrics
+
+------------------------------------------------------------
+
+# EDGE MODEL
+
+Every edge contains
+
+Source Engine
+
+Target Engine
+
+Dependency Type
+
+Required
+
+Condition
+
+Priority
+
+Validation Rule
+
+------------------------------------------------------------
+
+# NODE CATEGORIES
+
+SYSTEM
+
+CORE
+
+OPTIONAL
+
+PLUGIN
+
+EXPERIMENTAL
+
+------------------------------------------------------------
+
+# EXECUTION PRIORITY
+
+CRITICAL
+
+HIGH
+
+NORMAL
+
+LOW
+
+BACKGROUND
+
+------------------------------------------------------------
+
+# INITIAL GRAPH
+
+Repository Inspector
+
+↓
+
+Repository Profile
+
+↓
+
+Memory Engine
+
+↓
+
+Knowledge Graph
+
+↓
+
+Decision Engine
+
+↓
+
+Planner
+
+↓
+
+Execution
+
+↓
+
+Validation
+
+↓
+
+Review
+
+------------------------------------------------------------
+
+# DEPENDENCY RULES
+
+Repository Profile requires Repository Inspector.
+
+Memory Engine requires Repository Profile.
+
+Knowledge Graph requires Memory Engine.
+
+Decision Engine requires Knowledge Graph.
+
+Planner requires Decision Engine.
+
+Execution requires Planner.
+
+Validation requires Execution.
+
+Review requires Validation.
+
+------------------------------------------------------------
+
+# OPTIONAL DEPENDENCIES
+
+Metrics Engine
+
+Analytics Engine
+
+Plugin Runtime
+
+Semantic Search
+
+Cloud Sync
+
+------------------------------------------------------------
+
+# FAILURE PROPAGATION
+
+Critical dependency failure
+
+↓
+
+Block dependent nodes
+
+↓
+
+Create checkpoint
+
+↓
+
+Generate recovery task
+
+↓
+
+Wait for resume
+
+------------------------------------------------------------
+
+# NODE LIFECYCLE
+
+CREATED
+
+READY
+
+WAITING
+
+RUNNING
+
+PAUSED
+
+FAILED
+
+RECOVERING
+
+COMPLETED
+
+------------------------------------------------------------
+
+# GRAPH VALIDATION
+
+Rules
+
+No cycles.
+
+No orphan nodes.
+
+Every dependency exists.
+
+No duplicated node IDs.
+
+No duplicated edges.
+
+Single root node.
+
+Single completion node.
+
+------------------------------------------------------------
+
+# ROOT NODE
+
+Repository Inspector
+
+------------------------------------------------------------
+
+# TERMINAL NODE
+
+Review Engine
+
+------------------------------------------------------------
+
+# GRAPH INVARIANTS
+
+Execution order deterministic.
+
+Graph immutable during execution.
+
+Topology validated before start.
+
+Plugin nodes inserted only before planning.
+
+Checkpoint references stable IDs.
+
+Recovery never changes topology.
+
+------------------------------------------------------------
+
+STATUS
+
+Dependency Graph
+
+IN DEVELOPMENT
+
