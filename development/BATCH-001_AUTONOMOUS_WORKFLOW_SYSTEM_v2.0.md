@@ -2037,3 +2037,251 @@ Checkpoint Manager
 
 Persistent Runtime State
 
+
+============================================================
+MACRO BLOCK 2
+RESUME ENGINE
+PART 1
+============================================================
+
+# PURPOSE
+
+The Resume Engine allows workflow execution to continue after any
+unexpected interruption.
+
+Interruptions include
+
+Application crash
+
+Operating system termination
+
+Phone restart
+
+Termux termination
+
+Power loss
+
+Network failure
+
+Manual pause
+
+Repository update
+
+Engine failure
+
+The Resume Engine guarantees deterministic continuation.
+
+------------------------------------------------------------
+
+# OBJECTIVES
+
+Restore workflow state.
+
+Restore execution queue.
+
+Restore checkpoints.
+
+Restore runtime context.
+
+Restore metrics.
+
+Continue execution.
+
+Prevent duplicated execution.
+
+Guarantee deterministic behaviour.
+
+------------------------------------------------------------
+
+# COMPONENTS
+
+Resume Engine
+
+Checkpoint Loader
+
+Runtime Loader
+
+Workflow Loader
+
+Execution Queue Loader
+
+Metrics Loader
+
+Validation Layer
+
+Resume Validator
+
+Recovery Coordinator
+
+------------------------------------------------------------
+
+# INPUTS
+
+Workflow State
+
+Checkpoint
+
+Execution Queue
+
+Execution Journal
+
+Memory Index
+
+Knowledge Graph
+
+Decision Snapshot
+
+Planner Snapshot
+
+Repository Profile
+
+------------------------------------------------------------
+
+# OUTPUTS
+
+Recovered Workflow
+
+Recovered Queue
+
+Recovered Metrics
+
+Recovered Context
+
+Resume Report
+
+Recovery Report
+
+------------------------------------------------------------
+
+# RESUME CONDITIONS
+
+Workflow exists.
+
+Workflow state valid.
+
+Checkpoint exists.
+
+Execution journal available.
+
+Dependency graph valid.
+
+Repository unchanged.
+
+Mandatory engines available.
+
+------------------------------------------------------------
+
+# INVALID RESUME CONDITIONS
+
+Missing checkpoint.
+
+Corrupted checkpoint.
+
+Invalid workflow identifier.
+
+Broken dependency graph.
+
+Unknown execution state.
+
+Repository mismatch.
+
+Missing mandatory engine.
+
+------------------------------------------------------------
+
+# RESUME PROCESS
+
+Locate workflow
+
+↓
+
+Load workflow state
+
+↓
+
+Load checkpoint
+
+↓
+
+Load execution queue
+
+↓
+
+Validate checkpoint
+
+↓
+
+Restore execution context
+
+↓
+
+Restore scheduler
+
+↓
+
+Restore metrics
+
+↓
+
+Resume execution
+
+------------------------------------------------------------
+
+# WORKFLOW IDENTIFIER
+
+Every workflow shall own
+
+Workflow UUID
+
+Creation Timestamp
+
+Execution Timestamp
+
+Repository Identifier
+
+Canonical Version
+
+Execution Version
+
+------------------------------------------------------------
+
+# CHECKPOINT IDENTIFIER
+
+Checkpoint UUID
+
+Workflow UUID
+
+Execution Step
+
+Engine
+
+Timestamp
+
+Integrity Hash
+
+------------------------------------------------------------
+
+# RESUME VALIDATION
+
+Validate
+
+Workflow
+
+Checkpoint
+
+Queue
+
+Metrics
+
+Dependency Graph
+
+Execution State
+
+------------------------------------------------------------
+
+STATUS
+
+Resume Engine
+
+IN DEVELOPMENT
+
