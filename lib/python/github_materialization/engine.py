@@ -17,7 +17,7 @@ class GitHubMaterializationEngine:
             directory = self.ROOT / batch["identifier"]
             directory.mkdir(parents=True, exist_ok=True)
 
-            metadata = dict(batch)
+            metadata = batch.to_dict()
 
             (directory / "metadata.json").write_text(
                 json.dumps(metadata, indent=2),
