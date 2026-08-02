@@ -20,6 +20,7 @@ from python.review_agent.engine import ReviewAgent
 from python.autonomous_planner.engine import AutonomousPlanner
 from python.execution_coordinator.engine import ExecutionCoordinator
 from python.workspace_manager.engine import WorkspaceManager
+from python.profiler.engine import Profiler
 
 
 class DevelopmentAgent(BaseAgent):
@@ -32,37 +33,23 @@ class DevelopmentAgent(BaseAgent):
 
         report = {}
 
-        report["repository"] = RepositoryEngine(
-            repository
-        ).statistics()
+        profiler = Profiler()
 
-        report["dependencies"] = DependencyEngine(
-            repository
-        ).statistics()
+        report["repository"] = profiler.run("RepositoryEngine", lambda: RepositoryEngine(repository).statistics())
 
-        report["validation"] = ValidationEngine(
-            repository
-        ).statistics()
+        report["dependencies"] = profiler.run("DependencyEngine", lambda: DependencyEngine(repository).statistics())
 
-        report["planning"] = PlanningEngine(
-            repository
-        ).build_plan()
+        report["validation"] = profiler.run("ValidationEngine", lambda: ValidationEngine(repository).statistics())
 
-        report["inspection"] = RepositoryInspectorV2(
-            repository
-        ).inspect()
+        report["planning"] = profiler.run("PlanningEngine", lambda: PlanningEngine(repository).build_plan())
 
-        report["canonical"] = CanonicalAuditEngine(
-            repository
-        ).audit()
+        report["inspection"] = profiler.run("RepositoryInspector", lambda: RepositoryInspectorV2(repository).inspect())
 
-        report["semantic"] = SemanticEngine(
-            repository
-        ).analyze()
+        report["canonical"] = profiler.run("CanonicalAudit", lambda: CanonicalAuditEngine(repository).audit())
 
-        report["knowledge_graph"] = KnowledgeGraphEngine(
-            repository
-        ).build()
+        report["semantic"] = profiler.run("SemanticEngine", lambda: SemanticEngine(repository).analyze())
+
+        report["knowledge_graph"] = profiler.run("KnowledgeGraph", lambda: KnowledgeGraphEngine(repository).build())
 
         report["recommendations_generated"] = (
             RecommendationEngine().build(report)
@@ -103,6 +90,8 @@ class DevelopmentAgent(BaseAgent):
                 Path(repository).parent
             )
         )
+
+        profiler.summary()
 
         DevelopmentReport.generate(report)
 
