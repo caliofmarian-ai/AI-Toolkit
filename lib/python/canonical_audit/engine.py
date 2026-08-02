@@ -1,4 +1,5 @@
 from pathlib import Path
+from python.evidence_engine.engine import EvidenceEngine
 
 class CanonicalAuditEngine:
 
@@ -24,6 +25,11 @@ class CanonicalAuditEngine:
 
         module_names = set(report["python_modules"])
 
+        evidence_engine = EvidenceEngine(self.root)
+
+        report["evidence"] = {}
+
+
         for doc in report["canonical_documents"]:
 
             base = (
@@ -40,7 +46,9 @@ class CanonicalAuditEngine:
                     found = True
                     break
 
-            if not found:
+            if found:
+                report["evidence"][doc] = evidence_engine.find(base)
+            else:
                 report["missing_modules"].append(doc)
 
         return report
