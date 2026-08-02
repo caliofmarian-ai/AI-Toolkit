@@ -1235,3 +1235,188 @@ Repository Mapping
 
 IN DEVELOPMENT
 
+
+============================================================
+MACRO BLOCK 2
+REPOSITORY DISCOVERY
+PART 2
+============================================================
+
+PURPOSE
+
+Repository Discovery is responsible for automatically locating
+every artifact that belongs to AI Toolkit.
+
+Discovery shall produce a deterministic and complete repository
+inventory.
+
+============================================================
+
+OBJECTIVES
+
+Discover source code.
+
+Discover documentation.
+
+Discover canonical specifications.
+
+Discover development batches.
+
+Discover engines.
+
+Discover tests.
+
+Discover plugins.
+
+Discover workflows.
+
+Discover configuration.
+
+============================================================
+
+DISCOVERY TARGETS
+
+Directories
+
+Files
+
+Modules
+
+Packages
+
+Shell Scripts
+
+Python Modules
+
+Markdown Documents
+
+Configuration Files
+
+Assets
+
+Examples
+
+============================================================
+
+DISCOVERY SOURCES
+
+Repository Inventory
+
+Git Index
+
+Filesystem
+
+Development Directory
+
+Canonical Directory
+
+Tests Directory
+
+CLI Directory
+
+Plugin Directory
+
+============================================================
+
+DISCOVERY PHASES
+
+Repository Scan
+
+↓
+
+Artifact Detection
+
+↓
+
+Artifact Classification
+
+↓
+
+Metadata Extraction
+
+↓
+
+Relationship Discovery
+
+↓
+
+Knowledge Graph Update
+
+============================================================
+
+DISCOVERY RULES
+
+Every artifact shall be discovered once.
+
+Discovery shall be deterministic.
+
+Discovery shall ignore generated runtime artifacts.
+
+Discovery shall respect Repository Hygiene.
+
+Discovery shall preserve canonical identifiers.
+
+============================================================
+
+ARTIFACT METADATA
+
+Identifier
+
+Name
+
+Path
+
+Extension
+
+Type
+
+Subsystem
+
+Version
+
+Owner
+
+Status
+
+Timestamp
+
+============================================================
+
+DISCOVERY OUTPUTS
+
+Repository Inventory
+
+Artifact Inventory
+
+Subsystem Inventory
+
+Directory Map
+
+File Map
+
+Metadata Index
+
+============================================================
+
+VALIDATION
+
+Every discovered artifact shall have
+
+Identifier
+
+Type
+
+Path
+
+Subsystem
+
+Status
+
+============================================================
+
+STATUS
+
+Repository Discovery
+
+IN DEVELOPMENT
+
