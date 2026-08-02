@@ -4,7 +4,6 @@ set -e
 
 ACTION="${1:-help}"
 ISSUE="${2:-}"
-
 ROOT="$(pwd)"
 
 case "$ACTION" in
@@ -23,46 +22,46 @@ echo " AI ISSUE WORKFLOW"
 echo "======================================"
 
 echo
-echo "[1/6] Git status"
+echo "[1/7] Reading GitHub Issue..."
+echo
+gh issue view "$ISSUE"
+
+echo
+echo "[2/7] Git status"
 git status
 
 echo
-echo "[2/6] Current branch"
+echo "[3/7] Current branch"
 git branch --show-current
 
 echo
-echo "[3/6] Repository inspection"
+echo "[4/7] Repository summary"
 bash "$(dirname "$0")/repository_summary.sh" "$ROOT"
 
 echo
-echo "[4/6] Generate context"
+echo "[5/7] Generate context"
 bash "$(dirname "$0")/context_engine.sh" "$ROOT"
 
 echo
-echo "[5/6] Prepare work session"
+echo "[6/7] Prepare work session"
 bash "$(dirname "$0")/work_engine.sh" "$ROOT"
 
 echo
-echo "[6/6] Issue"
-
-echo "Issue: #$ISSUE"
+echo "[7/7] Ready"
 
 echo
 echo "======================================"
-echo " READY TO START ISSUE #$ISSUE"
+echo " READY TO IMPLEMENT ISSUE #$ISSUE"
 echo "======================================"
 
 ;;
 
 *)
 
-echo
-echo "Usage"
-
+echo "Usage:"
 echo
 echo "ai issue start <number>"
 
 ;;
 
 esac
-
