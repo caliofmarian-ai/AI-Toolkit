@@ -426,3 +426,291 @@ Phase 1 Architecture
 
 IN PROGRESS
 
+
+============================================================
+PHASE 2 — WORKFLOW STATE MACHINE
+============================================================
+
+# PURPOSE
+
+The Workflow State Machine is the authoritative controller of the
+workflow lifecycle.
+
+Every workflow execution shall always exist in exactly one state.
+
+Only valid state transitions are permitted.
+
+The state machine is deterministic.
+
+------------------------------------------------------------
+
+# STATES
+
+READY
+
+Workflow has been created.
+
+No execution has started.
+
+------------------------------------------------------------
+
+ANALYZING
+
+Repository inspection.
+
+Repository profiling.
+
+Environment discovery.
+
+Canonical validation.
+
+------------------------------------------------------------
+
+PLANNING
+
+Decision Engine.
+
+Knowledge Graph.
+
+Planner.
+
+Execution plan generation.
+
+------------------------------------------------------------
+
+EXECUTING
+
+Execution queue running.
+
+Engines dispatched.
+
+Results collected.
+
+------------------------------------------------------------
+
+VALIDATING
+
+Execution verification.
+
+Canonical verification.
+
+Output validation.
+
+Consistency checks.
+
+------------------------------------------------------------
+
+REVIEWING
+
+Review Engine.
+
+Metrics.
+
+Reports.
+
+Recommendations.
+
+------------------------------------------------------------
+
+COMPLETE
+
+Workflow successfully finished.
+
+------------------------------------------------------------
+
+FAILED
+
+Fatal failure detected.
+
+Workflow stopped.
+
+Recovery possible.
+
+------------------------------------------------------------
+
+PAUSED
+
+Execution intentionally suspended.
+
+Checkpoint created.
+
+------------------------------------------------------------
+
+RESUMING
+
+Restore checkpoint.
+
+Recover execution context.
+
+Continue remaining tasks.
+
+------------------------------------------------------------
+
+CANCELLED
+
+Execution terminated by user.
+
+------------------------------------------------------------
+
+# VALID TRANSITIONS
+
+READY
+
+↓
+
+ANALYZING
+
+↓
+
+PLANNING
+
+↓
+
+EXECUTING
+
+↓
+
+VALIDATING
+
+↓
+
+REVIEWING
+
+↓
+
+COMPLETE
+
+Additional transitions
+
+EXECUTING → PAUSED
+
+PAUSED → RESUMING
+
+RESUMING → EXECUTING
+
+EXECUTING → FAILED
+
+FAILED → RESUMING
+
+FAILED → CANCELLED
+
+READY → CANCELLED
+
+------------------------------------------------------------
+
+# STATE RULES
+
+Exactly one active state.
+
+No parallel states.
+
+Every transition recorded.
+
+Every transition timestamped.
+
+Every transition recoverable.
+
+------------------------------------------------------------
+
+# STATE PERSISTENCE
+
+Workflow state shall be stored inside
+
+.ai/work/workflow_state.json
+
+The file contains
+
+Workflow ID
+
+Current state
+
+Previous state
+
+Timestamp
+
+Checkpoint ID
+
+Current engine
+
+Completed engines
+
+Pending engines
+
+Failed engines
+
+Execution metrics
+
+------------------------------------------------------------
+
+# CHECKPOINT MODEL
+
+Checkpoint ID
+
+Workflow ID
+
+Timestamp
+
+Current State
+
+Current Engine
+
+Completed Tasks
+
+Pending Tasks
+
+Execution Queue
+
+Metrics Snapshot
+
+------------------------------------------------------------
+
+# STATE VALIDATION RULES
+
+No invalid transition.
+
+No skipped mandatory state.
+
+Resume only from checkpoint.
+
+Completed workflow immutable.
+
+Cancelled workflow immutable.
+
+------------------------------------------------------------
+
+# FAILURE HANDLING
+
+Retry current engine.
+
+Skip optional engine.
+
+Rollback checkpoint.
+
+Resume execution.
+
+Abort workflow.
+
+------------------------------------------------------------
+
+# DESIGN INVARIANTS
+
+Deterministic.
+
+Recoverable.
+
+Observable.
+
+Persistent.
+
+Canonical.
+
+Auditable.
+
+------------------------------------------------------------
+
+STATUS
+
+Workflow State Machine
+
+IN DEVELOPMENT
+
