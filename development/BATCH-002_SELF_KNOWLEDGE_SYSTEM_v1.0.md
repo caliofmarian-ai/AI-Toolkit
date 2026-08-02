@@ -858,3 +858,218 @@ Knowledge Query Model
 
 IN DEVELOPMENT
 
+
+============================================================
+MACRO BLOCK 1
+KNOWLEDGE VALIDATION & REVIEW
+PART 4
+============================================================
+
+PURPOSE
+
+The Knowledge Validation subsystem guarantees that the Self
+Knowledge System remains complete, consistent and trustworthy.
+
+Every entity, relationship and query result shall be
+validated before becoming authoritative.
+
+============================================================
+
+VALIDATION OBJECTIVES
+
+Validate entity integrity.
+
+Validate relationship integrity.
+
+Validate repository mapping.
+
+Validate canonical references.
+
+Validate development references.
+
+Validate workflow references.
+
+Validate audit references.
+
+Validate version consistency.
+
+============================================================
+
+VALIDATION STAGES
+
+Entity Validation
+
+↓
+
+Relationship Validation
+
+↓
+
+Reference Validation
+
+↓
+
+Graph Validation
+
+↓
+
+Consistency Validation
+
+↓
+
+Acceptance Review
+
+============================================================
+
+ENTITY VALIDATION
+
+Unique Identifier
+
+Valid Entity Type
+
+Valid Status
+
+Valid Version
+
+Valid Owner
+
+Valid Metadata
+
+============================================================
+
+RELATIONSHIP VALIDATION
+
+Source exists.
+
+Target exists.
+
+Relationship type valid.
+
+No orphan relationships.
+
+No duplicate relationships.
+
+No invalid references.
+
+============================================================
+
+CANONICAL VALIDATION
+
+Every subsystem references an existing
+Canonical Specification.
+
+Every Canonical Specification has
+a valid identifier.
+
+Deprecated specifications remain traceable.
+
+============================================================
+
+DEVELOPMENT VALIDATION
+
+Every Development Batch references
+its Canonical Specification.
+
+Every implementation references
+its Development Batch.
+
+Every completed subsystem has
+acceptance criteria.
+
+============================================================
+
+GRAPH VALIDATION
+
+Graph connected.
+
+No invalid nodes.
+
+No broken edges.
+
+No circular dependency without
+explicit approval.
+
+Graph traversal deterministic.
+
+============================================================
+
+REVIEW PROCESS
+
+Internal Review
+
+↓
+
+Canonical Review
+
+↓
+
+Consistency Review
+
+↓
+
+Architecture Review
+
+↓
+
+Approval
+
+============================================================
+
+ACCEPTANCE CRITERIA
+
+Knowledge Model complete.
+
+Relationships validated.
+
+Query Model validated.
+
+No critical validation errors.
+
+Canonical references resolved.
+
+Development references resolved.
+
+Graph integrity verified.
+
+============================================================
+
+MACRO BLOCK 1 REVIEW
+
+Knowledge Model ................. COMPLETE
+
+Knowledge Relationships ......... COMPLETE
+
+Knowledge Query Model ........... COMPLETE
+
+Knowledge Validation ............ COMPLETE
+
+Internal Review ................. READY
+
+Canonical Review ................ READY
+
+Consistency Review .............. READY
+
+============================================================
+
+NEXT
+
+MACRO BLOCK 2
+
+Repository Mapping
+
+Repository Discovery
+
+Subsystem Classification
+
+Implementation Mapping
+
+Canonical Mapping
+
+============================================================
+
+STATUS
+
+MACRO BLOCK 1
+
+COMPLETE
+
