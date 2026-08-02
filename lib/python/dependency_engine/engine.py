@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from models import Dependency
+from .models import Dependency
 
 
 class DependencyEngine:

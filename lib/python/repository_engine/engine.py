@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from models import RepositoryItem
+from .models import RepositoryItem
 
 
 class RepositoryEngine:

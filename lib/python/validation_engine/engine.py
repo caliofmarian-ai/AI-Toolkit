@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from models import ValidationResult
+from .models import ValidationResult
 
 
 class ValidationEngine:

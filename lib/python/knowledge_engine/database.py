@@ -1,7 +1,7 @@
 from pathlib import Path
 import json
 
-from models import Entity
+from .models import Entity
 
 
 class KnowledgeDatabase:

@@ -3,7 +3,7 @@
 import json
 from pathlib import Path
 
-from checks import (
+from .checks import (
     DirectoryStructureCheck,
     EngineInventoryCheck,
     CanonicalDocumentsCheck,

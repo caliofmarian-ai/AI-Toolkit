@@ -1,5 +1,5 @@
-from models import Entity
-from database import KnowledgeDatabase
+from .models import Entity
+from .database import KnowledgeDatabase
 
 
 class KnowledgeEngine:
