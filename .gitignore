@@ -1,2 +1,59 @@
-cache/
+.ai/context/*
+.ai/work/*
+
+!.ai/context/.gitkeep
+!.ai/work/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Test caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# IDE
+.vscode/
+.idea/
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+
+# Audit output
+.ai/audit/*.tmp
+
+
+# ==================================================
+# AI Toolkit Runtime Artifacts
+# ==================================================
+
+.ai/audit/
+.ai/memory/
+.ai/work/*
+
+!.ai/work/.gitkeep
+!.ai/context/.gitkeep
+
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
 *.log

@@ -1,0 +1,24 @@
+{
+  "batch": "BATCH-001",
+  "status": "READY",
+  "steps": [
+    {
+      "id": "STEP-001",
+      "name": "Implementation",
+      "type": "manual",
+      "status": "READY"
+    },
+    {
+      "id": "STEP-002",
+      "name": "Run Tests",
+      "type": "manual",
+      "status": "READY"
+    },
+    {
+      "id": "STEP-003",
+      "name": "Documentation Review",
+      "type": "manual",
+      "status": "READY"
+    }
+  ]
+}
