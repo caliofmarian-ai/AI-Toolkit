@@ -1,29 +1,21 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
-VERSION="0.8.0"
+VERSION="0.9.0"
 
 show_help() {
 cat <<HELP
 AI Toolkit
 
 Commands:
-
   version
-
   discover
-
   inspect [path]
-
   context [path]
-
   work [path]
-
+  plan [path]
   git <command> [path]
-
   github <command>
-
   issue start <number>
-
 HELP
 }
 
@@ -49,6 +41,10 @@ work_repo() {
 bash "$(dirname "$0")/../lib/work_engine.sh" "${1:-.}"
 }
 
+plan_repo() {
+bash "$(dirname "$0")/../lib/planner_engine.sh" "${1:-.}"
+}
+
 git_repo() {
 CMD="${1:-status}"
 shift
@@ -64,47 +60,41 @@ bash "$(dirname "$0")/../lib/issue_engine.sh" "$@"
 }
 
 case "${1:-help}" in
-
 version)
     echo "$VERSION"
     ;;
-
 discover)
     discover
     ;;
-
 inspect)
     shift
     inspect_repo "$@"
     ;;
-
 context)
     shift
     context_repo "$@"
     ;;
-
 work)
     shift
     work_repo "$@"
     ;;
-
+plan)
+    shift
+    plan_repo "$@"
+    ;;
 git)
     shift
     git_repo "$@"
     ;;
-
 github)
     shift
     github_repo "$@"
     ;;
-
 issue)
     shift
     issue_repo "$@"
     ;;
-
 *)
     show_help
     ;;
-
 esac
