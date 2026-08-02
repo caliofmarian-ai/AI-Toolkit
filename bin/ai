@@ -10,6 +10,7 @@ Commands:
   version
   discover
   inspect [path]
+  context [path]
 HELP
 }
 
@@ -29,23 +30,28 @@ DIR="$(cd "$ROOT" && pwd)"
 bash "$(dirname "$0")/../lib/repository_inspector.sh" "$DIR"
 }
 
+context_repo() {
+ROOT="${1:-.}"
+DIR="$(cd "$ROOT" && pwd)"
+bash "$(dirname "$0")/../lib/context_engine.sh" "$DIR"
+}
+
 case "${1:-help}" in
-    version)
-        echo "$VERSION"
-        ;;
-    discover)
-        discover
-        ;;
-    inspect)
-    context)
-        shift
-        ROOT="${1:-.}"
-        bash "$(dirname "$0")/../lib/context_engine.sh" "$ROOT"
-        ;;
-        shift
-        inspect_repo "$@"
-        ;;
-    *)
-        show_help
-        ;;
+version)
+    echo "$VERSION"
+    ;;
+discover)
+    discover
+    ;;
+inspect)
+    shift
+    inspect_repo "$@"
+    ;;
+context)
+    shift
+    context_repo "$@"
+    ;;
+*)
+    show_help
+    ;;
 esac
