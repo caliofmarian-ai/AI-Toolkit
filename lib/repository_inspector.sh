@@ -1,46 +1,52 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
+set -e
+
 ROOT="${1:-.}"
 
+ROOT="$(cd "$ROOT" && pwd)"
+
 echo "=================================="
-echo "Repository Inspector"
+echo "Repository Inspector v2"
 echo "=================================="
 
 echo
 echo "Repository:"
-git -C "$ROOT" rev-parse --show-toplevel 2>/dev/null || echo "Not a git repository"
+echo "$ROOT"
 
 echo
 echo "Branch:"
-git -C "$ROOT" branch --show-current 2>/dev/null
+git -C "$ROOT" branch --show-current
 
 echo
 echo "Remote:"
-git -C "$ROOT" remote -v 2>/dev/null
+git -C "$ROOT" remote -v || true
 
 echo
-echo "Languages:"
-find "$ROOT" -type f | sed 's|.*\.||' | sort | uniq -c | sort -nr | head -20
+echo "Repository statistics"
+
+echo "Files: $(find "$ROOT" -type f | wc -l)"
+echo "Directories: $(find "$ROOT" -type d | wc -l)"
+echo "Markdown: $(find "$ROOT" -name '*.md' | wc -l)"
+echo "Shell: $(find "$ROOT" -name '*.sh' | wc -l)"
+echo "Python: $(find "$ROOT" -name '*.py' | wc -l)"
+echo "JSON: $(find "$ROOT" -name '*.json' | wc -l)"
 
 echo
-echo "Important folders:"
-find "$ROOT" -maxdepth 2 -type d | sort
+echo "Canonical documents"
+
+find "$ROOT/docs/canonical" -type f 2>/dev/null | sort
 
 echo
-echo "GitHub:"
-find "$ROOT" -maxdepth 2 -name ".github"
+echo "Engines"
+
+find "$ROOT/lib" -maxdepth 1 -name "*engine*.sh" | sort
 
 echo
-echo "Railway:"
-find "$ROOT" -iname "railway.json" -o -iname "railway.toml"
+echo "Tests"
+
+find "$ROOT/tests" -type f 2>/dev/null | sort
 
 echo
-echo "Tests:"
-find "$ROOT" -type d -name "tests"
+echo "Inspection completed successfully."
 
-echo
-echo "Canonical docs:"
-find "$ROOT" -path "*/canonical/*" -type f
-
-echo
-echo "Inspection complete."
