@@ -2900,3 +2900,203 @@ Execution Dependencies
 
 IN DEVELOPMENT
 
+
+============================================================
+MACRO BLOCK 3
+PLANNING DEPENDENCIES
+PART 5
+============================================================
+
+PURPOSE
+
+Planning Dependencies define the relationships used by the
+Planner to build safe, deterministic and optimized execution
+plans.
+
+Planning shall always consider dependency constraints before
+creating an execution strategy.
+
+============================================================
+
+OBJECTIVES
+
+Support planning decisions.
+
+Resolve planning dependencies.
+
+Optimize execution plans.
+
+Prevent invalid planning.
+
+Support autonomous scheduling.
+
+============================================================
+
+PLANNING MODEL
+
+Goal
+
+↓
+
+Requirement Discovery
+
+↓
+
+Dependency Resolution
+
+↓
+
+Constraint Evaluation
+
+↓
+
+Execution Planning
+
+↓
+
+Plan Validation
+
+↓
+
+Approved Plan
+
+============================================================
+
+PLANNING ENTITIES
+
+Goal
+
+Task
+
+Workflow
+
+Engine
+
+Subsystem
+
+Dependency
+
+Constraint
+
+Milestone
+
+============================================================
+
+PLANNING DEPENDENCY TYPES
+
+Prerequisite
+
+Required
+
+Recommended
+
+Optional
+
+Blocking
+
+Sequential
+
+Parallel
+
+============================================================
+
+PLANNING CONSTRAINTS
+
+Canonical Constraints
+
+Repository Constraints
+
+Workflow Constraints
+
+Execution Constraints
+
+Validation Constraints
+
+Resource Constraints
+
+============================================================
+
+PLANNING RULES
+
+All mandatory dependencies shall be satisfied.
+
+Planning shall avoid circular dependency chains.
+
+Parallel execution shall only be used when safe.
+
+Invalid plans shall be rejected.
+
+Planner decisions shall be reproducible.
+
+============================================================
+
+PLAN ATTRIBUTES
+
+Plan Identifier
+
+Goal
+
+Priority
+
+Dependencies
+
+Constraints
+
+Estimated Duration
+
+Risk Level
+
+Validation Status
+
+============================================================
+
+OPTIMIZATION GOALS
+
+Reduce execution time.
+
+Reduce dependency conflicts.
+
+Maximize reuse.
+
+Minimize risk.
+
+Maintain determinism.
+
+============================================================
+
+OUTPUTS
+
+Execution Plan
+
+Dependency Plan
+
+Planning Report
+
+Optimization Report
+
+Risk Report
+
+============================================================
+
+VALIDATION
+
+Every plan shall contain
+
+Goal
+
+Dependency List
+
+Constraint List
+
+Risk Assessment
+
+Validation Status
+
+============================================================
+
+STATUS
+
+Planning Dependencies
+
+IN DEVELOPMENT
+
