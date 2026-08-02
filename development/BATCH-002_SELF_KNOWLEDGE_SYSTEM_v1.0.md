@@ -3456,3 +3456,255 @@ Validation Intelligence
 
 IN DEVELOPMENT
 
+
+============================================================
+MACRO BLOCK 4
+VALIDATION RULES
+PART 2
+============================================================
+
+PURPOSE
+
+Validation Rules define the authoritative criteria used to
+evaluate every entity within AI Toolkit.
+
+Validation shall be deterministic, repeatable and version-aware.
+
+============================================================
+
+RULE CATEGORIES
+
+Repository Rules
+
+Architecture Rules
+
+Canonical Rules
+
+Implementation Rules
+
+Dependency Rules
+
+Workflow Rules
+
+Planning Rules
+
+Execution Rules
+
+Knowledge Rules
+
+Memory Rules
+
+Audit Rules
+
+============================================================
+
+RULE ATTRIBUTES
+
+Rule Identifier
+
+Rule Name
+
+Description
+
+Target Entity
+
+Severity
+
+Priority
+
+Version
+
+Status
+
+============================================================
+
+RULE SEVERITY
+
+Information
+
+Low
+
+Medium
+
+High
+
+Critical
+
+Blocking
+
+============================================================
+
+RULE EXECUTION
+
+Rule Discovery
+
+↓
+
+Rule Selection
+
+↓
+
+Rule Evaluation
+
+↓
+
+Result Generation
+
+↓
+
+Validation Report
+
+============================================================
+
+RULE REQUIREMENTS
+
+Every rule shall be uniquely identified.
+
+Every rule shall target one entity type.
+
+Every rule shall produce deterministic output.
+
+Every failure shall be explainable.
+
+Every result shall be traceable.
+
+============================================================
+
+RULE OUTPUTS
+
+Validation Result
+
+Failure Report
+
+Recommendation
+
+Compliance Status
+
+============================================================
+
+STATUS
+
+Validation Rules
+
+IN DEVELOPMENT
+
+============================================================
+MACRO BLOCK 4
+VALIDATION PIPELINE
+PART 3
+============================================================
+
+PURPOSE
+
+Validation Pipeline coordinates every validation stage.
+
+Validation shall execute in a predictable sequence.
+
+============================================================
+
+PIPELINE STAGES
+
+Validation Request
+
+↓
+
+Repository Validation
+
+↓
+
+Architecture Validation
+
+↓
+
+Canonical Validation
+
+↓
+
+Implementation Validation
+
+↓
+
+Dependency Validation
+
+↓
+
+Workflow Validation
+
+↓
+
+Planning Validation
+
+↓
+
+Knowledge Validation
+
+↓
+
+Final Validation Report
+
+============================================================
+
+PIPELINE REQUIREMENTS
+
+Deterministic execution.
+
+Repeatable results.
+
+Parallel validation when safe.
+
+Automatic failure reporting.
+
+Complete execution history.
+
+============================================================
+
+PIPELINE COMPONENTS
+
+Validation Queue
+
+Validation Scheduler
+
+Validation Workers
+
+Result Collector
+
+Report Generator
+
+Knowledge Updater
+
+============================================================
+
+FAILURE HANDLING
+
+Recoverable Failure
+
+Non-Recoverable Failure
+
+Validation Warning
+
+Blocking Failure
+
+Retry Strategy
+
+============================================================
+
+PIPELINE OUTPUTS
+
+Pipeline Report
+
+Validation Summary
+
+Execution Metrics
+
+Failure Summary
+
+Repository Status
+
+============================================================
+
+STATUS
+
+Validation Pipeline
+
+IN DEVELOPMENT
+
