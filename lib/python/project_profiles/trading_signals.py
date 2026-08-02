@@ -1,4 +1,5 @@
 from pathlib import Path
+from python.discovery_engine.engine import DiscoveryEngine
 
 
 class TradingSignalsProfile:
@@ -27,14 +28,11 @@ class TradingSignalsProfile:
             "canonical_missing": [],
         }
 
-        canonical = root / self.CANONICAL_DIR
+        discovery = DiscoveryEngine(root)
 
-        if canonical.exists():
-
-            files = [
-                p.name
-                for p in canonical.glob("*.md")
-            ]
+        files = list(
+            discovery.discover_canonical_documents().keys()
+        )
 
             for item in self.REQUIRED_CANONICAL:
 
@@ -50,9 +48,5 @@ class TradingSignalsProfile:
 
                 if not found:
                     report["canonical_missing"].append(item)
-
-        else:
-
-            report["canonical_missing"] = self.REQUIRED_CANONICAL.copy()
 
         return report
