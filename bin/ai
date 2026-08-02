@@ -1,19 +1,29 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
-VERSION="0.7.0"
+VERSION="0.8.0"
 
 show_help() {
 cat <<HELP
 AI Toolkit
 
 Commands:
+
   version
+
   discover
+
   inspect [path]
+
   context [path]
+
   work [path]
-  git [command] [path]
+
+  git <command> [path]
+
+  github <command>
+
   issue start <number>
+
 HELP
 }
 
@@ -45,38 +55,56 @@ shift
 bash "$(dirname "$0")/../lib/git_engine.sh" "$CMD" "${1:-.}"
 }
 
+github_repo() {
+bash "$(dirname "$0")/../lib/github_engine.sh" "$@"
+}
+
 issue_repo() {
 bash "$(dirname "$0")/../lib/issue_engine.sh" "$@"
 }
 
 case "${1:-help}" in
-    version)
-        echo "$VERSION"
-        ;;
-    discover)
-        discover
-        ;;
-    inspect)
-        shift
-        inspect_repo "$@"
-        ;;
-    context)
-        shift
-        context_repo "$@"
-        ;;
-    work)
-        shift
-        work_repo "$@"
-        ;;
-    git)
-        shift
-        git_repo "$@"
-        ;;
-    issue)
-        shift
-        issue_repo "$@"
-        ;;
-    *)
-        show_help
-        ;;
+
+version)
+    echo "$VERSION"
+    ;;
+
+discover)
+    discover
+    ;;
+
+inspect)
+    shift
+    inspect_repo "$@"
+    ;;
+
+context)
+    shift
+    context_repo "$@"
+    ;;
+
+work)
+    shift
+    work_repo "$@"
+    ;;
+
+git)
+    shift
+    git_repo "$@"
+    ;;
+
+github)
+    shift
+    github_repo "$@"
+    ;;
+
+issue)
+    shift
+    issue_repo "$@"
+    ;;
+
+*)
+    show_help
+    ;;
+
 esac
