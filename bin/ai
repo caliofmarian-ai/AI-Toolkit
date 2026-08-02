@@ -1,70 +1,77 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
-VERSION="0.2.0"
-PROJECTS_ROOT="$HOME/storage/shared/AI-Projects"
+VERSION="0.3.0"
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
 show_help() {
 cat <<HELP
+AI Toolkit $VERSION
 
-AI Toolkit v$VERSION
+Usage:
 
-Commands
-
+  ai discover
+  ai inspect
+  ai context
+  ai github
+  ai railway
+  ai telegram
   ai version
-  ai projects
-  ai project <keyword>
-
 HELP
 }
 
-list_projects() {
-find "$PROJECTS_ROOT" -mindepth 1 -maxdepth 1 -type d | sort
+discover() {
+
+echo
+echo "========== PROJECT DISCOVERY =========="
+echo
+
+echo "Repository:"
+git rev-parse --show-toplevel 2>/dev/null || echo "Not a git repository"
+
+echo
+echo "Branch:"
+git branch --show-current 2>/dev/null
+
+echo
+echo "Remote:"
+git remote -v 2>/dev/null
+
+echo
+echo "Python:"
+find . -maxdepth 2 -name "*.py" | wc -l
+
+echo
+echo "Markdown:"
+find . -name "*.md" | wc -l
+
+echo
+echo "Tests:"
+find . -type d -name tests
+
+echo
+echo "Railway:"
+find . -maxdepth 2 -name "railway.json"
+
+echo
+echo "GitHub:"
+find . -maxdepth 2 -name ".github"
+
+echo
+echo "Done."
 }
 
-open_project() {
-
-KEY="$1"
-
-if [ -z "$KEY" ]; then
-    echo "Usage: ai project <keyword>"
-    exit 1
-fi
-
-MATCH="$(find "$PROJECTS_ROOT" -mindepth 1 -maxdepth 1 -type d | grep -i "$KEY" | head -1)"
-
-if [ -z "$MATCH" ]; then
-    echo "Project not found."
-    exit 1
-fi
-
-echo
-echo "Project:"
-echo "$MATCH"
-echo
-echo "To enter:"
-echo
-echo "cd \"$MATCH\""
-
-}
-
-case "${1:-help}" in
+case "$1" in
+discover)
+discover
+;;
 
 version)
-echo "AI Toolkit $VERSION"
-;;
-
-projects)
-list_projects
-;;
-
-project)
-shift
-open_project "$1"
+echo "$VERSION"
 ;;
 
 *)
 show_help
 ;;
-
 esac
 
