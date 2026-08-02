@@ -1,4 +1,5 @@
 from pathlib import Path
+from python.semantic_engine.engine import SemanticEngine
 
 
 class EvidenceEngine:
@@ -10,6 +11,8 @@ class EvidenceEngine:
     def find(self, keyword):
 
         keyword = keyword.lower()
+
+        semantic = SemanticEngine(self.root).analyze()
 
         evidence = {
             "python": [],
@@ -44,5 +47,26 @@ class EvidenceEngine:
 
             elif file.suffix == ".md":
                 evidence["docs"].append(rel)
+
+        evidence["semantic"] = {}
+
+        for filename, data in semantic.items():
+
+            score = []
+
+            for cls in data["classes"]:
+                if keyword in cls.lower():
+                    score.append(("class", cls))
+
+            for fn in data["functions"]:
+                if keyword in fn.lower():
+                    score.append(("function", fn))
+
+            for imp in data["imports"]:
+                if keyword in imp.lower():
+                    score.append(("import", imp))
+
+            if score:
+                evidence["semantic"][filename] = score
 
         return evidence
