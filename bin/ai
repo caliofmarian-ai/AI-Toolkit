@@ -1,6 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
-VERSION="1.0.0"
+VERSION="1.1.0"
 
 show_help() {
 cat <<HELP
@@ -14,6 +14,7 @@ Commands:
   work [path]
   plan [path]
   execute [path]
+  review [path]
   git <command> [path]
   github <command>
   issue start <number>
@@ -48,6 +49,10 @@ bash "$(dirname "$0")/../lib/planner_engine.sh" "${1:-.}"
 
 execute_repo() {
 bash "$(dirname "$0")/../lib/execution_engine.sh" "${1:-.}"
+}
+
+review_repo() {
+bash "$(dirname "$0")/../lib/review_engine.sh" "${1:-.}"
 }
 
 git_repo() {
@@ -90,6 +95,10 @@ plan)
 execute)
     shift
     execute_repo "$@"
+    ;;
+review)
+    shift
+    review_repo "$@"
     ;;
 git)
     shift
