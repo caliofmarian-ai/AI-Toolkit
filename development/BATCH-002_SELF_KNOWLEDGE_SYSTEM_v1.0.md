@@ -4031,3 +4031,586 @@ MACRO BLOCK 4
 
 COMPLETE
 
+
+============================================================
+MACRO BLOCK 5
+PLANNING INTELLIGENCE
+PART 1
+============================================================
+
+PURPOSE
+
+Planning Intelligence is responsible for transforming goals
+into deterministic execution plans.
+
+The Planner shall generate safe, traceable and optimized plans
+using repository knowledge, dependency intelligence and
+validation results.
+
+============================================================
+
+OBJECTIVES
+
+Generate execution plans.
+
+Optimize implementation strategy.
+
+Prioritize work.
+
+Estimate effort.
+
+Reduce execution risk.
+
+Support autonomous development.
+
+============================================================
+
+PLANNING INPUTS
+
+Repository Inventory
+
+Knowledge Graph
+
+Dependency Graph
+
+Validation Results
+
+Canonical Specifications
+
+Development Batches
+
+Implementation Status
+
+============================================================
+
+PLANNING OUTPUTS
+
+Execution Plan
+
+Implementation Plan
+
+Validation Plan
+
+Review Plan
+
+Optimization Plan
+
+Release Plan
+
+============================================================
+
+PLANNING PRINCIPLES
+
+Canonical First
+
+Deterministic Planning
+
+Dependency Awareness
+
+Validation Driven
+
+Traceability
+
+Optimization
+
+============================================================
+
+STATUS
+
+Planning Intelligence
+
+IN DEVELOPMENT
+
+============================================================
+MACRO BLOCK 5
+PLANNING ENGINE
+PART 2
+============================================================
+
+PURPOSE
+
+The Planning Engine converts objectives into executable plans.
+
+============================================================
+
+ENGINE RESPONSIBILITIES
+
+Goal Analysis
+
+Requirement Analysis
+
+Constraint Resolution
+
+Dependency Resolution
+
+Risk Evaluation
+
+Task Generation
+
+Priority Assignment
+
+Execution Ordering
+
+============================================================
+
+PLANNING STAGES
+
+Goal
+
+↓
+
+Requirements
+
+↓
+
+Constraints
+
+↓
+
+Dependencies
+
+↓
+
+Tasks
+
+↓
+
+Execution Plan
+
+↓
+
+Validation
+
+============================================================
+
+PLAN ATTRIBUTES
+
+Plan Identifier
+
+Goal
+
+Priority
+
+Scope
+
+Dependencies
+
+Constraints
+
+Risk Level
+
+Estimated Duration
+
+Approval Status
+
+============================================================
+
+PRIORITY LEVELS
+
+Critical
+
+High
+
+Normal
+
+Low
+
+Deferred
+
+============================================================
+
+STATUS
+
+Planning Engine
+
+IN DEVELOPMENT
+
+============================================================
+MACRO BLOCK 5
+EXECUTION PLANNING
+PART 3
+============================================================
+
+PURPOSE
+
+Execution Planning transforms approved plans into executable
+task sequences.
+
+============================================================
+
+OBJECTIVES
+
+Create execution order.
+
+Optimize scheduling.
+
+Resolve blockers.
+
+Support parallel execution.
+
+Maintain deterministic execution.
+
+============================================================
+
+EXECUTION MODEL
+
+Approved Plan
+
+↓
+
+Task Graph
+
+↓
+
+Execution Queue
+
+↓
+
+Scheduler
+
+↓
+
+Execution
+
+↓
+
+Completion
+
+============================================================
+
+TASK ATTRIBUTES
+
+Task Identifier
+
+Task Name
+
+Subsystem
+
+Dependencies
+
+Priority
+
+Estimated Time
+
+Validation Required
+
+Completion Status
+
+============================================================
+
+EXECUTION RULES
+
+Mandatory dependencies first.
+
+Validation before completion.
+
+No circular execution.
+
+Deterministic ordering.
+
+Rollback support.
+
+============================================================
+
+OUTPUTS
+
+Execution Queue
+
+Execution Timeline
+
+Task Graph
+
+Execution Report
+
+============================================================
+
+STATUS
+
+Execution Planning
+
+IN DEVELOPMENT
+
+
+============================================================
+MACRO BLOCK 5
+RESOURCE PLANNING
+PART 4
+============================================================
+
+PURPOSE
+
+Resource Planning allocates the required resources for
+successful execution.
+
+Resources shall be planned before execution begins.
+
+============================================================
+
+RESOURCE TYPES
+
+Repository
+
+Engine
+
+Module
+
+Workflow
+
+Plugin
+
+Memory
+
+Knowledge Graph
+
+Validation
+
+Human Review
+
+============================================================
+
+RESOURCE ATTRIBUTES
+
+Identifier
+
+Name
+
+Category
+
+Availability
+
+Capacity
+
+Priority
+
+Allocation Status
+
+============================================================
+
+RESOURCE ALLOCATION
+
+Request
+
+↓
+
+Availability Check
+
+↓
+
+Reservation
+
+↓
+
+Assignment
+
+↓
+
+Execution
+
+↓
+
+Release
+
+============================================================
+
+ALLOCATION RULES
+
+Critical resources first.
+
+Shared resources shall be coordinated.
+
+Unavailable resources shall block execution.
+
+Resource conflicts shall be reported.
+
+============================================================
+
+OUTPUTS
+
+Resource Plan
+
+Allocation Report
+
+Availability Report
+
+============================================================
+
+STATUS
+
+Resource Planning
+
+IN DEVELOPMENT
+
+============================================================
+MACRO BLOCK 5
+PLANNING OPTIMIZATION
+PART 5
+============================================================
+
+PURPOSE
+
+Planning Optimization continuously improves execution plans.
+
+============================================================
+
+OPTIMIZATION OBJECTIVES
+
+Reduce execution time.
+
+Reduce implementation risk.
+
+Reduce dependency conflicts.
+
+Increase parallel execution.
+
+Increase repository consistency.
+
+Improve validation success.
+
+============================================================
+
+OPTIMIZATION STRATEGIES
+
+Task Merging
+
+Task Splitting
+
+Parallel Scheduling
+
+Dependency Reduction
+
+Resource Balancing
+
+Execution Simplification
+
+============================================================
+
+OPTIMIZATION METRICS
+
+Execution Duration
+
+Dependency Count
+
+Validation Success
+
+Risk Reduction
+
+Repository Health
+
+============================================================
+
+OUTPUTS
+
+Optimized Plan
+
+Optimization Report
+
+Performance Report
+
+============================================================
+
+STATUS
+
+Planning Optimization
+
+IN DEVELOPMENT
+
+============================================================
+MACRO BLOCK 5
+REVIEW & APPROVAL
+PART 6
+============================================================
+
+INTERNAL REVIEW
+
+Planning Intelligence ............ COMPLETE
+
+Planning Engine ................. COMPLETE
+
+Execution Planning .............. COMPLETE
+
+Resource Planning ............... COMPLETE
+
+Planning Optimization ........... COMPLETE
+
+============================================================
+
+CANONICAL REVIEW
+
+SELF_KNOWLEDGE_SYSTEM_SPEC ....... VERIFIED
+
+AI_TOOLKIT_SYSTEM_ARCHITECTURE ... VERIFIED
+
+AUTONOMOUS_WORKFLOW_SPEC ......... VERIFIED
+
+KNOWLEDGE_GRAPH_SPEC ............. VERIFIED
+
+MEMORY_SYSTEM_SPEC ............... VERIFIED
+
+============================================================
+
+QUALITY GATES
+
+Planning Model .................. PASS
+
+Execution Planning .............. PASS
+
+Resource Planning ............... PASS
+
+Optimization Model .............. PASS
+
+Repository Integration .......... PASS
+
+============================================================
+
+ACCEPTANCE CRITERIA
+
+Planning model complete.
+
+Execution planning complete.
+
+Resource planning complete.
+
+Optimization complete.
+
+Repository ready for Evolution Intelligence.
+
+============================================================
+
+MACRO BLOCK 5 STATUS
+
+Planning Intelligence ........... COMPLETE
+
+Planning Engine ................. COMPLETE
+
+Execution Planning .............. COMPLETE
+
+Resource Planning ............... COMPLETE
+
+Planning Optimization ........... COMPLETE
+
+Review & Approval ............... COMPLETE
+
+============================================================
+
+NEXT
+
+MACRO BLOCK 6
+
+Evolution Intelligence
+
+Adaptive Learning
+
+Continuous Improvement
+
+Autonomous Evolution
+
+Final Review
+
+============================================================
+
+STATUS
+
+MACRO BLOCK 5
+
+COMPLETE
+
