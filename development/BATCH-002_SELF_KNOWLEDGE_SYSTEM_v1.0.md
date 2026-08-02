@@ -186,3 +186,229 @@ STATUS
 
 IN DEVELOPMENT
 
+
+============================================================
+MACRO BLOCK 1
+KNOWLEDGE MODEL
+PART 1
+============================================================
+
+PURPOSE
+
+The Knowledge Model defines the internal representation of the
+AI Toolkit.
+
+Every subsystem becomes a first-class knowledge entity.
+
+Every relationship becomes explicitly represented.
+
+============================================================
+
+DESIGN GOALS
+
+Self Awareness
+
+Deterministic Structure
+
+Traceability
+
+Version Awareness
+
+Consistency
+
+Autonomous Reasoning
+
+Repository Understanding
+
+============================================================
+
+CORE ENTITY TYPES
+
+Repository
+
+Subsystem
+
+Engine
+
+Module
+
+Command
+
+Workflow
+
+Audit
+
+Development Batch
+
+Canonical Specification
+
+Test Suite
+
+Milestone
+
+Plugin
+
+Knowledge Object
+
+============================================================
+
+ENTITY IDENTIFIER
+
+Each entity shall contain
+
+Unique Identifier
+
+Entity Type
+
+Canonical Name
+
+Display Name
+
+Version
+
+Status
+
+Owner
+
+============================================================
+
+ENTITY STATUS
+
+Planned
+
+In Development
+
+Implemented
+
+Validated
+
+Deprecated
+
+Removed
+
+============================================================
+
+ENTITY ATTRIBUTES
+
+Identifier
+
+Name
+
+Description
+
+Category
+
+Version
+
+Status
+
+Created
+
+Updated
+
+Dependencies
+
+Dependents
+
+Tags
+
+============================================================
+
+ENTITY CATEGORIES
+
+Architecture
+
+Execution
+
+Workflow
+
+Planning
+
+Memory
+
+Knowledge
+
+Validation
+
+Audit
+
+CLI
+
+Infrastructure
+
+============================================================
+
+ENTITY LIFECYCLE
+
+Created
+
+↓
+
+Designed
+
+↓
+
+Implemented
+
+↓
+
+Validated
+
+↓
+
+Released
+
+↓
+
+Deprecated
+
+↓
+
+Archived
+
+============================================================
+
+ENTITY RELATIONSHIPS
+
+Implements
+
+Depends On
+
+Uses
+
+Extends
+
+Validates
+
+Documents
+
+Generates
+
+Consumes
+
+Owns
+
+References
+
+============================================================
+
+KNOWLEDGE PRINCIPLES
+
+Everything is an entity.
+
+Everything has relationships.
+
+Everything has lifecycle.
+
+Everything has traceability.
+
+Everything is discoverable.
+
+============================================================
+
+STATUS
+
+Knowledge Model
+
+IN DEVELOPMENT
+
