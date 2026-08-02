@@ -659,3 +659,202 @@ Knowledge Relationships
 
 IN DEVELOPMENT
 
+
+============================================================
+MACRO BLOCK 1
+KNOWLEDGE QUERY MODEL
+PART 3
+============================================================
+
+PURPOSE
+
+The Knowledge Query Model defines how AI Toolkit searches,
+retrieves and reasons about its own architecture.
+
+Queries shall return deterministic, traceable and auditable
+results.
+
+============================================================
+
+OBJECTIVES
+
+Support repository exploration.
+
+Support dependency discovery.
+
+Support implementation lookup.
+
+Support impact analysis.
+
+Support autonomous planning.
+
+Support autonomous review.
+
+============================================================
+
+QUERY PRINCIPLES
+
+Deterministic
+
+Repeatable
+
+Auditable
+
+Version Aware
+
+Canonical First
+
+Traceable
+
+============================================================
+
+QUERY INPUTS
+
+Entity Identifier
+
+Entity Name
+
+Entity Type
+
+Subsystem
+
+Canonical Specification
+
+Development Batch
+
+Workflow
+
+CLI Command
+
+Test Suite
+
+Milestone
+
+============================================================
+
+QUERY TYPES
+
+Lookup Entity
+
+Find Dependencies
+
+Find Dependents
+
+Find Canonical Specification
+
+Find Development Batch
+
+Find Test Coverage
+
+Find CLI Commands
+
+Find Validation Status
+
+Find Related Entities
+
+Find Missing Relationships
+
+Find Impact Scope
+
+============================================================
+
+QUERY EXECUTION
+
+Receive Request
+
+↓
+
+Validate Input
+
+↓
+
+Locate Entity
+
+↓
+
+Resolve Relationships
+
+↓
+
+Collect Results
+
+↓
+
+Validate Results
+
+↓
+
+Generate Response
+
+============================================================
+
+QUERY OUTPUT
+
+Entity Summary
+
+Relationship List
+
+Dependency Tree
+
+Implementation Status
+
+Validation Status
+
+Canonical References
+
+Development References
+
+Recommendations
+
+============================================================
+
+SEARCH MODES
+
+Exact Match
+
+Identifier Match
+
+Name Match
+
+Relationship Traversal
+
+Category Search
+
+Type Search
+
+Version Search
+
+============================================================
+
+CONSISTENCY RULES
+
+Unknown entities shall return structured errors.
+
+Duplicate identifiers are forbidden.
+
+Canonical references shall always be resolved first.
+
+Relationship traversal shall avoid infinite loops.
+
+============================================================
+
+FUTURE CAPABILITIES
+
+Natural Language Queries
+
+Semantic Search
+
+Graph Traversal
+
+Impact Prediction
+
+Autonomous Recommendations
+
+============================================================
+
+STATUS
+
+Knowledge Query Model
+
+IN DEVELOPMENT
+
