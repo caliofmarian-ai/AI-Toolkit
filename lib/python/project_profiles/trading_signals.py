@@ -1,12 +1,9 @@
-from pathlib import Path
 from python.discovery_engine.engine import DiscoveryEngine
 
 
 class TradingSignalsProfile:
 
     NAME = "Trading Signals Platform"
-
-    CANONICAL_DIR = "docs/canonical"
 
     REQUIRED_CANONICAL = [
         "SYSTEM_ARCHITECTURE_MAP",
@@ -20,7 +17,11 @@ class TradingSignalsProfile:
 
     def inspect(self, repository):
 
-        root = Path(repository)
+        discovery = DiscoveryEngine(repository)
+
+        discovered = list(
+            discovery.discover_canonical_documents().keys()
+        )
 
         report = {
             "profile": self.NAME,
@@ -28,25 +29,19 @@ class TradingSignalsProfile:
             "canonical_missing": [],
         }
 
-        discovery = DiscoveryEngine(root)
+        for required in self.REQUIRED_CANONICAL:
 
-        files = list(
-            discovery.discover_canonical_documents().keys()
-        )
+            found = False
 
-            for item in self.REQUIRED_CANONICAL:
+            for document in discovered:
 
-                found = False
+                if required in document:
 
-                for filename in files:
+                    report["canonical_found"].append(required)
+                    found = True
+                    break
 
-                    if item in filename:
-
-                        report["canonical_found"].append(item)
-                        found = True
-                        break
-
-                if not found:
-                    report["canonical_missing"].append(item)
+            if not found:
+                report["canonical_missing"].append(required)
 
         return report
