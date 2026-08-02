@@ -89,3 +89,134 @@ class CanonicalDocumentsCheck(Check):
             )
 
         return result
+
+class EngineTestCoverageCheck(Check):
+
+    name = "Engine Test Coverage"
+
+    def run(self, root):
+
+        result = AuditResult(self.name)
+        result.max_score = 20
+
+        lib = root / "lib"
+        tests = root / "tests"
+
+        if not lib.exists():
+            result.warnings.append("lib directory missing")
+            return result
+
+        engines = []
+
+        for f in lib.rglob("*engine*.sh"):
+            engines.append(f.stem)
+
+        for f in lib.rglob("*engine*.py"):
+            engines.append(f.stem)
+
+        matched = 0
+
+        for engine in engines:
+
+            found = False
+
+            for test in tests.rglob("*"):
+
+                if engine.lower() in test.name.lower():
+                    found = True
+                    break
+
+            if found:
+                matched += 1
+            else:
+                result.warnings.append(
+                    f"No test found for {engine}"
+                )
+
+        if engines:
+            result.score = round(
+                matched / len(engines) * result.max_score
+            )
+
+        return result
+
+
+class CLIIntegrationCheck(Check):
+
+    name = "CLI Integration"
+
+    def run(self, root):
+
+        result = AuditResult(self.name)
+        result.max_score = 20
+
+        launcher = root / "bin" / "ai"
+
+        if not launcher.exists():
+            result.warnings.append("bin/ai missing")
+            return result
+
+        text = launcher.read_text(encoding="utf-8")
+
+        keywords = [
+            "inspect",
+            "context",
+            "work",
+            "git",
+            "github",
+            "issue"
+        ]
+
+        count = 0
+
+        for keyword in keywords:
+
+            if keyword in text:
+                count += 1
+            else:
+                result.warnings.append(
+                    f"CLI missing command: {keyword}"
+                )
+
+        result.score = round(
+            count / len(keywords) * result.max_score
+        )
+
+        return result
+
+
+class DevelopmentBatchCheck(Check):
+
+    name = "Development Batch"
+
+    def run(self, root):
+
+        result = AuditResult(self.name)
+        result.max_score = 20
+
+        development = root / "development"
+
+        if not development.exists():
+            result.warnings.append(
+                "development directory missing"
+            )
+            return result
+
+        batches = list(
+            development.glob("BATCH-*.md")
+        )
+
+        if len(batches) >= 2:
+            result.score = 20
+        elif len(batches) == 1:
+            result.score = 10
+            result.warnings.append(
+                "Only one development batch found."
+            )
+        else:
+            result.warnings.append(
+                "No development batches found."
+            )
+
+        return result
+

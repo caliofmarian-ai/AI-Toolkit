@@ -7,6 +7,9 @@ from checks import (
     DirectoryStructureCheck,
     EngineInventoryCheck,
     CanonicalDocumentsCheck,
+    EngineTestCoverageCheck,
+    CLIIntegrationCheck,
+    DevelopmentBatchCheck,
 )
 
 ROOT = Path(".").resolve()
@@ -15,6 +18,9 @@ checks = [
     DirectoryStructureCheck(),
     EngineInventoryCheck(),
     CanonicalDocumentsCheck(),
+    EngineTestCoverageCheck(),
+    CLIIntegrationCheck(),
+    DevelopmentBatchCheck(),
 ]
 
 report = {
