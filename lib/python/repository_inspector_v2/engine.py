@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 from .report import MarkdownReport
-from .analyzer import RepositoryAnalyzer
+from python.rule_engine.engine import RuleEngine
 
 from python.repository_engine.engine import RepositoryEngine
 from python.dependency_engine.engine import DependencyEngine
@@ -47,9 +47,9 @@ class RepositoryInspectorV2:
             else "ATTENTION"
         )
 
-        analyzer = RepositoryAnalyzer()
+        engine = RuleEngine()
 
-        report = analyzer.analyze(report)
+        report = engine.evaluate(report)
 
         return report
 
