@@ -1,0 +1,24 @@
+{
+  "repository": "AI-Toolkit",
+  "root": "/storage/emulated/0/AI-Projects/AI-Toolkit",
+  "branch": "feature/repository-inspector",
+  "languages": [
+    "Python",
+    "Shell",
+    "Markdown"
+  ],
+  "package_managers": [],
+  "features": {
+    "git": true,
+    "tests": true,
+    "canonical": true,
+    "plugins": true,
+    "railway": false,
+    "github_actions": false
+  },
+  "statistics": {
+    "engines": 10,
+    "tests": 4,
+    "canonical_documents": 17
+  }
+}
