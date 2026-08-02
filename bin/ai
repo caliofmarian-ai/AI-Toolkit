@@ -26,7 +26,7 @@ git branch --show-current 2>/dev/null
 inspect_repo() {
 ROOT="${1:-.}"
 DIR="$(cd "$ROOT" && pwd)"
-"$(dirname "$0")/../lib/repository_inspector.sh" "$DIR"
+bash "$(dirname "$0")/../lib/repository_inspector.sh" "$DIR"
 }
 
 case "${1:-help}" in
