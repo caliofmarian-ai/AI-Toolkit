@@ -69,10 +69,10 @@ class DevelopmentReport:
 
         for batch in result["generated_batches"]:
             report.append(
-                f'- {batch["identifier"]} [{batch["priority"]}] {batch["title"]}'
+                f'- {batch.identifier} [{batch.priority}] {batch.title}'
             )
             report.append(
-                f'  Estimate: {batch["estimated_hours"]} h'
+                f'  Estimate: {batch.estimated_hours} h'
             )
             report.append("")
 
