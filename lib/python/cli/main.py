@@ -8,6 +8,7 @@ from python.repository_engine.engine import RepositoryEngine
 from python.dependency_engine.engine import DependencyEngine
 from python.validation_engine.engine import ValidationEngine
 from python.planning_engine.engine import PlanningEngine
+from python.repository_inspector_v2.engine import RepositoryInspectorV2
 
 
 def cmd_inventory(args):
@@ -49,6 +50,7 @@ def main():
     sub.add_parser("dependencies")
     sub.add_parser("validate")
     sub.add_parser("plan")
+    sub.add_parser("inspect")
 
     args = parser.parse_args()
 
@@ -63,6 +65,11 @@ def main():
 
     elif args.command == "plan":
         cmd_plan(args)
+
+    elif args.command == "inspect":
+        agent = RepositoryInspectorV2(".")
+        import json
+        print(json.dumps(agent.inspect(), indent=2))
 
     else:
         parser.print_help()
