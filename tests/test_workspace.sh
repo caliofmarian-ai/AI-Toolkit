@@ -3,9 +3,9 @@ set -e
 
 ROOT="${1:-.}"
 
-echo "========== Workspace Test =========="
+echo "========== Workspace Validation =========="
 
 bash lib/workspace_engine.sh "$ROOT"
 
 echo
-echo "PASS"
+echo "All workspace checks passed."
