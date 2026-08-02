@@ -13,6 +13,7 @@ from python.agents.development_report import DevelopmentReport
 from python.recommendation_engine.engine import RecommendationEngine
 from python.batch_generator.engine import BatchGenerator
 from python.github_materialization.engine import GitHubMaterializationEngine
+from python.execution_engine.engine import ExecutionEngine
 
 
 class DevelopmentAgent(BaseAgent):
@@ -71,6 +72,10 @@ class DevelopmentAgent(BaseAgent):
             GitHubMaterializationEngine().generate(
                 report["generated_batches"]
             )
+        )
+
+        report["execution"] = (
+            ExecutionEngine().execute()
         )
 
         DevelopmentReport.generate(report)
