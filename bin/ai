@@ -1,150 +1,46 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
-VERSION="0.7.0"
+VERSION="0.4.0"
 
-header() {
-echo
-echo "=============================================="
-echo " AI TOOLKIT $VERSION"
-echo "=============================================="
-echo
-}
-
-github_engine() {
-
-SUB="$1"
-
-case "$SUB" in
-
-issues)
-
-header
-echo "Open Issues"
-echo
-gh issue list
-;;
-
-issue)
-
-NUMBER="$2"
-
-if [ -z "$NUMBER" ]; then
-    echo "Usage: ai github issue <number>"
-    exit 1
-fi
-
-header
-
-gh issue view "$NUMBER"
-;;
-
-prs)
-
-header
-echo "Open Pull Requests"
-echo
-gh pr list
-;;
-
-pr)
-
-NUMBER="$2"
-
-if [ -z "$NUMBER" ]; then
-    echo "Usage: ai github pr <number>"
-    exit 1
-fi
-
-header
-
-gh pr view "$NUMBER"
-;;
-
-labels)
-
-header
-gh label list
-;;
-
-milestones)
-
-header
-gh api repos/:owner/:repo/milestones \
---jq '.[] | .title'
-;;
-
-status)
-
-header
-
-echo "Repository:"
-gh repo view --json nameWithOwner \
---jq '.nameWithOwner'
-
-echo
-echo "Default Branch:"
-gh repo view --json defaultBranchRef \
---jq '.defaultBranchRef.name'
-
-echo
-echo "Issues:"
-gh issue list --limit 5
-
-echo
-echo "PRs:"
-gh pr list --limit 5
-;;
-
-*)
-
+show_help() {
 cat <<HELP
-
-GitHub Engine
-
-ai github issues
-ai github issue <id>
-
-ai github prs
-ai github pr <id>
-
-ai github labels
-ai github milestones
-ai github status
-
-HELP
-
-;;
-
-esac
-
-}
-
-case "$1" in
-
-version)
-echo "$VERSION"
-;;
-
-github)
-
-shift
-
-github_engine "$@"
-;;
-
-*)
-
-cat <<HELP
-
 AI Toolkit
 
-Commands
-
-ai github ...
-
+Commands:
+  version
+  discover
+  inspect [path]
 HELP
+}
 
-;;
+discover() {
+echo "========== PROJECT DISCOVERY =========="
+echo
+echo "Repository:"
+git rev-parse --show-toplevel 2>/dev/null
+echo
+echo "Branch:"
+git branch --show-current 2>/dev/null
+}
 
+inspect_repo() {
+ROOT="${1:-.}"
+DIR="$(cd "$ROOT" && pwd)"
+"$(dirname "$0")/../lib/repository_inspector.sh" "$DIR"
+}
+
+case "${1:-help}" in
+    version)
+        echo "$VERSION"
+        ;;
+    discover)
+        discover
+        ;;
+    inspect)
+        shift
+        inspect_repo "$@"
+        ;;
+    *)
+        show_help
+        ;;
 esac
-
