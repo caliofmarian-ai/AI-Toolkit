@@ -2488,3 +2488,215 @@ Dependency Analysis
 
 IN DEVELOPMENT
 
+
+============================================================
+MACRO BLOCK 3
+IMPACT ANALYSIS
+PART 3
+============================================================
+
+PURPOSE
+
+Impact Analysis evaluates the consequences of every proposed
+change within AI Toolkit before implementation.
+
+Every modification shall have a predictable impact assessment.
+
+============================================================
+
+OBJECTIVES
+
+Predict implementation impact.
+
+Predict dependency impact.
+
+Predict validation impact.
+
+Predict workflow impact.
+
+Support autonomous planning.
+
+Prevent unintended consequences.
+
+============================================================
+
+IMPACT SOURCES
+
+Repository Mapping
+
+Dependency Graph
+
+Knowledge Graph
+
+Canonical Specifications
+
+Development Batches
+
+Implementation Inventory
+
+Validation Reports
+
+============================================================
+
+IMPACT TARGETS
+
+Subsystems
+
+Engines
+
+Python Modules
+
+Shell Modules
+
+Tests
+
+CLI Commands
+
+Canonical Specifications
+
+Development Batches
+
+Plugins
+
+============================================================
+
+IMPACT PROCESS
+
+Change Request
+
+↓
+
+Affected Entity Discovery
+
+↓
+
+Dependency Traversal
+
+↓
+
+Impact Classification
+
+↓
+
+Risk Evaluation
+
+↓
+
+Recommendation Generation
+
+↓
+
+Knowledge Graph Update
+
+============================================================
+
+IMPACT CATEGORIES
+
+Implementation
+
+Architecture
+
+Validation
+
+Testing
+
+Documentation
+
+CLI
+
+Repository
+
+Workflow
+
+Knowledge Graph
+
+============================================================
+
+IMPACT LEVELS
+
+None
+
+Minimal
+
+Low
+
+Moderate
+
+High
+
+Critical
+
+============================================================
+
+IMPACT ATTRIBUTES
+
+Impact Identifier
+
+Affected Entity
+
+Impact Category
+
+Impact Level
+
+Risk Level
+
+Estimated Effort
+
+Validation Required
+
+Rollback Required
+
+============================================================
+
+RISK FACTORS
+
+Broken Dependency
+
+Missing Tests
+
+Canonical Conflict
+
+Implementation Conflict
+
+Validation Failure
+
+Repository Inconsistency
+
+============================================================
+
+OUTPUTS
+
+Impact Report
+
+Affected Entity Report
+
+Risk Assessment
+
+Implementation Recommendation
+
+Planning Recommendation
+
+============================================================
+
+VALIDATION
+
+Every impact assessment shall contain
+
+Affected Entities
+
+Dependency Chain
+
+Risk Level
+
+Validation Status
+
+Recommended Actions
+
+============================================================
+
+STATUS
+
+Impact Analysis
+
+IN DEVELOPMENT
+
