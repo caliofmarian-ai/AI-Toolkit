@@ -3248,3 +3248,300 @@ MACRO BLOCK 2
 
 COMPLETE
 
+
+============================================================
+MACRO BLOCK 3
+EXECUTION JOURNAL
+PART 1
+============================================================
+
+# PURPOSE
+
+The Execution Journal is the authoritative chronological record of
+every workflow execution.
+
+Every significant runtime event shall be recorded.
+
+Nothing executed by the Autonomous Workflow System shall remain
+untraceable.
+
+The journal is append-only.
+
+Historical records are immutable.
+
+------------------------------------------------------------
+
+# OBJECTIVES
+
+Record execution.
+
+Record state transitions.
+
+Record scheduler events.
+
+Record checkpoints.
+
+Record recoveries.
+
+Record retries.
+
+Record failures.
+
+Record metrics.
+
+Record validation.
+
+Record completion.
+
+------------------------------------------------------------
+
+# DESIGN PRINCIPLES
+
+Chronological.
+
+Deterministic.
+
+Immutable.
+
+Auditable.
+
+Recoverable.
+
+Canonical.
+
+Observable.
+
+------------------------------------------------------------
+
+# COMPONENTS
+
+Execution Journal
+
+Journal Writer
+
+Journal Reader
+
+Journal Validator
+
+Journal Serializer
+
+Journal Index
+
+Journal Search
+
+Journal Export
+
+Journal Integrity Validator
+
+------------------------------------------------------------
+
+# STORAGE MODEL
+
+.ai/work/journal/
+
+journal.json
+
+journal_index.json
+
+journal_metadata.json
+
+journal_integrity.json
+
+journal_archive/
+
+------------------------------------------------------------
+
+# ENTRY MODEL
+
+Each journal entry contains
+
+Entry Identifier
+
+Workflow Identifier
+
+Session Identifier
+
+Checkpoint Identifier
+
+Timestamp
+
+Sequence Number
+
+Engine
+
+Category
+
+Severity
+
+Action
+
+State Before
+
+State After
+
+Duration
+
+Result
+
+Recovery Action
+
+Metrics Snapshot
+
+Notes
+
+------------------------------------------------------------
+
+# EVENT CATEGORIES
+
+Workflow
+
+Scheduler
+
+Engine
+
+Checkpoint
+
+Recovery
+
+Validation
+
+Metrics
+
+Decision
+
+Planner
+
+Execution
+
+Review
+
+System
+
+Plugin
+
+------------------------------------------------------------
+
+# SEVERITY
+
+TRACE
+
+DEBUG
+
+INFO
+
+NOTICE
+
+WARNING
+
+ERROR
+
+CRITICAL
+
+FATAL
+
+------------------------------------------------------------
+
+# ENTRY TYPES
+
+Workflow Created
+
+Workflow Started
+
+Workflow Paused
+
+Workflow Resumed
+
+Workflow Cancelled
+
+Workflow Completed
+
+Engine Started
+
+Engine Completed
+
+Engine Failed
+
+Retry Started
+
+Retry Completed
+
+Checkpoint Created
+
+Checkpoint Restored
+
+Validation Started
+
+Validation Completed
+
+Recovery Started
+
+Recovery Completed
+
+Metrics Updated
+
+Review Generated
+
+------------------------------------------------------------
+
+# ENTRY IDENTIFIERS
+
+Journal UUID
+
+Workflow UUID
+
+Session UUID
+
+Engine UUID
+
+Checkpoint UUID
+
+Sequence Number
+
+------------------------------------------------------------
+
+# ORDERING
+
+Entries are strictly chronological.
+
+Sequence numbers are monotonic.
+
+No duplicate sequence numbers.
+
+No missing sequence numbers.
+
+------------------------------------------------------------
+
+# IMMUTABILITY
+
+Existing entries cannot be modified.
+
+Entries may only be appended.
+
+Corrections create new entries.
+
+Deleted entries are forbidden.
+
+------------------------------------------------------------
+
+# INTEGRITY
+
+Every entry references
+
+Existing workflow.
+
+Existing session.
+
+Existing engine.
+
+Existing checkpoint.
+
+Existing timestamp.
+
+------------------------------------------------------------
+
+STATUS
+
+Execution Journal
+
+IN DEVELOPMENT
+
