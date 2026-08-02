@@ -1,77 +1,140 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
-VERSION="0.3.0"
+VERSION="0.4.0"
 
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+command="${1:-help}"
 
-show_help() {
-cat <<HELP
-AI Toolkit $VERSION
-
-Usage:
-
-  ai discover
-  ai inspect
-  ai context
-  ai github
-  ai railway
-  ai telegram
-  ai version
-HELP
+header() {
+echo
+echo "=============================================="
+echo " AI TOOLKIT $VERSION"
+echo "=============================================="
+echo
 }
 
 discover() {
 
-echo
-echo "========== PROJECT DISCOVERY =========="
-echo
+header
 
-echo "Repository:"
+echo "[Repository]"
 git rev-parse --show-toplevel 2>/dev/null || echo "Not a git repository"
 
 echo
-echo "Branch:"
+echo "[Branch]"
 git branch --show-current 2>/dev/null
 
 echo
-echo "Remote:"
+echo "[Remote]"
 git remote -v 2>/dev/null
 
 echo
-echo "Python:"
-find . -maxdepth 2 -name "*.py" | wc -l
+echo "[Git Status]"
+git status --short 2>/dev/null
 
 echo
-echo "Markdown:"
+echo "[Languages]"
+printf "Python     : "
+find . -name "*.py" | wc -l
+
+printf "Shell      : "
+find . -name "*.sh" | wc -l
+
+printf "Markdown   : "
 find . -name "*.md" | wc -l
 
+printf "JSON       : "
+find . -name "*.json" | wc -l
+
+printf "YAML       : "
+find . \( -name "*.yml" -o -name "*.yaml" \) | wc -l
+
 echo
-echo "Tests:"
+echo "[Directories]"
+find . -maxdepth 2 -type d | sort
+
+echo
+echo "[Tests]"
 find . -type d -name tests
 
 echo
-echo "Railway:"
-find . -maxdepth 2 -name "railway.json"
+echo "[Integrations]"
+
+[ -d ".github" ] && echo "GitHub      : YES" || echo "GitHub      : NO"
+
+find . -name railway.json | grep . >/dev/null \
+&& echo "Railway     : YES" \
+|| echo "Railway     : NO"
+
+find . -name Dockerfile | grep . >/dev/null \
+&& echo "Docker      : YES" \
+|| echo "Docker      : NO"
 
 echo
-echo "GitHub:"
-find . -maxdepth 2 -name ".github"
-
-echo
-echo "Done."
+echo "[Done]"
 }
 
-case "$1" in
-discover)
-discover
-;;
+doctor() {
+
+header
+
+echo "[Git]"
+git --version
+
+echo
+echo "[GitHub CLI]"
+gh --version | head -1
+
+echo
+echo "[Python]"
+python --version 2>/dev/null || python3 --version
+
+echo
+echo "[Termux API]"
+command -v termux-battery-status >/dev/null \
+&& echo "Installed" \
+|| echo "Missing"
+
+echo
+echo "[Network]"
+ping -c1 github.com >/dev/null 2>&1 \
+&& echo "Online" \
+|| echo "Offline"
+
+echo
+echo "[Disk]"
+df -h .
+
+echo
+echo "[Done]"
+}
+
+case "$command" in
 
 version)
 echo "$VERSION"
 ;;
 
-*)
-show_help
+discover|inspect)
+discover
 ;;
-esac
 
+doctor)
+doctor
+;;
+
+*)
+cat <<HELP
+
+AI Toolkit
+
+Commands
+
+  ai discover
+  ai inspect
+  ai doctor
+  ai version
+
+HELP
+;;
+
+esac
