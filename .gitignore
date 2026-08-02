@@ -1,2 +1,5 @@
-cache/
-*.log
+.ai/context/*
+.ai/work/*
+
+!.ai/context/.gitkeep
+!.ai/work/.gitkeep
