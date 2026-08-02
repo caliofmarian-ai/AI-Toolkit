@@ -89,6 +89,22 @@ class DevelopmentReport:
 
         report.append("")
 
+
+        report.append("")
+        report.append("## Roadmap")
+        report.append("")
+        report.append(f'Total estimate: {result["roadmap"]["estimated_hours"]} h')
+        report.append("")
+
+        for phase in result["roadmap"]["phases"]:
+            report.append(f'### {phase["name"]}')
+            if phase["items"]:
+                for item in phase["items"]:
+                    report.append(f'- {item}')
+            else:
+                report.append("- No actions")
+            report.append("")
+
         report.append("## Planning Tasks")
         report.append("")
 
