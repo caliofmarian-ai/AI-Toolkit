@@ -1,0 +1,51 @@
+#!/data/data/com.termux/files/usr/bin/bash
+
+VERSION="0.4.0"
+
+show_help() {
+cat <<HELP
+AI Toolkit
+
+Commands:
+  version
+  discover
+  inspect [path]
+HELP
+}
+
+discover() {
+echo "========== PROJECT DISCOVERY =========="
+echo
+echo "Repository:"
+git rev-parse --show-toplevel 2>/dev/null
+echo
+echo "Branch:"
+git branch --show-current 2>/dev/null
+}
+
+inspect_repo() {
+ROOT="${1:-.}"
+DIR="$(cd "$ROOT" && pwd)"
+bash "$(dirname "$0")/../lib/repository_inspector.sh" "$DIR"
+}
+
+case "${1:-help}" in
+    version)
+        echo "$VERSION"
+        ;;
+    discover)
+        discover
+        ;;
+    inspect)
+    context)
+        shift
+        ROOT="${1:-.}"
+        bash "$(dirname "$0")/../lib/context_engine.sh" "$ROOT"
+        ;;
+        shift
+        inspect_repo "$@"
+        ;;
+    *)
+        show_help
+        ;;
+esac
