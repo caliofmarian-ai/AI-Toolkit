@@ -9,6 +9,7 @@ from python.repository_inspector_v2.engine import RepositoryInspectorV2
 from python.canonical_audit.engine import CanonicalAuditEngine
 from python.semantic_engine.engine import SemanticEngine
 from python.knowledge_graph_v2.engine import KnowledgeGraphEngine
+from python.agents.development_report import DevelopmentReport
 
 
 class DevelopmentAgent(BaseAgent):
@@ -52,6 +53,8 @@ class DevelopmentAgent(BaseAgent):
         report["knowledge_graph"] = KnowledgeGraphEngine(
             repository
         ).build()
+
+        DevelopmentReport.generate(report)
 
         return AgentResult(
             agent=self.NAME,
