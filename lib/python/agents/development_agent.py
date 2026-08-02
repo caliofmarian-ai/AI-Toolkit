@@ -16,6 +16,7 @@ from python.github_materialization.engine import GitHubMaterializationEngine
 from python.execution_engine.engine import ExecutionEngine
 from python.review_agent.engine import ReviewAgent
 from python.autonomous_planner.engine import AutonomousPlanner
+from python.execution_coordinator.engine import ExecutionCoordinator
 
 
 class DevelopmentAgent(BaseAgent):
@@ -86,6 +87,12 @@ class DevelopmentAgent(BaseAgent):
 
         report["roadmap"] = (
             AutonomousPlanner().build(report)
+        )
+
+        report["execution_state"] = (
+            ExecutionCoordinator().coordinate(
+                report["roadmap"]
+            )
         )
 
         DevelopmentReport.generate(report)

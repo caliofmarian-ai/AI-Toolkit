@@ -105,6 +105,22 @@ class DevelopmentReport:
                 report.append("- No actions")
             report.append("")
 
+
+        report.append("")
+        report.append("## Execution State")
+        report.append("")
+        report.append(
+            f'Status: **{result["execution_state"]["status"]}**'
+        )
+        report.append("")
+
+        for phase in result["execution_state"]["phases"]:
+            report.append(
+                f'- {phase["name"]}: {phase["status"]}'
+            )
+
+        report.append("")
+
         report.append("## Planning Tasks")
         report.append("")
 
