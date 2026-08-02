@@ -2844,3 +2844,407 @@ Recovery Engine
 
 IN DEVELOPMENT
 
+
+============================================================
+MACRO BLOCK 2
+PERSISTENT RUNTIME STATE
+PART 4
+============================================================
+
+# PURPOSE
+
+The Persistent Runtime State subsystem preserves the complete
+workflow execution state.
+
+Its objective is to guarantee that execution can continue after any
+interruption without loss of information.
+
+Persistent Runtime State is the authoritative source of execution
+progress.
+
+------------------------------------------------------------
+
+# OBJECTIVES
+
+Persist workflow execution.
+
+Persist runtime context.
+
+Persist scheduler state.
+
+Persist active tasks.
+
+Persist pending tasks.
+
+Persist metrics.
+
+Persist execution journal.
+
+Persist checkpoints.
+
+Persist recovery information.
+
+------------------------------------------------------------
+
+# COMPONENTS
+
+Runtime State Manager
+
+Runtime Snapshot Manager
+
+Runtime Serializer
+
+Runtime Loader
+
+Runtime Validator
+
+Runtime Recovery Adapter
+
+Session Manager
+
+Execution State Repository
+
+------------------------------------------------------------
+
+# RUNTIME SNAPSHOT
+
+A runtime snapshot shall contain
+
+Workflow Identifier
+
+Workflow Version
+
+Repository Identifier
+
+Current Workflow State
+
+Execution Queue
+
+Running Tasks
+
+Completed Tasks
+
+Pending Tasks
+
+Blocked Tasks
+
+Current Engine
+
+Current Scheduler State
+
+Checkpoint Identifier
+
+Execution Metrics
+
+Recovery Metrics
+
+Decision Snapshot
+
+Planner Snapshot
+
+Knowledge Graph Version
+
+Repository Profile Version
+
+Timestamp
+
+------------------------------------------------------------
+
+# STORAGE MODEL
+
+.ai/work/runtime/
+
+runtime_state.json
+
+runtime_snapshot.json
+
+runtime_metrics.json
+
+runtime_session.json
+
+runtime_validation.json
+
+------------------------------------------------------------
+
+# SNAPSHOT CREATION
+
+Workflow Start
+
+Before Engine Execution
+
+After Engine Completion
+
+Before Recovery
+
+After Recovery
+
+Before Workflow Completion
+
+After Workflow Completion
+
+------------------------------------------------------------
+
+# SESSION MANAGEMENT
+
+Every execution owns
+
+Session Identifier
+
+Workflow Identifier
+
+Creation Time
+
+Last Activity
+
+Status
+
+Owner
+
+Runtime Version
+
+------------------------------------------------------------
+
+# SESSION STATES
+
+CREATED
+
+ACTIVE
+
+PAUSED
+
+RECOVERING
+
+FAILED
+
+COMPLETED
+
+CANCELLED
+
+------------------------------------------------------------
+
+# SESSION RECOVERY
+
+Locate Session
+
+↓
+
+Validate Runtime
+
+↓
+
+Validate Snapshot
+
+↓
+
+Restore Runtime
+
+↓
+
+Restore Scheduler
+
+↓
+
+Resume Workflow
+
+------------------------------------------------------------
+
+# RUNTIME VALIDATION
+
+Workflow Identifier valid.
+
+Repository Identifier valid.
+
+Scheduler valid.
+
+Execution Queue valid.
+
+Checkpoint valid.
+
+Metrics valid.
+
+Knowledge Graph valid.
+
+Planner Snapshot valid.
+
+------------------------------------------------------------
+
+# CONSISTENCY RULES
+
+Only one active runtime.
+
+One scheduler per workflow.
+
+One active checkpoint chain.
+
+Immutable completed sessions.
+
+Immutable cancelled sessions.
+
+------------------------------------------------------------
+
+# CRASH RECOVERY
+
+Crash Detection
+
+↓
+
+Locate Latest Runtime Snapshot
+
+↓
+
+Locate Latest Checkpoint
+
+↓
+
+Validate Runtime
+
+↓
+
+Restore Runtime
+
+↓
+
+Resume Workflow
+
+------------------------------------------------------------
+
+# RUNTIME METRICS
+
+Session Duration
+
+Execution Duration
+
+Recovery Duration
+
+Checkpoint Count
+
+Recovery Count
+
+Rollback Count
+
+Retry Count
+
+Scheduler Cycles
+
+Average Engine Time
+
+------------------------------------------------------------
+
+# AUDIT TRAIL
+
+Every runtime event records
+
+Timestamp
+
+Workflow
+
+Session
+
+Engine
+
+State
+
+Duration
+
+Checkpoint
+
+Recovery Action
+
+Validation Result
+
+------------------------------------------------------------
+
+# ACCEPTANCE TESTS
+
+Runtime persistence
+
+Runtime validation
+
+Session recovery
+
+Crash recovery
+
+Checkpoint recovery
+
+Metrics persistence
+
+Journal persistence
+
+Scheduler restoration
+
+------------------------------------------------------------
+
+# CANONICAL VALIDATION
+
+Persistent Runtime State shall satisfy
+
+SYSTEM_INVARIANTS
+
+ENGINE_INTERFACE_SPEC
+
+STATE_MODEL_SPEC
+
+MEMORY_SYSTEM_SPEC
+
+AUTONOMOUS_WORKFLOW_SPEC
+
+------------------------------------------------------------
+
+# MACRO BLOCK REVIEW
+
+Macro Block 2
+
+Resume Engine
+
+COMPLETE
+
+Checkpoint Manager
+
+COMPLETE
+
+Recovery Engine
+
+COMPLETE
+
+Persistent Runtime State
+
+COMPLETE
+
+Recovery Validation
+
+COMPLETE
+
+Acceptance Tests
+
+DEFINED
+
+Canonical Compliance
+
+READY
+
+------------------------------------------------------------
+
+NEXT
+
+MACRO BLOCK 3
+
+Execution Journal
+
+Metrics Engine
+
+Workflow Analytics
+
+Observability
+
+Execution Timeline
+
+Performance Profiling
+
+============================================================
+
+STATUS
+
+MACRO BLOCK 2
+
+COMPLETE
+
