@@ -2,7 +2,7 @@
 
 import json
 import shutil
-from datetime import datetime
+from datetime import datetime, UTC
 from pathlib import Path
 import sys
 
@@ -14,34 +14,55 @@ CONTEXT = ROOT / ".ai" / "context"
 MEMORY.mkdir(parents=True, exist_ok=True)
 
 PROFILE = CONTEXT / "repository_profile.json"
+HISTORY = MEMORY / "history.json"
+INDEX = MEMORY / "index.json"
 
-history = MEMORY / "history.json"
-
-if history.exists():
-    data = json.loads(history.read_text(encoding="utf-8"))
+if HISTORY.exists():
+    history = json.loads(HISTORY.read_text(encoding="utf-8"))
 else:
-    data = {
+    history = {
         "repository": ROOT.name,
         "events": []
     }
 
+timestamp = datetime.now(UTC).isoformat()
+
 event = {
-    "timestamp": datetime.utcnow().isoformat() + "Z",
+    "timestamp": timestamp,
     "type": "repository_profile"
 }
 
+latest_profile = None
+
 if PROFILE.exists():
-    archive = MEMORY / f"repository_profile_{len(data['events'])+1}.json"
+    archive = MEMORY / f"repository_profile_{len(history['events']) + 1}.json"
     shutil.copy2(PROFILE, archive)
+    latest_profile = archive.name
     event["file"] = archive.name
     event["status"] = "saved"
 else:
     event["status"] = "missing_profile"
 
-data["events"].append(event)
+history["events"].append(event)
 
-history.write_text(
-    json.dumps(data, indent=2),
+HISTORY.write_text(
+    json.dumps(history, indent=2),
+    encoding="utf-8"
+)
+
+index = {
+    "repository": ROOT.name,
+    "created": history["events"][0]["timestamp"],
+    "last_update": timestamp,
+    "events": len(history["events"]),
+    "latest_profile": latest_profile,
+    "latest_plan": "plan.md" if (ROOT / ".ai/work/plan.md").exists() else None,
+    "latest_review": "review.md" if (ROOT / ".ai/work/review.md").exists() else None,
+    "latest_execution": "execution.log" if (ROOT / ".ai/work/execution.log").exists() else None
+}
+
+INDEX.write_text(
+    json.dumps(index, indent=2),
     encoding="utf-8"
 )
 
@@ -50,7 +71,8 @@ print("Memory Engine")
 print("==================================")
 print()
 print("Repository:", ROOT.name)
-print("Events:", len(data["events"]))
-print("History:", history)
+print("Events:", len(history["events"]))
+print("History:", HISTORY)
+print("Index:", INDEX)
 print()
 print("Done.")
