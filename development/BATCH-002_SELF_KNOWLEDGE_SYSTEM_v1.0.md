@@ -1597,3 +1597,202 @@ Subsystem Classification
 
 IN DEVELOPMENT
 
+
+============================================================
+MACRO BLOCK 2
+IMPLEMENTATION MAPPING
+PART 4
+============================================================
+
+PURPOSE
+
+Implementation Mapping establishes the authoritative connection
+between repository artifacts and their implementation status.
+
+The Self Knowledge System shall know what has been designed,
+implemented, validated and released.
+
+============================================================
+
+OBJECTIVES
+
+Map implementations.
+
+Track implementation progress.
+
+Link implementation to specifications.
+
+Support implementation audits.
+
+Support autonomous planning.
+
+============================================================
+
+IMPLEMENTATION SOURCES
+
+Canonical Specifications
+
+Development Batches
+
+Repository Inventory
+
+Python Modules
+
+Shell Modules
+
+CLI Commands
+
+Tests
+
+Audit Reports
+
+============================================================
+
+IMPLEMENTATION STATES
+
+Planned
+
+Designed
+
+In Development
+
+Implemented
+
+Validated
+
+Released
+
+Deprecated
+
+Archived
+
+============================================================
+
+IMPLEMENTATION MODEL
+
+Specification
+
+↓
+
+Development Batch
+
+↓
+
+Implementation
+
+↓
+
+Testing
+
+↓
+
+Validation
+
+↓
+
+Approval
+
+↓
+
+Release
+
+============================================================
+
+IMPLEMENTATION ATTRIBUTES
+
+Implementation Identifier
+
+Subsystem
+
+Module
+
+Current State
+
+Completion Percentage
+
+Validation Status
+
+Repository Location
+
+Owner
+
+Version
+
+============================================================
+
+IMPLEMENTATION RULES
+
+Every implementation shall reference
+one Development Batch.
+
+Every implementation shall reference
+its Canonical Specification.
+
+Every implementation shall have
+a validation status.
+
+Completed implementations shall
+have associated tests.
+
+============================================================
+
+IMPLEMENTATION TRACEABILITY
+
+Canonical Specification
+
+↓
+
+Development Batch
+
+↓
+
+Source Code
+
+↓
+
+Tests
+
+↓
+
+Audit
+
+↓
+
+Release
+
+============================================================
+
+IMPLEMENTATION OUTPUTS
+
+Implementation Inventory
+
+Implementation Graph
+
+Implementation Status Report
+
+Implementation Traceability Report
+
+============================================================
+
+VALIDATION
+
+Every implementation shall contain
+
+Identifier
+
+Current State
+
+Canonical Reference
+
+Development Reference
+
+Validation Status
+
+============================================================
+
+STATUS
+
+Implementation Mapping
+
+IN DEVELOPMENT
+
