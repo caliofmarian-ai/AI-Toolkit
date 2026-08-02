@@ -1,8 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
-VERSION="0.6.0"
-
-ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+VERSION="0.7.0"
 
 header() {
 echo
@@ -12,53 +10,112 @@ echo "=============================================="
 echo
 }
 
-work() {
+github_engine() {
 
-TYPE="$1"
-TARGET="$2"
+SUB="$1"
 
-if [ -z "$TYPE" ] || [ -z "$TARGET" ]; then
-    echo "Usage:"
-    echo "  ai work issue <number>"
-    echo "  ai work pr <number>"
-    echo "  ai work feature <name>"
+case "$SUB" in
+
+issues)
+
+header
+echo "Open Issues"
+echo
+gh issue list
+;;
+
+issue)
+
+NUMBER="$2"
+
+if [ -z "$NUMBER" ]; then
+    echo "Usage: ai github issue <number>"
     exit 1
 fi
 
-mkdir -p "$ROOT/.ai/work"
+header
 
-REPORT="$ROOT/.ai/work/session.md"
+gh issue view "$NUMBER"
+;;
 
-{
-echo "# AI Work Session"
+prs)
+
+header
+echo "Open Pull Requests"
 echo
-echo "Generated: $(date)"
-echo
+gh pr list
+;;
+
+pr)
+
+NUMBER="$2"
+
+if [ -z "$NUMBER" ]; then
+    echo "Usage: ai github pr <number>"
+    exit 1
+fi
+
+header
+
+gh pr view "$NUMBER"
+;;
+
+labels)
+
+header
+gh label list
+;;
+
+milestones)
+
+header
+gh api repos/:owner/:repo/milestones \
+--jq '.[] | .title'
+;;
+
+status)
+
+header
+
 echo "Repository:"
-basename "$ROOT"
-echo
-echo "Branch:"
-git branch --show-current
-echo
-echo "Type: $TYPE"
-echo "Target: $TARGET"
-echo
-echo "Last Commit:"
-git log -1 --oneline
-echo
-echo "Git Status:"
-git status --short
-echo
-echo "Modified Files:"
-git diff --name-only
-echo
-echo "Untracked:"
-git ls-files --others --exclude-standard
-} > "$REPORT"
+gh repo view --json nameWithOwner \
+--jq '.nameWithOwner'
 
 echo
-echo "Session created:"
-echo "$REPORT"
+echo "Default Branch:"
+gh repo view --json defaultBranchRef \
+--jq '.defaultBranchRef.name'
+
+echo
+echo "Issues:"
+gh issue list --limit 5
+
+echo
+echo "PRs:"
+gh pr list --limit 5
+;;
+
+*)
+
+cat <<HELP
+
+GitHub Engine
+
+ai github issues
+ai github issue <id>
+
+ai github prs
+ai github pr <id>
+
+ai github labels
+ai github milestones
+ai github status
+
+HELP
+
+;;
+
+esac
 
 }
 
@@ -68,23 +125,26 @@ version)
 echo "$VERSION"
 ;;
 
-work)
+github)
+
 shift
-work "$@"
+
+github_engine "$@"
 ;;
 
 *)
+
 cat <<HELP
 
 AI Toolkit
 
 Commands
 
-  ai work issue <id>
-  ai work pr <id>
-  ai work feature <name>
+ai github ...
 
 HELP
+
 ;;
 
 esac
+
