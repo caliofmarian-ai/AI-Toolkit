@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from .report import MarkdownReport
 
 from python.repository_engine.engine import RepositoryEngine
 from python.dependency_engine.engine import DependencyEngine
@@ -57,6 +58,11 @@ class RepositoryInspectorV2:
         path.write_text(
             json.dumps(report, indent=2),
             encoding="utf-8",
+        )
+
+        MarkdownReport.generate(
+            report,
+            ".ai/audit/repository_report.md"
         )
 
         return report
