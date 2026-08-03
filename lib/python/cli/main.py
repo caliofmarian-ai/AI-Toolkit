@@ -51,19 +51,25 @@ def cmd_plan():
         )
 
 
-def cmd_agent(agent_name):
+def cmd_agent(agent_name, repository=".", output_dir="."):
 
     runtime = build_runtime()
 
     result = runtime.execute(
         agent_name,
-        AgentContext(repository=".")
+        AgentContext(
+            repository=repository,
+            metadata={"output_dir": output_dir},
+        )
     )
 
     print(json.dumps(
         result.data,
         indent=2
     ))
+
+    for message in result.messages:
+        print(message)
 
 
 parser = argparse.ArgumentParser(
@@ -77,9 +83,25 @@ for command in [
     "dependencies",
     "validate",
     "plan",
-    "inspect",
 ]:
     sub.add_parser(command)
+
+inspect_parser = sub.add_parser(
+    "inspect",
+    help="Scan a repository and generate AI_CTO_INTEGRATION_REPORT.md",
+)
+inspect_parser.add_argument(
+    "path",
+    nargs="?",
+    default=".",
+    help="Path to the repository to inspect (default: current directory)",
+)
+inspect_parser.add_argument(
+    "--output",
+    default=".",
+    metavar="DIR",
+    help="Directory where AI_CTO_INTEGRATION_REPORT.md will be written (default: current directory)",
+)
 
 args = parser.parse_args()
 
@@ -101,7 +123,7 @@ elif args.command == "plan":
 
 elif args.command == "inspect":
 
-    cmd_agent("inspect")
+    cmd_agent("inspect", repository=args.path, output_dir=args.output)
 
 else:
 
