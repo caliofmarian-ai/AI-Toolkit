@@ -1,0 +1,89 @@
+{
+  "generated_at": "2026-08-03T08:53:36.842316+00:00",
+  "plan_id": "IMP-FCF5C03E",
+  "proposed_batch_count": 2,
+  "proposed_batches": [
+    {
+      "acceptance_criteria": [
+        "All issues in the batch are resolved",
+        "All regression tests pass",
+        "No new technical debt introduced"
+      ],
+      "batch_id": "BATCH-IMP-BAA17D",
+      "dependencies": [],
+      "evidence": {
+        "issue_count": 3,
+        "priority": "medium"
+      },
+      "execution_order": [
+        "ISS-C98FDA",
+        "ISS-701DA3",
+        "ISS-D745A2"
+      ],
+      "issue_ids": [
+        "ISS-C98FDA",
+        "ISS-701DA3",
+        "ISS-D745A2"
+      ],
+      "objectives": [
+        "Implement missing missing_cli_command",
+        "Implement missing missing_cli_command",
+        "Implement missing missing_cli_command"
+      ],
+      "owner_approval_required": true,
+      "regression_strategy": "Run full test suite before and after batch execution.",
+      "title": "Improvement Batch: MEDIUM priority issues",
+      "validation_strategy": "Run `ai evaluate` after batch completion."
+    },
+    {
+      "acceptance_criteria": [
+        "All issues in the batch are resolved",
+        "All regression tests pass",
+        "No new technical debt introduced"
+      ],
+      "batch_id": "BATCH-IMP-20F460",
+      "dependencies": [],
+      "evidence": {
+        "issue_count": 9,
+        "priority": "low"
+      },
+      "execution_order": [
+        "ISS-DCC9C3",
+        "ISS-6C041D",
+        "ISS-408543",
+        "ISS-2229AE",
+        "ISS-A0D3CD",
+        "ISS-CBDC9D",
+        "ISS-27519E",
+        "ISS-5457C7",
+        "ISS-1594DD"
+      ],
+      "issue_ids": [
+        "ISS-DCC9C3",
+        "ISS-6C041D",
+        "ISS-408543",
+        "ISS-2229AE",
+        "ISS-A0D3CD",
+        "ISS-CBDC9D",
+        "ISS-27519E",
+        "ISS-5457C7",
+        "ISS-1594DD"
+      ],
+      "objectives": [
+        "Eliminate legacy_module debt in lib/python/knowledge_graph_engine.py",
+        "Eliminate legacy_module debt in lib/python/repository_profile.py",
+        "Eliminate legacy_module debt in lib/python/repository_inventory.py",
+        "Eliminate legacy_module debt in lib/python/foundation_audit.py",
+        "Eliminate legacy_module debt in lib/python/autonomous_workflow_engine.py",
+        "Eliminate legacy_module debt in lib/python/repository_hygiene_audit.py",
+        "Eliminate legacy_module debt in lib/python/decision_engine.py",
+        "Eliminate legacy_module debt in lib/python/memory_engine.py",
+        "Eliminate legacy_module debt in lib/python/development_validator.py"
+      ],
+      "owner_approval_required": true,
+      "regression_strategy": "Run full test suite before and after batch execution.",
+      "title": "Improvement Batch: LOW priority issues",
+      "validation_strategy": "Run `ai evaluate` after batch completion."
+    }
+  ]
+}

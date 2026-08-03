@@ -314,6 +314,147 @@ context_parser.add_argument(
     help="Path to the workspace root (default: parent of repository)",
 )
 
+execute_parser = sub.add_parser(
+    "execute",
+    help="Autonomous Execution Engine (CORE-015)",
+)
+execute_parser.add_argument(
+    "--repository",
+    default=".",
+    metavar="PATH",
+    dest="execute_repository",
+    help="Path to the repository (default: current directory)",
+)
+execute_parser.add_argument(
+    "--workspace",
+    default=None,
+    metavar="PATH",
+    dest="execute_workspace",
+    help="Path to the workspace root (default: parent of repository)",
+)
+execute_parser.add_argument(
+    "--json",
+    action="store_true",
+    dest="execute_json",
+    help="Output execution result as JSON",
+)
+execute_parser.add_argument(
+    "--refresh",
+    action="store_true",
+    dest="execute_refresh",
+    help="Refresh all intelligence integrations before execution",
+)
+execute_parser.add_argument(
+    "--simulate",
+    action="store_true",
+    dest="execute_simulate",
+    help="Run in SIMULATION mode (no mutations)",
+)
+execute_parser.add_argument(
+    "--dry-run",
+    action="store_true",
+    dest="execute_dry_run",
+    help="Run in DRY_RUN mode (describe actions without executing)",
+)
+execute_parser.add_argument(
+    "--validate",
+    action="store_true",
+    dest="execute_validate",
+    help="Run in VALIDATION_ONLY mode",
+)
+
+evaluate_parser = sub.add_parser(
+    "evaluate",
+    help="Self Evaluation Engine (CORE-016)",
+)
+evaluate_parser.add_argument(
+    "--repository",
+    default=".",
+    metavar="PATH",
+    dest="evaluate_repository",
+    help="Path to the repository (default: current directory)",
+)
+evaluate_parser.add_argument(
+    "--workspace",
+    default=None,
+    metavar="PATH",
+    dest="evaluate_workspace",
+    help="Path to the workspace root (default: parent of repository)",
+)
+evaluate_parser.add_argument(
+    "--json",
+    action="store_true",
+    dest="evaluate_json",
+    help="Output evaluation result as JSON",
+)
+evaluate_parser.add_argument(
+    "--refresh",
+    action="store_true",
+    dest="evaluate_refresh",
+    help="Refresh integrations before evaluation",
+)
+evaluate_parser.add_argument(
+    "--regressions",
+    action="store_true",
+    dest="evaluate_regressions",
+    help="Show only regression findings",
+)
+evaluate_parser.add_argument(
+    "--quality",
+    action="store_true",
+    dest="evaluate_quality",
+    help="Show only quality scores",
+)
+
+improve_parser = sub.add_parser(
+    "improve",
+    help="Self Improvement Engine (CORE-017)",
+)
+improve_parser.add_argument(
+    "--repository",
+    default=".",
+    metavar="PATH",
+    dest="improve_repository",
+    help="Path to the repository (default: current directory)",
+)
+improve_parser.add_argument(
+    "--workspace",
+    default=None,
+    metavar="PATH",
+    dest="improve_workspace",
+    help="Path to the workspace root (default: parent of repository)",
+)
+improve_parser.add_argument(
+    "--json",
+    action="store_true",
+    dest="improve_json",
+    help="Output improvement plan as JSON",
+)
+improve_parser.add_argument(
+    "--refresh",
+    action="store_true",
+    dest="improve_refresh",
+    help="Refresh integrations before improvement analysis",
+)
+improve_parser.add_argument(
+    "--technical-debt",
+    action="store_true",
+    dest="improve_technical_debt",
+    help="Show only technical debt findings",
+)
+improve_parser.add_argument(
+    "--performance",
+    action="store_true",
+    dest="improve_performance",
+    help="Show only performance metrics",
+)
+improve_parser.add_argument(
+    "--roadmap",
+    action="store_true",
+    dest="improve_roadmap",
+    help="Show only roadmap update recommendations",
+)
+
 args = parser.parse_args()
 
 if args.command == "inventory":
@@ -536,6 +677,158 @@ elif args.command == "context":
         print(f"  Findings:       {report.get('finding_count', 0)}")
         print(f"  Context JSON:   {paths.get('live_context', str(Path(repository).resolve() / '.ai' / 'context' / 'live_context.json'))}")
         print(f"  Report:         {paths.get('markdown', str(Path(repository).resolve() / '.ai' / 'context' / 'AI_CTO_CONTEXT_REPORT.md'))}")
+
+elif args.command == "execute":
+
+    import json as _json
+    from python.autonomous_execution_engine import AutonomousExecutionEngine
+
+    repository = getattr(args, "execute_repository", ".")
+    workspace_root = getattr(args, "execute_workspace", None)
+    as_json = getattr(args, "execute_json", False)
+    refresh = getattr(args, "execute_refresh", False)
+    simulate = getattr(args, "execute_simulate", False)
+    dry_run = getattr(args, "execute_dry_run", False)
+    validate_only = getattr(args, "execute_validate", False)
+
+    if validate_only:
+        mode = "VALIDATION_ONLY"
+    elif simulate:
+        mode = "SIMULATION"
+    elif dry_run:
+        mode = "DRY_RUN"
+    else:
+        mode = "READ_ONLY"
+
+    engine = AutonomousExecutionEngine(
+        repository=repository,
+        workspace_root=workspace_root,
+        mode=mode,
+        persist=True,
+        refresh_integrations=refresh,
+    )
+    result = engine.execute()
+
+    if as_json:
+        print(_json.dumps(result["execution_dict"], indent=2))
+    else:
+        d = result["execution_dict"]
+        ctx = d.get("context", {})
+        metrics = d.get("metrics", {})
+        paths = result.get("paths", {})
+        print(f"AI CTO Autonomous Execution — {repository}")
+        print(f"  Execution ID: {d.get('execution_id', '')}")
+        print(f"  Mode:         {d.get('mode', '')}")
+        print(f"  Approval:     {d.get('approval', '')}")
+        print(f"  Status:       {d.get('status', '')}")
+        print(f"  Confidence:   {ctx.get('confidence', 0.0):.0%}")
+        print(f"  Duration:     {metrics.get('total_duration_ms', 0.0):.1f} ms")
+        print(f"  Branch:       {ctx.get('branch', '')}")
+        print()
+        na = d.get("next_actions", [])
+        if na:
+            print("  Next Actions:")
+            for action in na:
+                print(f"    - {action}")
+        if paths.get("markdown"):
+            print(f"  Report:       {paths['markdown']}")
+
+elif args.command == "evaluate":
+
+    import json as _json
+    from python.self_evaluation_engine import SelfEvaluationEngine
+
+    repository = getattr(args, "evaluate_repository", ".")
+    workspace_root = getattr(args, "evaluate_workspace", None)
+    as_json = getattr(args, "evaluate_json", False)
+    refresh = getattr(args, "evaluate_refresh", False)
+    regressions_only = getattr(args, "evaluate_regressions", False)
+    quality_only = getattr(args, "evaluate_quality", False)
+
+    engine = SelfEvaluationEngine(
+        repository=repository,
+        workspace_root=workspace_root,
+        persist=True,
+        refresh_integrations=refresh,
+    )
+    result = engine.evaluate()
+
+    if as_json:
+        print(_json.dumps(result["evaluation_dict"], indent=2))
+    else:
+        d = result["evaluation_dict"]
+        paths = result.get("paths", {})
+        print(f"AI CTO Self Evaluation — {repository}")
+        print(f"  Evaluation ID:   {d.get('evaluation_id', '')}")
+        print(f"  Overall Gate:    {d.get('overall_gate', '')}")
+        print(f"  Overall Score:   {d.get('overall_score', 0.0):.0%}")
+        print(f"  Confidence:      {d.get('overall_confidence', 0.0):.0%}")
+        print(f"  Regressions:     {len(d.get('regression_findings', []))}")
+        print(f"  Architecture:    {len(d.get('architecture_findings', []))} findings")
+        print()
+        if regressions_only:
+            for r in d.get("regression_findings", []):
+                print(f"  [{r.get('severity', '').upper()}] {r.get('component', '')}: {r.get('finding', '')}")
+        elif quality_only:
+            for s in d.get("quality_scores", []):
+                print(f"  {s.get('dimension', '')}: {s.get('score', 0.0):.0%} ({s.get('gate', '')})")
+        else:
+            recs = d.get("recommendations", [])
+            if recs:
+                print("  Recommendations:")
+                for rec in recs[:5]:
+                    print(f"    - {rec}")
+        if paths.get("markdown"):
+            print(f"  Report:          {paths['markdown']}")
+
+elif args.command == "improve":
+
+    import json as _json
+    from python.self_improvement_engine import SelfImprovementEngine
+
+    repository = getattr(args, "improve_repository", ".")
+    workspace_root = getattr(args, "improve_workspace", None)
+    as_json = getattr(args, "improve_json", False)
+    refresh = getattr(args, "improve_refresh", False)
+    debt_only = getattr(args, "improve_technical_debt", False)
+    perf_only = getattr(args, "improve_performance", False)
+    roadmap_only = getattr(args, "improve_roadmap", False)
+
+    engine = SelfImprovementEngine(
+        repository=repository,
+        workspace_root=workspace_root,
+        persist=True,
+        refresh_integrations=refresh,
+    )
+    result = engine.improve()
+
+    if as_json:
+        print(_json.dumps(result["plan_dict"], indent=2))
+    else:
+        d = result["plan_dict"]
+        paths = result.get("paths", {})
+        print(f"AI CTO Self Improvement — {repository}")
+        print(f"  Plan ID:         {d.get('plan_id', '')}")
+        print(f"  Technical Debt:  {d.get('technical_debt_count', 0)} items")
+        print(f"  Capability Gaps: {d.get('capability_gap_count', 0)} gaps")
+        print(f"  Proposed Issues: {d.get('proposed_issue_count', 0)} issues")
+        print(f"  Proposed Batches:{d.get('proposed_batch_count', 0)} batches")
+        print(f"  CORE Proposals:  {d.get('core_proposal_count', 0)} proposals")
+        print(f"  Roadmap Updates: {d.get('roadmap_update_count', 0)} updates")
+        print()
+        if debt_only:
+            for item in d.get("technical_debt", []):
+                print(f"  [{item.get('severity', '').upper()}] {item.get('component', '')}: {item.get('description', '')}")
+        elif perf_only:
+            for m in d.get("performance_metrics", []):
+                print(f"  {m.get('name', '')}: {m.get('value', 0)} {m.get('unit', '')} ({m.get('trend', '')})")
+        elif roadmap_only:
+            for u in d.get("roadmap_updates", []):
+                print(f"  [{u.get('priority', '').upper()}] {u.get('description', '')}")
+        else:
+            print(f"  Summary: {d.get('summary', '')}")
+        if paths.get("markdown"):
+            print(f"  Report:          {paths['markdown']}")
 
 else:
 

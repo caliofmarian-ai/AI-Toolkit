@@ -1,0 +1,24 @@
+{
+  "evaluation_id": "EVAL-8ADF134D",
+  "generated_at": "2026-08-03T08:53:36.029602+00:00",
+  "regression_count": 1,
+  "regression_findings": [
+    {
+      "affected_modules": [
+        "context_synchronization_engine"
+      ],
+      "component": "context",
+      "confidence": 0.85,
+      "evidence": {
+        "missing_keys": [
+          "current_branch",
+          "repository"
+        ]
+      },
+      "finding": "Missing context keys: ['current_branch', 'repository']",
+      "impact": "Context synchronization is incomplete",
+      "recommendation": "Re-run `ai context --refresh` to resynchronize.",
+      "severity": "medium"
+    }
+  ]
+}

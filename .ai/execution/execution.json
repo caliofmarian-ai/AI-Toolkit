@@ -1,0 +1,763 @@
+{
+  "approval": "APPROVED",
+  "artifacts": [],
+  "context": {
+    "approval": "APPROVED",
+    "batch": "",
+    "branch": "",
+    "briefing_id": "BRIEF-6B9D1D901B98",
+    "commit": "",
+    "confidence": 0.75,
+    "core": "",
+    "environment": "/home/runner/work/AI-Toolkit/AI-Toolkit",
+    "execution_id": "EXEC-2FF426C2",
+    "issue": "",
+    "milestone": "",
+    "mode": "VALIDATION_ONLY",
+    "owner": "",
+    "planning_id": "PLAN-AD04E22E",
+    "policy": "VALIDATION_ONLY",
+    "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
+    "roadmap": "",
+    "schema_version": "1.0.0",
+    "state_id": "",
+    "synchronization_id": "",
+    "timestamp": "2026-08-03T08:53:32.757113+00:00",
+    "workspace": "/home/runner/work/AI-Toolkit"
+  },
+  "errors": [],
+  "evidence": {
+    "evidence_count": 4,
+    "items": [
+      {
+        "category": "development_state",
+        "data": {
+          "execution_state": {
+            "completed_jobs": [],
+            "current_executor": "runtime",
+            "execution_history": [],
+            "execution_queue": [],
+            "failed_jobs": [],
+            "identifier": "EXEC-001",
+            "retry_queue": [],
+            "running_jobs": [],
+            "schema_version": "1.0.0"
+          },
+          "identifier": "DEV-3D2E242FA059",
+          "integrity_report": {
+            "canonical_integrity": 100.0,
+            "execution_integrity": 100.0,
+            "identifier": "INT-001",
+            "memory_integrity": 100.0,
+            "overall_context_integrity_score": 100.0,
+            "planning_integrity": 100.0,
+            "repository_integrity": 100.0,
+            "resume_integrity": 100.0,
+            "schema_version": "1.0.0"
+          },
+          "owner_state": {
+            "deferred_tasks": [],
+            "identifier": "OWN-001",
+            "manual_decisions": [],
+            "overrides": [],
+            "owner_priorities": [],
+            "pinned_tasks": [],
+            "schema_version": "1.0.0"
+          },
+          "planning_state": {
+            "current_roadmap": "CORE-013",
+            "current_sprint": "CORE-013",
+            "dependencies": [],
+            "estimated_roi": 0.0,
+            "estimated_time": 0.0,
+            "identifier": "PLAN-001",
+            "priority_queue": [
+              "CORE-013"
+            ],
+            "recommended_batch": "CORE-013",
+            "schema_version": "1.0.0"
+          },
+          "repository_state": {
+            "branch": "copilot/core-013-ai-cto-context-synchronization",
+            "head_commit": "a7201a5c1c631758c1360a4e13681297fad4aad2",
+            "identifier": "REPO-001",
+            "latest_merge": "",
+            "open_pull_requests": [],
+            "release": "",
+            "repository": "caliofmarian-ai/AI-Toolkit",
+            "repository_health": "healthy",
+            "schema_version": "1.0.0",
+            "tags": []
+          },
+          "review_state": {
+            "approval_status": "PENDING",
+            "architecture_findings": [],
+            "canonical_findings": [],
+            "identifier": "REV-001",
+            "open_prs": [],
+            "pending_reviews": [],
+            "schema_version": "1.0.0",
+            "testing_status": "UNKNOWN"
+          },
+          "schema_version": "1.0.0",
+          "snapshot_metadata": {
+            "created_at": "2026-08-03T09:30:57+03:00",
+            "identifier": "SNAP-000000",
+            "schema_version": "1.0.0",
+            "sequence_number": 0,
+            "source_event": "context_synchronized",
+            "tags": [
+              "bootstrap"
+            ],
+            "trigger": "runtime_update"
+          },
+          "telegram_state": {
+            "active_thread": "",
+            "chat_id": "UNBOUND",
+            "identifier": "TG-001",
+            "last_message_at": "",
+            "pending_notifications": [],
+            "schema_version": "1.0.0",
+            "session_id": "UNBOUND",
+            "subscribed_channels": []
+          },
+          "workspace_state": {
+            "active_project": "AI-Toolkit",
+            "active_workspace": "/home/runner/work/AI-Toolkit",
+            "blocked_tasks": [],
+            "completed_tasks": [],
+            "current_batch": "BATCH-001",
+            "current_milestone": "PHASE 2 — CORE IMPLEMENTATION",
+            "current_objective": "CORE-013",
+            "current_task": "CORE-013",
+            "estimated_progress": 100.0,
+            "identifier": "WS-001",
+            "schema_version": "1.0.0"
+          }
+        },
+        "source": "CORE-009",
+        "timestamp": "2026-08-03T08:53:32.774605+00:00"
+      },
+      {
+        "category": "briefing",
+        "data": {
+          "all_risks": [
+            {
+              "affected_components": [
+                "lib/python/workspace_index/__init__.py",
+                "lib/python/executive_briefing_engine/models.py",
+                "lib/python/semantic_repository_intelligence/models.py",
+                "lib/python/workspace_orchestrator/models.py",
+                "lib/python/canonical_entities/__init__.py"
+              ],
+              "category": "architecture",
+              "description": "5 architecture hotspots indicate high coupling that may impede future changes.",
+              "evidence": [
+                "lib/python/workspace_index/__init__.py",
+                "lib/python/executive_briefing_engine/models.py",
+                "lib/python/semantic_repository_intelligence/models.py",
+                "lib/python/workspace_orchestrator/models.py",
+                "lib/python/canonical_entities/__init__.py"
+              ],
+              "id": "RISK-001",
+              "remediation": "Decompose hotspot modules to reduce coupling and improve maintainability.",
+              "severity": "medium",
+              "title": "High-coupling hotspots detected (5)"
+            },
+            {
+              "affected_components": [],
+              "category": "regression",
+              "description": "With 302 files, changes carry elevated regression risk without comprehensive test coverage.",
+              "evidence": [
+                "total_files=302"
+              ],
+              "id": "RISK-002",
+              "remediation": "Increase test coverage and enforce CI/CD gates for large changesets.",
+              "severity": "medium",
+              "title": "High codebase size increases regression risk (302 files)"
+            }
+          ],
+          "architecture_health": "healthy",
+          "briefing_id": "BRIEF-6B9D1D901B98",
+          "canonical_health": "healthy",
+          "critical_risks": [],
+          "current_batch": "BATCH-001",
+          "current_branch": "copilot/core-013-ai-cto-context-synchronization",
+          "current_epic": "CORE-013",
+          "current_issue": "CORE-013",
+          "current_milestone": "PHASE 2 — CORE IMPLEMENTATION",
+          "current_pull_request": "",
+          "current_recommendation": "CORE-013",
+          "development_health": "healthy",
+          "estimated_completion": "near completion",
+          "executive_summary": "The caliofmarian-ai/AI-Toolkit repository is healthy.  Architecture health: healthy. Canonical health: healthy. Development health: healthy.  Repository health: healthy. Runtime health: unknown.  2 risk(s) identified.  3 recommendation(s) generated.",
+          "generated_at": "2026-08-03T07:12:33Z",
+          "owner_dashboard": {
+            "blocked_items": [],
+            "current_progress": "0/3 items completed (0%)",
+            "open_risks": 2,
+            "overall_health": "healthy",
+            "recommended_actions": [
+              "Execute current recommendation: CORE-013"
+            ],
+            "repository_readiness": "production-ready"
+          },
+          "pending_decisions": [],
+          "priorities": [
+            {
+              "category": "batch_execution",
+              "classification": "high",
+              "id": "PRI-001",
+              "rationale": "The current batch is the active unit of work.",
+              "title": "Complete current batch: BATCH-001"
+            },
+            {
+              "category": "issue_tracking",
+              "classification": "high",
+              "id": "PRI-002",
+              "rationale": "The current issue is the active development focus.",
+              "title": "Resolve current issue: CORE-013"
+            },
+            {
+              "category": "milestone",
+              "classification": "medium",
+              "id": "PRI-003",
+              "rationale": "Active milestone requires steady progress.",
+              "title": "Advance milestone: PHASE 2 — CORE IMPLEMENTATION"
+            }
+          ],
+          "recommendations": [
+            {
+              "affected_components": [],
+              "confidence": 0.85,
+              "dependencies": [],
+              "description": "The development state recommends executing: CORE-013.",
+              "evidence": [
+                "current_recommendation=CORE-013"
+              ],
+              "id": "REC-002",
+              "impact": "Advances planned development work.",
+              "priority": "high",
+              "reasoning": "The active canonical recommendation represents the highest-value next step derived from all accumulated intelligence.",
+              "required_effort": "medium",
+              "title": "Execute current recommendation: CORE-013"
+            },
+            {
+              "affected_components": [
+                "lib/python/workspace_index/__init__.py",
+                "lib/python/executive_briefing_engine/models.py",
+                "lib/python/semantic_repository_intelligence/models.py",
+                "lib/python/workspace_orchestrator/models.py",
+                "lib/python/canonical_entities/__init__.py"
+              ],
+              "confidence": 0.75,
+              "dependencies": [],
+              "description": "5 high-coupling hotspots increase change risk.",
+              "evidence": [
+                "lib/python/workspace_index/__init__.py",
+                "lib/python/executive_briefing_engine/models.py",
+                "lib/python/semantic_repository_intelligence/models.py"
+              ],
+              "id": "REC-001",
+              "impact": "Reduces coupling, improves testability and maintainability.",
+              "priority": "medium",
+              "reasoning": "Hotspot modules are heavily depended upon.  Decomposing them reduces the blast radius of future changes.",
+              "required_effort": "high",
+              "title": "Decompose high-coupling hotspots (5 detected)"
+            },
+            {
+              "affected_components": [],
+              "confidence": 0.72,
+              "dependencies": [],
+              "description": "Semantic analysis suggests CORE-013 as the next CORE implementation.",
+              "evidence": [
+                "suggested_next_core=CORE-013"
+              ],
+              "id": "REC-003",
+              "impact": "Advances the AI CTO intelligence layer.",
+              "priority": "medium",
+              "reasoning": "CORE module suggestions are derived from current repository intelligence gaps and architectural extension points.",
+              "required_effort": "high",
+              "title": "Implement CORE-013 as the next CORE module"
+            }
+          ],
+          "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
+          "repository_health": "healthy",
+          "runtime_health": "unknown",
+          "schema_version": "1.0.0",
+          "suggested_next_batch": "CORE-013",
+          "suggested_next_core": "CORE-013",
+          "suggested_next_pr": ""
+        },
+        "source": "CORE-010",
+        "timestamp": "2026-08-03T08:53:32.781920+00:00"
+      },
+      {
+        "category": "live_context",
+        "data": {},
+        "source": "CORE-013",
+        "timestamp": "2026-08-03T08:53:32.773993+00:00"
+      },
+      {
+        "category": "planning_queue",
+        "data": {
+          "entries": [
+            {
+              "blocked_by": [],
+              "confidence": 0.7,
+              "dependencies": [],
+              "entry_id": "BATCH-CORE-005",
+              "estimated_effort": "medium",
+              "metadata": {
+                "confidence": 0.7,
+                "dependencies": [],
+                "estimated_effort": "medium",
+                "id": "BATCH-CORE-005",
+                "priority": "high",
+                "reason": "A new batch is needed to implement CORE-005.",
+                "title": "Execute batch for CORE-005"
+              },
+              "priority": "medium",
+              "reason": "A new batch is needed to implement CORE-005.",
+              "title": "Execute batch for CORE-005",
+              "type": "batch"
+            },
+            {
+              "blocked_by": [],
+              "confidence": 0.85,
+              "dependencies": [
+                "CORE-001"
+              ],
+              "entry_id": "CORE-005",
+              "estimated_effort": "low",
+              "metadata": {
+                "core_id": "CORE-005"
+              },
+              "priority": "medium",
+              "reason": "CORE-005 is documented but not yet implemented.",
+              "title": "Implement CORE-005",
+              "type": "core"
+            },
+            {
+              "blocked_by": [],
+              "confidence": 0.85,
+              "dependencies": [],
+              "entry_id": "CORE-013",
+              "estimated_effort": "medium",
+              "metadata": {
+                "confidence": 0.85,
+                "dependencies": [],
+                "estimated_effort": "medium",
+                "id": "CORE-013",
+                "priority": "high",
+                "reason": "Executive Briefing recommends CORE-013 as the next batch to execute.",
+                "title": "Execute CORE-013"
+              },
+              "priority": "medium",
+              "reason": "Executive Briefing recommends CORE-013 as the next batch to execute.",
+              "title": "Execute CORE-013",
+              "type": "batch"
+            },
+            {
+              "blocked_by": [],
+              "confidence": 0.8,
+              "dependencies": [
+                "CORE-001",
+                "CORE-006",
+                "CORE-007",
+                "CORE-008",
+                "CORE-009",
+                "CORE-010",
+                "CORE-011",
+                "CORE-012",
+                "CORE-013",
+                "CORE-014"
+              ],
+              "entry_id": "MILESTONE-AUTONOMY",
+              "estimated_effort": "high",
+              "metadata": {
+                "confidence": 0.8,
+                "dependencies": [
+                  "CORE-001",
+                  "CORE-006",
+                  "CORE-007",
+                  "CORE-008",
+                  "CORE-009",
+                  "CORE-010",
+                  "CORE-011",
+                  "CORE-012",
+                  "CORE-013",
+                  "CORE-014"
+                ],
+                "estimated_effort": "high",
+                "id": "MILESTONE-AUTONOMY",
+                "priority": "high",
+                "reason": "Current phase is autonomy. 91% of documented COREs are implemented. 1 COREs remain before phase completion.",
+                "title": "Phase 3 — Autonomy Layer Complete"
+              },
+              "priority": "medium",
+              "reason": "Current phase is autonomy. 91% of documented COREs are implemented. 1 COREs remain before phase completion.",
+              "title": "Phase 3 — Autonomy Layer Complete",
+              "type": "milestone"
+            },
+            {
+              "blocked_by": [],
+              "confidence": 0.75,
+              "dependencies": [],
+              "entry_id": "MILESTONE-CURRENT",
+              "estimated_effort": "medium",
+              "metadata": {
+                "confidence": 0.75,
+                "dependencies": [],
+                "estimated_effort": "medium",
+                "id": "MILESTONE-CURRENT",
+                "priority": "medium",
+                "reason": "Active milestone 'PHASE 2 — CORE IMPLEMENTATION' from development state should be progressed or closed.",
+                "title": "Complete current milestone: PHASE 2 — CORE IMPLEMENTATION"
+              },
+              "priority": "medium",
+              "reason": "Active milestone 'PHASE 2 — CORE IMPLEMENTATION' from development state should be progressed or closed.",
+              "title": "Complete current milestone: PHASE 2 — CORE IMPLEMENTATION",
+              "type": "milestone"
+            },
+            {
+              "blocked_by": [],
+              "confidence": 0.8,
+              "dependencies": [],
+              "entry_id": "PR-CURRENT-BRANCH",
+              "estimated_effort": "low",
+              "metadata": {
+                "confidence": 0.8,
+                "dependencies": [],
+                "estimated_effort": "low",
+                "id": "PR-CURRENT-BRANCH",
+                "priority": "high",
+                "reason": "Active feature branch 'copilot/core-013-ai-cto-context-synchronization' has work in progress (BATCH-001). A PR should be opened.",
+                "title": "Open PR for current branch: copilot/core-013-ai-cto-context-synchronization"
+              },
+              "priority": "medium",
+              "reason": "Active feature branch 'copilot/core-013-ai-cto-context-synchronization' has work in progress (BATCH-001). A PR should be opened.",
+              "title": "Open PR for current branch: copilot/core-013-ai-cto-context-synchronization",
+              "type": "pr"
+            },
+            {
+              "blocked_by": [],
+              "confidence": 0.9,
+              "dependencies": [],
+              "entry_id": "ISSUE-001",
+              "estimated_effort": "medium",
+              "metadata": {
+                "confidence": 0.9,
+                "dependencies": [],
+                "estimated_effort": "medium",
+                "priority": "high",
+                "reason": "CORE-005 is the next CORE on the roadmap and has no implementation yet.",
+                "title": "[CORE-005] Implement CORE-005 — Autonomous Planning Engine",
+                "type": "core_tracking"
+              },
+              "priority": "low",
+              "reason": "CORE-005 is the next CORE on the roadmap and has no implementation yet.",
+              "title": "[CORE-005] Implement CORE-005 — Autonomous Planning Engine",
+              "type": "issue"
+            },
+            {
+              "blocked_by": [],
+              "confidence": 0.85,
+              "dependencies": [],
+              "entry_id": "ISSUE-002",
+              "estimated_effort": "medium",
+              "metadata": {
+                "confidence": 0.85,
+                "dependencies": [],
+                "estimated_effort": "medium",
+                "priority": "high",
+                "reason": "The development state recommends executing: CORE-013.",
+                "title": "Execute current recommendation: CORE-013",
+                "type": "briefing_recommendation"
+              },
+              "priority": "low",
+              "reason": "The development state recommends executing: CORE-013.",
+              "title": "Execute current recommendation: CORE-013",
+              "type": "issue"
+            }
+          ],
+          "entry_count": 8,
+          "generated_at": "2026-08-03T07:56:00.375431+00:00",
+          "queue_id": "PLAN-AD04E22E",
+          "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
+          "schema_version": "1.0.0"
+        },
+        "source": "CORE-014",
+        "timestamp": "2026-08-03T08:53:32.787796+00:00"
+      }
+    ]
+  },
+  "execution_id": "EXEC-2FF426C2",
+  "generated_at": "2026-08-03T08:53:32.757113+00:00",
+  "metrics": {
+    "artifact_count": 0,
+    "confidence": 0.75,
+    "error_count": 0,
+    "evidence_count": 4,
+    "execution_id": "EXEC-2FF426C2",
+    "generated_at": "2026-08-03T08:53:32.757113+00:00",
+    "schema_version": "1.0.0",
+    "stage_durations": {
+      "collect_evidence": 0.004,
+      "execute_approved_step": 0.009,
+      "load_context": 16.841,
+      "load_development_state": 0.6,
+      "load_executive_briefing": 7.303,
+      "load_planning_queue": 5.864,
+      "prepare_execution_context": 0.013,
+      "run_validation": 690.793,
+      "update_state": 0.0,
+      "validate_approvals": 0.008,
+      "validate_dependencies": 0.003,
+      "validate_policies": 0.0
+    },
+    "total_duration_ms": 721.547,
+    "validation_scores": {
+      "AcceptanceValidator": 0.438,
+      "CanonicalValidator": 0.5,
+      "ExecutionPermissions": 1.0,
+      "RegressionValidator": 0.0,
+      "RepositoryValidator": 0.5,
+      "SemanticValidator": 0.75
+    },
+    "warning_count": 1
+  },
+  "mode": "VALIDATION_ONLY",
+  "next_actions": [
+    "Next: BATCH-CORE-005 — Execute batch for CORE-005"
+  ],
+  "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
+  "schema_version": "1.0.0",
+  "snapshot": {},
+  "stage_results": [
+    {
+      "duration_ms": 16.841,
+      "errors": [],
+      "evidence": {
+        "source": "CORE-013"
+      },
+      "stage": "load_context",
+      "status": "PASS",
+      "warnings": []
+    },
+    {
+      "duration_ms": 0.6,
+      "errors": [],
+      "evidence": {
+        "source": "CORE-009"
+      },
+      "stage": "load_development_state",
+      "status": "PASS",
+      "warnings": []
+    },
+    {
+      "duration_ms": 7.303,
+      "errors": [],
+      "evidence": {
+        "source": "CORE-010"
+      },
+      "stage": "load_executive_briefing",
+      "status": "PASS",
+      "warnings": []
+    },
+    {
+      "duration_ms": 5.864,
+      "errors": [],
+      "evidence": {
+        "entry_count": 8,
+        "source": "CORE-014"
+      },
+      "stage": "load_planning_queue",
+      "status": "PASS",
+      "warnings": []
+    },
+    {
+      "duration_ms": 0.003,
+      "errors": [],
+      "evidence": {},
+      "stage": "validate_dependencies",
+      "status": "PASS",
+      "warnings": []
+    },
+    {
+      "duration_ms": 0.0,
+      "errors": [],
+      "evidence": {
+        "is_safe_mode": true,
+        "mode": "VALIDATION_ONLY",
+        "protected_operations": [
+          "delete_branch",
+          "destructive_command",
+          "force_push",
+          "merge_pull_request",
+          "modify_external_repository",
+          "rewrite_git_history"
+        ],
+        "requires_approval": false
+      },
+      "stage": "validate_policies",
+      "status": "PASS",
+      "warnings": []
+    },
+    {
+      "duration_ms": 0.008,
+      "errors": [],
+      "evidence": {
+        "approval": "APPROVED",
+        "mode": "VALIDATION_ONLY"
+      },
+      "stage": "validate_approvals",
+      "status": "PASS",
+      "warnings": []
+    },
+    {
+      "duration_ms": 0.013,
+      "errors": [],
+      "evidence": {},
+      "stage": "prepare_execution_context",
+      "status": "PASS",
+      "warnings": []
+    },
+    {
+      "duration_ms": 0.009,
+      "errors": [],
+      "evidence": {},
+      "stage": "execute_approved_step",
+      "status": "PASS",
+      "warnings": [
+        "[VALIDATION_ONLY] Would execute: 'BATCH-CORE-005' — Execute batch for CORE-005"
+      ]
+    },
+    {
+      "duration_ms": 0.004,
+      "errors": [],
+      "evidence": {
+        "evidence_count": 4
+      },
+      "stage": "collect_evidence",
+      "status": "PASS",
+      "warnings": []
+    },
+    {
+      "duration_ms": 690.793,
+      "errors": [],
+      "evidence": {
+        "validator_count": 6
+      },
+      "stage": "run_validation",
+      "status": "PASS",
+      "warnings": []
+    },
+    {
+      "duration_ms": 0.0,
+      "errors": [],
+      "evidence": {
+        "note": "State read-only in safe modes"
+      },
+      "stage": "update_state",
+      "status": "PASS",
+      "warnings": []
+    },
+    {
+      "duration_ms": 0.112,
+      "errors": [],
+      "evidence": {},
+      "stage": "generate_reports",
+      "status": "PASS",
+      "warnings": []
+    }
+  ],
+  "status": "VALIDATION_FAILED",
+  "summary": "Execution EXEC-2FF426C2 completed with status 'VALIDATION_FAILED'. Duration: 721.5 ms. Mode: VALIDATION_ONLY. Confidence: 75%.",
+  "validation_results": [
+    {
+      "evidence": {
+        "approval": "APPROVED",
+        "mode": "VALIDATION_ONLY"
+      },
+      "findings": [],
+      "score": 1.0,
+      "status": "PASS",
+      "validator": "ExecutionPermissions"
+    },
+    {
+      "evidence": {
+        "source": "CORE-008A"
+      },
+      "findings": [
+        "Repository validation skipped: cannot import name 'AICTOScanner' from 'python.ai_cto_scanner.engine' (/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python/ai_cto_scanner/engine.py)"
+      ],
+      "score": 0.5,
+      "status": "SKIPPED",
+      "validator": "RepositoryValidator"
+    },
+    {
+      "evidence": {
+        "risk_count": 5,
+        "source": "CORE-008B"
+      },
+      "findings": [
+        "{'id': 'ARCH-RISK-001', 'title': 'Architectural hotspot', 'description': 'lib/python/workspace_index/__init__.py is imported by many modules, creating a high-coupling hub.', 'severity': 'medium', 'affected_modules': ['lib/python/workspace_index/__init__.py'], 'evidence': ['in-degree: 13'], 'confidence': 0.85}",
+        "{'id': 'ARCH-RISK-002', 'title': 'Architectural hotspot', 'description': 'lib/python/autonomous_planning_engine/models.py is imported by many modules, creating a high-coupling hub.', 'severity': 'medium', 'affected_modules': ['lib/python/autonomous_planning_engine/models.py'], 'evidence': ['in-degree: 11'], 'confidence': 0.85}",
+        "{'id': 'ARCH-RISK-003', 'title': 'Architectural hotspot', 'description': 'lib/python/executive_briefing_engine/models.py is imported by many modules, creating a high-coupling hub.', 'severity': 'medium', 'affected_modules': ['lib/python/executive_briefing_engine/models.py'], 'evidence': ['in-degree: 10'], 'confidence': 0.85}",
+        "{'id': 'ARCH-RISK-004', 'title': 'Unclassified modules', 'description': '86 modules could not be assigned to a known architectural layer.', 'severity': 'low', 'affected_modules': ['lib/python/__init__.py', 'lib/python/autonomous_execution_engine/__init__.py', 'lib/python/autonomous_execution_engine/engine.py', 'lib/python/autonomous_execution_engine/evidence.py', 'lib/python/autonomous_execution_engine/logger.py', 'lib/python/autonomous_execution_engine/persistence.py', 'lib/python/autonomous_execution_engine/policy.py', 'lib/python/autonomous_execution_engine/rollback.py', 'lib/python/autonomous_execution_engine/validator.py', 'lib/python/autonomous_planner/__init__.py'], 'evidence': ['Layer classification: Uncategorised'], 'confidence': 0.7}",
+        "{'id': 'ARCH-RISK-005', 'title': 'High coupling detected', 'description': '15 modules have an excessive number of outbound imports.', 'severity': 'medium', 'affected_modules': ['lib/python/agents/development_agent.py', 'lib/python/ai_cto_scanner/engine.py', 'lib/python/autonomous_execution_engine/engine.py', 'lib/python/autonomous_planning_engine/__init__.py', 'lib/python/autonomous_planning_engine/engine.py', 'lib/python/canonical_intelligence/engine.py', 'lib/python/cli/main.py', 'lib/python/context_synchronization_engine/engine.py', 'lib/python/development_state_engine/runtime.py', 'lib/python/executable_repository_intelligence/engine.py'], 'evidence': ['Outbound import count exceeds threshold'], 'confidence': 0.8}"
+      ],
+      "score": 0.75,
+      "status": "WARNING",
+      "validator": "SemanticValidator"
+    },
+    {
+      "evidence": {
+        "source": "CORE-007"
+      },
+      "findings": [
+        "Canonical validation skipped: 'CanonicalIntelligenceEngine' object has no attribute 'analyze'"
+      ],
+      "score": 0.5,
+      "status": "SKIPPED",
+      "validator": "CanonicalValidator"
+    },
+    {
+      "evidence": {
+        "checked_planning_keys": [
+          "execution_queue",
+          "planning_id",
+          "schema_version"
+        ],
+        "missing_planning_keys": [
+          "execution_queue",
+          "planning_id"
+        ]
+      },
+      "findings": [
+        "Missing planning keys: ['execution_queue', 'planning_id']"
+      ],
+      "score": 0.0,
+      "status": "FAIL",
+      "validator": "RegressionValidator"
+    },
+    {
+      "evidence": {
+        "average_score": 0.438,
+        "failure_count": 1,
+        "mode": "VALIDATION_ONLY",
+        "validator_count": 4
+      },
+      "findings": [
+        "RegressionValidator: [\"Missing planning keys: ['execution_queue', 'planning_id']\"]"
+      ],
+      "score": 0.438,
+      "status": "FAIL",
+      "validator": "AcceptanceValidator"
+    }
+  ],
+  "warnings": [
+    "[VALIDATION_ONLY] Would execute: 'BATCH-CORE-005' — Execute batch for CORE-005"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "confidence_score": {
+    "dimension": "confidence",
+    "evidence": [
+      "Evidence items collected: 4"
+    ],
+    "findings": [],
+    "gate": "WARNING",
+    "recommendation": "Increase evidence collection coverage.",
+    "score": 0.4
+  },
+  "evaluation_id": "EVAL-8ADF134D",
+  "generated_at": "2026-08-03T08:53:36.029602+00:00",
+  "overall_confidence": 0.4
+}

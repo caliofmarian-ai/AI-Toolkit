@@ -1,0 +1,80 @@
+{
+  "entries": [
+    {
+      "capability_gap_count": 3,
+      "core_proposal_count": 0,
+      "plan_id": "IMP-F0AB5020",
+      "proposed_issue_count": 12,
+      "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
+      "technical_debt_count": 9,
+      "timestamp": "2026-08-03T08:50:57.788966+00:00"
+    },
+    {
+      "capability_gap_count": 3,
+      "core_proposal_count": 0,
+      "plan_id": "IMP-E6881911",
+      "proposed_issue_count": 12,
+      "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
+      "technical_debt_count": 9,
+      "timestamp": "2026-08-03T08:53:36.127603+00:00"
+    },
+    {
+      "capability_gap_count": 3,
+      "core_proposal_count": 0,
+      "plan_id": "IMP-478D555C",
+      "proposed_issue_count": 12,
+      "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
+      "technical_debt_count": 9,
+      "timestamp": "2026-08-03T08:53:36.143741+00:00"
+    },
+    {
+      "capability_gap_count": 3,
+      "core_proposal_count": 0,
+      "plan_id": "IMP-F19513BC",
+      "proposed_issue_count": 12,
+      "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
+      "technical_debt_count": 9,
+      "timestamp": "2026-08-03T08:53:36.265880+00:00"
+    },
+    {
+      "capability_gap_count": 3,
+      "core_proposal_count": 0,
+      "plan_id": "IMP-BEE763A9",
+      "proposed_issue_count": 12,
+      "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
+      "technical_debt_count": 9,
+      "timestamp": "2026-08-03T08:53:36.418741+00:00"
+    },
+    {
+      "capability_gap_count": 3,
+      "core_proposal_count": 0,
+      "plan_id": "IMP-417D4DED",
+      "proposed_issue_count": 12,
+      "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
+      "technical_debt_count": 9,
+      "timestamp": "2026-08-03T08:53:36.562374+00:00"
+    },
+    {
+      "capability_gap_count": 3,
+      "core_proposal_count": 0,
+      "plan_id": "IMP-ECC27D0E",
+      "proposed_issue_count": 12,
+      "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
+      "technical_debt_count": 9,
+      "timestamp": "2026-08-03T08:53:36.704380+00:00"
+    },
+    {
+      "capability_gap_count": 3,
+      "core_proposal_count": 0,
+      "plan_id": "IMP-FCF5C03E",
+      "proposed_issue_count": 12,
+      "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
+      "technical_debt_count": 9,
+      "timestamp": "2026-08-03T08:53:36.842316+00:00"
+    }
+  ],
+  "entry_count": 8,
+  "generated_at": "2026-08-03T08:53:36.842316+00:00",
+  "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
+  "schema_version": "1.0.0"
+}

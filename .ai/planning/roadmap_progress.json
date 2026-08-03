@@ -10,17 +10,20 @@
     "CORE-011",
     "CORE-012",
     "CORE-013",
-    "CORE-014"
+    "CORE-014",
+    "CORE-015",
+    "CORE-016",
+    "CORE-017"
   ],
-  "completion_percentage": 90.9,
+  "completion_percentage": 92.9,
   "current_phase": "autonomy",
   "estimated_remaining_effort": "low",
-  "generated_at": "2026-08-03T07:56:00.375431+00:00",
+  "generated_at": "2026-08-03T08:53:49.175333+00:00",
   "incomplete_cores": [
     "CORE-005"
   ],
   "next_core": "CORE-005",
   "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
   "repository_maturity": "developing",
-  "total_cores": 11
+  "total_cores": 14
 }

@@ -1,0 +1,301 @@
+{
+  "generated_at": "2026-08-03T08:53:36.842316+00:00",
+  "plan_id": "IMP-FCF5C03E",
+  "proposed_issue_count": 12,
+  "proposed_issues": [
+    {
+      "acceptance_criteria": [
+        "lib/python/knowledge_graph_engine.py no longer contains legacy_module",
+        "All existing tests continue to pass"
+      ],
+      "affected_components": [
+        "lib/python/knowledge_graph_engine.py"
+      ],
+      "canonical_references": [],
+      "dependencies": [],
+      "description": "Top-level legacy module 'knowledge_graph_engine.py' may duplicate functionality already in a dedicated package.",
+      "estimated_effort": "low",
+      "estimated_risk": "low",
+      "evidence": {
+        "file": "/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python/knowledge_graph_engine.py"
+      },
+      "implementation_strategy": "Evaluate whether 'knowledge_graph_engine.py' can be replaced by its dedicated package equivalent.",
+      "issue_id": "ISS-DCC9C3",
+      "motivation": "Evaluate whether 'knowledge_graph_engine.py' can be replaced by its dedicated package equivalent.",
+      "objective": "Eliminate legacy_module debt in lib/python/knowledge_graph_engine.py",
+      "priority": "low",
+      "title": "Fix technical debt: lib/python/knowledge_graph_engine.py",
+      "validation_strategy": "Run full regression test suite after changes."
+    },
+    {
+      "acceptance_criteria": [
+        "lib/python/repository_profile.py no longer contains legacy_module",
+        "All existing tests continue to pass"
+      ],
+      "affected_components": [
+        "lib/python/repository_profile.py"
+      ],
+      "canonical_references": [],
+      "dependencies": [],
+      "description": "Top-level legacy module 'repository_profile.py' may duplicate functionality already in a dedicated package.",
+      "estimated_effort": "low",
+      "estimated_risk": "low",
+      "evidence": {
+        "file": "/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python/repository_profile.py"
+      },
+      "implementation_strategy": "Evaluate whether 'repository_profile.py' can be replaced by its dedicated package equivalent.",
+      "issue_id": "ISS-6C041D",
+      "motivation": "Evaluate whether 'repository_profile.py' can be replaced by its dedicated package equivalent.",
+      "objective": "Eliminate legacy_module debt in lib/python/repository_profile.py",
+      "priority": "low",
+      "title": "Fix technical debt: lib/python/repository_profile.py",
+      "validation_strategy": "Run full regression test suite after changes."
+    },
+    {
+      "acceptance_criteria": [
+        "lib/python/repository_inventory.py no longer contains legacy_module",
+        "All existing tests continue to pass"
+      ],
+      "affected_components": [
+        "lib/python/repository_inventory.py"
+      ],
+      "canonical_references": [],
+      "dependencies": [],
+      "description": "Top-level legacy module 'repository_inventory.py' may duplicate functionality already in a dedicated package.",
+      "estimated_effort": "low",
+      "estimated_risk": "low",
+      "evidence": {
+        "file": "/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python/repository_inventory.py"
+      },
+      "implementation_strategy": "Evaluate whether 'repository_inventory.py' can be replaced by its dedicated package equivalent.",
+      "issue_id": "ISS-408543",
+      "motivation": "Evaluate whether 'repository_inventory.py' can be replaced by its dedicated package equivalent.",
+      "objective": "Eliminate legacy_module debt in lib/python/repository_inventory.py",
+      "priority": "low",
+      "title": "Fix technical debt: lib/python/repository_inventory.py",
+      "validation_strategy": "Run full regression test suite after changes."
+    },
+    {
+      "acceptance_criteria": [
+        "lib/python/foundation_audit.py no longer contains legacy_module",
+        "All existing tests continue to pass"
+      ],
+      "affected_components": [
+        "lib/python/foundation_audit.py"
+      ],
+      "canonical_references": [],
+      "dependencies": [],
+      "description": "Top-level legacy module 'foundation_audit.py' may duplicate functionality already in a dedicated package.",
+      "estimated_effort": "low",
+      "estimated_risk": "low",
+      "evidence": {
+        "file": "/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python/foundation_audit.py"
+      },
+      "implementation_strategy": "Evaluate whether 'foundation_audit.py' can be replaced by its dedicated package equivalent.",
+      "issue_id": "ISS-2229AE",
+      "motivation": "Evaluate whether 'foundation_audit.py' can be replaced by its dedicated package equivalent.",
+      "objective": "Eliminate legacy_module debt in lib/python/foundation_audit.py",
+      "priority": "low",
+      "title": "Fix technical debt: lib/python/foundation_audit.py",
+      "validation_strategy": "Run full regression test suite after changes."
+    },
+    {
+      "acceptance_criteria": [
+        "lib/python/autonomous_workflow_engine.py no longer contains legacy_module",
+        "All existing tests continue to pass"
+      ],
+      "affected_components": [
+        "lib/python/autonomous_workflow_engine.py"
+      ],
+      "canonical_references": [],
+      "dependencies": [],
+      "description": "Top-level legacy module 'autonomous_workflow_engine.py' may duplicate functionality already in a dedicated package.",
+      "estimated_effort": "low",
+      "estimated_risk": "low",
+      "evidence": {
+        "file": "/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python/autonomous_workflow_engine.py"
+      },
+      "implementation_strategy": "Evaluate whether 'autonomous_workflow_engine.py' can be replaced by its dedicated package equivalent.",
+      "issue_id": "ISS-A0D3CD",
+      "motivation": "Evaluate whether 'autonomous_workflow_engine.py' can be replaced by its dedicated package equivalent.",
+      "objective": "Eliminate legacy_module debt in lib/python/autonomous_workflow_engine.py",
+      "priority": "low",
+      "title": "Fix technical debt: lib/python/autonomous_workflow_engine.py",
+      "validation_strategy": "Run full regression test suite after changes."
+    },
+    {
+      "acceptance_criteria": [
+        "lib/python/repository_hygiene_audit.py no longer contains legacy_module",
+        "All existing tests continue to pass"
+      ],
+      "affected_components": [
+        "lib/python/repository_hygiene_audit.py"
+      ],
+      "canonical_references": [],
+      "dependencies": [],
+      "description": "Top-level legacy module 'repository_hygiene_audit.py' may duplicate functionality already in a dedicated package.",
+      "estimated_effort": "low",
+      "estimated_risk": "low",
+      "evidence": {
+        "file": "/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python/repository_hygiene_audit.py"
+      },
+      "implementation_strategy": "Evaluate whether 'repository_hygiene_audit.py' can be replaced by its dedicated package equivalent.",
+      "issue_id": "ISS-CBDC9D",
+      "motivation": "Evaluate whether 'repository_hygiene_audit.py' can be replaced by its dedicated package equivalent.",
+      "objective": "Eliminate legacy_module debt in lib/python/repository_hygiene_audit.py",
+      "priority": "low",
+      "title": "Fix technical debt: lib/python/repository_hygiene_audit.py",
+      "validation_strategy": "Run full regression test suite after changes."
+    },
+    {
+      "acceptance_criteria": [
+        "lib/python/decision_engine.py no longer contains legacy_module",
+        "All existing tests continue to pass"
+      ],
+      "affected_components": [
+        "lib/python/decision_engine.py"
+      ],
+      "canonical_references": [],
+      "dependencies": [],
+      "description": "Top-level legacy module 'decision_engine.py' may duplicate functionality already in a dedicated package.",
+      "estimated_effort": "low",
+      "estimated_risk": "low",
+      "evidence": {
+        "file": "/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python/decision_engine.py"
+      },
+      "implementation_strategy": "Evaluate whether 'decision_engine.py' can be replaced by its dedicated package equivalent.",
+      "issue_id": "ISS-27519E",
+      "motivation": "Evaluate whether 'decision_engine.py' can be replaced by its dedicated package equivalent.",
+      "objective": "Eliminate legacy_module debt in lib/python/decision_engine.py",
+      "priority": "low",
+      "title": "Fix technical debt: lib/python/decision_engine.py",
+      "validation_strategy": "Run full regression test suite after changes."
+    },
+    {
+      "acceptance_criteria": [
+        "lib/python/memory_engine.py no longer contains legacy_module",
+        "All existing tests continue to pass"
+      ],
+      "affected_components": [
+        "lib/python/memory_engine.py"
+      ],
+      "canonical_references": [],
+      "dependencies": [],
+      "description": "Top-level legacy module 'memory_engine.py' may duplicate functionality already in a dedicated package.",
+      "estimated_effort": "low",
+      "estimated_risk": "low",
+      "evidence": {
+        "file": "/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python/memory_engine.py"
+      },
+      "implementation_strategy": "Evaluate whether 'memory_engine.py' can be replaced by its dedicated package equivalent.",
+      "issue_id": "ISS-5457C7",
+      "motivation": "Evaluate whether 'memory_engine.py' can be replaced by its dedicated package equivalent.",
+      "objective": "Eliminate legacy_module debt in lib/python/memory_engine.py",
+      "priority": "low",
+      "title": "Fix technical debt: lib/python/memory_engine.py",
+      "validation_strategy": "Run full regression test suite after changes."
+    },
+    {
+      "acceptance_criteria": [
+        "lib/python/development_validator.py no longer contains legacy_module",
+        "All existing tests continue to pass"
+      ],
+      "affected_components": [
+        "lib/python/development_validator.py"
+      ],
+      "canonical_references": [],
+      "dependencies": [],
+      "description": "Top-level legacy module 'development_validator.py' may duplicate functionality already in a dedicated package.",
+      "estimated_effort": "low",
+      "estimated_risk": "low",
+      "evidence": {
+        "file": "/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python/development_validator.py"
+      },
+      "implementation_strategy": "Evaluate whether 'development_validator.py' can be replaced by its dedicated package equivalent.",
+      "issue_id": "ISS-1594DD",
+      "motivation": "Evaluate whether 'development_validator.py' can be replaced by its dedicated package equivalent.",
+      "objective": "Eliminate legacy_module debt in lib/python/development_validator.py",
+      "priority": "low",
+      "title": "Fix technical debt: lib/python/development_validator.py",
+      "validation_strategy": "Run full regression test suite after changes."
+    },
+    {
+      "acceptance_criteria": [
+        "GAP-CLI-DEPENDENCIES is resolved",
+        "All existing tests continue to pass",
+        "New tests cover the added capability"
+      ],
+      "affected_components": [
+        "missing_cli_command"
+      ],
+      "canonical_references": [],
+      "dependencies": [],
+      "description": "CLI command `ai dependencies` is not registered",
+      "estimated_effort": "medium",
+      "estimated_risk": "low",
+      "evidence": {
+        "missing_command": "dependencies",
+        "source": "cli/main.py"
+      },
+      "implementation_strategy": "Implement the missing missing_cli_command.",
+      "issue_id": "ISS-C98FDA",
+      "motivation": "This capability is required for a complete AI CTO implementation.",
+      "objective": "Implement missing missing_cli_command",
+      "priority": "medium",
+      "title": "Add missing capability: CLI command `ai dependencies` is not registered",
+      "validation_strategy": "Verify the capability is present and tested."
+    },
+    {
+      "acceptance_criteria": [
+        "GAP-CLI-INVENTORY is resolved",
+        "All existing tests continue to pass",
+        "New tests cover the added capability"
+      ],
+      "affected_components": [
+        "missing_cli_command"
+      ],
+      "canonical_references": [],
+      "dependencies": [],
+      "description": "CLI command `ai inventory` is not registered",
+      "estimated_effort": "medium",
+      "estimated_risk": "low",
+      "evidence": {
+        "missing_command": "inventory",
+        "source": "cli/main.py"
+      },
+      "implementation_strategy": "Implement the missing missing_cli_command.",
+      "issue_id": "ISS-701DA3",
+      "motivation": "This capability is required for a complete AI CTO implementation.",
+      "objective": "Implement missing missing_cli_command",
+      "priority": "medium",
+      "title": "Add missing capability: CLI command `ai inventory` is not registered",
+      "validation_strategy": "Verify the capability is present and tested."
+    },
+    {
+      "acceptance_criteria": [
+        "GAP-CLI-VALIDATE is resolved",
+        "All existing tests continue to pass",
+        "New tests cover the added capability"
+      ],
+      "affected_components": [
+        "missing_cli_command"
+      ],
+      "canonical_references": [],
+      "dependencies": [],
+      "description": "CLI command `ai validate` is not registered",
+      "estimated_effort": "medium",
+      "estimated_risk": "low",
+      "evidence": {
+        "missing_command": "validate",
+        "source": "cli/main.py"
+      },
+      "implementation_strategy": "Implement the missing missing_cli_command.",
+      "issue_id": "ISS-D745A2",
+      "motivation": "This capability is required for a complete AI CTO implementation.",
+      "objective": "Implement missing missing_cli_command",
+      "priority": "medium",
+      "title": "Add missing capability: CLI command `ai validate` is not registered",
+      "validation_strategy": "Verify the capability is present and tested."
+    }
+  ]
+}
