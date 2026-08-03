@@ -10,8 +10,8 @@ HIGH
 
 ## Reason
 
-38 canonical specifications have no detected implementation.
+49 canonical specifications have no detected implementation.
 
 ## Estimated Work
 
-38 hours
+49 hours
