@@ -3,6 +3,9 @@ from __future__ import annotations
 from pathlib import Path
 
 from lib.python.engineering_engine.canonical_reference_detector import CanonicalReferenceDetector
+from lib.python.engineering_engine.scope_detector import ScopeDetector
+from lib.python.engineering_engine.deliverable_detector import DeliverableDetector
+from lib.python.engineering_engine.acceptance_detector import AcceptanceDetector
 from lib.python.engineering_engine.models import (
     EngineeringBatch,
     ImplementationPackageModel,
@@ -36,7 +39,16 @@ class PackageBuilder:
                 "Engineering validation",
             ]
 
-        deliverables = [
+        scope_detector = ScopeDetector(self.root)
+
+        scope = scope_detector.detect()
+
+        deliverable_detector = DeliverableDetector(self.root)
+
+        deliverables = deliverable_detector.detect()
+
+        if not deliverables:
+            deliverables = [
             "Repository Audit",
             "Gap Analysis",
             "Planning Report",
@@ -44,17 +56,16 @@ class PackageBuilder:
             "Validation Report",
         ]
 
-        acceptance = [
+        acceptance_detector = AcceptanceDetector()
+
+        acceptance = acceptance_detector.detect()
+
+        if not acceptance:
+            acceptance = [
             "Repository builds successfully",
             "Validation passes",
             "Planning is synchronized with repository",
             "Canonical compliance preserved",
-        ]
-
-        scope = [
-            batch.title for batch in batches
-        ] if batches else [
-            "Engineering Platform",
         ]
 
         return ImplementationPackageModel(
@@ -62,7 +73,7 @@ class PackageBuilder:
             title=title,
             canonical_references=canonical_references,
             objectives=objectives,
-            scope=scope,
+            scope=scope if scope else ['Engineering Platform'],
             deliverables=deliverables,
             acceptance_criteria=acceptance,
             batches=batches,

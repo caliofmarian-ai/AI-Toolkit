@@ -2,7 +2,7 @@
 
 CORE: CORE-023
 TITLE: CORE 023
-Generated: 2026-08-03T19:49:10.258974+00:00
+Generated: 2026-08-03T19:59:34.170048+00:00
 
 ## Canonical References
 
@@ -20,21 +20,26 @@ Generated: 2026-08-03T19:49:10.258974+00:00
 
 ## Scope
 
-- Engineering Platform
+- Engineering Services
+- Python Components
+- Runtime Interfaces
+- Runtime Modules
 
 ## Deliverables
 
-- Repository Audit
 - Gap Analysis
-- Planning Report
 - Implementation Package
+- Planning Report
+- Repository Audit
+- Review Summary
 - Validation Report
 
 ## Acceptance Criteria
 
 - Repository builds successfully
-- Validation passes
-- Planning is synchronized with repository
+- Validation Engine passes
+- Review Engine passes
+- Planning synchronized with repository
 - Canonical compliance preserved
 
 ## Engineering Batches
