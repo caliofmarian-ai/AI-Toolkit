@@ -1,0 +1,2 @@
+# Railway/Nixpacks build bootstrap marker.
+# The runtime currently uses Python standard library only.
