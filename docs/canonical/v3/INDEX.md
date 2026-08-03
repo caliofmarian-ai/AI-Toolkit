@@ -16,3 +16,7 @@
 | CANON-053 | Runtime Data Model Specification *(current filename may differ)* |
 | CANON-054 | Runtime Event Bus Specification *(current filename may differ)* |
 
+
+| CANON-055 | AI CTO Runtime Server Specification |
+| CANON-056 | Railway Deployment Architecture Specification |
+| CANON-057 | Continuous Runtime Lifecycle Specification |
