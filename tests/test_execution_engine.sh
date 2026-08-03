@@ -18,15 +18,19 @@ result = runtime.execute(
 
 print()
 
-for item in result.data["execution"]:
+generated = result.data["generated_batches"]
+execution = result.data["execution"]
+
+assert len(execution) == len(generated), (
+    f"Execution count {len(execution)} != generated count {len(generated)}"
+)
+
+for item in execution:
     print(item["batch"], "->", item["status"])
 
 print()
 print("Execution Engine PASS")
 PY
 
-test -f .ai/batches/BATCH-001/execution.log
-test -f .ai/batches/BATCH-002/execution.log
-
 echo
-echo "Execution logs created."
+echo "Execution results match generated batches."
