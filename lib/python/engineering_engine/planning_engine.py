@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from pathlib import Path
 
 from lib.python.engineering_engine.gap_analysis import GapAnalysis
@@ -11,18 +10,10 @@ from lib.python.engineering_engine.rule_engine import RuleEngine
 from lib.python.engineering_engine.dependency_rule_engine import DependencyRuleEngine
 
 
-@dataclass
-class PlanningBatch:
-    id: str
-    title: str
-    priority: str
-    status: str
-    risk: str
-    rationale: str
-    affected_modules: list[str]
-    objective: str
-    batch: str
-    suggested_tests: list[str]
+from lib.python.engineering_engine.models import EngineeringBatch
+
+PlanningBatch = EngineeringBatch
+
 
 
 class PlanningEngine:
@@ -67,8 +58,7 @@ class PlanningEngine:
                     rationale=gap.evidence,
                     affected_modules=affected,
                     objective=gap.component,
-                    batch=f"{core}-{index:03d}",
-                    suggested_tests=[
+suggested_tests=[
                         "tests/test_runtime_bootstrap.sh",
                         "tests/test_runtime_health.sh",
                         "tests/test_runtime_webhooks.sh",

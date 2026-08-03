@@ -9,7 +9,8 @@ sys.path.insert(0, str(ROOT))
 from lib.python.cli.engineering import (
     engineering_audit,
     engineering_gap,
-    engineering_ip,
+    engineering_plan,
+    engineering_execute,
     engineering_validate,
     engineering_build,
 )
@@ -20,7 +21,8 @@ if len(args) != 3 or args[0] != "engineering":
     print("Usage:")
     print("  ai engineering audit CORE-XXX")
     print("  ai engineering gap CORE-XXX")
-    print("  ai engineering ip CORE-XXX")
+    print("  ai engineering plan CORE-XXX")
+    print("  ai engineering execute CORE-XXX")
     print("  ai engineering validate CORE-XXX")
     print("  ai engineering build CORE-XXX")
     raise SystemExit(1)
@@ -32,8 +34,10 @@ if command == "audit":
     engineering_audit(core)
 elif command == "gap":
     engineering_gap(core)
-elif command == "ip":
-    engineering_ip(core)
+elif command == "plan":
+    engineering_plan(core)
+elif command == "execute":
+    engineering_execute(core)
 elif command == "validate":
     engineering_validate(core)
 elif command == "build":
