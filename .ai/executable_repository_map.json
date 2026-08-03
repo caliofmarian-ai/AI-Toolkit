@@ -1,0 +1,54 @@
+{
+  "schema_version": "1.0.0",
+  "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
+  "captured_at": "2026-08-03T04:26:34Z",
+  "executable_map": {
+    "executable_file_count": 160,
+    "non_executable_file_count": 97,
+    "category_distribution": {
+      "Bootstrap": 48,
+      "Canonical Specification": 65,
+      "Configuration": 8,
+      "Documentation": 19,
+      "Executable Code": 108,
+      "Reports": 3,
+      "Runtime Entry Point": 4,
+      "Tests": 2
+    },
+    "zone_distribution": {
+      "Documentation": 5,
+      "Generated": 5,
+      "Runtime": 49,
+      "Testing": 1
+    },
+    "safety_distribution": {
+      "READ_ONLY": 1,
+      "SAFE": 5,
+      "SAFE_WITH_CONDITIONS": 43,
+      "UNSAFE": 2
+    },
+    "main_entry_point": "lib/python/development_validator/main.py",
+    "execution_chain": [
+      "lib/python/development_validator/main.py"
+    ],
+    "bootstrap_sequence": [
+      "lib/python/__init__.py",
+      "lib/python/agent_runtime/__init__.py",
+      "lib/python/agents/__init__.py",
+      "lib/python/ai_cto_scanner/__init__.py",
+      "lib/python/ai_cto_scanner/detectors.py",
+      "lib/python/ai_cto_scanner/report.py",
+      "lib/python/autonomous_planner/__init__.py",
+      "lib/python/batch_generator/__init__.py",
+      "lib/python/batch_planner/__init__.py",
+      "lib/python/canonical_audit/__init__.py"
+    ],
+    "scheduler_entry": "lib/python/ai_cto_scanner/detectors.py",
+    "runtime_component_count": 159,
+    "executable_dep_nodes": 160,
+    "executable_dep_edges": 201,
+    "excluded_file_count": 97,
+    "zone_count": 60,
+    "recommendation_count": 3
+  }
+}
