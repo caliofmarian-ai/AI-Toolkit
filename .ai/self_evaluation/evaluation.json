@@ -47,27 +47,27 @@
     }
   ],
   "context": {
-    "briefing_id": "BRIEF-79827B10804F",
-    "evaluation_id": "EVAL-798F03E0",
-    "execution_id": "EXEC-C092A3B3",
-    "generated_at": "2026-08-03T10:33:25.705520+00:00",
-    "planning_id": "PLAN-0B5CABE2",
-    "repository": "/storage/emulated/0/AI-Projects/AI-Toolkit",
+    "briefing_id": "BRIEF-62762186FCA8",
+    "evaluation_id": "EVAL-CB9D877B",
+    "execution_id": "EXEC-F071A1FA",
+    "generated_at": "2026-08-03T11:02:24.554880+00:00",
+    "planning_id": "PLAN-A6FFF182",
+    "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
     "schema_version": "1.0.0",
     "synchronization_id": "",
-    "workspace": "/storage/emulated/0/AI-Projects"
+    "workspace": "/home/runner/work/AI-Toolkit"
   },
   "errors": [],
-  "evaluation_id": "EVAL-798F03E0",
-  "generated_at": "2026-08-03T10:33:25.705520+00:00",
+  "evaluation_id": "EVAL-CB9D877B",
+  "generated_at": "2026-08-03T11:02:24.554880+00:00",
   "overall_confidence": 0.4,
   "overall_gate": "PASS",
-  "overall_score": 0.846,
+  "overall_score": 0.886,
   "quality_scores": [
     {
       "dimension": "canonical_compliance",
       "evidence": [
-        "CORE-007 unavailable: 'CanonicalIntelligenceEngine' object has no attribute 'analyze'"
+        "CORE-007: 0 deviation(s) detected"
       ],
       "findings": [],
       "gate": "PASS",
@@ -93,12 +93,12 @@
     {
       "dimension": "repository_health",
       "evidence": [
-        "CORE-008A unavailable: cannot import name 'AICTOScanner' from 'python.ai_cto_scanner.engine' (/data/data/com.termux/files/home/storage/shared/AI-Projects/AI-Toolkit/lib/python/ai_cto_scanner/engine.py)"
+        "CORE-008A: readiness=98%"
       ],
       "findings": [],
-      "gate": "WARNING",
-      "recommendation": "Improve repository readiness.",
-      "score": 0.7
+      "gate": "PASS",
+      "recommendation": "Repository health is good.",
+      "score": 0.98
     },
     {
       "dimension": "execution_quality",
@@ -154,15 +154,15 @@
       "evidence": [
         "canonical_compliance: 100% (weight=15%)",
         "architecture_quality: 75% (weight=15%)",
-        "repository_health: 70% (weight=10%)",
+        "repository_health: 98% (weight=10%)",
         "execution_quality: 80% (weight=15%)",
         "testing_quality: 100% (weight=10%)",
         "confidence: 80% (weight=5%)"
       ],
       "findings": [],
       "gate": "PASS",
-      "recommendation": "Engineering quality is good (score=85%). Continue current practices.",
-      "score": 0.846
+      "recommendation": "Engineering quality is good (score=89%). Continue current practices.",
+      "score": 0.886
     }
   ],
   "recommendations": [
@@ -187,8 +187,8 @@
       "severity": "medium"
     }
   ],
-  "repository": "/storage/emulated/0/AI-Projects/AI-Toolkit",
+  "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
   "schema_version": "1.0.0",
-  "summary": "Evaluation EVAL-798F03E0 completed. Overall engineering quality: 85% (PASS). Repository: AI-Toolkit.",
+  "summary": "Evaluation EVAL-CB9D877B completed. Overall engineering quality: 89% (PASS). Repository: AI-Toolkit.",
   "warnings": []
 }

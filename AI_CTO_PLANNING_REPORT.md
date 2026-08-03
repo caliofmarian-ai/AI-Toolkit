@@ -1,8 +1,8 @@
 # AI CTO Planning Report
 
-**Planning ID:** PLAN-0B5CABE2
+**Planning ID:** PLAN-A6FFF182
 
-**Generated:** 2026-08-03T08:53:49.175333+00:00
+**Generated:** 2026-08-03T11:01:55.553475+00:00
 
 **Repository:** /home/runner/work/AI-Toolkit/AI-Toolkit
 
@@ -48,52 +48,44 @@
 
 | Next Issue | [CORE-005] Implement CORE-005 — Autonomous Planning Engine | high | 90% |
 
-| Next Batch | Execute CORE-013 | high | 85% |
+| Next Batch | Execute CORE-005 | high | 85% |
 
-| Next PR | Open PR for current branch: copilot/core-013-ai-cto-context-synchronization | high | 80% |
+| Next PR | Open PR for current branch: copilot/batch-002-runtime-integration-canonical-synchroniz | high | 80% |
 
 | Next Milestone | Phase 3 — Autonomy Layer Complete | high | 80% |
 
 
 ---
 
-## Execution Queue (8 items)
+## Execution Queue (6 items)
 
 _Items are ordered by priority score and dependency constraints._
 
 
-1. **[MEDIUM]** Execute batch for CORE-005 (`batch`)
-   - Reason: A new batch is needed to implement CORE-005.
-   - Effort: medium | Confidence: 70%
-
-2. **[MEDIUM]** Implement CORE-005 (`core`)
+1. **[MEDIUM]** Implement CORE-005 (`core`)
    - Reason: CORE-005 is documented but not yet implemented.
    - Effort: low | Confidence: 85%
      Dependencies: CORE-001
 
-3. **[MEDIUM]** Execute CORE-013 (`batch`)
-   - Reason: Executive Briefing recommends CORE-013 as the next batch to execute.
-   - Effort: medium | Confidence: 85%
-
-4. **[MEDIUM]** Phase 3 — Autonomy Layer Complete (`milestone`)
+2. **[MEDIUM]** Phase 3 — Autonomy Layer Complete (`milestone`)
    - Reason: Current phase is autonomy. 93% of documented COREs are implemented. 1 COREs remain before phase completion.
    - Effort: high | Confidence: 80%
      Dependencies: CORE-001, CORE-006, CORE-007, CORE-008, CORE-009, CORE-010, CORE-011, CORE-012, CORE-013, CORE-014, CORE-015, CORE-016, CORE-017
 
-5. **[MEDIUM]** Complete current milestone: PHASE 2 — CORE IMPLEMENTATION (`milestone`)
+3. **[MEDIUM]** Complete current milestone: PHASE 2 — CORE IMPLEMENTATION (`milestone`)
    - Reason: Active milestone 'PHASE 2 — CORE IMPLEMENTATION' from development state should be progressed or closed.
    - Effort: medium | Confidence: 75%
 
-6. **[MEDIUM]** Open PR for current branch: copilot/core-013-ai-cto-context-synchronization (`pr`)
-   - Reason: Active feature branch 'copilot/core-013-ai-cto-context-synchronization' has work in progress (BATCH-001). A PR should be opened.
+4. **[MEDIUM]** Open PR for current branch: copilot/batch-002-runtime-integration-canonical-synchroniz (`pr`)
+   - Reason: Active feature branch 'copilot/batch-002-runtime-integration-canonical-synchroniz' has work in progress (BATCH-002). A PR should be opened.
    - Effort: low | Confidence: 80%
 
-7. **[LOW]** [CORE-005] Implement CORE-005 — Autonomous Planning Engine (`issue`)
+5. **[LOW]** [CORE-005] Implement CORE-005 — Autonomous Planning Engine (`issue`)
    - Reason: CORE-005 is the next CORE on the roadmap and has no implementation yet.
    - Effort: medium | Confidence: 90%
 
-8. **[LOW]** Execute current recommendation: CORE-013 (`issue`)
-   - Reason: The development state recommends executing: CORE-013.
+6. **[LOW]** Execute current recommendation: CORE-005 (`issue`)
+   - Reason: The development state recommends executing: CORE-005.
    - Effort: medium | Confidence: 85%
 
 ---
@@ -120,18 +112,18 @@ CORE-005 is the next CORE on the roadmap and has no implementation yet.
 
 ### Recommended Batch
 
-**Execute CORE-013**
+**Execute CORE-005**
 
-Executive Briefing recommends CORE-013 as the next batch to execute.
+Executive Briefing recommends CORE-005 as the next batch to execute.
 
 - Effort: medium | Confidence: 85%
 
 
 ### Recommended Pull Request
 
-**Open PR for current branch: copilot/core-013-ai-cto-context-synchronization**
+**Open PR for current branch: copilot/batch-002-runtime-integration-canonical-synchroniz**
 
-Active feature branch 'copilot/core-013-ai-cto-context-synchronization' has work in progress (BATCH-001). A PR should be opened.
+Active feature branch 'copilot/batch-002-runtime-integration-canonical-synchroniz' has work in progress (BATCH-002). A PR should be opened.
 
 - Effort: low | Confidence: 80%
 

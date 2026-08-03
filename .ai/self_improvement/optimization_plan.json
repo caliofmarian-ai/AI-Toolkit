@@ -34,20 +34,20 @@
   ],
   "core_proposal_count": 0,
   "core_proposals": [],
-  "generated_at": "2026-08-03T08:53:36.842316+00:00",
+  "generated_at": "2026-08-03T11:02:35.397377+00:00",
   "performance_metric_count": 3,
   "performance_metrics": [
     {
       "baseline": 5000.0,
       "evidence": {
-        "entry_count": 8,
+        "entry_count": 18,
         "source": "CORE-015"
       },
       "metric_id": "PERF-EXEC-AVG",
       "name": "average_execution_duration_ms",
-      "trend": "stable",
+      "trend": "degrading",
       "unit": "ms",
-      "value": 731.5
+      "value": 6239.2
     },
     {
       "baseline": 0.8,
@@ -58,7 +58,7 @@
       "name": "evaluation_overall_score",
       "trend": "improving",
       "unit": "score",
-      "value": 0.832
+      "value": 0.886
     },
     {
       "baseline": 100.0,
@@ -72,7 +72,7 @@
       "value": 224.0
     }
   ],
-  "plan_id": "IMP-FCF5C03E",
+  "plan_id": "IMP-DD6D6817",
   "proposed_batch_count": 2,
   "proposed_batches": [
     {
@@ -459,7 +459,7 @@
   "roadmap_update_count": 0,
   "roadmap_updates": [],
   "schema_version": "1.0.0",
-  "summary": "Improvement plan IMP-FCF5C03E: 9 technical debt item(s), 3 capability gap(s), 12 proposed issue(s). All proposals require Owner approval before execution.",
+  "summary": "Improvement plan IMP-DD6D6817: 9 technical debt item(s), 3 capability gap(s), 12 proposed issue(s). All proposals require Owner approval before execution.",
   "technical_debt": [
     {
       "category": "legacy_module",

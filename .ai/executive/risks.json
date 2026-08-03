@@ -1,21 +1,45 @@
 {
   "all_risks": [
     {
+      "affected_components": [],
+      "category": "canonical_drift",
+      "description": "10 canonical drift findings indicate the implementation has diverged from specification.",
+      "evidence": [
+        "drift_findings=10"
+      ],
+      "id": "RISK-002",
+      "remediation": "Run canonical intelligence pipeline and resolve all drift findings.",
+      "severity": "critical",
+      "title": "Canonical drift detected (10 findings)"
+    },
+    {
+      "affected_components": [],
+      "category": "canonical_drift",
+      "description": "Overall canonical coverage is 0.8%, below the 80% target.",
+      "evidence": [
+        "overall_coverage=0.8%"
+      ],
+      "id": "RISK-003",
+      "remediation": "Implement missing canonical specifications to raise coverage above 80%.",
+      "severity": "critical",
+      "title": "Low canonical coverage (0.8%)"
+    },
+    {
       "affected_components": [
         "lib/python/workspace_index/__init__.py",
+        "lib/python/autonomous_planning_engine/models.py",
         "lib/python/executive_briefing_engine/models.py",
         "lib/python/semantic_repository_intelligence/models.py",
-        "lib/python/workspace_orchestrator/models.py",
-        "lib/python/canonical_entities/__init__.py"
+        "lib/python/workspace_orchestrator/models.py"
       ],
       "category": "architecture",
       "description": "5 architecture hotspots indicate high coupling that may impede future changes.",
       "evidence": [
         "lib/python/workspace_index/__init__.py",
+        "lib/python/autonomous_planning_engine/models.py",
         "lib/python/executive_briefing_engine/models.py",
         "lib/python/semantic_repository_intelligence/models.py",
-        "lib/python/workspace_orchestrator/models.py",
-        "lib/python/canonical_entities/__init__.py"
+        "lib/python/workspace_orchestrator/models.py"
       ],
       "id": "RISK-001",
       "remediation": "Decompose hotspot modules to reduce coupling and improve maintainability.",
@@ -25,17 +49,42 @@
     {
       "affected_components": [],
       "category": "regression",
-      "description": "With 302 files, changes carry elevated regression risk without comprehensive test coverage.",
+      "description": "With 398 files, changes carry elevated regression risk without comprehensive test coverage.",
       "evidence": [
-        "total_files=302"
+        "total_files=398"
       ],
-      "id": "RISK-002",
+      "id": "RISK-004",
       "remediation": "Increase test coverage and enforce CI/CD gates for large changesets.",
       "severity": "medium",
-      "title": "High codebase size increases regression risk (302 files)"
+      "title": "High codebase size increases regression risk (398 files)"
     }
   ],
-  "briefing_id": "BRIEF-6B9D1D901B98",
-  "critical_risks": [],
-  "generated_at": "2026-08-03T07:12:33Z"
+  "briefing_id": "BRIEF-2433609BC9C4",
+  "critical_risks": [
+    {
+      "affected_components": [],
+      "category": "canonical_drift",
+      "description": "10 canonical drift findings indicate the implementation has diverged from specification.",
+      "evidence": [
+        "drift_findings=10"
+      ],
+      "id": "RISK-002",
+      "remediation": "Run canonical intelligence pipeline and resolve all drift findings.",
+      "severity": "critical",
+      "title": "Canonical drift detected (10 findings)"
+    },
+    {
+      "affected_components": [],
+      "category": "canonical_drift",
+      "description": "Overall canonical coverage is 0.8%, below the 80% target.",
+      "evidence": [
+        "overall_coverage=0.8%"
+      ],
+      "id": "RISK-003",
+      "remediation": "Implement missing canonical specifications to raise coverage above 80%.",
+      "severity": "critical",
+      "title": "Low canonical coverage (0.8%)"
+    }
+  ],
+  "generated_at": "2026-08-03T11:02:35Z"
 }

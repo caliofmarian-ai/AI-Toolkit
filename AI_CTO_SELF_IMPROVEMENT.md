@@ -1,6 +1,6 @@
 # AI CTO Self Improvement Report
-**Plan ID:** IMP-FCF5C03E
-**Generated:** 2026-08-03T08:53:36.842316+00:00
+**Plan ID:** IMP-DD6D6817
+**Generated:** 2026-08-03T11:02:35.397377+00:00
 **Repository:** /home/runner/work/AI-Toolkit/AI-Toolkit
 ---
 ## Summary
@@ -37,8 +37,8 @@
 ## Performance Metrics (3 items)
 | Metric | Value | Unit | Trend |
 |--------|-------|------|-------|
-| average_execution_duration_ms | 731.5 | ms | stable |
-| evaluation_overall_score | 0.832 | score | improving |
+| average_execution_duration_ms | 6239.2 | ms | degrading |
+| evaluation_overall_score | 0.886 | score | improving |
 | python_file_count | 224.0 | files | growing |
 ---
 ## Capability Gaps (3 found)
@@ -81,4 +81,4 @@ _(no new CORE proposals at this time)_
 _(no roadmap updates recommended)_
 ---
 ## Optimization Summary
-Improvement plan IMP-FCF5C03E: 9 technical debt item(s), 3 capability gap(s), 12 proposed issue(s). All proposals require Owner approval before execution.
+Improvement plan IMP-DD6D6817: 9 technical debt item(s), 3 capability gap(s), 12 proposed issue(s). All proposals require Owner approval before execution.

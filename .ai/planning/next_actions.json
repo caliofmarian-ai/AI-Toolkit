@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-08-03T08:53:49.175333+00:00",
+  "generated_at": "2026-08-03T11:01:55.553475+00:00",
   "next_batch": {
     "confidence": 0.85,
     "dependencies": [],
     "estimated_effort": "medium",
-    "id": "CORE-013",
+    "id": "CORE-005",
     "priority": "high",
-    "reason": "Executive Briefing recommends CORE-013 as the next batch to execute.",
-    "title": "Execute CORE-013"
+    "reason": "Executive Briefing recommends CORE-005 as the next batch to execute.",
+    "title": "Execute CORE-005"
   },
   "next_core": {
     "blocked": false,
@@ -61,9 +61,9 @@
     "estimated_effort": "low",
     "id": "PR-CURRENT-BRANCH",
     "priority": "high",
-    "reason": "Active feature branch 'copilot/core-013-ai-cto-context-synchronization' has work in progress (BATCH-001). A PR should be opened.",
-    "title": "Open PR for current branch: copilot/core-013-ai-cto-context-synchronization"
+    "reason": "Active feature branch 'copilot/batch-002-runtime-integration-canonical-synchroniz' has work in progress (BATCH-002). A PR should be opened.",
+    "title": "Open PR for current branch: copilot/batch-002-runtime-integration-canonical-synchroniz"
   },
-  "next_repository": null,
+  "next_repository": "AI-Toolkit",
   "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit"
 }

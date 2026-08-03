@@ -13,7 +13,7 @@ cd "$ROOT"
 echo
 echo "[1/6] Module import check"
 PYTHONPATH=lib python3 -c "
-from python.ai_cto_scanner import AICTOScannerEngine
+from python.ai_cto_scanner import AICTOScanner, AICTOScannerEngine
 from python.ai_cto_scanner.detectors import (
     TelegramDetector, OwnerControlDetector, RuntimeDetector,
     StateDetector, ConfigurationDetector, CanonicalDetector,
@@ -23,6 +23,8 @@ from python.ai_cto_scanner.scoring import ReadinessScorer
 from python.ai_cto_scanner.report import AICTOReportGenerator
 from python.agents.ai_cto_scanner_agent import AICTOScannerAgent
 print('Module import OK')
+assert AICTOScanner is AICTOScannerEngine
+print('Backward compatibility alias OK')
 "
 
 echo

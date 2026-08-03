@@ -32,10 +32,16 @@ class ExecutionValidator:
     def validate_repository(self) -> ValidationResult:
         """Repository structure validation via CORE-008A."""
         try:
-            from python.ai_cto_scanner.engine import AICTOScanner  # type: ignore[import]
-            scanner = AICTOScanner(self.repository)
+            from python.ai_cto_scanner import AICTOScannerEngine  # type: ignore[import]
+
+            scanner = AICTOScannerEngine(self.repository)
             result = scanner.scan()
-            score = float(result.get("readiness_score", 0.5))
+            score = result.get("readiness_score")
+            if score is None:
+                overall = (result.get("scores") or {}).get("Overall AI CTO Readiness")
+                if isinstance(overall, (int, float)):
+                    score = float(overall) / 100.0
+            score = float(score if score is not None else 0.5)
             findings = result.get("findings", [])
             return ValidationResult(
                 validator="RepositoryValidator",
@@ -118,7 +124,17 @@ class ExecutionValidator:
 
         # Check that key planning fields have not disappeared
         required_keys = {"planning_id", "schema_version", "execution_queue"}
-        planning = snapshot.get("planning_queue", {})
+        planning = dict(snapshot.get("planning_queue", {}) or {})
+        if (
+            "planning_id" not in planning
+            and "execution_queue" not in planning
+            and "entries" in planning
+        ):
+            planning = {
+                "planning_id": planning.get("queue_id", ""),
+                "schema_version": planning.get("schema_version", ""),
+                "execution_queue": planning,
+            }
         missing = required_keys - set(planning.keys())
         if missing:
             findings.append(f"Missing planning keys: {sorted(missing)}")
