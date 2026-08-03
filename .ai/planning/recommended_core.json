@@ -1,0 +1,14 @@
+{
+  "blocked": false,
+  "confidence": 0.95,
+  "dependencies": [
+    "CORE-001"
+  ],
+  "estimated_effort": "low",
+  "id": "CORE-005",
+  "incomplete_core_count": 1,
+  "priority": "high",
+  "reason": "CORE-005 is the next CORE on the roadmap. 10 of 11 known COREs are implemented.",
+  "title": "Implement CORE-005",
+  "type": "core"
+}

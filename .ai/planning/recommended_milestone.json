@@ -1,0 +1,20 @@
+{
+  "confidence": 0.8,
+  "dependencies": [
+    "CORE-001",
+    "CORE-006",
+    "CORE-007",
+    "CORE-008",
+    "CORE-009",
+    "CORE-010",
+    "CORE-011",
+    "CORE-012",
+    "CORE-013",
+    "CORE-014"
+  ],
+  "estimated_effort": "high",
+  "id": "MILESTONE-AUTONOMY",
+  "priority": "high",
+  "reason": "Current phase is autonomy. 91% of documented COREs are implemented. 1 COREs remain before phase completion.",
+  "title": "Phase 3 — Autonomy Layer Complete"
+}
