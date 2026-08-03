@@ -6,7 +6,10 @@ from pathlib import Path
 from python.agent_runtime.base import BaseAgent
 from python.agent_runtime.models import AgentResult
 
-from python.workspace_index import WorkspaceIndexBuilder, RepositoryPolicy
+from python.workspace_index import (
+    RepositoryPolicy,
+    IncrementalWorkspaceIndex,
+)
 
 from python.repository_engine.engine import RepositoryEngine
 from python.dependency_engine.engine import DependencyEngine
@@ -41,15 +44,19 @@ class DevelopmentAgent(BaseAgent):
         profiler = Profiler()
 
         # ------------------------------------------------------------------
-        # Phase 1 — Single repository traversal via WorkspaceIndexBuilder
+        # Phase 1 — Incremental repository traversal (CORE-006)
         # ------------------------------------------------------------------
 
         policy = RepositoryPolicy()
 
-        workspace_index = profiler.run(
-            "WorkspaceIndexBuilder",
-            lambda: WorkspaceIndexBuilder(repository, policy=policy).build(),
+        incremental_result = profiler.run(
+            "IncrementalWorkspaceIndex",
+            lambda: IncrementalWorkspaceIndex(repository, policy=policy).build(),
         )
+
+        workspace_index = incremental_result.index
+        inc_stats = incremental_result.stats
+        inc_delta = incremental_result.delta
 
         report["workspace_index"] = {
             "files": workspace_index.statistics.total_files,
@@ -58,7 +65,10 @@ class DevelopmentAgent(BaseAgent):
             "ignored_directories": workspace_index.statistics.ignored_directories,
             "scan_duration": workspace_index.statistics.scan_duration,
             "files_per_second": workspace_index.statistics.files_per_second,
+            "incremental": inc_stats.to_dict(),
         }
+
+        profiler.record_incremental(inc_stats)
 
         # ------------------------------------------------------------------
         # Phase 2 — All engines consume the same immutable WorkspaceIndex
