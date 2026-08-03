@@ -523,7 +523,71 @@ print('Main entry point:', data['main_entry_point'])
 "
 
 echo
-echo "[12/12] Determinism check"
+echo "[12/13] CLI — --execution-model flag (CORE-008C integration)"
+PYTHONPATH=lib python3 -c "
+import json, os, sys, tempfile
+from pathlib import Path
+
+with tempfile.TemporaryDirectory() as tmp:
+    root = Path(tmp)
+    # Minimal repo: a few Python files so the engine has something to analyse
+    (root / 'main.py').write_text('def main(): pass\n\nif __name__ == \"__main__\": main()\n')
+    (root / 'app.py').write_text('class App: pass\n')
+    (root / 'utils.py').write_text('def helper(): pass\n')
+
+    # Run via the Python module directly so it works in any environment
+    import subprocess, sys
+    proc = subprocess.run(
+        [sys.executable, '-m', 'python.cli.main', 'inspect', str(root), '--execution-model'],
+        capture_output=True, text=True,
+        env={**os.environ, 'PYTHONPATH': os.path.join(os.getcwd(), 'lib')},
+    )
+
+    # CLI must exit 0
+    assert proc.returncode == 0, 'CLI exited %d\nstdout: %s\nstderr: %s' % (
+        proc.returncode, proc.stdout[:500], proc.stderr[:500])
+
+    # stdout must be valid JSON summary
+    data = json.loads(proc.stdout)
+    assert 'executable_file_count' in data, 'Missing executable_file_count in summary'
+    assert 'main_entry_point' in data, 'Missing main_entry_point in summary'
+    assert 'category_distribution' in data, 'Missing category_distribution in summary'
+
+    # The three output artefacts must exist
+    runtime_model = root / '.ai' / 'runtime_repository_model.json'
+    exec_map = root / '.ai' / 'executable_repository_map.json'
+    exec_md = root / 'AI_CTO_EXECUTION_MODEL.md'
+
+    assert runtime_model.exists(), '.ai/runtime_repository_model.json not written'
+    assert exec_map.exists(), '.ai/executable_repository_map.json not written'
+    assert exec_md.exists(), 'AI_CTO_EXECUTION_MODEL.md not written'
+
+    # Validate runtime model JSON structure
+    rm_data = json.loads(runtime_model.read_text())
+    assert rm_data.get('schema_version') == '1.0.0', 'Bad schema_version in runtime model'
+    assert 'model' in rm_data, 'Missing model key in runtime model'
+    assert rm_data['model'].get('executable_file_count', -1) >= 0
+
+    # Validate executable map JSON structure
+    em_data = json.loads(exec_map.read_text())
+    assert em_data.get('schema_version') == '1.0.0', 'Bad schema_version in executable map'
+    assert 'executable_map' in em_data, 'Missing executable_map key'
+
+    # Validate report content
+    md_content = exec_md.read_text()
+    assert '# AI CTO Execution Model' in md_content, 'Missing report header'
+    assert 'CORE-008C' in md_content, 'Missing CORE-008C in report'
+    assert 'Runtime Map' in md_content, 'Missing Runtime Map section'
+
+    print('--execution-model CLI summary OK')
+    print('Executable files:', data['executable_file_count'])
+    print('runtime_repository_model.json: OK (%d bytes)' % runtime_model.stat().st_size)
+    print('executable_repository_map.json: OK (%d bytes)' % exec_map.stat().st_size)
+    print('AI_CTO_EXECUTION_MODEL.md: OK (%d bytes)' % exec_md.stat().st_size)
+"
+
+echo
+echo "[13/13] Determinism check"
 PYTHONPATH=lib python3 -c "
 import json
 from python.executable_repository_intelligence import ExecutableRepositoryEngine

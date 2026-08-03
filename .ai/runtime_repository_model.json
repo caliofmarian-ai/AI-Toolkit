@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0.0",
   "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
-  "captured_at": "2026-08-03T04:26:34Z",
+  "captured_at": "2026-08-03T04:33:21Z",
   "model": {
     "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
     "executable_file_count": 160,
@@ -4598,7 +4598,7 @@
         },
         {
           "source": "lib/python/development_validator/main.py",
-          "target": "lib/python/canonical_parser/parser.py",
+          "target": "lib/python/development_validator/parser.py",
           "kind": "import"
         },
         {
