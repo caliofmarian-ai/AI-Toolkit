@@ -186,3 +186,4 @@ The Canonical Master Index remains the single entry point for understanding the 
 ## Canonical Intelligence
 
 - CANON-012_CANONICAL_INTELLIGENCE_SPECIFICATION_v1.0.0.md
+- CANON-013_CANONICAL_KNOWLEDGE_GRAPH_SPECIFICATION_v1.0.0.md
