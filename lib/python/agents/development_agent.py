@@ -135,7 +135,9 @@ class DevelopmentAgent(BaseAgent):
         )
 
         report["execution"] = (
-            ExecutionEngine().execute()
+            ExecutionEngine().execute(
+                report["generated_batches"]
+            )
         )
 
         report["review"] = (

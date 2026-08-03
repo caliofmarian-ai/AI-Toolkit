@@ -1,5 +1,3 @@
-from python.common.models import Batch
-
 import json
 from pathlib import Path
 from datetime import datetime
@@ -9,33 +7,22 @@ class ExecutionEngine:
 
     ROOT = Path(".ai/batches")
 
-    def execute(self):
+    def execute(self, generated_batches):
 
         results = []
 
-        if not self.ROOT.exists():
-            return results
+        for batch in generated_batches:
 
-        for directory in sorted(self.ROOT.iterdir()):
-
-            if not directory.is_dir():
-                continue
-
+            directory = self.ROOT / batch.identifier
             metadata_file = directory / "metadata.json"
 
             if not metadata_file.exists():
                 continue
 
-            metadata = Batch.from_dict(
-                json.loads(
-                    metadata_file.read_text(encoding="utf-8")
-                )
-            )
-
-            metadata.status = "COMPLETED"
+            batch.status = "COMPLETED"
             completed = datetime.utcnow().isoformat()
 
-            payload = metadata.to_dict()
+            payload = batch.to_dict()
             payload["completed_at"] = completed
 
             metadata_file.write_text(
@@ -49,8 +36,8 @@ class ExecutionEngine:
             )
 
             results.append({
-                "batch": metadata.identifier,
-                "status": metadata.status,
+                "batch": batch.identifier,
+                "status": batch.status,
             })
 
         return results
