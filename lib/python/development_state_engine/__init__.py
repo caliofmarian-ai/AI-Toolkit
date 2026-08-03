@@ -1,7 +1,7 @@
 """
-Development State Engine — CORE-009A
+Development State Engine — CORE-009A / CORE-009B
 
-Canonical state data models for CANON-030.
+Canonical state models and persistence repository for CANON-030.
 """
 
 from .models import (
@@ -17,6 +17,7 @@ from .models import (
     SnapshotMetadata,
     IntegrityReport,
 )
+from .repository import DevelopmentStateRepository
 
 __all__ = [
     "MODEL_VERSION",
@@ -30,4 +31,5 @@ __all__ = [
     "TelegramState",
     "SnapshotMetadata",
     "IntegrityReport",
+    "DevelopmentStateRepository",
 ]
