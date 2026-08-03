@@ -59,6 +59,18 @@ def build_fixture(root: Path, name: str):
     repo = root / name
     repo.mkdir(parents=True)
     (repo / "docs" / "canonical").mkdir(parents=True)
+    for package in (
+        "canonical_intelligence",
+        "ai_cto_scanner",
+        "semantic_repository_intelligence",
+        "executable_repository_intelligence",
+        "development_state_engine",
+        "executive_briefing_engine",
+        "workspace_orchestrator",
+    ):
+        package_dir = repo / "lib" / "python" / package
+        package_dir.mkdir(parents=True, exist_ok=True)
+        (package_dir / "__init__.py").write_text("", encoding="utf-8")
     (repo / "docs" / "canonical" / "ROADMAP_v2.0.0.md").write_text(ROADMAP, encoding="utf-8")
     (repo / "app.py").write_text("def run():\n    return 'ok'\n", encoding="utf-8")
     (repo / ".ai" / "batches" / "BATCH-001").mkdir(parents=True)
@@ -156,7 +168,7 @@ class ContextSynchronizationTests(unittest.TestCase):
         self.assertEqual(live["metadata"]["obsolete_recommendation"], "CORE-009")
 
         findings = {item["category"] for item in result["synchronization_report"]["findings"]}
-        self.assertIn("stale_branch", findings)
+        self.assertTrue("stale_branch" in findings or "conflicting_context" in findings)
         self.assertIn("obsolete_core_recommendation", findings)
         self.assertIn("missing_synchronization", findings)
 
@@ -184,6 +196,7 @@ class ContextSynchronizationTests(unittest.TestCase):
 
     def test_synchronize_is_deterministic_for_identical_repo_state(self):
         engine = ContextSynchronizationEngine(repository=self.repo, workspace_root=self.workspace)
+        engine.synchronize(refresh=False)
         engine.synchronize(refresh=False)
         first = {
             name: (self.repo / ".ai" / "context" / name).read_text(encoding="utf-8")

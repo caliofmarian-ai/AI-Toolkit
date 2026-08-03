@@ -212,8 +212,7 @@ class DevelopmentContextProvider:
 
     def _deterministic_timestamp(self, state) -> str:
         snapshot_meta = state.snapshot_metadata.created_at or ""
-        semantic = self._load_json(self.root / ".ai" / "semantic_knowledge.json")
-        timestamps = [snapshot_meta, str(semantic.get("captured_at", ""))]
+        timestamps = [snapshot_meta]
         timestamps.extend(str(batch.get("completed_at", "")) for batch in self._load_batches())
         normalized = sorted(value.replace("Z", "+00:00") for value in timestamps if value)
         return normalized[-1] if normalized else "1970-01-01T00:00:00+00:00"
@@ -443,8 +442,6 @@ class ContextResolver:
         timestamps = [
             str(git_context.get("timestamp", "")),
             str(development_context.get("snapshot", {}).get("generated_at", "")),
-            str(development_context.get("executive", {}).get("generated_at", "")),
-            str(workspace_context.get("workspace_meta", {}).get("generated_at", "")),
         ]
         timestamps.extend(str(batch.get("completed_at", "")) for batch in development_context.get("batches", []))
         normalized = sorted(value.replace("Z", "+00:00") for value in timestamps if value)
@@ -658,14 +655,17 @@ class SynchronizationCoordinator:
         github_context = GitHubContextProvider(self.root).collect(git_context)
         development_context = DevelopmentContextProvider(self.root).collect()
         workspace_context = WorkspaceContextProvider(self.root, self.workspace_root).collect()
-        live_context = ContextResolver(self.root).resolve(
+        resolver = ContextResolver(self.root)
+        live_context = resolver.resolve(
             git_context,
             github_context,
             development_context,
             workspace_context,
             cache,
         )
-        report = ContextValidator().validate(
+        initial_obsolete = str(live_context.get("metadata", {}).get("obsolete_recommendation", "") or "")
+        validator = ContextValidator()
+        initial_report = validator.validate(
             live_context,
             git_context,
             development_context,
@@ -673,8 +673,30 @@ class SynchronizationCoordinator:
             cache,
         )
         updated_state = self._synchronize_development_state(development_context.get("state", {}), live_context)
-        paths = self._persist(live_context, git_context, github_context, development_context, workspace_context, report)
         downstream = self._refresh_downstream(live_context, refresh=refresh)
+        development_context = DevelopmentContextProvider(self.root).collect()
+        workspace_context = WorkspaceContextProvider(self.root, self.workspace_root).collect()
+        live_context = resolver.resolve(
+            git_context,
+            github_context,
+            development_context,
+            workspace_context,
+            cache,
+        )
+        if initial_obsolete and not str(live_context.get("metadata", {}).get("obsolete_recommendation", "") or ""):
+            metadata = dict(live_context.get("metadata", {}))
+            metadata["obsolete_recommendation"] = initial_obsolete
+            live_context = dict(live_context)
+            live_context["metadata"] = metadata
+        report = validator.validate(
+            live_context,
+            git_context,
+            development_context,
+            workspace_context,
+            cache,
+        )
+        report = self._merge_reports(initial_report, report)
+        paths = self._persist(live_context, git_context, github_context, development_context, workspace_context, report)
         result = {
             "schema_version": SCHEMA_VERSION,
             "generated_at": live_context.get("generated_at", ""),
@@ -690,6 +712,28 @@ class SynchronizationCoordinator:
             "updated_state_identifier": updated_state.identifier,
         }
         return self._sorted_mapping(result)
+
+    def _merge_reports(self, initial: SynchronizationReport, final: SynchronizationReport) -> SynchronizationReport:
+        findings: List[SynchronizationFinding] = []
+        seen = set()
+        for report in (initial, final):
+            for finding in report.findings:
+                key = (finding.category, finding.message, tuple(finding.evidence))
+                if key in seen:
+                    continue
+                seen.add(key)
+                findings.append(finding)
+        conflicts = dict(initial.conflicts or {})
+        conflicts.update(final.conflicts or {})
+        return SynchronizationReport(
+            repository=final.repository or initial.repository,
+            workspace=final.workspace or initial.workspace,
+            generated_at=final.generated_at or initial.generated_at,
+            findings=tuple(findings),
+            corrected_fields=tuple(sorted(set(initial.corrected_fields) | set(final.corrected_fields))),
+            missing_fields=tuple(sorted(set(initial.missing_fields) | set(final.missing_fields))),
+            conflicts=dict(sorted(conflicts.items())),
+        )
 
     def _synchronize_development_state(self, state_dict: Mapping[str, Any], live_context: Mapping[str, Any]):
         engine = DevelopmentStateEngine(self.root)
@@ -842,6 +886,9 @@ class SynchronizationCoordinator:
         })
 
     def _build_workspace_context(self, live_context: Mapping[str, Any], workspace_context: Mapping[str, Any], downstream: Mapping[str, Any]) -> Dict[str, Any]:
+        repo_context = workspace_context.get("repository_context", {})
+        dashboard = workspace_context.get("dashboard", {})
+        workspace_summary = dashboard.get("workspace_summary", {}) if isinstance(dashboard, Mapping) else {}
         return self._sorted_mapping({
             "schema_version": SCHEMA_VERSION,
             "generated_at": live_context.get("generated_at", ""),
@@ -849,8 +896,22 @@ class SynchronizationCoordinator:
             "workspace_root": workspace_context.get("workspace", ""),
             "workspace_status": live_context.get("workspace_status", ""),
             "executive_status": live_context.get("executive_status", ""),
-            "repository_context": workspace_context.get("repository_context", {}),
-            "dashboard": workspace_context.get("dashboard", {}),
+            "repository_context": {
+                "name": repo_context.get("name", ""),
+                "repository_root": repo_context.get("repository_root", ""),
+                "current_branch": repo_context.get("current_branch", ""),
+                "current_issue": repo_context.get("current_issue", ""),
+                "current_pull_request": repo_context.get("current_pull_request", ""),
+                "current_batch": repo_context.get("current_batch", ""),
+                "current_milestone": repo_context.get("current_milestone", ""),
+                "current_epic": repo_context.get("current_epic", ""),
+                "current_recommendation": repo_context.get("current_recommendation", ""),
+                "repository_health": repo_context.get("repository_health", ""),
+            },
+            "dashboard": {
+                "workspace_summary": workspace_summary,
+                "suggested_next_repository": dashboard.get("suggested_next_repository", ""),
+            },
             "refreshed_paths": downstream.get("workspace_paths", {}),
         })
 
