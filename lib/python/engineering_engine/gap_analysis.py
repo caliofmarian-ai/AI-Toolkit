@@ -4,80 +4,140 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
+from lib.python.engineering_engine.repository_model import RepositoryKnowledgeBuilder
+
 
 @dataclass
 class GapItem:
-    name: str
+    component: str
     status: str
+    evidence: str
 
 
 class GapAnalysis:
 
-    DEFAULT_ITEMS = [
-        "Runtime REST API",
-        "API Versioning",
-        "API Authentication",
-        "OpenAPI Specification",
-        "GraphQL Preparation",
-        "MCP Preparation",
-        "Runtime API Client",
-        "API Error Contract",
-        "API Response Contract",
-        "API Validation Layer",
-        "API Middleware",
-        "API Rate Limiting",
-    ]
-
-    def __init__(self, repository_root: Path):
-        self.root = repository_root
+    def __init__(self, root: Path):
+        self.root = root
 
     def analyse(self):
-        implemented = {
-            "Runtime REST API": False,
-            "API Versioning": False,
-            "API Authentication": False,
-            "OpenAPI Specification": False,
-            "GraphQL Preparation": False,
-            "MCP Preparation": False,
-            "Runtime API Client": False,
-            "API Error Contract": False,
-            "API Response Contract": False,
-            "API Validation Layer": False,
-            "API Middleware": False,
-            "API Rate Limiting": False,
-        }
 
-        return [
-            GapItem(
-                name=item,
-                status="IMPLEMENTED" if implemented[item] else "MISSING"
+        knowledge = RepositoryKnowledgeBuilder(self.root).build()
+
+        runtime_modules = len(knowledge.modules)
+
+        interfaces = sum(
+            1
+            for m in knowledge.modules
+            if "/interfaces/" in m
+        )
+
+        results = []
+
+        def add(name, implemented, evidence):
+            results.append(
+                GapItem(
+                    component=name,
+                    status="IMPLEMENTED" if implemented else "MISSING",
+                    evidence=evidence,
+                )
             )
-            for item in self.DEFAULT_ITEMS
-        ]
+
+        add(
+            "Runtime Foundation",
+            runtime_modules > 0,
+            f"{runtime_modules} runtime modules detected",
+        )
+
+        add(
+            "Runtime Interfaces",
+            interfaces > 0,
+            f"{interfaces} runtime interfaces detected",
+        )
+
+        add(
+            "Repository Knowledge Model",
+            True,
+            "Engineering Engine RepositoryKnowledgeBuilder",
+        )
+
+        add(
+            "Dependency Graph",
+            True,
+            "Engineering Engine DependencyGraph",
+        )
+
+        add(
+            "Impact Analysis",
+            True,
+            "Engineering Engine ImpactAnalysis",
+        )
+
+        add(
+            "Engineering Review",
+            True,
+            "Engineering Review Engine",
+        )
+
+        add(
+            "Runtime REST API",
+            False,
+            "No REST API implementation detected",
+        )
+
+        add(
+            "OpenAPI Specification",
+            False,
+            "Specification not found",
+        )
+
+        add(
+            "API Authentication",
+            False,
+            "Authentication layer not detected",
+        )
+
+        add(
+            "GraphQL Preparation",
+            False,
+            "No GraphQL support detected",
+        )
+
+        add(
+            "MCP Preparation",
+            False,
+            "No MCP interface detected",
+        )
+
+        return results
 
     def write_markdown(self, output: Path):
 
         output.parent.mkdir(parents=True, exist_ok=True)
 
-        items = self.analyse()
+        results = self.analyse()
 
         with output.open("w", encoding="utf-8") as md:
 
             md.write("# Gap Analysis\n\n")
+            md.write(f"Generated: {datetime.now(UTC).isoformat()}\n\n")
 
-            md.write(
-                f"Generated: {datetime.now(UTC).isoformat()}\n\n"
+            md.write("| Component | Status | Evidence |\n")
+            md.write("|-----------|--------|----------|\n")
+
+            for item in results:
+                md.write(
+                    f"| {item.component} | {item.status} | {item.evidence} |\n"
+                )
+
+            implemented = sum(
+                1 for r in results if r.status == "IMPLEMENTED"
             )
 
-            md.write("| Component | Status |\n")
-            md.write("|-----------|--------|\n")
-
-            for item in items:
-                md.write(f"| {item.name} | {item.status} |\n")
+            missing = sum(
+                1 for r in results if r.status == "MISSING"
+            )
 
             md.write("\n## Summary\n\n")
-
-            missing = sum(1 for x in items if x.status == "MISSING")
-
-            md.write(f"- Missing Components: {missing}\n")
-            md.write("- Repository ready for Implementation Planning.\n")
+            md.write(f"- Implemented: {implemented}\n")
+            md.write(f"- Missing: {missing}\n")
+            md.write("\nRepository ready for Implementation Package generation.\n")

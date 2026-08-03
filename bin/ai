@@ -6,39 +6,33 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from lib.python.cli.engineering import engineering_audit, engineering_gap
+from lib.python.cli.engineering import (
+    engineering_audit,
+    engineering_gap,
+    engineering_ip,
+    engineering_validate,
+)
 
+args = sys.argv[1:]
 
-def usage():
-    print("AI Toolkit CLI")
-    print()
-    print("Commands:")
-    print("  ai engineering audit CORE-022")
-    print("  ai engineering gap CORE-022")
+if len(args) != 3 or args[0] != "engineering":
+    print("Usage:")
+    print("  ai engineering audit CORE-XXX")
+    print("  ai engineering gap CORE-XXX")
+    print("  ai engineering ip CORE-XXX")
+    print("  ai engineering validate CORE-XXX")
+    raise SystemExit(1)
 
+command = args[1]
+core = args[2]
 
-def main():
-
-    args = sys.argv[1:]
-
-    if len(args) != 3:
-        usage()
-        return
-
-    if args[0] != "engineering":
-        usage()
-        return
-
-    if args[1] == "audit":
-        engineering_audit(args[2])
-        return
-
-    if args[1] == "gap":
-        engineering_gap(args[2])
-        return
-
-    usage()
-
-
-if __name__ == "__main__":
-    main()
+if command == "audit":
+    engineering_audit(core)
+elif command == "gap":
+    engineering_gap(core)
+elif command == "ip":
+    engineering_ip(core)
+elif command == "validate":
+    engineering_validate(core)
+else:
+    raise SystemExit(f"Unknown command: {command}")
