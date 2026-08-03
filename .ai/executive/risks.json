@@ -1,0 +1,41 @@
+{
+  "all_risks": [
+    {
+      "affected_components": [
+        "lib/python/workspace_index/__init__.py",
+        "lib/python/semantic_repository_intelligence/models.py",
+        "lib/python/canonical_entities/__init__.py",
+        "lib/python/agent_runtime/models.py",
+        "lib/python/repository_engine/engine.py"
+      ],
+      "category": "architecture",
+      "description": "5 architecture hotspots indicate high coupling that may impede future changes.",
+      "evidence": [
+        "lib/python/workspace_index/__init__.py",
+        "lib/python/semantic_repository_intelligence/models.py",
+        "lib/python/canonical_entities/__init__.py",
+        "lib/python/agent_runtime/models.py",
+        "lib/python/repository_engine/engine.py"
+      ],
+      "id": "RISK-001",
+      "remediation": "Decompose hotspot modules to reduce coupling and improve maintainability.",
+      "severity": "medium",
+      "title": "High-coupling hotspots detected (5)"
+    },
+    {
+      "affected_components": [],
+      "category": "regression",
+      "description": "With 246 files, changes carry elevated regression risk without comprehensive test coverage.",
+      "evidence": [
+        "total_files=246"
+      ],
+      "id": "RISK-002",
+      "remediation": "Increase test coverage and enforce CI/CD gates for large changesets.",
+      "severity": "medium",
+      "title": "High codebase size increases regression risk (246 files)"
+    }
+  ],
+  "briefing_id": "BRIEF-A11761DEE0B0",
+  "critical_risks": [],
+  "generated_at": "2026-08-03T05:42:06Z"
+}
