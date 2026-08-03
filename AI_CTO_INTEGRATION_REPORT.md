@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | Repository | `/home/runner/work/AI-Toolkit/AI-Toolkit` |
-| Generated | 2026-08-03 06:24 UTC |
+| Generated | 2026-08-03 07:12 UTC |
 | Scanner | CORE-008A AI CTO Integration Scanner |
 | Overall AI CTO Readiness | **98 / 100** |
 
@@ -121,11 +121,11 @@ Key files and locations where AI CTO can integrate with the repository.
 - `.ai/batches/.gitkeep`
 - `.ai/batches/BATCH-001/implementation_plan.md`
 - `.ai/context/.gitkeep`
+- `.ai/context/github_context.json`
+- `.ai/context/live_context.json`
+- `.ai/context/synchronization_report.json`
 - `.ai/development_state/current_state.json`
 - `.ai/development_state/executive_snapshot.json`
-- `.ai/executable_repository_map.json`
-- `.ai/execution_state.json`
-- `.ai/runtime_repository_model.json`
 
 
 ## Injection Points
@@ -346,48 +346,48 @@ Semantic architecture layers discovered and their inter-layer dependencies.
 | Layer | Modules | In-Degree | Out-Degree |
 | --- | ---: | ---: | ---: |
 | **Agent Runtime** | 10 | 4 | 20 |
-| **CLI** | 2 | 0 | 10 |
+| **CLI** | 2 | 0 | 11 |
 | **Canonical Intelligence** | 16 | 11 | 10 |
 | **Compliance / Coverage / Drift** | 6 | 6 | 6 |
 | **Configuration / Profiles** | 2 | 0 | 1 |
-| **Core / Common** | 11 | 29 | 0 |
+| **Core / Common** | 12 | 31 | 0 |
 | **Memory / State** | 5 | 0 | 0 |
 | **Planning** | 10 | 6 | 5 |
 | **Reporting** | 4 | 5 | 0 |
 | **Scanning / Detection** | 11 | 6 | 16 |
 | **Semantic Analysis** | 17 | 10 | 4 |
 | **Testing** | 2 | 0 | 0 |
-| **Uncategorised** | 65 | 20 | 39 |
+| **Uncategorised** | 68 | 21 | 42 |
 | **Validation** | 5 | 5 | 2 |
-| **Workspace** | 18 | 15 | 4 |
+| **Workspace** | 18 | 16 | 4 |
 
 **Architecture edges (inter-layer dependencies):** 47
 
 | From Layer | To Layer | Relationship | Strength |
 | --- | --- | --- | ---: |
 | Uncategorised | Core / Common | imports | 1.00 |
-| Agent Runtime | Uncategorised | imports | 0.35 |
-| Uncategorised | Semantic Analysis | imports | 0.19 |
-| CLI | Uncategorised | imports | 0.15 |
-| Agent Runtime | Scanning / Detection | imports | 0.12 |
-| Canonical Intelligence | Compliance / Coverage / Drift | imports | 0.12 |
-| Canonical Intelligence | Workspace | imports | 0.12 |
-| Compliance / Coverage / Drift | Canonical Intelligence | imports | 0.12 |
-| Compliance / Coverage / Drift | Workspace | imports | 0.12 |
-| Scanning / Detection | Canonical Intelligence | imports | 0.12 |
-| Scanning / Detection | Compliance / Coverage / Drift | imports | 0.12 |
-| Scanning / Detection | Uncategorised | imports | 0.12 |
-| Semantic Analysis | Workspace | imports | 0.12 |
-| Uncategorised | Reporting | imports | 0.12 |
-| Agent Runtime | Canonical Intelligence | imports | 0.08 |
+| Agent Runtime | Uncategorised | imports | 0.32 |
+| CLI | Uncategorised | imports | 0.18 |
+| Uncategorised | Semantic Analysis | imports | 0.18 |
+| Agent Runtime | Scanning / Detection | imports | 0.11 |
+| Canonical Intelligence | Compliance / Coverage / Drift | imports | 0.11 |
+| Canonical Intelligence | Workspace | imports | 0.11 |
+| Compliance / Coverage / Drift | Canonical Intelligence | imports | 0.11 |
+| Compliance / Coverage / Drift | Workspace | imports | 0.11 |
+| Scanning / Detection | Canonical Intelligence | imports | 0.11 |
+| Scanning / Detection | Compliance / Coverage / Drift | imports | 0.11 |
+| Scanning / Detection | Uncategorised | imports | 0.11 |
+| Semantic Analysis | Workspace | imports | 0.11 |
+| Uncategorised | Reporting | imports | 0.11 |
+| Uncategorised | Workspace | imports | 0.11 |
 
 ## Dependency Summary
 
 | Metric | Value |
 | --- | ---: |
 | External dependencies | 0 |
-| Internal Python modules | 184 |
-| Import graph edges | 528 |
+| Internal Python modules | 188 |
+| Import graph edges | 553 |
 | Circular dependencies | 0 |
 | Orphan modules | 56 |
 
@@ -510,24 +510,24 @@ Architectural observations produced by semantic analysis.
 
 | Metric | Value |
 | --- | ---: |
-| Total files analysed | 292 |
-| Total symbols (classes + functions) | 1058 |
-| Total import statements | 528 |
-| Total functions | 828 |
-| Total classes | 230 |
+| Total files analysed | 302 |
+| Total symbols (classes + functions) | 1136 |
+| Total import statements | 553 |
+| Total functions | 893 |
+| Total classes | 243 |
 | Avg imports per module | 1.8 |
-| Avg functions per file | 2.8 |
+| Avg functions per file | 3.0 |
 | Max imports in one module | 22 |
 | Max functions in one file | 54 |
-| Cyclomatic complexity estimate | 2.31 |
+| Cyclomatic complexity estimate | 2.35 |
 
 **Language distribution:**
 
 | Language | Files |
 | --- | ---: |
-| python | 184 |
+| python | 188 |
 | markdown | 89 |
-| json | 19 |
+| json | 25 |
 
 ## Suggested Next CORE Implementation
 

@@ -1,27 +1,27 @@
 {
-  "briefing_id": "BRIEF-A11761DEE0B0",
-  "generated_at": "2026-08-03T05:42:06Z",
+  "briefing_id": "BRIEF-6B9D1D901B98",
+  "generated_at": "2026-08-03T07:12:33Z",
   "priorities": [
     {
       "category": "batch_execution",
       "classification": "high",
       "id": "PRI-001",
       "rationale": "The current batch is the active unit of work.",
-      "title": "Complete current batch: UNSPECIFIED"
+      "title": "Complete current batch: BATCH-001"
     },
     {
       "category": "issue_tracking",
       "classification": "high",
       "id": "PRI-002",
       "rationale": "The current issue is the active development focus.",
-      "title": "Resolve current issue: UNSPECIFIED"
+      "title": "Resolve current issue: CORE-013"
     },
     {
       "category": "milestone",
       "classification": "medium",
       "id": "PRI-003",
       "rationale": "Active milestone requires steady progress.",
-      "title": "Advance milestone: UNSPECIFIED"
+      "title": "Advance milestone: PHASE 2 — CORE IMPLEMENTATION"
     }
   ]
 }
