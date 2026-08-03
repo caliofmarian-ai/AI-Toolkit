@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | Repository | `/home/runner/work/AI-Toolkit/AI-Toolkit` |
-| Generated | 2026-08-03 02:51 UTC |
+| Generated | 2026-08-03 02:53 UTC |
 | Scanner | CORE-008A AI CTO Integration Scanner |
 | Overall AI CTO Readiness | **98 / 100** |
 
@@ -52,6 +52,7 @@ Key files and locations where AI CTO can integrate with the repository.
 
 ### Telegram
 
+- `AI_CTO_INTEGRATION_REPORT.md`
 - `development/BATCH-002_SELF_KNOWLEDGE_SYSTEM_v1.0.md`
 - `docs/canonical/CANON-006_OBSERVABILITY_SPECIFICATION_v2.0.md`
 - `docs/canonical/CANON-010_AI_TOOLKIT_ROADMAP_AND_EVOLUTION_v2.0.md`
@@ -59,21 +60,21 @@ Key files and locations where AI CTO can integrate with the repository.
 - `docs/canonical/CANON-020_DEVELOPMENT_BRAIN_SPECIFICATION_v1.0.0.md`
 - `docs/canonical/CANON-022_PROJECT_MEMORY_SPECIFICATION_v1.0.0.md`
 - `docs/canonical/CANON-023_OWNER_INTELLIGENCE_SPECIFICATION_v1.0.0.md`
-- `docs/canonical/CANON-024_TELEGRAM_CONTROL_PLANE_SPECIFICATION_v1.0.0.md`
 
 ### Owner Control
 
+- `AI_CTO_INTEGRATION_REPORT.md`
 - `development/BATCH-002_SELF_KNOWLEDGE_SYSTEM_v1.0.md`
 - `docs/audits/FOUNDATION_AUDIT_REPORT_v1.0.0.md`
 - `docs/canonical/CANON-002_DEVELOPMENT_WORKFLOW_v2.0.md`
 - `docs/canonical/CANON-010_AI_TOOLKIT_ROADMAP_AND_EVOLUTION_v2.0.md`
-- `docs/canonical/CANON-019_CANONICAL_VALIDATION_AND_GOVERNANCE_SPECIFICATION_v1.0.0.md`
 - `docs/canonical/CANON-023_OWNER_INTELLIGENCE_SPECIFICATION_v1.0.0.md`
 - `docs/canonical/CANON-028_DAILY_EXECUTIVE_BRIEFING_SPECIFICATION_v1.0.0.md`
 - `docs/canonical/CANON-029_AUTONOMOUS_PROJECT_GOVERNANCE_SPECIFICATION_v1.0.0.md`
 
 ### Runtime
 
+- `AI_CTO_INTEGRATION_REPORT.md`
 - `README.md`
 - `development/BATCH-001_AUTONOMOUS_WORKFLOW_SYSTEM_v2.0.md`
 - `development/BATCH-002_SELF_KNOWLEDGE_SYSTEM_v1.0.md`
@@ -81,21 +82,21 @@ Key files and locations where AI CTO can integrate with the repository.
 - `docs/canonical/AUTONOMOUS_WORKFLOW_SPEC_v1.0.0.md`
 - `docs/canonical/CANON-014_SEMANTIC_MATCHING_SPECIFICATION_v1.0.0.md`
 - `docs/canonical/ENGINE_INTERFACE_SPEC_v1.0.0.md`
-- `docs/canonical/PLUGIN_SDK_SPEC_v1.0.0.md`
 
 ### State
 
 - `.ai/runtime/sessions/.gitkeep`
+- `AI_CTO_INTEGRATION_REPORT.md`
 - `README.md`
 - `audit/canon-001/CANON-001_REPORT.md`
 - `development/BATCH-001_AUTONOMOUS_WORKFLOW_SYSTEM_v2.0.md`
 - `docs/audits/CORE-006_INCREMENTAL_WORKSPACE_INDEX.md`
-- `docs/canonical/AI_TOOLKIT_SYSTEM_ARCHITECTURE_v1.0.0.md`
 - `docs/canonical/CANON-004_AI_AGENT_SPECIFICATION_v2.0.md`
 - `docs/canonical/CANON-005_WORKSPACE_INDEX_SPECIFICATION_v2.0.md`
 
 ### Configuration
 
+- `AI_CTO_INTEGRATION_REPORT.md`
 - `docs/canonical/CANON-031_AI_CTO_TELEGRAM_WORKSPACE_SPECIFICATION_v1.0.0.md`
 - `docs/canonical/MULTI_AGENT_ORCHESTRATION_SPEC_v1.0.0.md`
 - `docs/canonical/SYSTEM_INVARIANTS_v1.0.0.md`
@@ -103,10 +104,10 @@ Key files and locations where AI CTO can integrate with the repository.
 - `lib/python/ai_cto_scanner/report.py`
 - `lib/python/cli/main.py`
 - `lib/python/development_validator.py`
-- `lib/python/development_validator/main.py`
 
 ### Canonical
 
+- `AI_CTO_INTEGRATION_REPORT.md`
 - `lib/python/ai_cto_scanner/detectors.py`
 - `lib/python/ai_cto_scanner/engine.py`
 - `lib/python/canonical_entities/models.py`
@@ -114,7 +115,6 @@ Key files and locations where AI CTO can integrate with the repository.
 - `lib/python/canonical_intelligence/engine.py`
 - `lib/python/canonical_parser/parser.py`
 - `lib/python/canonical_repository/__init__.py`
-- `lib/python/canonical_repository/repository.py`
 
 ### Project Memory
 
@@ -125,7 +125,7 @@ Key files and locations where AI CTO can integrate with the repository.
 - `.ai/batches/BATCH-001/metadata.json`
 - `.ai/context/.gitkeep`
 - `.ai/execution_state.json`
-- `audit/canon-001/CANON-001_REPORT.md`
+- `AI_CTO_INTEGRATION_REPORT.md`
 
 
 ## Injection Points
@@ -178,11 +178,11 @@ Recommended locations where AI CTO instrumentation should be injected.
 | Component | Confidence | Key Signal |
 | --- | ---: | --- |
 | Bot Entry Point | 100% | `from aiogram` |
-| Update Handlers | 90% | `message_handler` |
-| Callback Handlers | 80% | `callback_query_handler` |
-| Inline Keyboards | 80% | `InlineKeyboardMarkup` |
-| Reply Keyboards | 80% | `ReplyKeyboardMarkup` |
-| Menu Builders | 80% | `build_menu\b` |
+| Update Handlers | 100% | `message_handler` |
+| Callback Handlers | 100% | `callback_query_handler` |
+| Inline Keyboards | 100% | `InlineKeyboardMarkup` |
+| Reply Keyboards | 100% | `ReplyKeyboardMarkup` |
+| Menu Builders | 100% | `build_menu\b` |
 | Dashboard Builders | 100% | `dashboard` |
 | Admin UI | 60% | `admin[_\s]panel` |
 | Navigation | 100% | `Navigation\b` |
@@ -195,8 +195,8 @@ Recommended locations where AI CTO instrumentation should be injected.
 | Owner Configuration | 100% | `path:owner` |
 | Roles | 100% | `\broles?\b` |
 | Permissions | 100% | `\bpermissions?\b` |
-| Admin Dashboard | 70% | `admin_dashboard` |
-| Owner-Only Operations | 90% | `owner_only` |
+| Admin Dashboard | 100% | `admin_dashboard` |
+| Owner-Only Operations | 100% | `owner_only` |
 | Approval Flow | 100% | `\bapproval\b` |
 
 ### Runtime
@@ -207,8 +207,8 @@ Recommended locations where AI CTO instrumentation should be injected.
 | Bootstrap | 100% | `bootstrap\b` |
 | Runtime | 100% | `path:runtime` |
 | Schedulers | 100% | `scheduler\b` |
-| Workers | 70% | `\bworker\b` |
-| Service Initialization | 90% | `ServiceRegistry` |
+| Workers | 100% | `Worker\b` |
+| Service Initialization | 100% | `ServiceRegistry` |
 
 ### State
 
@@ -219,13 +219,13 @@ Recommended locations where AI CTO instrumentation should be injected.
 | Session Management | 100% | `path:session` |
 | Snapshot Logic | 100% | `snapshot\b` |
 | Restart Recovery | 100% | `recovery\b` |
-| Resume Logic | 100% | `checkpoint\b` |
+| Resume Logic | 100% | `resume\b` |
 
 ### Configuration
 
 | Component | Confidence | Key Signal |
 | --- | ---: | --- |
-| Environment Variables | 60% | `dotenv` |
+| Environment Variables | 100% | `dotenv` |
 | Secrets References | 100% | `SECRET_KEY` |
 | Runtime Parameters | 100% | `sys\.argv` |
 
@@ -243,11 +243,11 @@ Recommended locations where AI CTO instrumentation should be injected.
 | Component | Confidence | Key Signal |
 | --- | ---: | --- |
 | Project Memory | 100% | `path:memory` |
-| Development State | 80% | `development_state` |
+| Development State | 100% | `development_state` |
 | Context Persistence | 100% | `path:context` |
 | Resume Engine | 100% | `path:context_engine` |
 | Context Integrity | 100% | `ContextIntegrity` |
-| Snapshot Engine | 70% | `snapshot_engine` |
+| Snapshot Engine | 100% | `snapshot_engine` |
 
 
 ## Missing Components
