@@ -181,3 +181,8 @@ Every implementation inside AI Toolkit shall be traceable to one or more canonic
 
 The Canonical Master Index remains the single entry point for understanding the platform.
 
+
+
+## Canonical Intelligence
+
+- CANON-012_CANONICAL_INTELLIGENCE_SPECIFICATION_v1.0.0.md
