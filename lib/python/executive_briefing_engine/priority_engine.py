@@ -19,6 +19,12 @@ from .models import (
     ExecutivePriorityItem,
 )
 
+_EMPTY_SENTINELS = frozenset({"", "UNSPECIFIED", "None", "null", "N/A"})
+
+
+def _is_set(value) -> bool:
+    return bool(value) and str(value).strip() not in _EMPTY_SENTINELS
+
 
 class ExecutivePriorityEngine:
     """
@@ -146,7 +152,7 @@ class ExecutivePriorityEngine:
             ))
 
         current_batch = context.get("current_batch", "")
-        if current_batch:
+        if _is_set(current_batch):
             items.append(ExecutivePriorityItem(
                 id=next_id(),
                 title=f"Complete current batch: {current_batch}",
@@ -156,7 +162,7 @@ class ExecutivePriorityEngine:
             ))
 
         current_issue = context.get("current_issue", "")
-        if current_issue:
+        if _is_set(current_issue):
             items.append(ExecutivePriorityItem(
                 id=next_id(),
                 title=f"Resolve current issue: {current_issue}",
@@ -188,7 +194,7 @@ class ExecutivePriorityEngine:
             ))
 
         current_milestone = context.get("current_milestone", "")
-        if current_milestone:
+        if _is_set(current_milestone):
             items.append(ExecutivePriorityItem(
                 id=next_id(),
                 title=f"Advance milestone: {current_milestone}",

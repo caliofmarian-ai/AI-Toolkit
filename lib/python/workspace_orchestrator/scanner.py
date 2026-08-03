@@ -7,6 +7,7 @@ WorkspaceScanner: scans each repository using existing CORE engines and
                   produces a WorkspaceRepository model.
 """
 
+import json
 import os
 import subprocess
 from datetime import datetime, timezone
@@ -133,13 +134,14 @@ class WorkspaceScanner:
             scan_error = str(exc)
 
         # Map scanner output to WorkspaceRepository
-        return self._map_to_repository(
+        repository = self._map_to_repository(
             name=name,
             root=str(root_path),
             git_info=git_info,
             scan_data=scan_data,
             scan_error=scan_error,
         )
+        return self._apply_synchronized_context(repository, root_path)
 
     def _gather_git_info(self, root: Path) -> Dict[str, str]:
         """Collect lightweight git metadata without relying on external engines."""
@@ -300,6 +302,42 @@ class WorkspaceScanner:
             last_scan=now,
             scan_scores=dict(scores),
         )
+
+    def _apply_synchronized_context(self, repository: WorkspaceRepository, root: Path) -> WorkspaceRepository:
+        live_context = self._load_json(root / ".ai" / "context" / "live_context.json")
+        briefing = self._load_json(root / ".ai" / "executive" / "briefing.json")
+        if not live_context and not briefing:
+            return repository
+
+        data = repository.to_dict()
+        for field in (
+            "current_branch",
+            "current_issue",
+            "current_pull_request",
+            "current_batch",
+            "current_milestone",
+            "current_epic",
+            "current_recommendation",
+        ):
+            value = str(live_context.get(field, "")).strip()
+            if value and value != "UNSPECIFIED":
+                data[field] = value
+        if briefing:
+            data["executive_briefing_id"] = briefing.get("briefing_id", data.get("executive_briefing_id", ""))
+            data["last_briefing"] = briefing.get("generated_at", data.get("last_briefing", ""))
+            owner_dashboard = briefing.get("owner_dashboard", {})
+            if owner_dashboard:
+                data["owner_status"] = owner_dashboard.get("overall_health", data.get("owner_status", ""))
+        data["last_refresh"] = str(live_context.get("generated_at", data.get("last_refresh", "")))
+        return WorkspaceRepository.from_dict(data)
+
+    def _load_json(self, path: Path) -> Dict[str, Any]:
+        if not path.exists():
+            return {}
+        try:
+            return json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return {}
 
     # ------------------------------------------------------------------
     # Classification helpers

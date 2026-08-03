@@ -128,7 +128,44 @@ class ExecutiveBriefingEngine:
             state,
             refresh_integrations=self.refresh_integrations,
         )
-        return snapshot.to_dict()
+        return self._merge_synchronized_context(snapshot.to_dict())
+
+    def _merge_synchronized_context(self, snapshot: Dict[str, Any]) -> Dict[str, Any]:
+        """Overlay CORE-013 synchronized context when available."""
+        path = self.root / ".ai" / "context" / "live_context.json"
+        if not path.exists():
+            return snapshot
+        try:
+            synchronized = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return snapshot
+
+        current_context = dict(snapshot.get("current_context", {}))
+        for key in (
+            "current_branch",
+            "current_issue",
+            "current_pull_request",
+            "current_batch",
+            "current_milestone",
+            "current_epic",
+            "current_recommendation",
+        ):
+            value = synchronized.get(key, "")
+            if self._is_set(value):
+                current_context[key] = value
+        snapshot["current_context"] = dict(sorted(current_context.items()))
+
+        next_core = synchronized.get("next_core", "")
+        if self._is_set(next_core):
+            integrations = dict(snapshot.get("integrations", {}))
+            semantic = dict(integrations.get("semantic_repository_intelligence", {}))
+            analysis = dict(semantic.get("analysis", {}))
+            analysis["next_core"] = next_core
+            semantic["analysis"] = analysis
+            integrations["semantic_repository_intelligence"] = semantic
+            snapshot["integrations"] = integrations
+
+        return snapshot
 
     # ------------------------------------------------------------------
     # Briefing assembly
@@ -311,6 +348,9 @@ class ExecutiveBriefingEngine:
         """Strip sentinel/uninitialized values from context fields."""
         s = str(value).strip() if value is not None else ""
         return "" if s in self._EMPTY_SENTINELS else s
+
+    def _is_set(self, value) -> bool:
+        return self._clean_context(value) != ""
 
     def _generate_briefing_id(self, snapshot: Dict[str, Any]) -> str:
         """Generate a stable briefing ID from snapshot content."""

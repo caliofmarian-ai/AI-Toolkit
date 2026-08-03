@@ -4,6 +4,7 @@ import argparse
 import json
 import os
 import sys
+from pathlib import Path
 
 # Ensure lib/ is in sys.path so that `from python.xxx` imports work regardless
 # of how this module is invoked (e.g. `python3 -m lib.python.cli.main` or
@@ -203,6 +204,37 @@ workspace_parser.add_argument(
     ),
 )
 
+context_parser = sub.add_parser(
+    "context",
+    help="Synchronize AI CTO live context (CORE-013)",
+)
+context_parser.add_argument(
+    "--refresh",
+    action="store_true",
+    dest="context_refresh",
+    help="Refresh synchronized context and downstream artifacts",
+)
+context_parser.add_argument(
+    "--json",
+    action="store_true",
+    dest="context_json",
+    help="Output synchronized context as JSON",
+)
+context_parser.add_argument(
+    "--repository",
+    default=".",
+    metavar="PATH",
+    dest="context_repository",
+    help="Path to the repository (default: current directory)",
+)
+context_parser.add_argument(
+    "--workspace",
+    default=None,
+    metavar="PATH",
+    dest="context_workspace",
+    help="Path to the workspace root (default: parent of repository)",
+)
+
 args = parser.parse_args()
 
 if args.command == "inventory":
@@ -384,6 +416,42 @@ elif args.command == "workspace":
             nr = dd.get("suggested_next_repository", "")
             if nr:
                 print(f"  Next Repo:     {nr}")
+
+elif args.command == "context":
+
+    import json as _json
+    from python.context_synchronization_engine import ContextSynchronizationEngine
+
+    repository = getattr(args, "context_repository", ".")
+    workspace_root = getattr(args, "context_workspace", None)
+    as_json = getattr(args, "context_json", False)
+    refresh = getattr(args, "context_refresh", False)
+
+    engine = ContextSynchronizationEngine(
+        repository=repository,
+        workspace_root=workspace_root,
+        persist=True,
+    )
+    result = engine.synchronize(refresh=refresh)
+
+    if as_json:
+        print(_json.dumps(result, indent=2, sort_keys=True))
+    else:
+        live = result.get("live_context", {})
+        report = result.get("synchronization_report", {})
+        paths = result.get("paths", {})
+        print("AI CTO Context Synchronization complete.")
+        print(f"  Repository:     {live.get('repository', '')}")
+        print(f"  Root:           {live.get('repository_root', '')}")
+        print(f"  Workspace:      {live.get('workspace', '')}")
+        print(f"  Branch:         {live.get('current_branch', '')}")
+        print(f"  Commit:         {live.get('current_commit', '')}")
+        print(f"  Issue:          {live.get('current_issue', '')}")
+        print(f"  Batch:          {live.get('current_batch', '')}")
+        print(f"  Recommendation: {live.get('current_recommendation', '')}")
+        print(f"  Findings:       {report.get('finding_count', 0)}")
+        print(f"  Context JSON:   {paths.get('live_context', str(Path(repository).resolve() / '.ai' / 'context' / 'live_context.json'))}")
+        print(f"  Report:         {paths.get('markdown', str(Path(repository).resolve() / '.ai' / 'context' / 'AI_CTO_CONTEXT_REPORT.md'))}")
 
 else:
 

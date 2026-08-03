@@ -1,22 +1,37 @@
 {
-  "briefing_id": "BRIEF-A11761DEE0B0",
-  "generated_at": "2026-08-03T05:42:06Z",
+  "briefing_id": "BRIEF-6B9D1D901B98",
+  "generated_at": "2026-08-03T07:12:33Z",
   "recommendations": [
+    {
+      "affected_components": [],
+      "confidence": 0.85,
+      "dependencies": [],
+      "description": "The development state recommends executing: CORE-013.",
+      "evidence": [
+        "current_recommendation=CORE-013"
+      ],
+      "id": "REC-002",
+      "impact": "Advances planned development work.",
+      "priority": "high",
+      "reasoning": "The active canonical recommendation represents the highest-value next step derived from all accumulated intelligence.",
+      "required_effort": "medium",
+      "title": "Execute current recommendation: CORE-013"
+    },
     {
       "affected_components": [
         "lib/python/workspace_index/__init__.py",
+        "lib/python/executive_briefing_engine/models.py",
         "lib/python/semantic_repository_intelligence/models.py",
-        "lib/python/canonical_entities/__init__.py",
-        "lib/python/agent_runtime/models.py",
-        "lib/python/repository_engine/engine.py"
+        "lib/python/workspace_orchestrator/models.py",
+        "lib/python/canonical_entities/__init__.py"
       ],
       "confidence": 0.75,
       "dependencies": [],
       "description": "5 high-coupling hotspots increase change risk.",
       "evidence": [
         "lib/python/workspace_index/__init__.py",
-        "lib/python/semantic_repository_intelligence/models.py",
-        "lib/python/canonical_entities/__init__.py"
+        "lib/python/executive_briefing_engine/models.py",
+        "lib/python/semantic_repository_intelligence/models.py"
       ],
       "id": "REC-001",
       "impact": "Reduces coupling, improves testability and maintainability.",
@@ -29,16 +44,16 @@
       "affected_components": [],
       "confidence": 0.72,
       "dependencies": [],
-      "description": "Semantic analysis suggests CORE-009 — Development State Engine: Persist full development state for cross-session reasoning. as the next CORE implementation.",
+      "description": "Semantic analysis suggests CORE-013 as the next CORE implementation.",
       "evidence": [
-        "suggested_next_core=CORE-009 — Development State Engine: Persist full development state for cross-session reasoning."
+        "suggested_next_core=CORE-013"
       ],
-      "id": "REC-002",
+      "id": "REC-003",
       "impact": "Advances the AI CTO intelligence layer.",
       "priority": "medium",
       "reasoning": "CORE module suggestions are derived from current repository intelligence gaps and architectural extension points.",
       "required_effort": "high",
-      "title": "Implement CORE-009 — Development State Engine: Persist full development state for cross-session reasoning. as the next CORE module"
+      "title": "Implement CORE-013 as the next CORE module"
     }
   ]
 }
