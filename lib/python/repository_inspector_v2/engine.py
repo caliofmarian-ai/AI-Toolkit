@@ -11,12 +11,12 @@ from python.planning_engine.engine import PlanningEngine
 
 class RepositoryInspectorV2:
 
-    def __init__(self, root="."):
+    def __init__(self, root=".", workspace_index=None):
 
-        self.repository = RepositoryEngine(root)
-        self.dependencies = DependencyEngine(root)
+        self.repository = RepositoryEngine(root, workspace_index=workspace_index)
+        self.dependencies = DependencyEngine(root, workspace_index=workspace_index)
         self.validation = ValidationEngine(root)
-        self.planner = PlanningEngine(root)
+        self.planner = PlanningEngine(root, workspace_index=workspace_index)
 
     def inspect(self):
 

@@ -9,10 +9,10 @@ from python.validation_engine.engine import ValidationEngine
 
 class PlanningEngine:
 
-    def __init__(self, root="."):
+    def __init__(self, root=".", workspace_index=None):
 
-        self.repository = RepositoryEngine(root)
-        self.dependencies = DependencyEngine(root)
+        self.repository = RepositoryEngine(root, workspace_index=workspace_index)
+        self.dependencies = DependencyEngine(root, workspace_index=workspace_index)
         self.validation = ValidationEngine(root)
 
     def build_plan(self):

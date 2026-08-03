@@ -5,28 +5,40 @@ from .models import RepositoryItem
 
 class RepositoryEngine:
 
-    def __init__(self, root="."):
+    def __init__(self, root=".", workspace_index=None):
 
         self.root = Path(root).resolve()
+        self._workspace_index = workspace_index
+
+    def _get_index(self):
+        if self._workspace_index is not None:
+            return self._workspace_index
+        from python.workspace_index import WorkspaceIndexBuilder
+        return WorkspaceIndexBuilder(self.root).build()
 
     def discover(self):
 
+        index = self._get_index()
+
         inventory = []
 
-        for item in self.root.rglob("*"):
-
-            if ".git" in item.parts:
-                continue
-
-            if "__pycache__" in item.parts:
-                continue
-
+        for f in index.files:
             inventory.append(
                 RepositoryItem(
-                    path=str(item.relative_to(self.root)),
-                    name=item.name,
-                    item_type="directory" if item.is_dir() else "file",
-                    size=item.stat().st_size if item.is_file() else 0,
+                    path=f.path,
+                    name=f.name,
+                    item_type="file",
+                    size=f.size,
+                )
+            )
+
+        for d in index.directories:
+            inventory.append(
+                RepositoryItem(
+                    path=d.path,
+                    name=d.name,
+                    item_type="directory",
+                    size=0,
                 )
             )
 
@@ -34,10 +46,10 @@ class RepositoryEngine:
 
     def statistics(self):
 
-        inventory = self.discover()
+        index = self._get_index()
 
         return {
-            "items": len(inventory),
-            "files": sum(1 for i in inventory if i.item_type == "file"),
-            "directories": sum(1 for i in inventory if i.item_type == "directory"),
+            "items": index.statistics.total_files + index.statistics.total_directories,
+            "files": index.statistics.total_files,
+            "directories": index.statistics.total_directories,
         }

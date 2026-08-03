@@ -5,11 +5,20 @@ from pathlib import Path
 
 class KnowledgeGraphEngine:
 
-    def __init__(self, repository="."):
+    def __init__(self, repository=".", workspace_index=None):
 
         self.root = Path(repository).resolve()
+        self._workspace_index = workspace_index
+
+    def _get_index(self):
+        if self._workspace_index is not None:
+            return self._workspace_index
+        from python.workspace_index import WorkspaceIndexBuilder
+        return WorkspaceIndexBuilder(self.root).build()
 
     def build(self):
+
+        index = self._get_index()
 
         graph = {
             "nodes": [],
@@ -18,16 +27,15 @@ class KnowledgeGraphEngine:
 
         known = set()
 
-        for file in self.root.rglob("*.py"):
+        for wf in index.python_files():
 
-            if ".git" in file.parts:
-                continue
-
-            node = str(file.relative_to(self.root))
+            node = wf.path
 
             if node not in known:
                 known.add(node)
                 graph["nodes"].append(node)
+
+            file = Path(index.repository_root) / wf.path
 
             try:
                 tree = ast.parse(

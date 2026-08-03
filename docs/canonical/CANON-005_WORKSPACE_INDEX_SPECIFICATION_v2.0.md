@@ -2,7 +2,7 @@
 
 ## Status
 
-Canonical
+Canonical — Implemented (CORE-005)
 
 ---
 
