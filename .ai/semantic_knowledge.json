@@ -1,23 +1,23 @@
 {
   "schema_version": "1.0.0",
   "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
-  "captured_at": "2026-08-03T04:59:44Z",
+  "captured_at": "2026-08-03T06:08:59Z",
   "analysis": {
     "import_graph": {
-      "node_count": 155,
-      "edge_count": 365,
+      "node_count": 176,
+      "edge_count": 468,
       "circular_dependency_count": 0,
       "critical_modules": [
         "lib/python/workspace_index/__init__.py",
+        "lib/python/executive_briefing_engine/models.py",
         "lib/python/semantic_repository_intelligence/models.py",
         "lib/python/canonical_entities/__init__.py",
+        "lib/python/executable_repository_intelligence/models.py",
         "lib/python/agent_runtime/models.py",
         "lib/python/repository_engine/engine.py",
         "lib/python/dependency_engine/engine.py",
         "lib/python/validation_engine/engine.py",
-        "lib/python/agent_runtime/base.py",
-        "lib/python/planning_engine/engine.py",
-        "lib/python/semantic_engine/engine.py"
+        "lib/python/semantic_repository_intelligence/__init__.py"
       ],
       "orphan_modules": [
         "lib/python/__init__.py",
@@ -33,7 +33,7 @@
       ]
     },
     "call_graph": {
-      "edge_count": 123,
+      "edge_count": 178,
       "entry_points": [
         "lib/python/agent_runtime/base.py::run",
         "lib/python/agent_runtime/runtime.py::execute",
@@ -49,13 +49,13 @@
     },
     "architecture_graph": {
       "node_count": 15,
-      "edge_count": 44,
+      "edge_count": 45,
       "hotspots": [
         "lib/python/workspace_index/__init__.py",
+        "lib/python/executive_briefing_engine/models.py",
         "lib/python/semantic_repository_intelligence/models.py",
         "lib/python/canonical_entities/__init__.py",
-        "lib/python/agent_runtime/models.py",
-        "lib/python/repository_engine/engine.py"
+        "lib/python/executable_repository_intelligence/models.py"
       ],
       "extension_points": [
         "Agent Runtime",
@@ -68,27 +68,27 @@
     },
     "dependency_graph": {
       "external_dependency_count": 0,
-      "internal_module_count": 155
+      "internal_module_count": 176
     },
     "complexity": {
-      "total_files": 246,
-      "total_symbols": 715,
-      "total_imports": 365,
-      "total_functions": 541,
-      "total_classes": 174,
-      "avg_imports_per_module": 1.48,
-      "avg_functions_per_file": 2.2,
+      "total_files": 283,
+      "total_symbols": 894,
+      "total_imports": 468,
+      "total_functions": 687,
+      "total_classes": 207,
+      "avg_imports_per_module": 1.65,
+      "avg_functions_per_file": 2.43,
       "max_imports_in_module": 22,
       "max_functions_in_file": 54,
-      "cyclomatic_complexity_estimate": 2.26,
+      "cyclomatic_complexity_estimate": 2.31,
       "language_distribution": {
-        "json": 6,
-        "markdown": 85,
-        "python": 155
+        "json": 19,
+        "markdown": 88,
+        "python": 176
       }
     },
     "recommendation_count": 10,
-    "injection_point_count": 60,
+    "injection_point_count": 61,
     "next_core": "CORE-009 — Development State Engine: Persist full development state for cross-session reasoning."
   }
 }
