@@ -157,6 +157,52 @@ briefing_parser.add_argument(
     help="Refresh all intelligence integrations before generating the briefing",
 )
 
+workspace_parser = sub.add_parser(
+    "workspace",
+    help="Multi-Repository Workspace Orchestrator (CORE-012)",
+)
+workspace_parser.add_argument(
+    "--scan",
+    action="store_true",
+    dest="workspace_scan",
+    help="Scan all repositories in the workspace and generate the dashboard",
+)
+workspace_parser.add_argument(
+    "--refresh",
+    action="store_true",
+    dest="workspace_refresh",
+    help="Re-scan all repositories (full refresh, ignores cache)",
+)
+workspace_parser.add_argument(
+    "--repository",
+    default=None,
+    metavar="PATH",
+    dest="workspace_repository",
+    help="Register or re-scan a single repository and update workspace state",
+)
+workspace_parser.add_argument(
+    "--dashboard",
+    action="store_true",
+    dest="workspace_dashboard",
+    help="Generate (or reload) the AI_CTO_WORKSPACE_DASHBOARD.md",
+)
+workspace_parser.add_argument(
+    "--json",
+    action="store_true",
+    dest="workspace_json",
+    help="Output workspace scan result as JSON",
+)
+workspace_parser.add_argument(
+    "--workspace",
+    default=".",
+    metavar="PATH",
+    dest="workspace_root",
+    help=(
+        "Path to the workspace root directory containing multiple repositories "
+        "(default: parent of current directory)"
+    ),
+)
+
 args = parser.parse_args()
 
 if args.command == "inventory":
@@ -256,6 +302,88 @@ elif args.command == "briefing":
             print(f"Markdown:     {paths['markdown']}")
         if paths.get("briefing"):
             print(f"JSON:         {paths['briefing']}")
+
+elif args.command == "workspace":
+
+    import json as _json
+    from python.workspace_orchestrator import WorkspaceOrchestrator
+
+    workspace_root = getattr(args, "workspace_root", ".")
+    do_scan = getattr(args, "workspace_scan", False)
+    do_refresh = getattr(args, "workspace_refresh", False)
+    repo_path = getattr(args, "workspace_repository", None)
+    do_dashboard = getattr(args, "workspace_dashboard", False)
+    as_json = getattr(args, "workspace_json", False)
+
+    orchestrator = WorkspaceOrchestrator(
+        workspace_root=workspace_root,
+        output_dir=workspace_root,
+        persist=True,
+    )
+
+    if repo_path is not None:
+        repo = orchestrator.register_repository(repo_path)
+        if as_json:
+            print(_json.dumps(repo.to_dict(), indent=2))
+        else:
+            print(f"Repository registered: {repo.name}")
+            print(f"  Root:     {repo.repository_root}")
+            print(f"  Health:   {repo.repository_health.upper()}")
+            print(f"  Readiness:{repo.readiness:.0f}%")
+
+    elif do_scan or do_refresh:
+        result = orchestrator.scan(refresh=do_refresh)
+        if as_json:
+            print(_json.dumps(result.to_dict(), indent=2))
+        else:
+            print(f"Workspace scan complete.")
+            print(f"  Workspace:     {result.workspace_root}")
+            print(f"  Repositories:  {result.total_repositories}")
+            print(f"  Scanned:       {result.scanned_repositories}")
+            print(f"  Failed:        {result.failed_repositories}")
+            print(f"  Health:        {result.health.overall_health.upper()}")
+            print(f"  Readiness:     {result.health.overall_readiness:.0f}%")
+            print(f"  Risks:         {len(result.risks)}")
+            print(f"  Recommendations: {len(result.recommendations)}")
+            if result.priorities:
+                top = result.priorities[0]
+                print(f"  Suggested Next: {top.repository}")
+            paths = {
+                "dashboard_md": str(
+                    __import__("pathlib").Path(workspace_root) / "AI_CTO_WORKSPACE_DASHBOARD.md"
+                ),
+                "workspace_json": str(
+                    __import__("pathlib").Path(workspace_root) / ".ai" / "workspace" / "workspace.json"
+                ),
+            }
+            print(f"  Dashboard:     {paths['dashboard_md']}")
+            print(f"  Workspace JSON:{paths['workspace_json']}")
+
+    elif do_dashboard:
+        dashboard_result = orchestrator.dashboard()
+        if as_json:
+            print(_json.dumps(dashboard_result["dashboard_dict"], indent=2))
+        else:
+            print(dashboard_result["markdown"])
+            paths = dashboard_result.get("paths", {})
+            if paths.get("dashboard_md"):
+                print(f"\nDashboard written: {paths['dashboard_md']}")
+
+    else:
+        # Default: show a brief workspace summary
+        dashboard_result = orchestrator.dashboard()
+        if as_json:
+            print(_json.dumps(dashboard_result["dashboard_dict"], indent=2))
+        else:
+            dd = dashboard_result["dashboard_dict"]
+            summary = dd.get("workspace_summary", {})
+            print(f"AI CTO Workspace — {workspace_root}")
+            print(f"  Repositories:  {summary.get('total_repositories', 0)}")
+            print(f"  Health:        {summary.get('overall_health', 'unknown').upper()}")
+            print(f"  Readiness:     {summary.get('overall_readiness', 0):.1f}%")
+            nr = dd.get("suggested_next_repository", "")
+            if nr:
+                print(f"  Next Repo:     {nr}")
 
 else:
 
