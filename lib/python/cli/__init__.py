@@ -1,4 +1,1 @@
-"""
-AI Toolkit CLI
-Unified command interface.
-"""
+"""AI Toolkit CLI"""

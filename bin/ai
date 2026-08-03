@@ -1,8 +1,44 @@
-#!/data/data/com.termux/files/usr/bin/bash
+#!/usr/bin/env python3
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+from pathlib import Path
+import sys
 
-export PYTHONPATH="$REPO_ROOT/lib"
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 
-python3 -m python.cli.main "$@"
+from lib.python.cli.engineering import engineering_audit, engineering_gap
+
+
+def usage():
+    print("AI Toolkit CLI")
+    print()
+    print("Commands:")
+    print("  ai engineering audit CORE-022")
+    print("  ai engineering gap CORE-022")
+
+
+def main():
+
+    args = sys.argv[1:]
+
+    if len(args) != 3:
+        usage()
+        return
+
+    if args[0] != "engineering":
+        usage()
+        return
+
+    if args[1] == "audit":
+        engineering_audit(args[2])
+        return
+
+    if args[1] == "gap":
+        engineering_gap(args[2])
+        return
+
+    usage()
+
+
+if __name__ == "__main__":
+    main()
