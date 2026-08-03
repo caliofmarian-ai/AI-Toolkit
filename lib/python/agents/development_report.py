@@ -32,6 +32,25 @@ class DevelopmentReport:
             report.append(f"Scan duration: {wi['scan_duration']:.4f}s")
             report.append(f"Files per second: {wi['files_per_second']:.0f}")
 
+            inc = wi.get("incremental")
+            if inc:
+                report.append("")
+                report.append("### Incremental Cache")
+                report.append("")
+                if inc["cache_hit"]:
+                    report.append("Status: **cache hit** — no changes detected")
+                elif inc["cache_miss"]:
+                    report.append("Status: **cache miss** — full rebuild performed")
+                else:
+                    report.append("Status: **partial rebuild** — only changed files re-scanned")
+                report.append(f"Files reused: {inc['files_reused']}")
+                report.append(f"Files rebuilt: {inc['files_rebuilt']}")
+                report.append(f"Rebuild percentage: {inc['rebuild_percentage']:.1f}%")
+                if inc["saved_time_estimate"] > 0:
+                    report.append(
+                        f"Estimated time saved: {inc['saved_time_estimate']:.4f}s"
+                    )
+
         report.append("")
         report.append("## Health")
         report.append("")

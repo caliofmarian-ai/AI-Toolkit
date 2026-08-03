@@ -9,6 +9,16 @@ from .models import WorkspaceFile, WorkspaceDirectory, WorkspaceStatistics, Work
 from .policy import RepositoryPolicy
 from .builder import WorkspaceIndexBuilder
 from .exporter import WorkspaceIndexExporter
+from .incremental import (
+    FileSnapshot,
+    RepositorySnapshot,
+    IndexDelta,
+    IncrementalStats,
+    IncrementalBuildResult,
+    ChangeDetector,
+    IncrementalWorkspaceIndex,
+    CACHE_VERSION,
+)
 
 __all__ = [
     "WorkspaceFile",
@@ -18,4 +28,12 @@ __all__ = [
     "RepositoryPolicy",
     "WorkspaceIndexBuilder",
     "WorkspaceIndexExporter",
+    "FileSnapshot",
+    "RepositorySnapshot",
+    "IndexDelta",
+    "IncrementalStats",
+    "IncrementalBuildResult",
+    "ChangeDetector",
+    "IncrementalWorkspaceIndex",
+    "CACHE_VERSION",
 ]
