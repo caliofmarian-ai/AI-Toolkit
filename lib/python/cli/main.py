@@ -2,7 +2,15 @@
 
 import argparse
 import json
+import os
 import sys
+
+# Ensure lib/ is in sys.path so that `from python.xxx` imports work regardless
+# of how this module is invoked (e.g. `python3 -m lib.python.cli.main` or
+# `PYTHONPATH=lib python3 -m python.cli.main`).
+_lib_dir = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
+if _lib_dir not in sys.path:
+    sys.path.insert(0, _lib_dir)
 
 from python.agent_runtime.models import AgentContext
 from python.agent_runtime.registry import build_runtime
