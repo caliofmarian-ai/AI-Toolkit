@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | Repository | `/home/runner/work/AI-Toolkit/AI-Toolkit` |
-| Generated | 2026-08-03 07:12 UTC |
+| Generated | 2026-08-03 07:56 UTC |
 | Scanner | CORE-008A AI CTO Integration Scanner |
 | Overall AI CTO Readiness | **98 / 100** |
 
@@ -56,10 +56,10 @@ Key files and locations where AI CTO can integrate with the repository.
 - `AI_CTO_INTEGRATION_REPORT.md`
 - `development/BATCH-002_SELF_KNOWLEDGE_SYSTEM_v1.0.md`
 - `docs/canonical/CANON-024_TELEGRAM_CONTROL_PLANE_SPECIFICATION_v1.0.0.md`
-- `docs/canonical/CANON-030_DEVELOPMENT_STATE_ENGINE_SPECIFICATION_v1.0.0.md`
 - `docs/canonical/CANON-041_EXECUTIVE_DASHBOARD_SPECIFICATION_v1.0.0.md`
 - `lib/python/ai_cto_scanner/detectors.py`
 - `lib/python/ai_cto_scanner/report.py`
+- `lib/python/cli/main.py`
 
 ### Owner Control
 
@@ -121,11 +121,11 @@ Key files and locations where AI CTO can integrate with the repository.
 - `.ai/batches/.gitkeep`
 - `.ai/batches/BATCH-001/implementation_plan.md`
 - `.ai/context/.gitkeep`
-- `.ai/context/github_context.json`
-- `.ai/context/live_context.json`
-- `.ai/context/synchronization_report.json`
 - `.ai/development_state/current_state.json`
 - `.ai/development_state/executive_snapshot.json`
+- `.ai/executable_repository_map.json`
+- `.ai/execution_state.json`
+- `.ai/runtime_repository_model.json`
 
 
 ## Injection Points
@@ -346,28 +346,29 @@ Semantic architecture layers discovered and their inter-layer dependencies.
 | Layer | Modules | In-Degree | Out-Degree |
 | --- | ---: | ---: | ---: |
 | **Agent Runtime** | 10 | 4 | 20 |
-| **CLI** | 2 | 0 | 11 |
-| **Canonical Intelligence** | 16 | 11 | 10 |
+| **CLI** | 2 | 0 | 12 |
+| **Canonical Intelligence** | 16 | 12 | 10 |
 | **Compliance / Coverage / Drift** | 6 | 6 | 6 |
 | **Configuration / Profiles** | 2 | 0 | 1 |
 | **Core / Common** | 12 | 31 | 0 |
 | **Memory / State** | 5 | 0 | 0 |
-| **Planning** | 10 | 6 | 5 |
-| **Reporting** | 4 | 5 | 0 |
-| **Scanning / Detection** | 11 | 6 | 16 |
+| **Planning** | 24 | 7 | 9 |
+| **Reporting** | 4 | 4 | 0 |
+| **Scanning / Detection** | 11 | 7 | 16 |
 | **Semantic Analysis** | 17 | 10 | 4 |
 | **Testing** | 2 | 0 | 0 |
-| **Uncategorised** | 68 | 21 | 42 |
+| **Uncategorised** | 68 | 24 | 43 |
 | **Validation** | 5 | 5 | 2 |
-| **Workspace** | 18 | 16 | 4 |
+| **Workspace** | 18 | 17 | 4 |
 
-**Architecture edges (inter-layer dependencies):** 47
+**Architecture edges (inter-layer dependencies):** 48
 
 | From Layer | To Layer | Relationship | Strength |
 | --- | --- | --- | ---: |
 | Uncategorised | Core / Common | imports | 1.00 |
 | Agent Runtime | Uncategorised | imports | 0.32 |
 | CLI | Uncategorised | imports | 0.18 |
+| Planning | Uncategorised | imports | 0.18 |
 | Uncategorised | Semantic Analysis | imports | 0.18 |
 | Agent Runtime | Scanning / Detection | imports | 0.11 |
 | Canonical Intelligence | Compliance / Coverage / Drift | imports | 0.11 |
@@ -378,7 +379,6 @@ Semantic architecture layers discovered and their inter-layer dependencies.
 | Scanning / Detection | Compliance / Coverage / Drift | imports | 0.11 |
 | Scanning / Detection | Uncategorised | imports | 0.11 |
 | Semantic Analysis | Workspace | imports | 0.11 |
-| Uncategorised | Reporting | imports | 0.11 |
 | Uncategorised | Workspace | imports | 0.11 |
 
 ## Dependency Summary
@@ -386,10 +386,10 @@ Semantic architecture layers discovered and their inter-layer dependencies.
 | Metric | Value |
 | --- | ---: |
 | External dependencies | 0 |
-| Internal Python modules | 188 |
-| Import graph edges | 553 |
+| Internal Python modules | 202 |
+| Import graph edges | 627 |
 | Circular dependencies | 0 |
-| Orphan modules | 56 |
+| Orphan modules | 57 |
 
 ## Injection Point Summary
 
@@ -398,12 +398,12 @@ Semantically discovered extension and injection points.
 | Type | Count |
 | --- | ---: |
 | decorator | 1 |
-| di_container | 51 |
+| di_container | 52 |
 | event_bus | 18 |
 | plugin_interface | 4 |
 | service_boundary | 3 |
 
-**Total injection points:** 77
+**Total injection points:** 78
 
 **Key injection points:**
 
@@ -427,6 +427,7 @@ Modules with the highest import in-degree — the architectural backbone of the 
 | Module | In-Degree |
 | --- | ---: |
 | `lib/python/workspace_index/__init__.py` ⭐ | 13 |
+| `lib/python/autonomous_planning_engine/models.py` ⭐ | 11 |
 | `lib/python/executive_briefing_engine/models.py` ⭐ | 10 |
 | `lib/python/semantic_repository_intelligence/models.py` ⭐ | 9 |
 | `lib/python/workspace_orchestrator/models.py` ⭐ | 9 |
@@ -435,17 +436,16 @@ Modules with the highest import in-degree — the architectural backbone of the 
 | `lib/python/agent_runtime/models.py` ⭐ | 5 |
 | `lib/python/repository_engine/engine.py` ⭐ | 5 |
 | `lib/python/dependency_engine/engine.py` ⭐ | 4 |
-| `lib/python/validation_engine/engine.py` ⭐ | 4 |
 
 ## Architecture Risks
 
 | Risk | Severity | Confidence | Affected Modules |
 | --- | --- | ---: | --- |
 | Architectural hotspot | 🟡 Medium | 85% | `lib/python/workspace_index/__init__.py` |
+| Architectural hotspot | 🟡 Medium | 85% | `lib/python/autonomous_planning_engine/mo` |
 | Architectural hotspot | 🟡 Medium | 85% | `lib/python/executive_briefing_engine/mod` |
-| Architectural hotspot | 🟡 Medium | 85% | `lib/python/semantic_repository_intellige` |
 | Unclassified modules | 🟢 Low | 70% | `lib/python/__init__.py`, `lib/python/autonomous_planner/__init__.p`, `lib/python/autonomous_planner/engine.py` |
-| High coupling detected | 🟡 Medium | 80% | `lib/python/agents/development_agent.py`, `lib/python/ai_cto_scanner/engine.py`, `lib/python/canonical_intelligence/engine` |
+| High coupling detected | 🟡 Medium | 80% | `lib/python/agents/development_agent.py`, `lib/python/ai_cto_scanner/engine.py`, `lib/python/autonomous_planning_engine/__` |
 
 ## Recommended Extension Points
 
@@ -468,10 +468,10 @@ Evidence-based architectural recommendations generated by CORE-008B.
 
 | # | Priority | Recommendation | Confidence | Effort | Impact | Risk |
 | ---: | --- | --- | ---: | --- | --- | --- |
-| 1 | 🟡 Medium | Investigate 56 orphan modules | 100% | small | medium | low |
+| 1 | 🟡 Medium | Investigate 57 orphan modules | 100% | small | medium | low |
 | 2 | 🟡 Medium | Reduce coupling on hotspot: lib/python/workspace_index/__init__.py | 100% | large | high | medium |
-| 3 | 🟡 Medium | Reduce coupling on hotspot: lib/python/executive_briefing_engine/models.py | 100% | large | high | medium |
-| 4 | 🟡 Medium | Reduce coupling on hotspot: lib/python/semantic_repository_intelligence/models.py | 100% | large | high | medium |
+| 3 | 🟡 Medium | Reduce coupling on hotspot: lib/python/autonomous_planning_engine/models.py | 100% | large | high | medium |
+| 4 | 🟡 Medium | Reduce coupling on hotspot: lib/python/executive_briefing_engine/models.py | 100% | large | high | medium |
 | 5 | 🟡 Medium | Address architecture risk: Architectural hotspot | 85% | medium | high | medium |
 | 6 | 🟡 Medium | Address architecture risk: Architectural hotspot | 85% | medium | high | medium |
 | 7 | 🟡 Medium | Address architecture risk: Architectural hotspot | 85% | medium | high | medium |
@@ -486,12 +486,12 @@ Architectural observations produced by semantic analysis.
 | Finding | Category | Severity | Confidence |
 | --- | --- | --- | ---: |
 | Critical module: lib/python/workspace_index/__init__.py | dependency | ℹ️ Info | 90% |
+| Critical module: lib/python/autonomous_planning_engine/models.py | dependency | ℹ️ Info | 90% |
 | Critical module: lib/python/executive_briefing_engine/models.py | dependency | ℹ️ Info | 90% |
 | Critical module: lib/python/semantic_repository_intelligence/models.py | dependency | ℹ️ Info | 90% |
 | Critical module: lib/python/workspace_orchestrator/models.py | dependency | ℹ️ Info | 90% |
-| Critical module: lib/python/canonical_entities/__init__.py | dependency | ℹ️ Info | 90% |
 | 1 decorator patterns detected | pattern | ℹ️ Info | 80% |
-| 51 di_container patterns detected | pattern | ℹ️ Info | 80% |
+| 52 di_container patterns detected | pattern | ℹ️ Info | 80% |
 | 18 event_bus patterns detected | pattern | ℹ️ Info | 80% |
 | 4 plugin_interface patterns detected | pattern | ℹ️ Info | 80% |
 | 3 service_boundary patterns detected | pattern | ℹ️ Info | 80% |
@@ -510,24 +510,24 @@ Architectural observations produced by semantic analysis.
 
 | Metric | Value |
 | --- | ---: |
-| Total files analysed | 302 |
-| Total symbols (classes + functions) | 1136 |
-| Total import statements | 553 |
-| Total functions | 893 |
-| Total classes | 243 |
-| Avg imports per module | 1.8 |
-| Avg functions per file | 3.0 |
-| Max imports in one module | 22 |
+| Total files analysed | 321 |
+| Total symbols (classes + functions) | 1261 |
+| Total import statements | 627 |
+| Total functions | 999 |
+| Total classes | 262 |
+| Avg imports per module | 1.9 |
+| Avg functions per file | 3.1 |
+| Max imports in one module | 23 |
 | Max functions in one file | 54 |
-| Cyclomatic complexity estimate | 2.35 |
+| Cyclomatic complexity estimate | 2.37 |
 
 **Language distribution:**
 
 | Language | Files |
 | --- | ---: |
-| python | 188 |
-| markdown | 89 |
-| json | 25 |
+| python | 202 |
+| markdown | 90 |
+| json | 29 |
 
 ## Suggested Next CORE Implementation
 

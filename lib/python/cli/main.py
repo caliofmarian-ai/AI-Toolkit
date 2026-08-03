@@ -46,18 +46,67 @@ def cmd_validate():
     ))
 
 
-def cmd_plan():
+def cmd_plan(repository=".", workspace=None, as_json=False, refresh=False):
+    """
+    Autonomous Planning Engine (CORE-014).
 
-    plan = PlanningEngine(".").build_plan()
-
-    print("Execution Plan:", plan.identifier)
-    print()
-
-    for task in plan.tasks:
-
-        print(
-            f"[{task.priority}] {task.identifier} -> {task.title}"
+    Falls back to the legacy PlanningEngine summary when the
+    AutonomousPlanningEngine is unavailable.
+    """
+    import json as _json
+    try:
+        from python.autonomous_planning_engine import AutonomousPlanningEngine
+        engine = AutonomousPlanningEngine(
+            repository=repository,
+            workspace_root=workspace,
+            persist=True,
+            refresh_integrations=refresh,
         )
+        result = engine.plan()
+        if as_json:
+            print(_json.dumps(result["planning_dict"], indent=2))
+        else:
+            d = result["planning_dict"]
+            rp = d.get("roadmap_progress", {})
+            na = d.get("next_actions", {})
+            queue = d.get("execution_queue", {})
+            print(f"AI CTO Autonomous Planning — {repository}")
+            print(f"  Planning ID:  {d.get('planning_id', '')}")
+            print(f"  Phase:        {rp.get('current_phase', '')}")
+            print(f"  Maturity:     {rp.get('repository_maturity', '')}")
+            print(f"  Progress:     {rp.get('completion_percentage', 0.0):.1f}%")
+            print(f"  COREs done:   {len(rp.get('completed_cores', []))}")
+            print(f"  COREs left:   {len(rp.get('incomplete_cores', []))}")
+            print()
+            nc = na.get("next_core")
+            if nc:
+                print(f"  Next CORE:    {nc.get('id', '')} — {nc.get('reason', '')}")
+            ni = na.get("next_issue")
+            if ni:
+                print(f"  Next Issue:   {ni.get('title', '')}")
+            nb = na.get("next_batch")
+            if nb:
+                print(f"  Next Batch:   {nb.get('title', nb.get('id', ''))}")
+            npr = na.get("next_pr")
+            if npr:
+                print(f"  Next PR:      {npr.get('title', '')}")
+            nm = na.get("next_milestone")
+            if nm:
+                print(f"  Next MS:      {nm.get('title', '')}")
+            print()
+            print(f"  Queue:        {queue.get('entry_count', 0)} items")
+            paths = result.get("paths", {})
+            if paths.get("markdown"):
+                print(f"  Report:       {paths['markdown']}")
+            if paths.get("planning"):
+                print(f"  Plan JSON:    {paths['planning']}")
+    except Exception:
+        # Graceful fallback to legacy plan engine
+        plan = PlanningEngine(".").build_plan()
+        print("Execution Plan:", plan.identifier)
+        print()
+        for task in plan.tasks:
+            print(f"[{task.priority}] {task.identifier} -> {task.title}")
 
 
 def cmd_agent(agent_name, repository=".", output_dir="."):
@@ -91,9 +140,39 @@ for command in [
     "inventory",
     "dependencies",
     "validate",
-    "plan",
 ]:
     sub.add_parser(command)
+
+plan_parser = sub.add_parser(
+    "plan",
+    help="Autonomous Planning Engine (CORE-014)",
+)
+plan_parser.add_argument(
+    "--json",
+    action="store_true",
+    dest="plan_json",
+    help="Output planning result as JSON",
+)
+plan_parser.add_argument(
+    "--refresh",
+    action="store_true",
+    dest="plan_refresh",
+    help="Refresh all intelligence integrations before planning",
+)
+plan_parser.add_argument(
+    "--repository",
+    default=".",
+    metavar="PATH",
+    dest="plan_repository",
+    help="Path to the repository (default: current directory)",
+)
+plan_parser.add_argument(
+    "--workspace",
+    default=None,
+    metavar="PATH",
+    dest="plan_workspace",
+    help="Path to the workspace root (default: parent of repository)",
+)
 
 inspect_parser = sub.add_parser(
     "inspect",
@@ -251,7 +330,12 @@ elif args.command == "validate":
 
 elif args.command == "plan":
 
-    cmd_plan()
+    cmd_plan(
+        repository=getattr(args, "plan_repository", "."),
+        workspace=getattr(args, "plan_workspace", None),
+        as_json=getattr(args, "plan_json", False),
+        refresh=getattr(args, "plan_refresh", False),
+    )
 
 elif args.command == "inspect":
 

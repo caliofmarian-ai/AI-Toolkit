@@ -1,0 +1,9 @@
+{
+  "confidence": 0.9,
+  "dependencies": [],
+  "estimated_effort": "medium",
+  "priority": "high",
+  "reason": "CORE-005 is the next CORE on the roadmap and has no implementation yet.",
+  "title": "[CORE-005] Implement CORE-005 — Autonomous Planning Engine",
+  "type": "core_tracking"
+}
