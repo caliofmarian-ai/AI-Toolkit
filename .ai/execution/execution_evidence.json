@@ -109,12 +109,36 @@
         }
       },
       "source": "CORE-009",
-      "timestamp": "2026-08-03T11:02:13.757095+00:00"
+      "timestamp": "2026-08-03T13:04:59.639887+00:00"
     },
     {
       "category": "briefing",
       "data": {
         "all_risks": [
+          {
+            "affected_components": [],
+            "category": "canonical_drift",
+            "description": "10 canonical drift findings indicate the implementation has diverged from specification.",
+            "evidence": [
+              "drift_findings=10"
+            ],
+            "id": "RISK-002",
+            "remediation": "Run canonical intelligence pipeline and resolve all drift findings.",
+            "severity": "critical",
+            "title": "Canonical drift detected (10 findings)"
+          },
+          {
+            "affected_components": [],
+            "category": "canonical_drift",
+            "description": "Overall canonical coverage is 0.8%, below the 80% target.",
+            "evidence": [
+              "overall_coverage=0.8%"
+            ],
+            "id": "RISK-003",
+            "remediation": "Implement missing canonical specifications to raise coverage above 80%.",
+            "severity": "critical",
+            "title": "Low canonical coverage (0.8%)"
+          },
           {
             "affected_components": [
               "lib/python/workspace_index/__init__.py",
@@ -144,16 +168,41 @@
             "evidence": [
               "total_files=398"
             ],
-            "id": "RISK-002",
+            "id": "RISK-004",
             "remediation": "Increase test coverage and enforce CI/CD gates for large changesets.",
             "severity": "medium",
             "title": "High codebase size increases regression risk (398 files)"
           }
         ],
         "architecture_health": "healthy",
-        "briefing_id": "BRIEF-62762186FCA8",
-        "canonical_health": "healthy",
-        "critical_risks": [],
+        "briefing_id": "BRIEF-2433609BC9C4",
+        "canonical_health": "critical",
+        "critical_risks": [
+          {
+            "affected_components": [],
+            "category": "canonical_drift",
+            "description": "10 canonical drift findings indicate the implementation has diverged from specification.",
+            "evidence": [
+              "drift_findings=10"
+            ],
+            "id": "RISK-002",
+            "remediation": "Run canonical intelligence pipeline and resolve all drift findings.",
+            "severity": "critical",
+            "title": "Canonical drift detected (10 findings)"
+          },
+          {
+            "affected_components": [],
+            "category": "canonical_drift",
+            "description": "Overall canonical coverage is 0.8%, below the 80% target.",
+            "evidence": [
+              "overall_coverage=0.8%"
+            ],
+            "id": "RISK-003",
+            "remediation": "Implement missing canonical specifications to raise coverage above 80%.",
+            "severity": "critical",
+            "title": "Low canonical coverage (0.8%)"
+          }
+        ],
         "current_batch": "BATCH-002",
         "current_branch": "copilot/batch-002-runtime-integration-canonical-synchroniz",
         "current_epic": "CORE-005",
@@ -162,44 +211,145 @@
         "current_pull_request": "",
         "current_recommendation": "CORE-005",
         "development_health": "healthy",
-        "estimated_completion": "near completion",
-        "executive_summary": "The caliofmarian-ai/AI-Toolkit repository is healthy.  Architecture health: healthy. Canonical health: healthy. Development health: healthy.  Repository health: healthy. Runtime health: unknown.  2 risk(s) identified.  3 recommendation(s) generated.",
-        "generated_at": "2026-08-03T11:02:05Z",
+        "estimated_completion": "multiple sprints remaining",
+        "executive_summary": "The caliofmarian-ai/AI-Toolkit repository has areas requiring attention.  Architecture health: healthy. Canonical health: critical. Development health: healthy.  Repository health: healthy. Runtime health: unknown.  4 risk(s) identified.  8 recommendation(s) generated.",
+        "generated_at": "2026-08-03T11:02:35Z",
         "owner_dashboard": {
           "blocked_items": [],
-          "current_progress": "0/3 items completed (0%)",
-          "open_risks": 2,
-          "overall_health": "healthy",
+          "current_progress": "0/6 items completed (0%)",
+          "open_risks": 4,
+          "overall_health": "degraded",
           "recommended_actions": [
+            "Address critical risks immediately (2 critical)",
+            "Resolve canonical drift findings",
+            "Improve canonical coverage from 0.8% to ≥80%",
+            "Improve canonical compliance from 0.8% to ≥80%",
             "Execute current recommendation: CORE-005"
           ],
-          "repository_readiness": "production-ready"
+          "repository_readiness": "not-ready"
         },
-        "pending_decisions": [],
+        "pending_decisions": [
+          {
+            "context": "canonical_coverage=0.8%, drift_findings=10",
+            "description": "Canonical health metrics are below thresholds (coverage=0.8%, drift=10). The owner must decide whether to enforce a quality gate.",
+            "id": "DEC-001",
+            "impact": "Prevents further metric deterioration while enforcing quality standards.",
+            "options": [
+              "Enforce quality gate: halt new features until metrics recover",
+              "Set target timeline for metric recovery",
+              "Accept current state and continue"
+            ],
+            "recommended_option": "Enforce quality gate: halt new features until metrics recover",
+            "title": "Decide on canonical quality gate enforcement",
+            "urgency": "high"
+          }
+        ],
         "priorities": [
+          {
+            "category": "canonical_health",
+            "classification": "critical",
+            "id": "PRI-001",
+            "rationale": "10 drift findings exceed the critical threshold of 5. Immediate resolution required.",
+            "title": "Resolve 10 canonical drift findings"
+          },
+          {
+            "category": "canonical_health",
+            "classification": "critical",
+            "id": "PRI-002",
+            "rationale": "Coverage of 0.8% is critically below the 50% floor.",
+            "title": "Raise canonical coverage from 0.8% to ≥80%"
+          },
           {
             "category": "batch_execution",
             "classification": "high",
-            "id": "PRI-001",
+            "id": "PRI-003",
             "rationale": "The current batch is the active unit of work.",
             "title": "Complete current batch: BATCH-002"
           },
           {
             "category": "issue_tracking",
             "classification": "high",
-            "id": "PRI-002",
+            "id": "PRI-004",
             "rationale": "The current issue is the active development focus.",
             "title": "Resolve current issue: CORE-005"
           },
           {
+            "category": "canonical_execution",
+            "classification": "medium",
+            "id": "PRI-005",
+            "rationale": "5 canonical batches are ready for execution.",
+            "title": "Execute 5 pending canonical batch(es)"
+          },
+          {
             "category": "milestone",
             "classification": "medium",
-            "id": "PRI-003",
+            "id": "PRI-006",
             "rationale": "Active milestone requires steady progress.",
             "title": "Advance milestone: PHASE 2 — CORE IMPLEMENTATION"
           }
         ],
         "recommendations": [
+          {
+            "affected_components": [],
+            "confidence": 0.98,
+            "dependencies": [],
+            "description": "2 critical risks require immediate attention before any other development activity.",
+            "evidence": [
+              "Canonical drift detected (10 findings)",
+              "Low canonical coverage (0.8%)"
+            ],
+            "id": "REC-007",
+            "impact": "Prevents systemic failures and data loss.",
+            "priority": "critical",
+            "reasoning": "Critical risks left unaddressed will cascade into systemic failures.  They must be resolved before any new development work proceeds.",
+            "required_effort": "high",
+            "title": "Address critical risks immediately (2 critical)"
+          },
+          {
+            "affected_components": [],
+            "confidence": 0.95,
+            "dependencies": [],
+            "description": "There are 10 canonical drift findings that indicate the implementation has diverged from its specification.",
+            "evidence": [
+              "canonical_drift_findings=10"
+            ],
+            "id": "REC-001",
+            "impact": "Restores alignment between specification and implementation.",
+            "priority": "critical",
+            "reasoning": "Canonical drift findings signal that the codebase no longer matches its canonical documentation.  Left unresolved, this leads to compounding inconsistencies and increases maintenance cost.",
+            "required_effort": "high",
+            "title": "Resolve canonical drift findings"
+          },
+          {
+            "affected_components": [],
+            "confidence": 0.9,
+            "dependencies": [],
+            "description": "Canonical coverage is 0.8%, below the target of 80%. Implement missing canonical modules to close the gap.",
+            "evidence": [
+              "overall_coverage=0.8%"
+            ],
+            "id": "REC-002",
+            "impact": "Ensures all canonical specifications have corresponding implementations.",
+            "priority": "critical",
+            "reasoning": "Low canonical coverage means significant portions of the system specification lack implementation.  This increases project risk.",
+            "required_effort": "high",
+            "title": "Improve canonical coverage from 0.8% to ≥80%"
+          },
+          {
+            "affected_components": [],
+            "confidence": 0.85,
+            "dependencies": [],
+            "description": "Canonical compliance is 0.8%, below the target of 80%.",
+            "evidence": [
+              "overall_compliance=0.8%"
+            ],
+            "id": "REC-003",
+            "impact": "Brings implementation into compliance with canonical specification.",
+            "priority": "high",
+            "reasoning": "Low compliance means existing implementations do not conform to their canonical specifications.",
+            "required_effort": "medium",
+            "title": "Improve canonical compliance from 0.8% to ≥80%"
+          },
           {
             "affected_components": [],
             "confidence": 0.85,
@@ -208,12 +358,27 @@
             "evidence": [
               "current_recommendation=CORE-005"
             ],
-            "id": "REC-002",
+            "id": "REC-006",
             "impact": "Advances planned development work.",
             "priority": "high",
             "reasoning": "The active canonical recommendation represents the highest-value next step derived from all accumulated intelligence.",
             "required_effort": "medium",
             "title": "Execute current recommendation: CORE-005"
+          },
+          {
+            "affected_components": [],
+            "confidence": 0.8,
+            "dependencies": [],
+            "description": "5 canonical implementation batches are pending execution.",
+            "evidence": [
+              "pending_batches=5"
+            ],
+            "id": "REC-004",
+            "impact": "Reduces implementation debt and advances canonical coverage.",
+            "priority": "medium",
+            "reasoning": "5 batches remain unexecuted.  Processing them will improve canonical coverage and compliance metrics.",
+            "required_effort": "medium",
+            "title": "Execute pending canonical batches (5 remaining)"
           },
           {
             "affected_components": [
@@ -231,7 +396,7 @@
               "lib/python/autonomous_planning_engine/models.py",
               "lib/python/executive_briefing_engine/models.py"
             ],
-            "id": "REC-001",
+            "id": "REC-005",
             "impact": "Reduces coupling, improves testability and maintainability.",
             "priority": "medium",
             "reasoning": "Hotspot modules are heavily depended upon.  Decomposing them reduces the blast radius of future changes.",
@@ -246,7 +411,7 @@
             "evidence": [
               "suggested_next_core=CORE-005"
             ],
-            "id": "REC-003",
+            "id": "REC-008",
             "impact": "Advances the AI CTO intelligence layer.",
             "priority": "medium",
             "reasoning": "CORE module suggestions are derived from current repository intelligence gaps and architectural extension points.",
@@ -263,13 +428,13 @@
         "suggested_next_pr": ""
       },
       "source": "CORE-010",
-      "timestamp": "2026-08-03T11:02:13.764381+00:00"
+      "timestamp": "2026-08-03T13:04:59.712162+00:00"
     },
     {
       "category": "live_context",
       "data": {},
       "source": "CORE-013",
-      "timestamp": "2026-08-03T11:02:13.756525+00:00"
+      "timestamp": "2026-08-03T13:04:59.633122+00:00"
     },
     {
       "category": "planning_queue",
@@ -427,7 +592,7 @@
         "schema_version": "1.0.0"
       },
       "source": "CORE-014",
-      "timestamp": "2026-08-03T11:02:13.770487+00:00"
+      "timestamp": "2026-08-03T13:04:59.799359+00:00"
     }
   ]
 }

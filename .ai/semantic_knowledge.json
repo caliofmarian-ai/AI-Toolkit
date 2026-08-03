@@ -1,11 +1,11 @@
 {
   "schema_version": "1.0.0",
-  "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
-  "captured_at": "2026-08-03T11:02:45Z",
+  "repository": "/storage/emulated/0/AI-Projects/AI-Toolkit",
+  "captured_at": "2026-08-03T13:10:01Z",
   "analysis": {
     "import_graph": {
-      "node_count": 226,
-      "edge_count": 757,
+      "node_count": 250,
+      "edge_count": 875,
       "circular_dependency_count": 0,
       "critical_modules": [
         "lib/python/workspace_index/__init__.py",
@@ -33,7 +33,7 @@
       ]
     },
     "call_graph": {
-      "edge_count": 330,
+      "edge_count": 339,
       "entry_points": [
         "lib/python/agent_runtime/base.py::run",
         "lib/python/agent_runtime/runtime.py::execute",
@@ -49,7 +49,7 @@
     },
     "architecture_graph": {
       "node_count": 15,
-      "edge_count": 49,
+      "edge_count": 50,
       "hotspots": [
         "lib/python/workspace_index/__init__.py",
         "lib/python/autonomous_planning_engine/models.py",
@@ -68,27 +68,27 @@
     },
     "dependency_graph": {
       "external_dependency_count": 0,
-      "internal_module_count": 226
+      "internal_module_count": 250
     },
     "complexity": {
-      "total_files": 398,
-      "total_symbols": 1496,
-      "total_imports": 757,
-      "total_functions": 1171,
-      "total_classes": 325,
-      "avg_imports_per_module": 1.9,
-      "avg_functions_per_file": 2.94,
+      "total_files": 459,
+      "total_symbols": 1698,
+      "total_imports": 878,
+      "total_functions": 1342,
+      "total_classes": 356,
+      "avg_imports_per_module": 1.91,
+      "avg_functions_per_file": 2.92,
       "max_imports_in_module": 29,
       "max_functions_in_file": 54,
-      "cyclomatic_complexity_estimate": 2.34,
+      "cyclomatic_complexity_estimate": 2.29,
       "language_distribution": {
-        "json": 65,
-        "markdown": 107,
-        "python": 226
+        "json": 90,
+        "markdown": 119,
+        "python": 250
       }
     },
     "recommendation_count": 10,
-    "injection_point_count": 100,
+    "injection_point_count": 147,
     "next_core": "CORE-009 — Development State Engine: Persist full development state for cross-session reasoning."
   }
 }

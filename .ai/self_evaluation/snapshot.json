@@ -1,18 +1,18 @@
 {
-  "captured_at": "2026-08-03T11:02:24.554880+00:00",
+  "captured_at": "2026-08-03T13:07:30.986971+00:00",
   "context": {
-    "briefing_id": "BRIEF-62762186FCA8",
-    "evaluation_id": "EVAL-CB9D877B",
-    "execution_id": "EXEC-F071A1FA",
-    "generated_at": "2026-08-03T11:02:24.554880+00:00",
+    "briefing_id": "BRIEF-2433609BC9C4",
+    "evaluation_id": "EVAL-D2C6C4F0",
+    "execution_id": "EXEC-EC52125C",
+    "generated_at": "2026-08-03T13:07:30.986971+00:00",
     "planning_id": "PLAN-A6FFF182",
-    "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
+    "repository": "/storage/emulated/0/AI-Projects/AI-Toolkit",
     "schema_version": "1.0.0",
     "synchronization_id": "",
-    "workspace": "/home/runner/work/AI-Toolkit"
+    "workspace": "/storage/emulated/0/AI-Projects"
   },
-  "evaluation_id": "EVAL-CB9D877B",
+  "evaluation_id": "EVAL-D2C6C4F0",
   "overall_gate": "PASS",
-  "overall_score": 0.886,
+  "overall_score": 0.888,
   "schema_version": "1.0.0"
 }

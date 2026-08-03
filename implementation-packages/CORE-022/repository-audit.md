@@ -1,12 +1,12 @@
 # Repository Audit
 
-Generated: 2026-08-03T18:21:10.844654+00:00
+Generated: 2026-08-03T19:48:54.214410+00:00
 
 ## Executive Summary
 
 | Metric | Value |
 |-------|------:|
-| Runtime Modules | 24 |
+| Runtime Modules | 28 |
 | Runtime Tests | 16 |
 | Entrypoints | 3 |
 
@@ -22,8 +22,12 @@ Status: READY FOR GAP ANALYSIS
 - lib/python/runtime/health.py
 - lib/python/runtime/identity.py
 - lib/python/runtime/interfaces/__init__.py
+- lib/python/runtime/interfaces/api_auth.py
 - lib/python/runtime/interfaces/github_webhook.py
+- lib/python/runtime/interfaces/graphql/__init__.py
 - lib/python/runtime/interfaces/http_server.py
+- lib/python/runtime/interfaces/mcp/__init__.py
+- lib/python/runtime/interfaces/runtime_api.py
 - lib/python/runtime/interfaces/telegram_gateway.py
 - lib/python/runtime/job_queue.py
 - lib/python/runtime/lifecycle.py

@@ -34,20 +34,20 @@
   ],
   "core_proposal_count": 0,
   "core_proposals": [],
-  "generated_at": "2026-08-03T11:02:35.397377+00:00",
+  "generated_at": "2026-08-03T13:10:03.384466+00:00",
   "performance_metric_count": 3,
   "performance_metrics": [
     {
       "baseline": 5000.0,
       "evidence": {
-        "entry_count": 18,
+        "entry_count": 19,
         "source": "CORE-015"
       },
       "metric_id": "PERF-EXEC-AVG",
       "name": "average_execution_duration_ms",
       "trend": "degrading",
       "unit": "ms",
-      "value": 6239.2
+      "value": 13804.2
     },
     {
       "baseline": 0.8,
@@ -58,21 +58,21 @@
       "name": "evaluation_overall_score",
       "trend": "improving",
       "unit": "score",
-      "value": 0.886
+      "value": 0.888
     },
     {
       "baseline": 100.0,
       "evidence": {
-        "directory": "/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python"
+        "directory": "/storage/emulated/0/AI-Projects/AI-Toolkit/lib/python"
       },
       "metric_id": "PERF-REPO-SIZE",
       "name": "python_file_count",
       "trend": "growing",
       "unit": "files",
-      "value": 224.0
+      "value": 248.0
     }
   ],
-  "plan_id": "IMP-DD6D6817",
+  "plan_id": "IMP-C4B7A581",
   "proposed_batch_count": 2,
   "proposed_batches": [
     {
@@ -120,37 +120,37 @@
         "priority": "low"
       },
       "execution_order": [
-        "ISS-DCC9C3",
-        "ISS-6C041D",
-        "ISS-408543",
-        "ISS-2229AE",
         "ISS-A0D3CD",
-        "ISS-CBDC9D",
         "ISS-27519E",
+        "ISS-1594DD",
+        "ISS-2229AE",
+        "ISS-DCC9C3",
         "ISS-5457C7",
-        "ISS-1594DD"
+        "ISS-CBDC9D",
+        "ISS-408543",
+        "ISS-6C041D"
       ],
       "issue_ids": [
-        "ISS-DCC9C3",
-        "ISS-6C041D",
-        "ISS-408543",
-        "ISS-2229AE",
         "ISS-A0D3CD",
-        "ISS-CBDC9D",
         "ISS-27519E",
+        "ISS-1594DD",
+        "ISS-2229AE",
+        "ISS-DCC9C3",
         "ISS-5457C7",
-        "ISS-1594DD"
+        "ISS-CBDC9D",
+        "ISS-408543",
+        "ISS-6C041D"
       ],
       "objectives": [
-        "Eliminate legacy_module debt in lib/python/knowledge_graph_engine.py",
-        "Eliminate legacy_module debt in lib/python/repository_profile.py",
-        "Eliminate legacy_module debt in lib/python/repository_inventory.py",
-        "Eliminate legacy_module debt in lib/python/foundation_audit.py",
         "Eliminate legacy_module debt in lib/python/autonomous_workflow_engine.py",
-        "Eliminate legacy_module debt in lib/python/repository_hygiene_audit.py",
         "Eliminate legacy_module debt in lib/python/decision_engine.py",
+        "Eliminate legacy_module debt in lib/python/development_validator.py",
+        "Eliminate legacy_module debt in lib/python/foundation_audit.py",
+        "Eliminate legacy_module debt in lib/python/knowledge_graph_engine.py",
         "Eliminate legacy_module debt in lib/python/memory_engine.py",
-        "Eliminate legacy_module debt in lib/python/development_validator.py"
+        "Eliminate legacy_module debt in lib/python/repository_hygiene_audit.py",
+        "Eliminate legacy_module debt in lib/python/repository_inventory.py",
+        "Eliminate legacy_module debt in lib/python/repository_profile.py"
       ],
       "owner_approval_required": true,
       "regression_strategy": "Run full test suite before and after batch execution.",
@@ -160,102 +160,6 @@
   ],
   "proposed_issue_count": 12,
   "proposed_issues": [
-    {
-      "acceptance_criteria": [
-        "lib/python/knowledge_graph_engine.py no longer contains legacy_module",
-        "All existing tests continue to pass"
-      ],
-      "affected_components": [
-        "lib/python/knowledge_graph_engine.py"
-      ],
-      "canonical_references": [],
-      "dependencies": [],
-      "description": "Top-level legacy module 'knowledge_graph_engine.py' may duplicate functionality already in a dedicated package.",
-      "estimated_effort": "low",
-      "estimated_risk": "low",
-      "evidence": {
-        "file": "/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python/knowledge_graph_engine.py"
-      },
-      "implementation_strategy": "Evaluate whether 'knowledge_graph_engine.py' can be replaced by its dedicated package equivalent.",
-      "issue_id": "ISS-DCC9C3",
-      "motivation": "Evaluate whether 'knowledge_graph_engine.py' can be replaced by its dedicated package equivalent.",
-      "objective": "Eliminate legacy_module debt in lib/python/knowledge_graph_engine.py",
-      "priority": "low",
-      "title": "Fix technical debt: lib/python/knowledge_graph_engine.py",
-      "validation_strategy": "Run full regression test suite after changes."
-    },
-    {
-      "acceptance_criteria": [
-        "lib/python/repository_profile.py no longer contains legacy_module",
-        "All existing tests continue to pass"
-      ],
-      "affected_components": [
-        "lib/python/repository_profile.py"
-      ],
-      "canonical_references": [],
-      "dependencies": [],
-      "description": "Top-level legacy module 'repository_profile.py' may duplicate functionality already in a dedicated package.",
-      "estimated_effort": "low",
-      "estimated_risk": "low",
-      "evidence": {
-        "file": "/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python/repository_profile.py"
-      },
-      "implementation_strategy": "Evaluate whether 'repository_profile.py' can be replaced by its dedicated package equivalent.",
-      "issue_id": "ISS-6C041D",
-      "motivation": "Evaluate whether 'repository_profile.py' can be replaced by its dedicated package equivalent.",
-      "objective": "Eliminate legacy_module debt in lib/python/repository_profile.py",
-      "priority": "low",
-      "title": "Fix technical debt: lib/python/repository_profile.py",
-      "validation_strategy": "Run full regression test suite after changes."
-    },
-    {
-      "acceptance_criteria": [
-        "lib/python/repository_inventory.py no longer contains legacy_module",
-        "All existing tests continue to pass"
-      ],
-      "affected_components": [
-        "lib/python/repository_inventory.py"
-      ],
-      "canonical_references": [],
-      "dependencies": [],
-      "description": "Top-level legacy module 'repository_inventory.py' may duplicate functionality already in a dedicated package.",
-      "estimated_effort": "low",
-      "estimated_risk": "low",
-      "evidence": {
-        "file": "/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python/repository_inventory.py"
-      },
-      "implementation_strategy": "Evaluate whether 'repository_inventory.py' can be replaced by its dedicated package equivalent.",
-      "issue_id": "ISS-408543",
-      "motivation": "Evaluate whether 'repository_inventory.py' can be replaced by its dedicated package equivalent.",
-      "objective": "Eliminate legacy_module debt in lib/python/repository_inventory.py",
-      "priority": "low",
-      "title": "Fix technical debt: lib/python/repository_inventory.py",
-      "validation_strategy": "Run full regression test suite after changes."
-    },
-    {
-      "acceptance_criteria": [
-        "lib/python/foundation_audit.py no longer contains legacy_module",
-        "All existing tests continue to pass"
-      ],
-      "affected_components": [
-        "lib/python/foundation_audit.py"
-      ],
-      "canonical_references": [],
-      "dependencies": [],
-      "description": "Top-level legacy module 'foundation_audit.py' may duplicate functionality already in a dedicated package.",
-      "estimated_effort": "low",
-      "estimated_risk": "low",
-      "evidence": {
-        "file": "/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python/foundation_audit.py"
-      },
-      "implementation_strategy": "Evaluate whether 'foundation_audit.py' can be replaced by its dedicated package equivalent.",
-      "issue_id": "ISS-2229AE",
-      "motivation": "Evaluate whether 'foundation_audit.py' can be replaced by its dedicated package equivalent.",
-      "objective": "Eliminate legacy_module debt in lib/python/foundation_audit.py",
-      "priority": "low",
-      "title": "Fix technical debt: lib/python/foundation_audit.py",
-      "validation_strategy": "Run full regression test suite after changes."
-    },
     {
       "acceptance_criteria": [
         "lib/python/autonomous_workflow_engine.py no longer contains legacy_module",
@@ -270,7 +174,7 @@
       "estimated_effort": "low",
       "estimated_risk": "low",
       "evidence": {
-        "file": "/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python/autonomous_workflow_engine.py"
+        "file": "/storage/emulated/0/AI-Projects/AI-Toolkit/lib/python/autonomous_workflow_engine.py"
       },
       "implementation_strategy": "Evaluate whether 'autonomous_workflow_engine.py' can be replaced by its dedicated package equivalent.",
       "issue_id": "ISS-A0D3CD",
@@ -278,30 +182,6 @@
       "objective": "Eliminate legacy_module debt in lib/python/autonomous_workflow_engine.py",
       "priority": "low",
       "title": "Fix technical debt: lib/python/autonomous_workflow_engine.py",
-      "validation_strategy": "Run full regression test suite after changes."
-    },
-    {
-      "acceptance_criteria": [
-        "lib/python/repository_hygiene_audit.py no longer contains legacy_module",
-        "All existing tests continue to pass"
-      ],
-      "affected_components": [
-        "lib/python/repository_hygiene_audit.py"
-      ],
-      "canonical_references": [],
-      "dependencies": [],
-      "description": "Top-level legacy module 'repository_hygiene_audit.py' may duplicate functionality already in a dedicated package.",
-      "estimated_effort": "low",
-      "estimated_risk": "low",
-      "evidence": {
-        "file": "/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python/repository_hygiene_audit.py"
-      },
-      "implementation_strategy": "Evaluate whether 'repository_hygiene_audit.py' can be replaced by its dedicated package equivalent.",
-      "issue_id": "ISS-CBDC9D",
-      "motivation": "Evaluate whether 'repository_hygiene_audit.py' can be replaced by its dedicated package equivalent.",
-      "objective": "Eliminate legacy_module debt in lib/python/repository_hygiene_audit.py",
-      "priority": "low",
-      "title": "Fix technical debt: lib/python/repository_hygiene_audit.py",
       "validation_strategy": "Run full regression test suite after changes."
     },
     {
@@ -318,7 +198,7 @@
       "estimated_effort": "low",
       "estimated_risk": "low",
       "evidence": {
-        "file": "/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python/decision_engine.py"
+        "file": "/storage/emulated/0/AI-Projects/AI-Toolkit/lib/python/decision_engine.py"
       },
       "implementation_strategy": "Evaluate whether 'decision_engine.py' can be replaced by its dedicated package equivalent.",
       "issue_id": "ISS-27519E",
@@ -326,30 +206,6 @@
       "objective": "Eliminate legacy_module debt in lib/python/decision_engine.py",
       "priority": "low",
       "title": "Fix technical debt: lib/python/decision_engine.py",
-      "validation_strategy": "Run full regression test suite after changes."
-    },
-    {
-      "acceptance_criteria": [
-        "lib/python/memory_engine.py no longer contains legacy_module",
-        "All existing tests continue to pass"
-      ],
-      "affected_components": [
-        "lib/python/memory_engine.py"
-      ],
-      "canonical_references": [],
-      "dependencies": [],
-      "description": "Top-level legacy module 'memory_engine.py' may duplicate functionality already in a dedicated package.",
-      "estimated_effort": "low",
-      "estimated_risk": "low",
-      "evidence": {
-        "file": "/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python/memory_engine.py"
-      },
-      "implementation_strategy": "Evaluate whether 'memory_engine.py' can be replaced by its dedicated package equivalent.",
-      "issue_id": "ISS-5457C7",
-      "motivation": "Evaluate whether 'memory_engine.py' can be replaced by its dedicated package equivalent.",
-      "objective": "Eliminate legacy_module debt in lib/python/memory_engine.py",
-      "priority": "low",
-      "title": "Fix technical debt: lib/python/memory_engine.py",
       "validation_strategy": "Run full regression test suite after changes."
     },
     {
@@ -366,7 +222,7 @@
       "estimated_effort": "low",
       "estimated_risk": "low",
       "evidence": {
-        "file": "/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python/development_validator.py"
+        "file": "/storage/emulated/0/AI-Projects/AI-Toolkit/lib/python/development_validator.py"
       },
       "implementation_strategy": "Evaluate whether 'development_validator.py' can be replaced by its dedicated package equivalent.",
       "issue_id": "ISS-1594DD",
@@ -374,6 +230,150 @@
       "objective": "Eliminate legacy_module debt in lib/python/development_validator.py",
       "priority": "low",
       "title": "Fix technical debt: lib/python/development_validator.py",
+      "validation_strategy": "Run full regression test suite after changes."
+    },
+    {
+      "acceptance_criteria": [
+        "lib/python/foundation_audit.py no longer contains legacy_module",
+        "All existing tests continue to pass"
+      ],
+      "affected_components": [
+        "lib/python/foundation_audit.py"
+      ],
+      "canonical_references": [],
+      "dependencies": [],
+      "description": "Top-level legacy module 'foundation_audit.py' may duplicate functionality already in a dedicated package.",
+      "estimated_effort": "low",
+      "estimated_risk": "low",
+      "evidence": {
+        "file": "/storage/emulated/0/AI-Projects/AI-Toolkit/lib/python/foundation_audit.py"
+      },
+      "implementation_strategy": "Evaluate whether 'foundation_audit.py' can be replaced by its dedicated package equivalent.",
+      "issue_id": "ISS-2229AE",
+      "motivation": "Evaluate whether 'foundation_audit.py' can be replaced by its dedicated package equivalent.",
+      "objective": "Eliminate legacy_module debt in lib/python/foundation_audit.py",
+      "priority": "low",
+      "title": "Fix technical debt: lib/python/foundation_audit.py",
+      "validation_strategy": "Run full regression test suite after changes."
+    },
+    {
+      "acceptance_criteria": [
+        "lib/python/knowledge_graph_engine.py no longer contains legacy_module",
+        "All existing tests continue to pass"
+      ],
+      "affected_components": [
+        "lib/python/knowledge_graph_engine.py"
+      ],
+      "canonical_references": [],
+      "dependencies": [],
+      "description": "Top-level legacy module 'knowledge_graph_engine.py' may duplicate functionality already in a dedicated package.",
+      "estimated_effort": "low",
+      "estimated_risk": "low",
+      "evidence": {
+        "file": "/storage/emulated/0/AI-Projects/AI-Toolkit/lib/python/knowledge_graph_engine.py"
+      },
+      "implementation_strategy": "Evaluate whether 'knowledge_graph_engine.py' can be replaced by its dedicated package equivalent.",
+      "issue_id": "ISS-DCC9C3",
+      "motivation": "Evaluate whether 'knowledge_graph_engine.py' can be replaced by its dedicated package equivalent.",
+      "objective": "Eliminate legacy_module debt in lib/python/knowledge_graph_engine.py",
+      "priority": "low",
+      "title": "Fix technical debt: lib/python/knowledge_graph_engine.py",
+      "validation_strategy": "Run full regression test suite after changes."
+    },
+    {
+      "acceptance_criteria": [
+        "lib/python/memory_engine.py no longer contains legacy_module",
+        "All existing tests continue to pass"
+      ],
+      "affected_components": [
+        "lib/python/memory_engine.py"
+      ],
+      "canonical_references": [],
+      "dependencies": [],
+      "description": "Top-level legacy module 'memory_engine.py' may duplicate functionality already in a dedicated package.",
+      "estimated_effort": "low",
+      "estimated_risk": "low",
+      "evidence": {
+        "file": "/storage/emulated/0/AI-Projects/AI-Toolkit/lib/python/memory_engine.py"
+      },
+      "implementation_strategy": "Evaluate whether 'memory_engine.py' can be replaced by its dedicated package equivalent.",
+      "issue_id": "ISS-5457C7",
+      "motivation": "Evaluate whether 'memory_engine.py' can be replaced by its dedicated package equivalent.",
+      "objective": "Eliminate legacy_module debt in lib/python/memory_engine.py",
+      "priority": "low",
+      "title": "Fix technical debt: lib/python/memory_engine.py",
+      "validation_strategy": "Run full regression test suite after changes."
+    },
+    {
+      "acceptance_criteria": [
+        "lib/python/repository_hygiene_audit.py no longer contains legacy_module",
+        "All existing tests continue to pass"
+      ],
+      "affected_components": [
+        "lib/python/repository_hygiene_audit.py"
+      ],
+      "canonical_references": [],
+      "dependencies": [],
+      "description": "Top-level legacy module 'repository_hygiene_audit.py' may duplicate functionality already in a dedicated package.",
+      "estimated_effort": "low",
+      "estimated_risk": "low",
+      "evidence": {
+        "file": "/storage/emulated/0/AI-Projects/AI-Toolkit/lib/python/repository_hygiene_audit.py"
+      },
+      "implementation_strategy": "Evaluate whether 'repository_hygiene_audit.py' can be replaced by its dedicated package equivalent.",
+      "issue_id": "ISS-CBDC9D",
+      "motivation": "Evaluate whether 'repository_hygiene_audit.py' can be replaced by its dedicated package equivalent.",
+      "objective": "Eliminate legacy_module debt in lib/python/repository_hygiene_audit.py",
+      "priority": "low",
+      "title": "Fix technical debt: lib/python/repository_hygiene_audit.py",
+      "validation_strategy": "Run full regression test suite after changes."
+    },
+    {
+      "acceptance_criteria": [
+        "lib/python/repository_inventory.py no longer contains legacy_module",
+        "All existing tests continue to pass"
+      ],
+      "affected_components": [
+        "lib/python/repository_inventory.py"
+      ],
+      "canonical_references": [],
+      "dependencies": [],
+      "description": "Top-level legacy module 'repository_inventory.py' may duplicate functionality already in a dedicated package.",
+      "estimated_effort": "low",
+      "estimated_risk": "low",
+      "evidence": {
+        "file": "/storage/emulated/0/AI-Projects/AI-Toolkit/lib/python/repository_inventory.py"
+      },
+      "implementation_strategy": "Evaluate whether 'repository_inventory.py' can be replaced by its dedicated package equivalent.",
+      "issue_id": "ISS-408543",
+      "motivation": "Evaluate whether 'repository_inventory.py' can be replaced by its dedicated package equivalent.",
+      "objective": "Eliminate legacy_module debt in lib/python/repository_inventory.py",
+      "priority": "low",
+      "title": "Fix technical debt: lib/python/repository_inventory.py",
+      "validation_strategy": "Run full regression test suite after changes."
+    },
+    {
+      "acceptance_criteria": [
+        "lib/python/repository_profile.py no longer contains legacy_module",
+        "All existing tests continue to pass"
+      ],
+      "affected_components": [
+        "lib/python/repository_profile.py"
+      ],
+      "canonical_references": [],
+      "dependencies": [],
+      "description": "Top-level legacy module 'repository_profile.py' may duplicate functionality already in a dedicated package.",
+      "estimated_effort": "low",
+      "estimated_risk": "low",
+      "evidence": {
+        "file": "/storage/emulated/0/AI-Projects/AI-Toolkit/lib/python/repository_profile.py"
+      },
+      "implementation_strategy": "Evaluate whether 'repository_profile.py' can be replaced by its dedicated package equivalent.",
+      "issue_id": "ISS-6C041D",
+      "motivation": "Evaluate whether 'repository_profile.py' can be replaced by its dedicated package equivalent.",
+      "objective": "Eliminate legacy_module debt in lib/python/repository_profile.py",
+      "priority": "low",
+      "title": "Fix technical debt: lib/python/repository_profile.py",
       "validation_strategy": "Run full regression test suite after changes."
     },
     {
@@ -455,60 +455,12 @@
       "validation_strategy": "Verify the capability is present and tested."
     }
   ],
-  "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
+  "repository": "/storage/emulated/0/AI-Projects/AI-Toolkit",
   "roadmap_update_count": 0,
   "roadmap_updates": [],
   "schema_version": "1.0.0",
-  "summary": "Improvement plan IMP-DD6D6817: 9 technical debt item(s), 3 capability gap(s), 12 proposed issue(s). All proposals require Owner approval before execution.",
+  "summary": "Improvement plan IMP-C4B7A581: 9 technical debt item(s), 3 capability gap(s), 12 proposed issue(s). All proposals require Owner approval before execution.",
   "technical_debt": [
-    {
-      "category": "legacy_module",
-      "component": "lib/python/knowledge_graph_engine.py",
-      "debt_id": "DEBT-LEGACY-KNOWLEDGE_GRAPH_ENGINE",
-      "description": "Top-level legacy module 'knowledge_graph_engine.py' may duplicate functionality already in a dedicated package.",
-      "estimated_effort": "low",
-      "evidence": {
-        "file": "/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python/knowledge_graph_engine.py"
-      },
-      "recommendation": "Evaluate whether 'knowledge_graph_engine.py' can be replaced by its dedicated package equivalent.",
-      "severity": "low"
-    },
-    {
-      "category": "legacy_module",
-      "component": "lib/python/repository_profile.py",
-      "debt_id": "DEBT-LEGACY-REPOSITORY_PROFILE",
-      "description": "Top-level legacy module 'repository_profile.py' may duplicate functionality already in a dedicated package.",
-      "estimated_effort": "low",
-      "evidence": {
-        "file": "/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python/repository_profile.py"
-      },
-      "recommendation": "Evaluate whether 'repository_profile.py' can be replaced by its dedicated package equivalent.",
-      "severity": "low"
-    },
-    {
-      "category": "legacy_module",
-      "component": "lib/python/repository_inventory.py",
-      "debt_id": "DEBT-LEGACY-REPOSITORY_INVENTORY",
-      "description": "Top-level legacy module 'repository_inventory.py' may duplicate functionality already in a dedicated package.",
-      "estimated_effort": "low",
-      "evidence": {
-        "file": "/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python/repository_inventory.py"
-      },
-      "recommendation": "Evaluate whether 'repository_inventory.py' can be replaced by its dedicated package equivalent.",
-      "severity": "low"
-    },
-    {
-      "category": "legacy_module",
-      "component": "lib/python/foundation_audit.py",
-      "debt_id": "DEBT-LEGACY-FOUNDATION_AUDIT",
-      "description": "Top-level legacy module 'foundation_audit.py' may duplicate functionality already in a dedicated package.",
-      "estimated_effort": "low",
-      "evidence": {
-        "file": "/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python/foundation_audit.py"
-      },
-      "recommendation": "Evaluate whether 'foundation_audit.py' can be replaced by its dedicated package equivalent.",
-      "severity": "low"
-    },
     {
       "category": "legacy_module",
       "component": "lib/python/autonomous_workflow_engine.py",
@@ -516,21 +468,9 @@
       "description": "Top-level legacy module 'autonomous_workflow_engine.py' may duplicate functionality already in a dedicated package.",
       "estimated_effort": "low",
       "evidence": {
-        "file": "/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python/autonomous_workflow_engine.py"
+        "file": "/storage/emulated/0/AI-Projects/AI-Toolkit/lib/python/autonomous_workflow_engine.py"
       },
       "recommendation": "Evaluate whether 'autonomous_workflow_engine.py' can be replaced by its dedicated package equivalent.",
-      "severity": "low"
-    },
-    {
-      "category": "legacy_module",
-      "component": "lib/python/repository_hygiene_audit.py",
-      "debt_id": "DEBT-LEGACY-REPOSITORY_HYGIENE_AUDIT",
-      "description": "Top-level legacy module 'repository_hygiene_audit.py' may duplicate functionality already in a dedicated package.",
-      "estimated_effort": "low",
-      "evidence": {
-        "file": "/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python/repository_hygiene_audit.py"
-      },
-      "recommendation": "Evaluate whether 'repository_hygiene_audit.py' can be replaced by its dedicated package equivalent.",
       "severity": "low"
     },
     {
@@ -540,21 +480,9 @@
       "description": "Top-level legacy module 'decision_engine.py' may duplicate functionality already in a dedicated package.",
       "estimated_effort": "low",
       "evidence": {
-        "file": "/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python/decision_engine.py"
+        "file": "/storage/emulated/0/AI-Projects/AI-Toolkit/lib/python/decision_engine.py"
       },
       "recommendation": "Evaluate whether 'decision_engine.py' can be replaced by its dedicated package equivalent.",
-      "severity": "low"
-    },
-    {
-      "category": "legacy_module",
-      "component": "lib/python/memory_engine.py",
-      "debt_id": "DEBT-LEGACY-MEMORY_ENGINE",
-      "description": "Top-level legacy module 'memory_engine.py' may duplicate functionality already in a dedicated package.",
-      "estimated_effort": "low",
-      "evidence": {
-        "file": "/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python/memory_engine.py"
-      },
-      "recommendation": "Evaluate whether 'memory_engine.py' can be replaced by its dedicated package equivalent.",
       "severity": "low"
     },
     {
@@ -564,9 +492,81 @@
       "description": "Top-level legacy module 'development_validator.py' may duplicate functionality already in a dedicated package.",
       "estimated_effort": "low",
       "evidence": {
-        "file": "/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python/development_validator.py"
+        "file": "/storage/emulated/0/AI-Projects/AI-Toolkit/lib/python/development_validator.py"
       },
       "recommendation": "Evaluate whether 'development_validator.py' can be replaced by its dedicated package equivalent.",
+      "severity": "low"
+    },
+    {
+      "category": "legacy_module",
+      "component": "lib/python/foundation_audit.py",
+      "debt_id": "DEBT-LEGACY-FOUNDATION_AUDIT",
+      "description": "Top-level legacy module 'foundation_audit.py' may duplicate functionality already in a dedicated package.",
+      "estimated_effort": "low",
+      "evidence": {
+        "file": "/storage/emulated/0/AI-Projects/AI-Toolkit/lib/python/foundation_audit.py"
+      },
+      "recommendation": "Evaluate whether 'foundation_audit.py' can be replaced by its dedicated package equivalent.",
+      "severity": "low"
+    },
+    {
+      "category": "legacy_module",
+      "component": "lib/python/knowledge_graph_engine.py",
+      "debt_id": "DEBT-LEGACY-KNOWLEDGE_GRAPH_ENGINE",
+      "description": "Top-level legacy module 'knowledge_graph_engine.py' may duplicate functionality already in a dedicated package.",
+      "estimated_effort": "low",
+      "evidence": {
+        "file": "/storage/emulated/0/AI-Projects/AI-Toolkit/lib/python/knowledge_graph_engine.py"
+      },
+      "recommendation": "Evaluate whether 'knowledge_graph_engine.py' can be replaced by its dedicated package equivalent.",
+      "severity": "low"
+    },
+    {
+      "category": "legacy_module",
+      "component": "lib/python/memory_engine.py",
+      "debt_id": "DEBT-LEGACY-MEMORY_ENGINE",
+      "description": "Top-level legacy module 'memory_engine.py' may duplicate functionality already in a dedicated package.",
+      "estimated_effort": "low",
+      "evidence": {
+        "file": "/storage/emulated/0/AI-Projects/AI-Toolkit/lib/python/memory_engine.py"
+      },
+      "recommendation": "Evaluate whether 'memory_engine.py' can be replaced by its dedicated package equivalent.",
+      "severity": "low"
+    },
+    {
+      "category": "legacy_module",
+      "component": "lib/python/repository_hygiene_audit.py",
+      "debt_id": "DEBT-LEGACY-REPOSITORY_HYGIENE_AUDIT",
+      "description": "Top-level legacy module 'repository_hygiene_audit.py' may duplicate functionality already in a dedicated package.",
+      "estimated_effort": "low",
+      "evidence": {
+        "file": "/storage/emulated/0/AI-Projects/AI-Toolkit/lib/python/repository_hygiene_audit.py"
+      },
+      "recommendation": "Evaluate whether 'repository_hygiene_audit.py' can be replaced by its dedicated package equivalent.",
+      "severity": "low"
+    },
+    {
+      "category": "legacy_module",
+      "component": "lib/python/repository_inventory.py",
+      "debt_id": "DEBT-LEGACY-REPOSITORY_INVENTORY",
+      "description": "Top-level legacy module 'repository_inventory.py' may duplicate functionality already in a dedicated package.",
+      "estimated_effort": "low",
+      "evidence": {
+        "file": "/storage/emulated/0/AI-Projects/AI-Toolkit/lib/python/repository_inventory.py"
+      },
+      "recommendation": "Evaluate whether 'repository_inventory.py' can be replaced by its dedicated package equivalent.",
+      "severity": "low"
+    },
+    {
+      "category": "legacy_module",
+      "component": "lib/python/repository_profile.py",
+      "debt_id": "DEBT-LEGACY-REPOSITORY_PROFILE",
+      "description": "Top-level legacy module 'repository_profile.py' may duplicate functionality already in a dedicated package.",
+      "estimated_effort": "low",
+      "evidence": {
+        "file": "/storage/emulated/0/AI-Projects/AI-Toolkit/lib/python/repository_profile.py"
+      },
+      "recommendation": "Evaluate whether 'repository_profile.py' can be replaced by its dedicated package equivalent.",
       "severity": "low"
     }
   ],

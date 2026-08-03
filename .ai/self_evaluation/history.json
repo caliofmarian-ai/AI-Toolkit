@@ -111,10 +111,17 @@
       "overall_score": 0.886,
       "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
       "timestamp": "2026-08-03T11:02:24.554880+00:00"
+    },
+    {
+      "evaluation_id": "EVAL-D2C6C4F0",
+      "overall_gate": "PASS",
+      "overall_score": 0.888,
+      "repository": "/storage/emulated/0/AI-Projects/AI-Toolkit",
+      "timestamp": "2026-08-03T13:07:30.986971+00:00"
     }
   ],
-  "entry_count": 16,
-  "generated_at": "2026-08-03T11:02:24.554880+00:00",
-  "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
+  "entry_count": 17,
+  "generated_at": "2026-08-03T13:07:30.986971+00:00",
+  "repository": "/storage/emulated/0/AI-Projects/AI-Toolkit",
   "schema_version": "1.0.0"
 }

@@ -32,7 +32,9 @@ class EngineeringPipeline:
 
         PlanningEngine(self.root).write_markdown(core)
 
-        ImplementationPackageGenerator(self.root).generate(core)
+        model = PlanningEngine(self.root).build_package_model(core)
+
+        ImplementationPackageGenerator(self.root).generate(model)
 
         ValidationEngine(self.root).validate(core)
 

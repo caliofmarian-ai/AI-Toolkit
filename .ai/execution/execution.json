@@ -5,25 +5,25 @@
     "approval": "APPROVED",
     "batch": "",
     "branch": "",
-    "briefing_id": "BRIEF-62762186FCA8",
+    "briefing_id": "BRIEF-2433609BC9C4",
     "commit": "",
     "confidence": 0.75,
     "core": "",
-    "environment": "/home/runner/work/AI-Toolkit/AI-Toolkit",
-    "execution_id": "EXEC-F071A1FA",
+    "environment": "/storage/emulated/0/AI-Projects/AI-Toolkit",
+    "execution_id": "EXEC-EC52125C",
     "issue": "",
     "milestone": "",
     "mode": "SIMULATION",
     "owner": "",
     "planning_id": "PLAN-A6FFF182",
     "policy": "SIMULATION",
-    "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
+    "repository": "/storage/emulated/0/AI-Projects/AI-Toolkit",
     "roadmap": "",
     "schema_version": "1.0.0",
     "state_id": "",
     "synchronization_id": "",
-    "timestamp": "2026-08-03T11:02:13.739862+00:00",
-    "workspace": "/home/runner/work/AI-Toolkit"
+    "timestamp": "2026-08-03T13:04:59.388677+00:00",
+    "workspace": "/storage/emulated/0/AI-Projects"
   },
   "errors": [],
   "evidence": {
@@ -137,12 +137,36 @@
           }
         },
         "source": "CORE-009",
-        "timestamp": "2026-08-03T11:02:13.757095+00:00"
+        "timestamp": "2026-08-03T13:04:59.639887+00:00"
       },
       {
         "category": "briefing",
         "data": {
           "all_risks": [
+            {
+              "affected_components": [],
+              "category": "canonical_drift",
+              "description": "10 canonical drift findings indicate the implementation has diverged from specification.",
+              "evidence": [
+                "drift_findings=10"
+              ],
+              "id": "RISK-002",
+              "remediation": "Run canonical intelligence pipeline and resolve all drift findings.",
+              "severity": "critical",
+              "title": "Canonical drift detected (10 findings)"
+            },
+            {
+              "affected_components": [],
+              "category": "canonical_drift",
+              "description": "Overall canonical coverage is 0.8%, below the 80% target.",
+              "evidence": [
+                "overall_coverage=0.8%"
+              ],
+              "id": "RISK-003",
+              "remediation": "Implement missing canonical specifications to raise coverage above 80%.",
+              "severity": "critical",
+              "title": "Low canonical coverage (0.8%)"
+            },
             {
               "affected_components": [
                 "lib/python/workspace_index/__init__.py",
@@ -172,16 +196,41 @@
               "evidence": [
                 "total_files=398"
               ],
-              "id": "RISK-002",
+              "id": "RISK-004",
               "remediation": "Increase test coverage and enforce CI/CD gates for large changesets.",
               "severity": "medium",
               "title": "High codebase size increases regression risk (398 files)"
             }
           ],
           "architecture_health": "healthy",
-          "briefing_id": "BRIEF-62762186FCA8",
-          "canonical_health": "healthy",
-          "critical_risks": [],
+          "briefing_id": "BRIEF-2433609BC9C4",
+          "canonical_health": "critical",
+          "critical_risks": [
+            {
+              "affected_components": [],
+              "category": "canonical_drift",
+              "description": "10 canonical drift findings indicate the implementation has diverged from specification.",
+              "evidence": [
+                "drift_findings=10"
+              ],
+              "id": "RISK-002",
+              "remediation": "Run canonical intelligence pipeline and resolve all drift findings.",
+              "severity": "critical",
+              "title": "Canonical drift detected (10 findings)"
+            },
+            {
+              "affected_components": [],
+              "category": "canonical_drift",
+              "description": "Overall canonical coverage is 0.8%, below the 80% target.",
+              "evidence": [
+                "overall_coverage=0.8%"
+              ],
+              "id": "RISK-003",
+              "remediation": "Implement missing canonical specifications to raise coverage above 80%.",
+              "severity": "critical",
+              "title": "Low canonical coverage (0.8%)"
+            }
+          ],
           "current_batch": "BATCH-002",
           "current_branch": "copilot/batch-002-runtime-integration-canonical-synchroniz",
           "current_epic": "CORE-005",
@@ -190,44 +239,145 @@
           "current_pull_request": "",
           "current_recommendation": "CORE-005",
           "development_health": "healthy",
-          "estimated_completion": "near completion",
-          "executive_summary": "The caliofmarian-ai/AI-Toolkit repository is healthy.  Architecture health: healthy. Canonical health: healthy. Development health: healthy.  Repository health: healthy. Runtime health: unknown.  2 risk(s) identified.  3 recommendation(s) generated.",
-          "generated_at": "2026-08-03T11:02:05Z",
+          "estimated_completion": "multiple sprints remaining",
+          "executive_summary": "The caliofmarian-ai/AI-Toolkit repository has areas requiring attention.  Architecture health: healthy. Canonical health: critical. Development health: healthy.  Repository health: healthy. Runtime health: unknown.  4 risk(s) identified.  8 recommendation(s) generated.",
+          "generated_at": "2026-08-03T11:02:35Z",
           "owner_dashboard": {
             "blocked_items": [],
-            "current_progress": "0/3 items completed (0%)",
-            "open_risks": 2,
-            "overall_health": "healthy",
+            "current_progress": "0/6 items completed (0%)",
+            "open_risks": 4,
+            "overall_health": "degraded",
             "recommended_actions": [
+              "Address critical risks immediately (2 critical)",
+              "Resolve canonical drift findings",
+              "Improve canonical coverage from 0.8% to ≥80%",
+              "Improve canonical compliance from 0.8% to ≥80%",
               "Execute current recommendation: CORE-005"
             ],
-            "repository_readiness": "production-ready"
+            "repository_readiness": "not-ready"
           },
-          "pending_decisions": [],
+          "pending_decisions": [
+            {
+              "context": "canonical_coverage=0.8%, drift_findings=10",
+              "description": "Canonical health metrics are below thresholds (coverage=0.8%, drift=10). The owner must decide whether to enforce a quality gate.",
+              "id": "DEC-001",
+              "impact": "Prevents further metric deterioration while enforcing quality standards.",
+              "options": [
+                "Enforce quality gate: halt new features until metrics recover",
+                "Set target timeline for metric recovery",
+                "Accept current state and continue"
+              ],
+              "recommended_option": "Enforce quality gate: halt new features until metrics recover",
+              "title": "Decide on canonical quality gate enforcement",
+              "urgency": "high"
+            }
+          ],
           "priorities": [
+            {
+              "category": "canonical_health",
+              "classification": "critical",
+              "id": "PRI-001",
+              "rationale": "10 drift findings exceed the critical threshold of 5. Immediate resolution required.",
+              "title": "Resolve 10 canonical drift findings"
+            },
+            {
+              "category": "canonical_health",
+              "classification": "critical",
+              "id": "PRI-002",
+              "rationale": "Coverage of 0.8% is critically below the 50% floor.",
+              "title": "Raise canonical coverage from 0.8% to ≥80%"
+            },
             {
               "category": "batch_execution",
               "classification": "high",
-              "id": "PRI-001",
+              "id": "PRI-003",
               "rationale": "The current batch is the active unit of work.",
               "title": "Complete current batch: BATCH-002"
             },
             {
               "category": "issue_tracking",
               "classification": "high",
-              "id": "PRI-002",
+              "id": "PRI-004",
               "rationale": "The current issue is the active development focus.",
               "title": "Resolve current issue: CORE-005"
             },
             {
+              "category": "canonical_execution",
+              "classification": "medium",
+              "id": "PRI-005",
+              "rationale": "5 canonical batches are ready for execution.",
+              "title": "Execute 5 pending canonical batch(es)"
+            },
+            {
               "category": "milestone",
               "classification": "medium",
-              "id": "PRI-003",
+              "id": "PRI-006",
               "rationale": "Active milestone requires steady progress.",
               "title": "Advance milestone: PHASE 2 — CORE IMPLEMENTATION"
             }
           ],
           "recommendations": [
+            {
+              "affected_components": [],
+              "confidence": 0.98,
+              "dependencies": [],
+              "description": "2 critical risks require immediate attention before any other development activity.",
+              "evidence": [
+                "Canonical drift detected (10 findings)",
+                "Low canonical coverage (0.8%)"
+              ],
+              "id": "REC-007",
+              "impact": "Prevents systemic failures and data loss.",
+              "priority": "critical",
+              "reasoning": "Critical risks left unaddressed will cascade into systemic failures.  They must be resolved before any new development work proceeds.",
+              "required_effort": "high",
+              "title": "Address critical risks immediately (2 critical)"
+            },
+            {
+              "affected_components": [],
+              "confidence": 0.95,
+              "dependencies": [],
+              "description": "There are 10 canonical drift findings that indicate the implementation has diverged from its specification.",
+              "evidence": [
+                "canonical_drift_findings=10"
+              ],
+              "id": "REC-001",
+              "impact": "Restores alignment between specification and implementation.",
+              "priority": "critical",
+              "reasoning": "Canonical drift findings signal that the codebase no longer matches its canonical documentation.  Left unresolved, this leads to compounding inconsistencies and increases maintenance cost.",
+              "required_effort": "high",
+              "title": "Resolve canonical drift findings"
+            },
+            {
+              "affected_components": [],
+              "confidence": 0.9,
+              "dependencies": [],
+              "description": "Canonical coverage is 0.8%, below the target of 80%. Implement missing canonical modules to close the gap.",
+              "evidence": [
+                "overall_coverage=0.8%"
+              ],
+              "id": "REC-002",
+              "impact": "Ensures all canonical specifications have corresponding implementations.",
+              "priority": "critical",
+              "reasoning": "Low canonical coverage means significant portions of the system specification lack implementation.  This increases project risk.",
+              "required_effort": "high",
+              "title": "Improve canonical coverage from 0.8% to ≥80%"
+            },
+            {
+              "affected_components": [],
+              "confidence": 0.85,
+              "dependencies": [],
+              "description": "Canonical compliance is 0.8%, below the target of 80%.",
+              "evidence": [
+                "overall_compliance=0.8%"
+              ],
+              "id": "REC-003",
+              "impact": "Brings implementation into compliance with canonical specification.",
+              "priority": "high",
+              "reasoning": "Low compliance means existing implementations do not conform to their canonical specifications.",
+              "required_effort": "medium",
+              "title": "Improve canonical compliance from 0.8% to ≥80%"
+            },
             {
               "affected_components": [],
               "confidence": 0.85,
@@ -236,12 +386,27 @@
               "evidence": [
                 "current_recommendation=CORE-005"
               ],
-              "id": "REC-002",
+              "id": "REC-006",
               "impact": "Advances planned development work.",
               "priority": "high",
               "reasoning": "The active canonical recommendation represents the highest-value next step derived from all accumulated intelligence.",
               "required_effort": "medium",
               "title": "Execute current recommendation: CORE-005"
+            },
+            {
+              "affected_components": [],
+              "confidence": 0.8,
+              "dependencies": [],
+              "description": "5 canonical implementation batches are pending execution.",
+              "evidence": [
+                "pending_batches=5"
+              ],
+              "id": "REC-004",
+              "impact": "Reduces implementation debt and advances canonical coverage.",
+              "priority": "medium",
+              "reasoning": "5 batches remain unexecuted.  Processing them will improve canonical coverage and compliance metrics.",
+              "required_effort": "medium",
+              "title": "Execute pending canonical batches (5 remaining)"
             },
             {
               "affected_components": [
@@ -259,7 +424,7 @@
                 "lib/python/autonomous_planning_engine/models.py",
                 "lib/python/executive_briefing_engine/models.py"
               ],
-              "id": "REC-001",
+              "id": "REC-005",
               "impact": "Reduces coupling, improves testability and maintainability.",
               "priority": "medium",
               "reasoning": "Hotspot modules are heavily depended upon.  Decomposing them reduces the blast radius of future changes.",
@@ -274,7 +439,7 @@
               "evidence": [
                 "suggested_next_core=CORE-005"
               ],
-              "id": "REC-003",
+              "id": "REC-008",
               "impact": "Advances the AI CTO intelligence layer.",
               "priority": "medium",
               "reasoning": "CORE module suggestions are derived from current repository intelligence gaps and architectural extension points.",
@@ -291,13 +456,13 @@
           "suggested_next_pr": ""
         },
         "source": "CORE-010",
-        "timestamp": "2026-08-03T11:02:13.764381+00:00"
+        "timestamp": "2026-08-03T13:04:59.712162+00:00"
       },
       {
         "category": "live_context",
         "data": {},
         "source": "CORE-013",
-        "timestamp": "2026-08-03T11:02:13.756525+00:00"
+        "timestamp": "2026-08-03T13:04:59.633122+00:00"
       },
       {
         "category": "planning_queue",
@@ -455,41 +620,41 @@
           "schema_version": "1.0.0"
         },
         "source": "CORE-014",
-        "timestamp": "2026-08-03T11:02:13.770487+00:00"
+        "timestamp": "2026-08-03T13:04:59.799359+00:00"
       }
     ]
   },
-  "execution_id": "EXEC-F071A1FA",
-  "generated_at": "2026-08-03T11:02:13.739862+00:00",
+  "execution_id": "EXEC-EC52125C",
+  "generated_at": "2026-08-03T13:04:59.388677+00:00",
   "metrics": {
     "artifact_count": 0,
     "confidence": 0.75,
     "error_count": 0,
     "evidence_count": 4,
-    "execution_id": "EXEC-F071A1FA",
-    "generated_at": "2026-08-03T11:02:13.739862+00:00",
+    "execution_id": "EXEC-EC52125C",
+    "generated_at": "2026-08-03T13:04:59.388677+00:00",
     "schema_version": "1.0.0",
     "stage_durations": {
-      "collect_evidence": 0.003,
-      "execute_approved_step": 0.009,
-      "load_context": 16.623,
-      "load_development_state": 0.558,
-      "load_executive_briefing": 7.275,
-      "load_planning_queue": 6.093,
-      "prepare_execution_context": 0.013,
-      "run_validation": 10663.781,
-      "update_state": 0.0,
-      "validate_approvals": 0.007,
-      "validate_dependencies": 0.003,
-      "validate_policies": 0.0
+      "collect_evidence": 0.021,
+      "execute_approved_step": 0.051,
+      "load_context": 244.073,
+      "load_development_state": 6.671,
+      "load_executive_briefing": 72.174,
+      "load_planning_queue": 87.084,
+      "prepare_execution_context": 0.078,
+      "run_validation": 149562.204,
+      "update_state": 0.003,
+      "validate_approvals": 0.042,
+      "validate_dependencies": 0.018,
+      "validate_policies": 0.001
     },
-    "total_duration_ms": 10694.476,
+    "total_duration_ms": 149973.307,
     "validation_scores": {
-      "AcceptanceValidator": 0.932,
+      "AcceptanceValidator": 0.935,
       "CanonicalValidator": 1.0,
       "ExecutionPermissions": 1.0,
       "RegressionValidator": 1.0,
-      "RepositoryValidator": 0.98,
+      "RepositoryValidator": 0.99,
       "SemanticValidator": 0.75
     },
     "warning_count": 1
@@ -498,12 +663,12 @@
   "next_actions": [
     "Next: CORE-005 — Implement CORE-005"
   ],
-  "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
+  "repository": "/storage/emulated/0/AI-Projects/AI-Toolkit",
   "schema_version": "1.0.0",
   "snapshot": {},
   "stage_results": [
     {
-      "duration_ms": 16.623,
+      "duration_ms": 244.073,
       "errors": [],
       "evidence": {
         "source": "CORE-013"
@@ -513,7 +678,7 @@
       "warnings": []
     },
     {
-      "duration_ms": 0.558,
+      "duration_ms": 6.671,
       "errors": [],
       "evidence": {
         "source": "CORE-009"
@@ -523,7 +688,7 @@
       "warnings": []
     },
     {
-      "duration_ms": 7.275,
+      "duration_ms": 72.174,
       "errors": [],
       "evidence": {
         "source": "CORE-010"
@@ -533,7 +698,7 @@
       "warnings": []
     },
     {
-      "duration_ms": 6.093,
+      "duration_ms": 87.084,
       "errors": [],
       "evidence": {
         "entry_count": 6,
@@ -544,7 +709,7 @@
       "warnings": []
     },
     {
-      "duration_ms": 0.003,
+      "duration_ms": 0.018,
       "errors": [],
       "evidence": {},
       "stage": "validate_dependencies",
@@ -552,7 +717,7 @@
       "warnings": []
     },
     {
-      "duration_ms": 0.0,
+      "duration_ms": 0.001,
       "errors": [],
       "evidence": {
         "is_safe_mode": true,
@@ -572,7 +737,7 @@
       "warnings": []
     },
     {
-      "duration_ms": 0.007,
+      "duration_ms": 0.042,
       "errors": [],
       "evidence": {
         "approval": "APPROVED",
@@ -583,7 +748,7 @@
       "warnings": []
     },
     {
-      "duration_ms": 0.013,
+      "duration_ms": 0.078,
       "errors": [],
       "evidence": {},
       "stage": "prepare_execution_context",
@@ -591,7 +756,7 @@
       "warnings": []
     },
     {
-      "duration_ms": 0.009,
+      "duration_ms": 0.051,
       "errors": [],
       "evidence": {},
       "stage": "execute_approved_step",
@@ -601,7 +766,7 @@
       ]
     },
     {
-      "duration_ms": 0.003,
+      "duration_ms": 0.021,
       "errors": [],
       "evidence": {
         "evidence_count": 4
@@ -611,7 +776,7 @@
       "warnings": []
     },
     {
-      "duration_ms": 10663.781,
+      "duration_ms": 149562.204,
       "errors": [],
       "evidence": {
         "validator_count": 6
@@ -621,7 +786,7 @@
       "warnings": []
     },
     {
-      "duration_ms": 0.0,
+      "duration_ms": 0.003,
       "errors": [],
       "evidence": {
         "note": "State read-only in safe modes"
@@ -631,7 +796,7 @@
       "warnings": []
     },
     {
-      "duration_ms": 0.137,
+      "duration_ms": 0.513,
       "errors": [],
       "evidence": {},
       "stage": "generate_reports",
@@ -640,7 +805,7 @@
     }
   ],
   "status": "COMPLETED",
-  "summary": "Execution EXEC-F071A1FA completed with status 'COMPLETED'. Duration: 10694.5 ms. Mode: SIMULATION. Confidence: 75%.",
+  "summary": "Execution EXEC-EC52125C completed with status 'COMPLETED'. Duration: 149973.3 ms. Mode: SIMULATION. Confidence: 75%.",
   "validation_results": [
     {
       "evidence": {
@@ -654,11 +819,11 @@
     },
     {
       "evidence": {
-        "readiness_score": 0.98,
+        "readiness_score": 0.99,
         "source": "CORE-008A"
       },
       "findings": [],
-      "score": 0.98,
+      "score": 0.99,
       "status": "PASS",
       "validator": "RepositoryValidator"
     },
@@ -671,7 +836,7 @@
         "{'id': 'ARCH-RISK-001', 'title': 'Architectural hotspot', 'description': 'lib/python/workspace_index/__init__.py is imported by many modules, creating a high-coupling hub.', 'severity': 'medium', 'affected_modules': ['lib/python/workspace_index/__init__.py'], 'evidence': ['in-degree: 13'], 'confidence': 0.85}",
         "{'id': 'ARCH-RISK-002', 'title': 'Architectural hotspot', 'description': 'lib/python/autonomous_planning_engine/models.py is imported by many modules, creating a high-coupling hub.', 'severity': 'medium', 'affected_modules': ['lib/python/autonomous_planning_engine/models.py'], 'evidence': ['in-degree: 11'], 'confidence': 0.85}",
         "{'id': 'ARCH-RISK-003', 'title': 'Architectural hotspot', 'description': 'lib/python/executive_briefing_engine/models.py is imported by many modules, creating a high-coupling hub.', 'severity': 'medium', 'affected_modules': ['lib/python/executive_briefing_engine/models.py'], 'evidence': ['in-degree: 10'], 'confidence': 0.85}",
-        "{'id': 'ARCH-RISK-004', 'title': 'Unclassified modules', 'description': '86 modules could not be assigned to a known architectural layer.', 'severity': 'low', 'affected_modules': ['lib/python/__init__.py', 'lib/python/autonomous_execution_engine/__init__.py', 'lib/python/autonomous_execution_engine/engine.py', 'lib/python/autonomous_execution_engine/evidence.py', 'lib/python/autonomous_execution_engine/logger.py', 'lib/python/autonomous_execution_engine/persistence.py', 'lib/python/autonomous_execution_engine/policy.py', 'lib/python/autonomous_execution_engine/rollback.py', 'lib/python/autonomous_execution_engine/validator.py', 'lib/python/autonomous_planner/__init__.py'], 'evidence': ['Layer classification: Uncategorised'], 'confidence': 0.7}",
+        "{'id': 'ARCH-RISK-004', 'title': 'Unclassified modules', 'description': '108 modules could not be assigned to a known architectural layer.', 'severity': 'low', 'affected_modules': ['lib/python/__init__.py', 'lib/python/autonomous_execution_engine/__init__.py', 'lib/python/autonomous_execution_engine/engine.py', 'lib/python/autonomous_execution_engine/evidence.py', 'lib/python/autonomous_execution_engine/logger.py', 'lib/python/autonomous_execution_engine/persistence.py', 'lib/python/autonomous_execution_engine/policy.py', 'lib/python/autonomous_execution_engine/rollback.py', 'lib/python/autonomous_execution_engine/validator.py', 'lib/python/autonomous_planner/__init__.py'], 'evidence': ['Layer classification: Uncategorised'], 'confidence': 0.7}",
         "{'id': 'ARCH-RISK-005', 'title': 'High coupling detected', 'description': '15 modules have an excessive number of outbound imports.', 'severity': 'medium', 'affected_modules': ['lib/python/agents/development_agent.py', 'lib/python/ai_cto_scanner/engine.py', 'lib/python/autonomous_execution_engine/engine.py', 'lib/python/autonomous_planning_engine/__init__.py', 'lib/python/autonomous_planning_engine/engine.py', 'lib/python/canonical_intelligence/engine.py', 'lib/python/cli/main.py', 'lib/python/context_synchronization_engine/engine.py', 'lib/python/development_state_engine/runtime.py', 'lib/python/executable_repository_intelligence/engine.py'], 'evidence': ['Outbound import count exceeds threshold'], 'confidence': 0.8}"
       ],
       "score": 0.75,
@@ -704,13 +869,13 @@
     },
     {
       "evidence": {
-        "average_score": 0.932,
+        "average_score": 0.935,
         "failure_count": 0,
         "mode": "SIMULATION",
         "validator_count": 4
       },
       "findings": [],
-      "score": 0.932,
+      "score": 0.935,
       "status": "PASS",
       "validator": "AcceptanceValidator"
     }

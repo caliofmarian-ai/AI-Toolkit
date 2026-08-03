@@ -10,7 +10,11 @@ from lib.python.engineering_engine.rule_engine import RuleEngine
 from lib.python.engineering_engine.dependency_rule_engine import DependencyRuleEngine
 
 
-from lib.python.engineering_engine.models import EngineeringBatch
+from lib.python.engineering_engine.package_builder import PackageBuilder
+from lib.python.engineering_engine.models import (
+    EngineeringBatch,
+    ImplementationPackageModel,
+)
 
 PlanningBatch = EngineeringBatch
 
@@ -22,6 +26,7 @@ class PlanningEngine:
         self.root = root
         self.rules = RuleEngine()
         self.dependencies = DependencyRuleEngine(self.root)
+        self.package_builder = PackageBuilder(self.root)
 
     def plan(self, core: str):
 
@@ -102,3 +107,15 @@ suggested_tests=[
                 md.write(f"Reason: {batch.rationale}\n\n")
 
         return report
+
+
+    
+    def build_package_model(self, core: str):
+
+        batches = self.plan(core)
+
+        return self.package_builder.build(
+            core=core,
+            title=core.replace("-", " "),
+            batches=batches,
+        )

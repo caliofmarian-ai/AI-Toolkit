@@ -29,8 +29,8 @@
     },
     {
       "category": "architecture_risk",
-      "component": "{'id': 'ARCH-RISK-004', 'title': 'Unclassified modules', 'description': '86 modules could not be assigned to a known architectural layer.', 'severity': 'low', 'affected_modules': ['lib/python/__init__.py', 'lib/python/autonomous_execution_engine/__init__.py', 'lib/python/autonomous_execution_engine/engine.py', 'lib/python/autonomous_execution_engine/evidence.py', 'lib/python/autonomous_execution_engine/logger.py', 'lib/python/autonomous_execution_engine/persistence.py', 'lib/python/autonomous_execution_engine/policy.py', 'lib/python/autonomous_execution_engine/rollback.py', 'lib/python/autonomous_execution_engine/validator.py', 'lib/python/autonomous_planner/__init__.py'], 'evidence': ['Layer classification: Uncategorised'], 'confidence': 0.7}",
-      "description": "{'id': 'ARCH-RISK-004', 'title': 'Unclassified modules', 'description': '86 modules could not be assigned to a known architectural layer.', 'severity': 'low', 'affected_modules': ['lib/python/__init__.py', 'lib/python/autonomous_execution_engine/__init__.py', 'lib/python/autonomous_execution_engine/engine.py', 'lib/python/autonomous_execution_engine/evidence.py', 'lib/python/autonomous_execution_engine/logger.py', 'lib/python/autonomous_execution_engine/persistence.py', 'lib/python/autonomous_execution_engine/policy.py', 'lib/python/autonomous_execution_engine/rollback.py', 'lib/python/autonomous_execution_engine/validator.py', 'lib/python/autonomous_planner/__init__.py'], 'evidence': ['Layer classification: Uncategorised'], 'confidence': 0.7}",
+      "component": "{'id': 'ARCH-RISK-004', 'title': 'Unclassified modules', 'description': '108 modules could not be assigned to a known architectural layer.', 'severity': 'low', 'affected_modules': ['lib/python/__init__.py', 'lib/python/autonomous_execution_engine/__init__.py', 'lib/python/autonomous_execution_engine/engine.py', 'lib/python/autonomous_execution_engine/evidence.py', 'lib/python/autonomous_execution_engine/logger.py', 'lib/python/autonomous_execution_engine/persistence.py', 'lib/python/autonomous_execution_engine/policy.py', 'lib/python/autonomous_execution_engine/rollback.py', 'lib/python/autonomous_execution_engine/validator.py', 'lib/python/autonomous_planner/__init__.py'], 'evidence': ['Layer classification: Uncategorised'], 'confidence': 0.7}",
+      "description": "{'id': 'ARCH-RISK-004', 'title': 'Unclassified modules', 'description': '108 modules could not be assigned to a known architectural layer.', 'severity': 'low', 'affected_modules': ['lib/python/__init__.py', 'lib/python/autonomous_execution_engine/__init__.py', 'lib/python/autonomous_execution_engine/engine.py', 'lib/python/autonomous_execution_engine/evidence.py', 'lib/python/autonomous_execution_engine/logger.py', 'lib/python/autonomous_execution_engine/persistence.py', 'lib/python/autonomous_execution_engine/policy.py', 'lib/python/autonomous_execution_engine/rollback.py', 'lib/python/autonomous_execution_engine/validator.py', 'lib/python/autonomous_planner/__init__.py'], 'evidence': ['Layer classification: Uncategorised'], 'confidence': 0.7}",
       "evidence": {
         "source": "CORE-008B"
       },
@@ -46,6 +46,6 @@
       "severity": "medium"
     }
   ],
-  "evaluation_id": "EVAL-CB9D877B",
-  "generated_at": "2026-08-03T11:02:24.554880+00:00"
+  "evaluation_id": "EVAL-D2C6C4F0",
+  "generated_at": "2026-08-03T13:07:30.986971+00:00"
 }

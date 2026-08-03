@@ -98,10 +98,19 @@
       "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
       "technical_debt_count": 9,
       "timestamp": "2026-08-03T11:02:35.397377+00:00"
+    },
+    {
+      "capability_gap_count": 3,
+      "core_proposal_count": 0,
+      "plan_id": "IMP-C4B7A581",
+      "proposed_issue_count": 12,
+      "repository": "/storage/emulated/0/AI-Projects/AI-Toolkit",
+      "technical_debt_count": 9,
+      "timestamp": "2026-08-03T13:10:03.384466+00:00"
     }
   ],
-  "entry_count": 11,
-  "generated_at": "2026-08-03T11:02:35.397377+00:00",
-  "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
+  "entry_count": 12,
+  "generated_at": "2026-08-03T13:10:03.384466+00:00",
+  "repository": "/storage/emulated/0/AI-Projects/AI-Toolkit",
   "schema_version": "1.0.0"
 }

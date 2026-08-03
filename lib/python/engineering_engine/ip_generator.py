@@ -3,121 +3,29 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from pathlib import Path
 
+from lib.python.engineering_engine.markdown_renderer import MarkdownRenderer
+from lib.python.engineering_engine.models import (
+    EngineeringBatch,
+    ImplementationPackageModel,
+)
+
 
 class ImplementationPackageGenerator:
 
     def __init__(self, root: Path):
         self.root = root
 
-    def generate(self, core: str):
+    def generate(self, model: ImplementationPackageModel):
 
-        package = self.root / "implementation-packages" / core
+        package = self.root / "implementation-packages" / model.core
+        package.mkdir(parents=True, exist_ok=True)
 
-        audit = package / "repository-audit.md"
-        gap = package / "gap-analysis.md"
-        ip = package / "IP-CORE-022.md"
+        output = package / f"IP-{model.core}.md"
 
-        ip.write_text(
-f"""# Implementation Package
+        renderer = MarkdownRenderer()
 
-CORE: {core}
+        with output.open("w", encoding="utf-8") as md:
 
-Generated: {datetime.now(UTC).isoformat()}
+            md.write(renderer.render_implementation_package(model))
 
-Status: DRAFT
-
----
-
-# Executive Summary
-
-This Implementation Package was generated automatically by the Engineering Automation Engine.
-
----
-
-# Repository Audit
-
-Source:
-
-- {audit.name}
-
-Status:
-
-AVAILABLE
-
----
-
-# Gap Analysis
-
-Source:
-
-- {gap.name}
-
-Status:
-
-AVAILABLE
-
----
-
-# Objectives
-
-Implement Runtime API Platform according to CANON-059.
-
----
-
-# Scope
-
-Runtime REST API
-
-API Foundation
-
-Authentication
-
-OpenAPI
-
-GraphQL Preparation
-
-MCP Preparation
-
----
-
-# Deliverables
-
-Runtime API
-
-Tests
-
-Documentation
-
-Validation
-
----
-
-# Acceptance Criteria
-
-Repository builds successfully.
-
-Tests pass.
-
-Runtime API available.
-
-Canonical compliance preserved.
-
----
-
-# Definition of Done
-
-Implementation completed.
-
-Validation completed.
-
-Review completed.
-
-Merge completed.
-
-Release completed.
-
-END OF DOCUMENT
-""",
-encoding="utf-8")
-
-        return ip
+        return output

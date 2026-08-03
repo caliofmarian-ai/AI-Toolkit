@@ -5,6 +5,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from lib.python.engineering_engine.repository_model import RepositoryKnowledgeBuilder
+from lib.python.engineering_engine.capability_detector import CapabilityDetector
 
 
 @dataclass
@@ -22,6 +23,8 @@ class GapAnalysis:
     def analyse(self):
 
         knowledge = RepositoryKnowledgeBuilder(self.root).build()
+
+        detector = CapabilityDetector(self.root)
 
         runtime_modules = len(knowledge.modules)
 
@@ -78,35 +81,24 @@ class GapAnalysis:
             "Engineering Review Engine",
         )
 
-        add(
-            "Runtime REST API",
-            False,
-            "No REST API implementation detected",
-        )
+        
 
-        add(
-            "OpenAPI Specification",
-            False,
-            "Specification not found",
-        )
+        
 
-        add(
-            "API Authentication",
-            False,
-            "Authentication layer not detected",
-        )
+        
 
-        add(
-            "GraphQL Preparation",
-            False,
-            "No GraphQL support detected",
-        )
+        
 
-        add(
-            "MCP Preparation",
-            False,
-            "No MCP interface detected",
-        )
+        
+
+
+        for capability in detector.detect():
+
+            add(
+                capability.name,
+                capability.implemented,
+                capability.evidence,
+            )
 
         return results
 

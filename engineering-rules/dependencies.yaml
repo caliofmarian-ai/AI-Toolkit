@@ -1,0 +1,20 @@
+Runtime REST API:
+  depends_on:
+    - CANON-RUNTIME-REST
+
+OpenAPI Specification:
+  depends_on:
+    - Runtime REST API
+
+API Authentication:
+  depends_on:
+    - Runtime REST API
+    - CANON-061
+
+GraphQL Preparation:
+  depends_on:
+    - Runtime REST API
+
+MCP Preparation:
+  depends_on:
+    - Runtime REST API
