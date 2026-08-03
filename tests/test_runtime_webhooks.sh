@@ -7,8 +7,8 @@ python3 - <<'PY'
 import sys, json, hashlib, hmac
 sys.path.insert(0, "lib")
 
-from python.runtime.event_dispatcher import EventDispatcher
-from python.runtime.interfaces.github_webhook import GitHubWebhookHost
+from lib.python.runtime.event_dispatcher import EventDispatcher
+from lib.python.runtime.interfaces.github_webhook import GitHubWebhookHost
 
 def make_sig(secret: str, body: bytes) -> str:
     mac = hmac.new(secret.encode(), body, hashlib.sha256)

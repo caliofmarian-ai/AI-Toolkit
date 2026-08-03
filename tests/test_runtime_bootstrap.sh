@@ -11,8 +11,8 @@ os.environ["SCHEDULER_INTERVAL_SECONDS"] = "300"
 os.environ["RUNTIME_HTTP_PORT"] = "19001"
 os.environ["JSON_LOGS"] = "false"
 
-from python.runtime.bootstrap import RuntimeBootstrap
-from python.runtime.lifecycle import LifecyclePhase
+from lib.python.runtime.bootstrap import RuntimeBootstrap
+from lib.python.runtime.lifecycle import LifecyclePhase
 
 # --- Bootstrap creates all required services ---
 rt = RuntimeBootstrap()

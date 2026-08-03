@@ -7,8 +7,8 @@ python3 - <<'PY'
 import sys, time
 sys.path.insert(0, "lib")
 
-from python.runtime.event_loop import EventLoop
-from python.runtime.event_dispatcher import EventDispatcher, RuntimeEvent
+from lib.python.runtime.event_loop import EventLoop
+from lib.python.runtime.event_dispatcher import EventDispatcher, RuntimeEvent
 
 # --- EventLoop runs observers on each tick ---
 ticks = [0]

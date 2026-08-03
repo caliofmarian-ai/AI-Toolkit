@@ -7,8 +7,8 @@ python3 - <<'PY'
 import sys, json
 sys.path.insert(0, "lib")
 
-from python.runtime.interfaces.telegram_gateway import TelegramGateway
-from python.runtime.event_dispatcher import EventDispatcher
+from lib.python.runtime.interfaces.telegram_gateway import TelegramGateway
+from lib.python.runtime.event_dispatcher import EventDispatcher
 
 # --- Gateway is disabled when no token is provided ---
 tg = TelegramGateway(bot_token="", chat_id="")

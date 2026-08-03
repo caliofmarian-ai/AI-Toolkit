@@ -7,7 +7,7 @@ python3 - <<'PY'
 import sys
 sys.path.insert(0, "lib")
 
-from python.runtime.recovery import RecoveryService
+from lib.python.runtime.recovery import RecoveryService
 
 # --- Successful recovery resets counter ---
 rec = RecoveryService(max_attempts=3)

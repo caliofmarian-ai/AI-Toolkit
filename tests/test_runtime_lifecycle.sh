@@ -7,7 +7,7 @@ python3 - <<'PY'
 import sys
 sys.path.insert(0, "lib")
 
-from python.runtime.lifecycle import LifecycleManager, LifecyclePhase
+from lib.python.runtime.lifecycle import LifecycleManager, LifecyclePhase
 
 # --- Transitions work correctly ---
 lc = LifecycleManager()

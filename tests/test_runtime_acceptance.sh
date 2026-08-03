@@ -15,8 +15,8 @@ os.environ["SCHEDULER_INTERVAL_SECONDS"] = "300"
 os.environ["RUNTIME_HTTP_PORT"] = "19100"
 os.environ["JSON_LOGS"] = "false"
 
-from python.runtime.bootstrap import RuntimeBootstrap
-from python.runtime.lifecycle import LifecyclePhase
+from lib.python.runtime.bootstrap import RuntimeBootstrap
+from lib.python.runtime.lifecycle import LifecyclePhase
 
 failures = []
 
@@ -56,7 +56,7 @@ result = rt2.health.check_readiness()
 check("AC-4: Runtime Health passes", result.ready, str(result.checks))
 
 # AC-5: Runtime Recovery passes
-from python.runtime.recovery import RecoveryService
+from lib.python.runtime.recovery import RecoveryService
 rec = RecoveryService(max_attempts=3)
 ok = rec.attempt(lambda: True)
 check("AC-5: Runtime Recovery passes", ok)
@@ -78,8 +78,8 @@ check("AC-8: Event Loop operational", rt2.event_loop._running)
 
 # AC-9: Webhook processing works
 import json as _json, hashlib, hmac
-from python.runtime.event_dispatcher import EventDispatcher
-from python.runtime.interfaces.github_webhook import GitHubWebhookHost
+from lib.python.runtime.event_dispatcher import EventDispatcher
+from lib.python.runtime.interfaces.github_webhook import GitHubWebhookHost
 events = []
 disp = EventDispatcher()
 disp.subscribe("github.push", lambda e: events.append(e))
@@ -88,7 +88,7 @@ result = wh.process("push", "", _json.dumps({"ref": "main"}).encode())
 check("AC-9: Webhook processing works", result["ok"] and len(events) == 1)
 
 # AC-10: Telegram gateway works (disabled mode)
-from python.runtime.interfaces.telegram_gateway import TelegramGateway
+from lib.python.runtime.interfaces.telegram_gateway import TelegramGateway
 tg = TelegramGateway(bot_token="", chat_id="")
 summary = tg.summary()
 check("AC-10: Telegram gateway works (disabled mode)", not summary["enabled"])

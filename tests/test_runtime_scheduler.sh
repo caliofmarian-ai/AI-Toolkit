@@ -7,7 +7,7 @@ python3 - <<'PY'
 import sys, time
 sys.path.insert(0, "lib")
 
-from python.runtime.scheduler import SchedulerHost
+from lib.python.runtime.scheduler import SchedulerHost
 
 # --- Jobs are registered and run ---
 counter = [0]

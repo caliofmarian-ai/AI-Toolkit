@@ -9,7 +9,7 @@ sys.path.insert(0, "lib")
 import os
 os.environ["JSON_LOGS"] = "false"
 
-from python.runtime.shutdown import GracefulShutdown
+from lib.python.runtime.shutdown import GracefulShutdown
 
 # --- Shutdown callback is invoked on SIGINT ---
 called = []

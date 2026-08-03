@@ -19,24 +19,24 @@ python3 - <<'PY'
 import sys
 sys.path.insert(0, "lib")
 # Runtime package must not interfere with existing packages
-from python.runtime.bootstrap import RuntimeBootstrap
-from python.runtime.identity import RuntimeIdentity
-from python.runtime.config import RuntimeConfig
-from python.runtime.registry import RuntimeRegistry
-from python.runtime.lifecycle import LifecycleManager
-from python.runtime.health import HealthService
-from python.runtime.recovery import RecoveryService
-from python.runtime.scheduler import SchedulerHost
-from python.runtime.event_loop import EventLoop
-from python.runtime.event_dispatcher import EventDispatcher
-from python.runtime.job_queue import JobQueueHost
-from python.runtime.metrics import RuntimeMetrics
-from python.runtime.reports import RuntimeReports
-from python.runtime.interfaces.http_server import RuntimeHttpServer
-from python.runtime.interfaces.github_webhook import GitHubWebhookHost
-from python.runtime.interfaces.telegram_gateway import TelegramGateway
-from python.runtime.railway import RailwayBootstrap
-from python.runtime.shutdown import GracefulShutdown
+from lib.python.runtime.bootstrap import RuntimeBootstrap
+from lib.python.runtime.identity import RuntimeIdentity
+from lib.python.runtime.config import RuntimeConfig
+from lib.python.runtime.registry import RuntimeRegistry
+from lib.python.runtime.lifecycle import LifecycleManager
+from lib.python.runtime.health import HealthService
+from lib.python.runtime.recovery import RecoveryService
+from lib.python.runtime.scheduler import SchedulerHost
+from lib.python.runtime.event_loop import EventLoop
+from lib.python.runtime.event_dispatcher import EventDispatcher
+from lib.python.runtime.job_queue import JobQueueHost
+from lib.python.runtime.metrics import RuntimeMetrics
+from lib.python.runtime.reports import RuntimeReports
+from lib.python.runtime.interfaces.http_server import RuntimeHttpServer
+from lib.python.runtime.interfaces.github_webhook import GitHubWebhookHost
+from lib.python.runtime.interfaces.telegram_gateway import TelegramGateway
+from lib.python.runtime.railway import RailwayBootstrap
+from lib.python.runtime.shutdown import GracefulShutdown
 print("Runtime package imports: OK")
 PY
 
