@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# CORE-021 — Runtime Server Entry Point
+# CANON-055, CANON-056
+#
+# Starts the AI CTO Runtime Server.
+# This script is used by Railway as the service start command.
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+export PYTHONPATH="$REPO_ROOT/lib"
+
+# Ensure canonical runtime directories exist
+mkdir -p \
+  "$REPO_ROOT/.ai/runtime/state" \
+  "$REPO_ROOT/.ai/runtime/logs" \
+  "$REPO_ROOT/.ai/runtime/checkpoints" \
+  "$REPO_ROOT/.ai/runtime/sessions" \
+  "$REPO_ROOT/.ai/runtime/cache"
+
+echo "Starting AI CTO Runtime Server..."
+exec python3 -m python.runtime.process "$@"
