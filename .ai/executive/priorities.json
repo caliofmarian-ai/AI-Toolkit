@@ -1,0 +1,27 @@
+{
+  "briefing_id": "BRIEF-A11761DEE0B0",
+  "generated_at": "2026-08-03T05:42:06Z",
+  "priorities": [
+    {
+      "category": "batch_execution",
+      "classification": "high",
+      "id": "PRI-001",
+      "rationale": "The current batch is the active unit of work.",
+      "title": "Complete current batch: UNSPECIFIED"
+    },
+    {
+      "category": "issue_tracking",
+      "classification": "high",
+      "id": "PRI-002",
+      "rationale": "The current issue is the active development focus.",
+      "title": "Resolve current issue: UNSPECIFIED"
+    },
+    {
+      "category": "milestone",
+      "classification": "medium",
+      "id": "PRI-003",
+      "rationale": "Active milestone requires steady progress.",
+      "title": "Advance milestone: UNSPECIFIED"
+    }
+  ]
+}

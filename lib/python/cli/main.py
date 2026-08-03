@@ -133,6 +133,30 @@ inspect_parser.add_argument(
     ),
 )
 
+briefing_parser = sub.add_parser(
+    "briefing",
+    help="Generate AI CTO Executive Briefing (CORE-010)",
+)
+briefing_parser.add_argument(
+    "--repository",
+    default=".",
+    metavar="PATH",
+    dest="briefing_repository",
+    help="Path to the repository (default: current directory)",
+)
+briefing_parser.add_argument(
+    "--json",
+    action="store_true",
+    dest="briefing_json",
+    help="Output briefing as JSON instead of the markdown summary",
+)
+briefing_parser.add_argument(
+    "--refresh",
+    action="store_true",
+    dest="briefing_refresh",
+    help="Refresh all intelligence integrations before generating the briefing",
+)
+
 args = parser.parse_args()
 
 if args.command == "inventory":
@@ -200,6 +224,38 @@ elif args.command == "inspect":
         print(_json.dumps(summary, indent=2))
     else:
         cmd_agent("inspect", repository=args.path, output_dir=args.output)
+
+elif args.command == "briefing":
+
+    import json as _json
+    from python.executive_briefing_engine import ExecutiveBriefingEngine
+
+    repository = getattr(args, "briefing_repository", ".")
+    as_json = getattr(args, "briefing_json", False)
+    refresh = getattr(args, "briefing_refresh", False)
+
+    engine = ExecutiveBriefingEngine(
+        repository=repository,
+        output_dir=repository,
+        persist=True,
+        refresh_integrations=refresh,
+    )
+    result = engine.generate()
+
+    if as_json:
+        print(_json.dumps(result["briefing_dict"], indent=2))
+    else:
+        briefing = result["briefing"]
+        print(result["markdown"])
+        print()
+        print(f"Briefing ID:  {briefing.briefing_id}")
+        print(f"Generated:    {briefing.generated_at}")
+        print(f"Repository:   {briefing.repository}")
+        paths = result.get("paths", {})
+        if paths.get("markdown"):
+            print(f"Markdown:     {paths['markdown']}")
+        if paths.get("briefing"):
+            print(f"JSON:         {paths['briefing']}")
 
 else:
 

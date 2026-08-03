@@ -1,0 +1,32 @@
+{
+  "event_count": 1,
+  "events": [
+    {
+      "context": {
+        "current_batch": "UNSPECIFIED",
+        "current_branch": "copilot/core-010-executive-briefing-engine",
+        "current_canon_version": "1.0.0",
+        "current_epic": "UNSPECIFIED",
+        "current_executor": "runtime",
+        "current_issue": "UNSPECIFIED",
+        "current_milestone": "UNSPECIFIED",
+        "current_pull_request": "",
+        "current_recommendation": "UNSPECIFIED",
+        "current_repository": "http://localhost:26831/caliofmarian-ai/AI-Toolkit.git",
+        "current_task": "UNSPECIFIED",
+        "current_workspace": "AI-Toolkit"
+      },
+      "event_type": "bootstrap",
+      "fingerprint": "07399b29ece8b27cf529ebfc37ba647aaabd53df645975a293169dcf8a228099",
+      "payload": {
+        "schema_version": "1.0.0",
+        "snapshot_id": "SNAP-000000",
+        "state_identifier": "DEV-3D2E242FA059",
+        "state_sha256": "a94057b369680fc6b4e9a13b79fc5bfb57e76418210fbbf0de77433ad8fa62e6"
+      },
+      "sequence_number": 1,
+      "timestamp": "2026-08-03T05:40:27Z"
+    }
+  ],
+  "schema_version": "1.0.0"
+}
