@@ -1,0 +1,67 @@
+openapi: 3.1.0
+
+info:
+  title: AI CTO Runtime API
+  version: 4.0.0
+
+servers:
+  - url: /api/v1
+
+paths:
+
+  /runtime:
+    get:
+      summary: Runtime information
+
+      responses:
+        '200':
+          description: Runtime information
+
+  /health:
+    get:
+      summary: Runtime health
+
+      responses:
+        '200':
+          description: Health status
+
+  /status:
+    get:
+      summary: Runtime status
+
+      responses:
+        '200':
+          description: Runtime status
+
+  /metrics:
+    get:
+      summary: Runtime metrics
+
+      responses:
+        '200':
+          description: Runtime metrics
+
+  /reports:
+    get:
+      summary: Runtime reports
+
+      responses:
+        '200':
+          description: Runtime reports
+
+components:
+
+  securitySchemes:
+
+    BearerAuth:
+      type: http
+      scheme: bearer
+
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+security:
+  - BearerAuth: []
+  - ApiKeyAuth: []

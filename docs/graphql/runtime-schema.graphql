@@ -1,0 +1,36 @@
+type Runtime {
+    id: ID!
+    version: String!
+    status: String!
+}
+
+type Health {
+    ready: Boolean!
+    checks: [String!]!
+}
+
+type Status {
+    state: String!
+}
+
+type Metrics {
+    values: String!
+}
+
+type Report {
+    id: ID!
+    title: String!
+}
+
+type Query {
+
+    runtime: Runtime
+
+    health: Health
+
+    status: Status
+
+    metrics: Metrics
+
+    reports: [Report!]!
+}

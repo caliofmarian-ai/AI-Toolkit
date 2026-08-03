@@ -4,11 +4,11 @@ CORE: CORE-022
 
 | Batch | Status | Risk | Priority | Affected |
 |-------|--------|------|----------|----------|
-| CORE-022-001 | BLOCKED | HIGH | HIGH | {'lib/python/runtime/bootstrap.py', 'lib/python/runtime/process.py'} |
-| CORE-022-002 | WAITING | MEDIUM | HIGH | {'lib/python/runtime/bootstrap.py', 'lib/python/runtime/process.py'} |
-| CORE-022-003 | WAITING | HIGH | HIGH | {'lib/python/runtime/bootstrap.py', 'lib/python/runtime/process.py'} |
-| CORE-022-004 | WAITING | LOW | MEDIUM | {'lib/python/runtime/bootstrap.py', 'lib/python/runtime/process.py'} |
-| CORE-022-005 | WAITING | LOW | MEDIUM | {'lib/python/runtime/bootstrap.py', 'lib/python/runtime/process.py'} |
+| CORE-022-001 | BLOCKED | HIGH | HIGH | {'lib/python/runtime/process.py', 'lib/python/runtime/bootstrap.py'} |
+| CORE-022-002 | WAITING | MEDIUM | HIGH | {'lib/python/runtime/process.py', 'lib/python/runtime/bootstrap.py'} |
+| CORE-022-003 | WAITING | HIGH | HIGH | {'lib/python/runtime/process.py', 'lib/python/runtime/bootstrap.py'} |
+| CORE-022-004 | WAITING | LOW | MEDIUM | {'lib/python/runtime/process.py', 'lib/python/runtime/bootstrap.py'} |
+| CORE-022-005 | WAITING | LOW | MEDIUM | {'lib/python/runtime/process.py', 'lib/python/runtime/bootstrap.py'} |
 
 ## Details
 
@@ -22,7 +22,7 @@ Risk: HIGH
 
 Priority: HIGH
 
-Affected modules: {'lib/python/runtime/bootstrap.py', 'lib/python/runtime/process.py'}
+Affected modules: {'lib/python/runtime/process.py', 'lib/python/runtime/bootstrap.py'}
 
 Reason: No REST API implementation detected
 
@@ -36,7 +36,7 @@ Risk: MEDIUM
 
 Priority: HIGH
 
-Affected modules: {'lib/python/runtime/bootstrap.py', 'lib/python/runtime/process.py'}
+Affected modules: {'lib/python/runtime/process.py', 'lib/python/runtime/bootstrap.py'}
 
 Reason: Specification not found
 
@@ -50,7 +50,7 @@ Risk: HIGH
 
 Priority: HIGH
 
-Affected modules: {'lib/python/runtime/bootstrap.py', 'lib/python/runtime/process.py'}
+Affected modules: {'lib/python/runtime/process.py', 'lib/python/runtime/bootstrap.py'}
 
 Reason: Authentication layer not detected
 
@@ -64,7 +64,7 @@ Risk: LOW
 
 Priority: MEDIUM
 
-Affected modules: {'lib/python/runtime/bootstrap.py', 'lib/python/runtime/process.py'}
+Affected modules: {'lib/python/runtime/process.py', 'lib/python/runtime/bootstrap.py'}
 
 Reason: No GraphQL support detected
 
@@ -78,7 +78,7 @@ Risk: LOW
 
 Priority: MEDIUM
 
-Affected modules: {'lib/python/runtime/bootstrap.py', 'lib/python/runtime/process.py'}
+Affected modules: {'lib/python/runtime/process.py', 'lib/python/runtime/bootstrap.py'}
 
 Reason: No MCP interface detected
 

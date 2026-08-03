@@ -18,6 +18,8 @@ is required.
 import json
 import logging
 import threading
+from lib.python.runtime.interfaces.runtime_api import RuntimeApiRouter
+
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from typing import TYPE_CHECKING, Any, Callable, Dict, Optional
 
@@ -48,16 +50,19 @@ class _RuntimeHandler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:
         path = self.path.split("?")[0]
         srv = self.__class__._server_ref
-        if path == "/health":
-            self._send_json(srv.handle_health())
+        if path in ("/health", "/api/v1/health"):
+            self._send_json(srv.api.health())
+
+        elif path == "/api/v1/runtime":
+            self._send_json(srv.api.runtime())
         elif path == "/ready":
             data = srv.handle_ready()
             status = 200 if data.get("ready") else 503
             self._send_json(data, status)
-        elif path == "/metrics":
-            self._send_json(srv.handle_metrics())
-        elif path == "/status":
-            self._send_json(srv.handle_status())
+        elif path in ("/metrics", "/api/v1/metrics"):
+            self._send_json(srv.api.metrics())
+        elif path in ("/status", "/api/v1/status"):
+            self._send_json(srv.api.status())
         else:
             self._send_json({"error": "not found"}, 404)
 
