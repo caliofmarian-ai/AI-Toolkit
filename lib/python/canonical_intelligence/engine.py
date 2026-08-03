@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Any, Dict
 
 from python.batch_planner import BatchPlanner
 from python.canonical_repository import CanonicalRepository
@@ -51,6 +52,10 @@ class CanonicalIntelligenceEngine:
             "batches": batches,
             "reports": reports,
         }
+
+    def analyze(self) -> Dict[str, Any]:
+        """Backward-compatible alias for callers expecting analyze()."""
+        return self.run()
 
     def statistics(self, result):
         coverage_scores = [metric.score for metric in result.get("coverage", [])]

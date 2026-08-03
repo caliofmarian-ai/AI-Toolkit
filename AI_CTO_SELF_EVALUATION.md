@@ -1,21 +1,21 @@
 # AI CTO Self Evaluation Report
-**Evaluation ID:** EVAL-8ADF134D
-**Generated:** 2026-08-03T08:53:36.029602+00:00
+**Evaluation ID:** EVAL-CB9D877B
+**Generated:** 2026-08-03T11:02:24.554880+00:00
 **Repository:** /home/runner/work/AI-Toolkit/AI-Toolkit
 **Overall Gate:** PASS
-**Overall Score:** `[████████████████░░░░] 83%`
+**Overall Score:** `[█████████████████░░░] 89%`
 ---
 ## Quality Scores
 | Dimension | Score | Gate |
 |-----------|-------|------|
 | canonical_compliance | `[██████████] 100%` | PASS |
 | architecture_quality | `[███████░░░] 75%` | WARNING |
-| repository_health | `[███████░░░] 70%` | WARNING |
+| repository_health | `[█████████░] 98%` | PASS |
 | execution_quality | `[████████░░] 80%` | WARNING |
 | testing_quality | `[██████████] 100%` | PASS |
 | confidence | `[████░░░░░░] 40%` | WARNING |
-| confidence | `[██████░░░░] 60%` | WARNING |
-| overall_engineering_quality | `[████████░░] 83%` | PASS |
+| confidence | `[████████░░] 80%` | PASS |
+| overall_engineering_quality | `[████████░░] 89%` | PASS |
 ---
 ## Regressions (1 found)
 - **[MEDIUM]** context: Missing context keys: ['current_branch', 'repository']
@@ -33,4 +33,4 @@
   - Fix 1 regression(s) before next execution.
 ---
 ## Summary
-Evaluation EVAL-8ADF134D completed. Overall engineering quality: 83% (PASS). Repository: AI-Toolkit.
+Evaluation EVAL-CB9D877B completed. Overall engineering quality: 89% (PASS). Repository: AI-Toolkit.

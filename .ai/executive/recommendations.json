@@ -1,39 +1,115 @@
 {
-  "briefing_id": "BRIEF-6B9D1D901B98",
-  "generated_at": "2026-08-03T07:12:33Z",
+  "briefing_id": "BRIEF-2433609BC9C4",
+  "generated_at": "2026-08-03T11:02:35Z",
   "recommendations": [
+    {
+      "affected_components": [],
+      "confidence": 0.98,
+      "dependencies": [],
+      "description": "2 critical risks require immediate attention before any other development activity.",
+      "evidence": [
+        "Canonical drift detected (10 findings)",
+        "Low canonical coverage (0.8%)"
+      ],
+      "id": "REC-007",
+      "impact": "Prevents systemic failures and data loss.",
+      "priority": "critical",
+      "reasoning": "Critical risks left unaddressed will cascade into systemic failures.  They must be resolved before any new development work proceeds.",
+      "required_effort": "high",
+      "title": "Address critical risks immediately (2 critical)"
+    },
+    {
+      "affected_components": [],
+      "confidence": 0.95,
+      "dependencies": [],
+      "description": "There are 10 canonical drift findings that indicate the implementation has diverged from its specification.",
+      "evidence": [
+        "canonical_drift_findings=10"
+      ],
+      "id": "REC-001",
+      "impact": "Restores alignment between specification and implementation.",
+      "priority": "critical",
+      "reasoning": "Canonical drift findings signal that the codebase no longer matches its canonical documentation.  Left unresolved, this leads to compounding inconsistencies and increases maintenance cost.",
+      "required_effort": "high",
+      "title": "Resolve canonical drift findings"
+    },
+    {
+      "affected_components": [],
+      "confidence": 0.9,
+      "dependencies": [],
+      "description": "Canonical coverage is 0.8%, below the target of 80%. Implement missing canonical modules to close the gap.",
+      "evidence": [
+        "overall_coverage=0.8%"
+      ],
+      "id": "REC-002",
+      "impact": "Ensures all canonical specifications have corresponding implementations.",
+      "priority": "critical",
+      "reasoning": "Low canonical coverage means significant portions of the system specification lack implementation.  This increases project risk.",
+      "required_effort": "high",
+      "title": "Improve canonical coverage from 0.8% to ≥80%"
+    },
     {
       "affected_components": [],
       "confidence": 0.85,
       "dependencies": [],
-      "description": "The development state recommends executing: CORE-013.",
+      "description": "Canonical compliance is 0.8%, below the target of 80%.",
       "evidence": [
-        "current_recommendation=CORE-013"
+        "overall_compliance=0.8%"
       ],
-      "id": "REC-002",
+      "id": "REC-003",
+      "impact": "Brings implementation into compliance with canonical specification.",
+      "priority": "high",
+      "reasoning": "Low compliance means existing implementations do not conform to their canonical specifications.",
+      "required_effort": "medium",
+      "title": "Improve canonical compliance from 0.8% to ≥80%"
+    },
+    {
+      "affected_components": [],
+      "confidence": 0.85,
+      "dependencies": [],
+      "description": "The development state recommends executing: CORE-005.",
+      "evidence": [
+        "current_recommendation=CORE-005"
+      ],
+      "id": "REC-006",
       "impact": "Advances planned development work.",
       "priority": "high",
       "reasoning": "The active canonical recommendation represents the highest-value next step derived from all accumulated intelligence.",
       "required_effort": "medium",
-      "title": "Execute current recommendation: CORE-013"
+      "title": "Execute current recommendation: CORE-005"
+    },
+    {
+      "affected_components": [],
+      "confidence": 0.8,
+      "dependencies": [],
+      "description": "5 canonical implementation batches are pending execution.",
+      "evidence": [
+        "pending_batches=5"
+      ],
+      "id": "REC-004",
+      "impact": "Reduces implementation debt and advances canonical coverage.",
+      "priority": "medium",
+      "reasoning": "5 batches remain unexecuted.  Processing them will improve canonical coverage and compliance metrics.",
+      "required_effort": "medium",
+      "title": "Execute pending canonical batches (5 remaining)"
     },
     {
       "affected_components": [
         "lib/python/workspace_index/__init__.py",
+        "lib/python/autonomous_planning_engine/models.py",
         "lib/python/executive_briefing_engine/models.py",
         "lib/python/semantic_repository_intelligence/models.py",
-        "lib/python/workspace_orchestrator/models.py",
-        "lib/python/canonical_entities/__init__.py"
+        "lib/python/workspace_orchestrator/models.py"
       ],
       "confidence": 0.75,
       "dependencies": [],
       "description": "5 high-coupling hotspots increase change risk.",
       "evidence": [
         "lib/python/workspace_index/__init__.py",
-        "lib/python/executive_briefing_engine/models.py",
-        "lib/python/semantic_repository_intelligence/models.py"
+        "lib/python/autonomous_planning_engine/models.py",
+        "lib/python/executive_briefing_engine/models.py"
       ],
-      "id": "REC-001",
+      "id": "REC-005",
       "impact": "Reduces coupling, improves testability and maintainability.",
       "priority": "medium",
       "reasoning": "Hotspot modules are heavily depended upon.  Decomposing them reduces the blast radius of future changes.",
@@ -44,16 +120,16 @@
       "affected_components": [],
       "confidence": 0.72,
       "dependencies": [],
-      "description": "Semantic analysis suggests CORE-013 as the next CORE implementation.",
+      "description": "Semantic analysis suggests CORE-005 as the next CORE implementation.",
       "evidence": [
-        "suggested_next_core=CORE-013"
+        "suggested_next_core=CORE-005"
       ],
-      "id": "REC-003",
+      "id": "REC-008",
       "impact": "Advances the AI CTO intelligence layer.",
       "priority": "medium",
       "reasoning": "CORE module suggestions are derived from current repository intelligence gaps and architectural extension points.",
       "required_effort": "high",
-      "title": "Implement CORE-013 as the next CORE module"
+      "title": "Implement CORE-005 as the next CORE module"
     }
   ]
 }

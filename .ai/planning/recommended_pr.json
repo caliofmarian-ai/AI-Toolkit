@@ -4,6 +4,6 @@
   "estimated_effort": "low",
   "id": "PR-CURRENT-BRANCH",
   "priority": "high",
-  "reason": "Active feature branch 'copilot/core-013-ai-cto-context-synchronization' has work in progress (BATCH-001). A PR should be opened.",
-  "title": "Open PR for current branch: copilot/core-013-ai-cto-context-synchronization"
+  "reason": "Active feature branch 'copilot/batch-002-runtime-integration-canonical-synchroniz' has work in progress (BATCH-002). A PR should be opened.",
+  "title": "Open PR for current branch: copilot/batch-002-runtime-integration-canonical-synchroniz"
 }

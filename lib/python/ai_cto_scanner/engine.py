@@ -176,3 +176,7 @@ class AICTOScannerEngine:
         })
 
         return stats, reports.get("markdown", {})
+
+
+# Backward-compatible public alias.
+AICTOScanner = AICTOScannerEngine

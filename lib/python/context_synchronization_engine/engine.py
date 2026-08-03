@@ -97,6 +97,7 @@ class GitContextProvider:
         current_tag = self._git("tag", "--points-at", "HEAD").splitlines()[:1]
         branch_core = self._extract_core(branch)
         branch_issue = self._extract_issue(branch, branch_core)
+        branch_batch = self._extract_batch(branch)
         return {
             "repository_root": str(self.root),
             "repository": self.root.name,
@@ -106,6 +107,7 @@ class GitContextProvider:
             "current_commit": commit,
             "current_tag": current_tag[0].strip() if current_tag else "",
             "current_issue": branch_issue,
+            "current_batch": branch_batch,
             "active_core": branch_core,
             "next_pr": branch if branch and branch not in {default_branch, "main", "master"} else "",
             "timestamp": self._git("show", "-s", "--format=%cI", "HEAD") or "1970-01-01T00:00:00+00:00",
@@ -131,6 +133,15 @@ class GitContextProvider:
             return branch_core
         match = re.search(r"(?:issue|task|pr)[-_]?(\d+)", branch or "", flags=re.IGNORECASE)
         return f"ISSUE-{match.group(1)}" if match else ""
+
+    def _extract_batch(self, branch: str) -> str:
+        match = re.search(r"(BATCH[-_]?\d{3})", branch or "", flags=re.IGNORECASE)
+        if not match:
+            return ""
+        value = match.group(1).replace("_", "-").upper()
+        if not value.startswith("BATCH-"):
+            value = value.replace("BATCH", "BATCH-")
+        return value
 
     def _git(self, *args: str) -> str:
         try:
@@ -186,12 +197,18 @@ class DevelopmentContextProvider:
         executive = self._load_json(self.root / ".ai" / "executive" / "briefing.json")
         owner_actions = self._load_json(self.root / ".ai" / "executive" / "owner_actions.json")
         semantic = self._load_json(self.root / ".ai" / "semantic_knowledge.json")
+        planning = self._load_json(self.root / ".ai" / "planning" / "planning.json")
         batches = self._load_batches()
         roadmap = self._load_roadmap()
         review_state = snapshot.get("state", {}).get("review_state", {})
         workspace_state = snapshot.get("state", {}).get("workspace_state", {})
         owner_state = snapshot.get("state", {}).get("owner_state", {})
         planning_state = snapshot.get("state", {}).get("planning_state", {})
+        next_core = str(
+            planning.get("next_actions", {}).get("next_core", {}).get("id", "")
+            or planning.get("recommended_core", {}).get("id", "")
+            or ""
+        )
         return {
             "state": state.to_dict(),
             "snapshot": snapshot,
@@ -207,7 +224,8 @@ class DevelopmentContextProvider:
             "development_progress": float(workspace_state.get("estimated_progress", 0.0) or 0.0),
             "executive_status": str(executive.get("owner_dashboard", {}).get("overall_health", "") or ""),
             "workspace_status": str(snapshot.get("state", {}).get("repository_state", {}).get("repository_health", "") or ""),
-            "current_recommendation": str(planning_state.get("recommended_batch", "") or ""),
+            "current_recommendation": next_core or str(planning_state.get("recommended_batch", "") or ""),
+            "planning": planning,
         }
 
     def _deterministic_timestamp(self, state) -> str:
@@ -336,7 +354,13 @@ class ContextResolver:
         semantic = development_context.get("semantic", {}).get("analysis", {})
         batches = development_context.get("batches", [])
         active_core = str(git_context.get("active_core", "") or "")
-        current_batch = self._current_batch(development_current.get("current_batch", ""), batches)
+        current_batch = self._current_batch(
+            self._first_set(
+                git_context.get("current_batch", ""),
+                development_current.get("current_batch", ""),
+            ),
+            batches,
+        )
         next_batch = self._next_batch(batches, current_batch)
         current_milestone = self._first_set(
             development_current.get("current_milestone", ""),
@@ -345,19 +369,22 @@ class ContextResolver:
             previous.get("current_milestone", ""),
         )
         current_epic = self._first_set(
-            development_current.get("current_epic", ""),
             active_core,
+            development_context.get("planning", {}).get("next_actions", {}).get("next_core", {}).get("id", ""),
+            development_current.get("current_epic", ""),
             previous.get("current_epic", ""),
             roadmap.get("title", ""),
         )
         current_recommendation, next_core, obsolete = self._resolve_next_core(
             active_core=active_core,
             current_recommendation=development_context.get("current_recommendation", ""),
+            planning_next_core=development_context.get("planning", {}).get("next_actions", {}).get("next_core", {}).get("id", ""),
             semantic_next_core=semantic.get("next_core", ""),
             previous=previous.get("current_recommendation", ""),
         )
         current_issue = self._first_set(
             git_context.get("current_issue", ""),
+            next_core,
             development_current.get("current_issue", ""),
             workspace_context.get("repository_context", {}).get("current_issue", ""),
             previous.get("current_issue", ""),
@@ -395,7 +422,12 @@ class ContextResolver:
             "current_milestone": current_milestone,
             "current_epic": current_epic,
             "current_roadmap": self._first_set(roadmap.get("title", ""), previous.get("current_roadmap", "")),
-            "current_sprint": self._first_set(active_core, development_context.get("state", {}).get("planning_state", {}).get("current_sprint", ""), previous.get("current_sprint", "")),
+            "current_sprint": self._first_set(
+                active_core,
+                next_core,
+                development_context.get("state", {}).get("planning_state", {}).get("current_sprint", ""),
+                previous.get("current_sprint", ""),
+            ),
             "current_recommendation": current_recommendation,
             "next_core": next_core,
             "next_batch": next_batch,
@@ -416,13 +448,24 @@ class ContextResolver:
         live_context["sources"] = self._sources(git_context, github_context, development_context, workspace_context, previous, live_context)
         return self._sorted_mapping(live_context)
 
-    def _resolve_next_core(self, *, active_core: str, current_recommendation: str, semantic_next_core: str, previous: str) -> Tuple[str, str, str]:
+    def _resolve_next_core(
+        self,
+        *,
+        active_core: str,
+        current_recommendation: str,
+        planning_next_core: str,
+        semantic_next_core: str,
+        previous: str,
+    ) -> Tuple[str, str, str]:
         implemented = set(self._implemented_cores())
+        planning_core = self._extract_core(str(planning_next_core or ""))
         semantic_core = self._extract_core(str(semantic_next_core or ""))
         obsolete = semantic_core if semantic_core and semantic_core in implemented else ""
         candidate = ""
         if active_core:
             candidate = active_core
+        elif planning_core and planning_core not in implemented:
+            candidate = planning_core
         elif semantic_core and semantic_core not in implemented:
             candidate = semantic_core
         elif _is_set(current_recommendation):

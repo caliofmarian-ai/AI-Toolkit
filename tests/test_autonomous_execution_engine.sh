@@ -335,7 +335,30 @@ with tempfile.TemporaryDirectory() as tmpdir:
 print("12. ExecutionPersistence OK")
 
 # ---------------------------------------------------------------------------
-# 13. AutonomousExecutionEngine — integration test against AI Toolkit
+# 13. ExecutionValidator compatibility regression checks
+# ---------------------------------------------------------------------------
+
+validator = ExecutionValidator(".")
+repo_v = validator.validate_repository()
+assert repo_v.status != VALIDATION_SKIPPED, repo_v.findings
+
+canon_v = validator.validate_canonical()
+assert canon_v.status != VALIDATION_SKIPPED, canon_v.findings
+
+reg_v = validator.validate_regression(
+    {
+        "planning_queue": {
+            "queue_id": "PLAN-001",
+            "schema_version": "1.0.0",
+            "entries": [],
+        }
+    }
+)
+assert reg_v.status == VALIDATION_PASS, reg_v.findings
+print("13. ExecutionValidator compatibility OK")
+
+# ---------------------------------------------------------------------------
+# 14. AutonomousExecutionEngine — integration test against AI Toolkit
 # ---------------------------------------------------------------------------
 
 engine = AutonomousExecutionEngine(
@@ -375,10 +398,10 @@ for key in ("execution", "execution_context", "execution_metrics"):
     assert isinstance(payload, dict), f"{key} must be a dict"
 
 assert len(result["markdown"]) > 100
-print("13. AutonomousExecutionEngine integration test OK")
+print("14. AutonomousExecutionEngine integration test OK")
 
 # ---------------------------------------------------------------------------
-# 14. Simulation mode
+# 15. Simulation mode
 # ---------------------------------------------------------------------------
 
 sim_engine = AutonomousExecutionEngine(
@@ -389,10 +412,10 @@ sim_engine = AutonomousExecutionEngine(
 sim_result = sim_engine.execute()
 assert sim_result["execution_dict"]["mode"] == MODE_SIMULATION
 assert sim_result["execution_dict"]["approval"] == APPROVAL_APPROVED  # safe mode
-print("14. SIMULATION mode OK")
+print("15. SIMULATION mode OK")
 
 # ---------------------------------------------------------------------------
-# 15. Determinism — two consecutive runs produce stable schema
+# 16. Determinism — two consecutive runs produce stable schema
 # ---------------------------------------------------------------------------
 
 result2 = engine.execute()
@@ -400,10 +423,10 @@ d2 = result2["execution_dict"]
 assert d2["schema_version"] == d["schema_version"]
 assert d2["mode"] == d["mode"]
 assert len(d2["stage_results"]) == len(d["stage_results"])
-print("15. Determinism OK")
+print("16. Determinism OK")
 
 # ---------------------------------------------------------------------------
-# 16. CLI smoke test — ai execute
+# 17. CLI smoke test — ai execute
 # ---------------------------------------------------------------------------
 
 import subprocess
@@ -427,10 +450,10 @@ assert proc_json.returncode == 0, f"ai execute --json exited {proc_json.returnco
 payload = json.loads(proc_json.stdout)
 assert "execution_id" in payload
 assert "schema_version" in payload
-print("16. CLI smoke test OK")
+print("17. CLI smoke test OK")
 
 # ---------------------------------------------------------------------------
-# 17. CLI simulate and dry-run modes
+# 18. CLI simulate and dry-run modes
 # ---------------------------------------------------------------------------
 
 for flag in ("--simulate", "--dry-run", "--validate"):
@@ -441,7 +464,7 @@ for flag in ("--simulate", "--dry-run", "--validate"):
         cwd=".",
     )
     assert p.returncode == 0, f"ai execute {flag} failed: {p.stderr}"
-print("17. CLI flags OK")
+print("18. CLI flags OK")
 
 print()
 print("========================================")

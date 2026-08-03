@@ -1,11 +1,11 @@
 {
   "schema_version": "1.0.0",
   "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
-  "captured_at": "2026-08-03T07:56:52Z",
+  "captured_at": "2026-08-03T11:02:45Z",
   "analysis": {
     "import_graph": {
-      "node_count": 202,
-      "edge_count": 627,
+      "node_count": 226,
+      "edge_count": 757,
       "circular_dependency_count": 0,
       "critical_modules": [
         "lib/python/workspace_index/__init__.py",
@@ -15,9 +15,9 @@
         "lib/python/workspace_orchestrator/models.py",
         "lib/python/canonical_entities/__init__.py",
         "lib/python/executable_repository_intelligence/models.py",
+        "lib/python/semantic_repository_intelligence/__init__.py",
         "lib/python/agent_runtime/models.py",
-        "lib/python/repository_engine/engine.py",
-        "lib/python/dependency_engine/engine.py"
+        "lib/python/repository_engine/engine.py"
       ],
       "orphan_modules": [
         "lib/python/__init__.py",
@@ -33,23 +33,23 @@
       ]
     },
     "call_graph": {
-      "edge_count": 287,
+      "edge_count": 330,
       "entry_points": [
         "lib/python/agent_runtime/base.py::run",
         "lib/python/agent_runtime/runtime.py::execute",
         "lib/python/agents/ai_cto_scanner_agent.py::run",
         "lib/python/agents/development_agent.py::run",
         "lib/python/agents/repository_inspector_agent.py::run",
+        "lib/python/autonomous_execution_engine/engine.py::execute",
         "lib/python/canonical_intelligence/engine.py::run",
         "lib/python/development_validator.py::__main__",
         "lib/python/development_validator/main.py::__main__",
-        "lib/python/development_validator/main.py::run",
-        "lib/python/execution_engine/engine.py::execute"
+        "lib/python/development_validator/main.py::run"
       ]
     },
     "architecture_graph": {
       "node_count": 15,
-      "edge_count": 48,
+      "edge_count": 49,
       "hotspots": [
         "lib/python/workspace_index/__init__.py",
         "lib/python/autonomous_planning_engine/models.py",
@@ -68,27 +68,27 @@
     },
     "dependency_graph": {
       "external_dependency_count": 0,
-      "internal_module_count": 202
+      "internal_module_count": 226
     },
     "complexity": {
-      "total_files": 321,
-      "total_symbols": 1261,
-      "total_imports": 627,
-      "total_functions": 999,
-      "total_classes": 262,
-      "avg_imports_per_module": 1.95,
-      "avg_functions_per_file": 3.11,
-      "max_imports_in_module": 23,
+      "total_files": 398,
+      "total_symbols": 1496,
+      "total_imports": 757,
+      "total_functions": 1171,
+      "total_classes": 325,
+      "avg_imports_per_module": 1.9,
+      "avg_functions_per_file": 2.94,
+      "max_imports_in_module": 29,
       "max_functions_in_file": 54,
-      "cyclomatic_complexity_estimate": 2.37,
+      "cyclomatic_complexity_estimate": 2.34,
       "language_distribution": {
-        "json": 29,
-        "markdown": 90,
-        "python": 202
+        "json": 65,
+        "markdown": 107,
+        "python": 226
       }
     },
     "recommendation_count": 10,
-    "injection_point_count": 78,
+    "injection_point_count": 100,
     "next_core": "CORE-009 — Development State Engine: Persist full development state for cross-session reasoning."
   }
 }

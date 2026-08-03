@@ -71,10 +71,37 @@
       "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
       "technical_debt_count": 9,
       "timestamp": "2026-08-03T08:53:36.842316+00:00"
+    },
+    {
+      "capability_gap_count": 3,
+      "core_proposal_count": 0,
+      "plan_id": "IMP-D4C43C6B",
+      "proposed_issue_count": 12,
+      "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
+      "technical_debt_count": 9,
+      "timestamp": "2026-08-03T10:58:09.893790+00:00"
+    },
+    {
+      "capability_gap_count": 3,
+      "core_proposal_count": 0,
+      "plan_id": "IMP-16395090",
+      "proposed_issue_count": 12,
+      "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
+      "technical_debt_count": 9,
+      "timestamp": "2026-08-03T11:01:03.484526+00:00"
+    },
+    {
+      "capability_gap_count": 3,
+      "core_proposal_count": 0,
+      "plan_id": "IMP-DD6D6817",
+      "proposed_issue_count": 12,
+      "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
+      "technical_debt_count": 9,
+      "timestamp": "2026-08-03T11:02:35.397377+00:00"
     }
   ],
-  "entry_count": 8,
-  "generated_at": "2026-08-03T08:53:36.842316+00:00",
+  "entry_count": 11,
+  "generated_at": "2026-08-03T11:02:35.397377+00:00",
   "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
   "schema_version": "1.0.0"
 }

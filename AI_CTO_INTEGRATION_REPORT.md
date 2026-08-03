@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | Repository | `/home/runner/work/AI-Toolkit/AI-Toolkit` |
-| Generated | 2026-08-03 07:56 UTC |
+| Generated | 2026-08-03 11:02 UTC |
 | Scanner | CORE-008A AI CTO Integration Scanner |
 | Overall AI CTO Readiness | **98 / 100** |
 
@@ -28,8 +28,8 @@ The AI CTO Integration Scanner analysed **`/home/runner/work/AI-Toolkit/AI-Toolk
 
 **Canonical documents:** 44
 **Knowledge graph nodes:** 971
-**Overall coverage:** 74%
-**Overall compliance:** 77%
+**Overall coverage:** 76%
+**Overall compliance:** 76%
 **Drift findings:** 10
 
 ## Architecture Map
@@ -64,13 +64,13 @@ Key files and locations where AI CTO can integrate with the repository.
 ### Owner Control
 
 - `.ai/executive/owner_actions.json`
-- `.ai/runtime_repository_model.json`
 - `AI_CTO_EXECUTION_MODEL.md`
+- `AI_CTO_EXECUTION_REPORT.md`
 - `AI_CTO_INTEGRATION_REPORT.md`
+- `AI_CTO_SELF_IMPROVEMENT.md`
 - `development/BATCH-002_SELF_KNOWLEDGE_SYSTEM_v1.0.md`
-- `docs/audits/FOUNDATION_AUDIT_REPORT_v1.0.0.md`
-- `docs/canonical/CANON-002_DEVELOPMENT_WORKFLOW_v2.0.md`
 - `docs/canonical/CANON-010_AI_TOOLKIT_ROADMAP_AND_EVOLUTION_v2.0.md`
+- `docs/canonical/CANON-023_OWNER_INTELLIGENCE_SPECIFICATION_v1.0.0.md`
 
 ### Runtime
 
@@ -79,20 +79,20 @@ Key files and locations where AI CTO can integrate with the repository.
 - `README.md`
 - `development/BATCH-001_AUTONOMOUS_WORKFLOW_SYSTEM_v2.0.md`
 - `development/BATCH-002_SELF_KNOWLEDGE_SYSTEM_v1.0.md`
+- `docs/canonical/v3/CANON-046_AI_CTO_SCHEDULER_SPECIFICATION_v3.0.0.md`
 - `lib/python/agent_runtime/__init__.py`
 - `lib/python/agent_runtime/base.py`
-- `lib/python/agent_runtime/models.py`
 
 ### State
 
 - `.ai/development_state/executive_snapshot.json`
+- `.ai/execution/execution_snapshot.json`
 - `.ai/runtime/sessions/.gitkeep`
+- `.ai/self_evaluation/snapshot.json`
+- `.ai/self_improvement/snapshot.json`
 - `.ai/sessions/SESSION-20260803-050009.json`
 - `.ai/sessions/SESSION-20260803-050013.json`
 - `AI_CTO_EXECUTION_MODEL.md`
-- `AI_CTO_INTEGRATION_REPORT.md`
-- `README.md`
-- `audit/canon-001/CANON-001_REPORT.md`
 
 ### Configuration
 
@@ -118,14 +118,14 @@ Key files and locations where AI CTO can integrate with the repository.
 
 ### Project Memory
 
-- `.ai/batches/.gitkeep`
-- `.ai/batches/BATCH-001/implementation_plan.md`
-- `.ai/context/.gitkeep`
+- `.ai/context/github_context.json`
+- `.ai/context/live_context.json`
 - `.ai/development_state/current_state.json`
 - `.ai/development_state/executive_snapshot.json`
 - `.ai/executable_repository_map.json`
+- `.ai/execution/execution.json`
+- `.ai/execution/execution_context.json`
 - `.ai/execution_state.json`
-- `.ai/runtime_repository_model.json`
 
 
 ## Injection Points
@@ -186,7 +186,7 @@ Recommended locations where AI CTO instrumentation should be injected.
 | Dashboard Builders | 100% | `path:dashboard` |
 | Admin UI | 60% | `admin[_\s]panel` |
 | Navigation | 100% | `Navigation\b` |
-| FSM Integration | 100% | `FSMContext` |
+| FSM Integration | 100% | `fsm` |
 
 ### Owner Control
 
@@ -206,7 +206,7 @@ Recommended locations where AI CTO instrumentation should be injected.
 | Startup | 100% | `path:main.py` |
 | Bootstrap | 100% | `bootstrap\b` |
 | Runtime | 100% | `path:runtime` |
-| Schedulers | 100% | `scheduler\b` |
+| Schedulers | 100% | `path:scheduler` |
 | Workers | 100% | `\bworker\b` |
 | Service Initialization | 100% | `ServiceRegistry` |
 
@@ -225,8 +225,8 @@ Recommended locations where AI CTO instrumentation should be injected.
 
 | Component | Confidence | Key Signal |
 | --- | ---: | --- |
-| Environment Variables | 100% | `dotenv` |
-| Secrets References | 100% | `SECRET_KEY` |
+| Environment Variables | 100% | `os\.environ` |
+| Secrets References | 100% | `secrets\b` |
 | Runtime Parameters | 100% | `sys\.argv` |
 
 ### Canonical
@@ -246,7 +246,7 @@ Recommended locations where AI CTO instrumentation should be injected.
 | Development State | 100% | `development_state` |
 | Context Persistence | 100% | `path:context` |
 | Resume Engine | 100% | `path:context_engine` |
-| Context Integrity | 100% | `ContextIntegrity` |
+| Context Integrity | 100% | `context_integrity` |
 | Snapshot Engine | 100% | `snapshot_engine` |
 
 
@@ -346,50 +346,50 @@ Semantic architecture layers discovered and their inter-layer dependencies.
 | Layer | Modules | In-Degree | Out-Degree |
 | --- | ---: | ---: | ---: |
 | **Agent Runtime** | 10 | 4 | 20 |
-| **CLI** | 2 | 0 | 12 |
-| **Canonical Intelligence** | 16 | 12 | 10 |
+| **CLI** | 2 | 0 | 15 |
+| **Canonical Intelligence** | 16 | 13 | 10 |
 | **Compliance / Coverage / Drift** | 6 | 6 | 6 |
 | **Configuration / Profiles** | 2 | 0 | 1 |
-| **Core / Common** | 12 | 31 | 0 |
+| **Core / Common** | 15 | 44 | 0 |
 | **Memory / State** | 5 | 0 | 0 |
-| **Planning** | 24 | 7 | 9 |
-| **Reporting** | 4 | 4 | 0 |
-| **Scanning / Detection** | 11 | 7 | 16 |
-| **Semantic Analysis** | 17 | 10 | 4 |
+| **Planning** | 24 | 9 | 9 |
+| **Reporting** | 7 | 11 | 0 |
+| **Scanning / Detection** | 11 | 8 | 16 |
+| **Semantic Analysis** | 17 | 12 | 4 |
 | **Testing** | 2 | 0 | 0 |
-| **Uncategorised** | 68 | 24 | 43 |
+| **Uncategorised** | 86 | 27 | 70 |
 | **Validation** | 5 | 5 | 2 |
-| **Workspace** | 18 | 17 | 4 |
+| **Workspace** | 18 | 18 | 4 |
 
-**Architecture edges (inter-layer dependencies):** 48
+**Architecture edges (inter-layer dependencies):** 49
 
 | From Layer | To Layer | Relationship | Strength |
 | --- | --- | --- | ---: |
 | Uncategorised | Core / Common | imports | 1.00 |
-| Agent Runtime | Uncategorised | imports | 0.32 |
-| CLI | Uncategorised | imports | 0.18 |
-| Planning | Uncategorised | imports | 0.18 |
-| Uncategorised | Semantic Analysis | imports | 0.18 |
-| Agent Runtime | Scanning / Detection | imports | 0.11 |
-| Canonical Intelligence | Compliance / Coverage / Drift | imports | 0.11 |
-| Canonical Intelligence | Workspace | imports | 0.11 |
-| Compliance / Coverage / Drift | Canonical Intelligence | imports | 0.11 |
-| Compliance / Coverage / Drift | Workspace | imports | 0.11 |
-| Scanning / Detection | Canonical Intelligence | imports | 0.11 |
-| Scanning / Detection | Compliance / Coverage / Drift | imports | 0.11 |
-| Scanning / Detection | Uncategorised | imports | 0.11 |
-| Semantic Analysis | Workspace | imports | 0.11 |
-| Uncategorised | Workspace | imports | 0.11 |
+| Agent Runtime | Uncategorised | imports | 0.22 |
+| Uncategorised | Reporting | imports | 0.22 |
+| CLI | Uncategorised | imports | 0.20 |
+| Uncategorised | Semantic Analysis | imports | 0.17 |
+| Planning | Uncategorised | imports | 0.12 |
+| Uncategorised | Workspace | imports | 0.10 |
+| Agent Runtime | Scanning / Detection | imports | 0.07 |
+| Canonical Intelligence | Compliance / Coverage / Drift | imports | 0.07 |
+| Canonical Intelligence | Workspace | imports | 0.07 |
+| Compliance / Coverage / Drift | Canonical Intelligence | imports | 0.07 |
+| Compliance / Coverage / Drift | Workspace | imports | 0.07 |
+| Scanning / Detection | Canonical Intelligence | imports | 0.07 |
+| Scanning / Detection | Compliance / Coverage / Drift | imports | 0.07 |
+| Scanning / Detection | Uncategorised | imports | 0.07 |
 
 ## Dependency Summary
 
 | Metric | Value |
 | --- | ---: |
 | External dependencies | 0 |
-| Internal Python modules | 202 |
-| Import graph edges | 627 |
+| Internal Python modules | 226 |
+| Import graph edges | 757 |
 | Circular dependencies | 0 |
-| Orphan modules | 57 |
+| Orphan modules | 56 |
 
 ## Injection Point Summary
 
@@ -398,12 +398,12 @@ Semantically discovered extension and injection points.
 | Type | Count |
 | --- | ---: |
 | decorator | 1 |
-| di_container | 52 |
+| di_container | 74 |
 | event_bus | 18 |
 | plugin_interface | 4 |
 | service_boundary | 3 |
 
-**Total injection points:** 78
+**Total injection points:** 100
 
 **Key injection points:**
 
@@ -417,8 +417,8 @@ Semantically discovered extension and injection points.
 | Service Registry | di_container | `lib/python/agent_runtime/registry.py` | 80% |
 | Service Registry | di_container | `lib/python/agent_runtime/runtime.py` | 80% |
 | Scheduled Task Hook | decorator | `lib/python/ai_cto_scanner/detectors.py` | 80% |
+| Service Registry | di_container | `lib/python/autonomous_execution_engine/engine.py` | 80% |
 | Service Entry Point | service_boundary | `lib/python/canonical_repository/repository.py` | 80% |
-| Service Entry Point | service_boundary | `lib/python/development_state_engine/repository.py` | 80% |
 
 ## Critical Modules
 
@@ -433,9 +433,9 @@ Modules with the highest import in-degree — the architectural backbone of the 
 | `lib/python/workspace_orchestrator/models.py` ⭐ | 9 |
 | `lib/python/canonical_entities/__init__.py` ⭐ | 8 |
 | `lib/python/executable_repository_intelligence/models.py` ⭐ | 7 |
+| `lib/python/semantic_repository_intelligence/__init__.py` ⭐ | 6 |
 | `lib/python/agent_runtime/models.py` ⭐ | 5 |
 | `lib/python/repository_engine/engine.py` ⭐ | 5 |
-| `lib/python/dependency_engine/engine.py` ⭐ | 4 |
 
 ## Architecture Risks
 
@@ -444,8 +444,8 @@ Modules with the highest import in-degree — the architectural backbone of the 
 | Architectural hotspot | 🟡 Medium | 85% | `lib/python/workspace_index/__init__.py` |
 | Architectural hotspot | 🟡 Medium | 85% | `lib/python/autonomous_planning_engine/mo` |
 | Architectural hotspot | 🟡 Medium | 85% | `lib/python/executive_briefing_engine/mod` |
-| Unclassified modules | 🟢 Low | 70% | `lib/python/__init__.py`, `lib/python/autonomous_planner/__init__.p`, `lib/python/autonomous_planner/engine.py` |
-| High coupling detected | 🟡 Medium | 80% | `lib/python/agents/development_agent.py`, `lib/python/ai_cto_scanner/engine.py`, `lib/python/autonomous_planning_engine/__` |
+| Unclassified modules | 🟢 Low | 70% | `lib/python/__init__.py`, `lib/python/autonomous_execution_engine/_`, `lib/python/autonomous_execution_engine/e` |
+| High coupling detected | 🟡 Medium | 80% | `lib/python/agents/development_agent.py`, `lib/python/ai_cto_scanner/engine.py`, `lib/python/autonomous_execution_engine/e` |
 
 ## Recommended Extension Points
 
@@ -468,7 +468,7 @@ Evidence-based architectural recommendations generated by CORE-008B.
 
 | # | Priority | Recommendation | Confidence | Effort | Impact | Risk |
 | ---: | --- | --- | ---: | --- | --- | --- |
-| 1 | 🟡 Medium | Investigate 57 orphan modules | 100% | small | medium | low |
+| 1 | 🟡 Medium | Investigate 56 orphan modules | 100% | small | medium | low |
 | 2 | 🟡 Medium | Reduce coupling on hotspot: lib/python/workspace_index/__init__.py | 100% | large | high | medium |
 | 3 | 🟡 Medium | Reduce coupling on hotspot: lib/python/autonomous_planning_engine/models.py | 100% | large | high | medium |
 | 4 | 🟡 Medium | Reduce coupling on hotspot: lib/python/executive_briefing_engine/models.py | 100% | large | high | medium |
@@ -491,7 +491,7 @@ Architectural observations produced by semantic analysis.
 | Critical module: lib/python/semantic_repository_intelligence/models.py | dependency | ℹ️ Info | 90% |
 | Critical module: lib/python/workspace_orchestrator/models.py | dependency | ℹ️ Info | 90% |
 | 1 decorator patterns detected | pattern | ℹ️ Info | 80% |
-| 52 di_container patterns detected | pattern | ℹ️ Info | 80% |
+| 74 di_container patterns detected | pattern | ℹ️ Info | 80% |
 | 18 event_bus patterns detected | pattern | ℹ️ Info | 80% |
 | 4 plugin_interface patterns detected | pattern | ℹ️ Info | 80% |
 | 3 service_boundary patterns detected | pattern | ℹ️ Info | 80% |
@@ -510,24 +510,24 @@ Architectural observations produced by semantic analysis.
 
 | Metric | Value |
 | --- | ---: |
-| Total files analysed | 321 |
-| Total symbols (classes + functions) | 1261 |
-| Total import statements | 627 |
-| Total functions | 999 |
-| Total classes | 262 |
+| Total files analysed | 398 |
+| Total symbols (classes + functions) | 1496 |
+| Total import statements | 757 |
+| Total functions | 1171 |
+| Total classes | 325 |
 | Avg imports per module | 1.9 |
-| Avg functions per file | 3.1 |
-| Max imports in one module | 23 |
+| Avg functions per file | 2.9 |
+| Max imports in one module | 29 |
 | Max functions in one file | 54 |
-| Cyclomatic complexity estimate | 2.37 |
+| Cyclomatic complexity estimate | 2.34 |
 
 **Language distribution:**
 
 | Language | Files |
 | --- | ---: |
-| python | 202 |
-| markdown | 90 |
-| json | 29 |
+| python | 226 |
+| markdown | 107 |
+| json | 65 |
 
 ## Suggested Next CORE Implementation
 

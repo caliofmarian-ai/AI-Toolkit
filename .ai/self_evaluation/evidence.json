@@ -1,11 +1,11 @@
 {
-  "evaluation_id": "EVAL-8ADF134D",
-  "generated_at": "2026-08-03T08:53:36.029602+00:00",
+  "evaluation_id": "EVAL-CB9D877B",
+  "generated_at": "2026-08-03T11:02:24.554880+00:00",
   "quality_scores": [
     {
       "dimension": "canonical_compliance",
       "evidence": [
-        "CORE-007 unavailable: 'CanonicalIntelligenceEngine' object has no attribute 'analyze'"
+        "CORE-007: 0 deviation(s) detected"
       ],
       "findings": [],
       "gate": "PASS",
@@ -31,12 +31,12 @@
     {
       "dimension": "repository_health",
       "evidence": [
-        "CORE-008A unavailable: cannot import name 'AICTOScanner' from 'python.ai_cto_scanner.engine' (/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python/ai_cto_scanner/engine.py)"
+        "CORE-008A: readiness=98%"
       ],
       "findings": [],
-      "gate": "WARNING",
-      "recommendation": "Improve repository readiness.",
-      "score": 0.7
+      "gate": "PASS",
+      "recommendation": "Repository health is good.",
+      "score": 0.98
     },
     {
       "dimension": "execution_quality",
@@ -78,29 +78,29 @@
         "Execution data: available",
         "Context data: missing",
         "Briefing data: available",
-        "Workspace data: missing"
+        "Workspace data: available"
       ],
       "findings": [
-        "Only 3/5 data sources available"
+        "Only 4/5 data sources available"
       ],
-      "gate": "WARNING",
+      "gate": "PASS",
       "recommendation": "Synchronize all data sources for maximum confidence.",
-      "score": 0.6
+      "score": 0.8
     },
     {
       "dimension": "overall_engineering_quality",
       "evidence": [
         "canonical_compliance: 100% (weight=15%)",
         "architecture_quality: 75% (weight=15%)",
-        "repository_health: 70% (weight=10%)",
+        "repository_health: 98% (weight=10%)",
         "execution_quality: 80% (weight=15%)",
         "testing_quality: 100% (weight=10%)",
-        "confidence: 60% (weight=5%)"
+        "confidence: 80% (weight=5%)"
       ],
       "findings": [],
       "gate": "PASS",
-      "recommendation": "Engineering quality is good (score=83%). Continue current practices.",
-      "score": 0.832
+      "recommendation": "Engineering quality is good (score=89%). Continue current practices.",
+      "score": 0.886
     }
   ]
 }

@@ -5,6 +5,6 @@ First intelligence layer of AI CTO.
 Inspects an arbitrary software repository and understands its architecture.
 """
 
-from .engine import AICTOScannerEngine
+from .engine import AICTOScanner, AICTOScannerEngine
 
-__all__ = ["AICTOScannerEngine"]
+__all__ = ["AICTOScannerEngine", "AICTOScanner"]

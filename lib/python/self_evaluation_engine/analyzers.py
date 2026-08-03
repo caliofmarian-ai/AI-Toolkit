@@ -150,10 +150,16 @@ class RepositoryComplianceAnalyzer:
         score = 0.7
 
         try:
-            from python.ai_cto_scanner.engine import AICTOScanner  # type: ignore[import]
-            scanner = AICTOScanner(self.repository)
+            from python.ai_cto_scanner import AICTOScannerEngine  # type: ignore[import]
+
+            scanner = AICTOScannerEngine(self.repository)
             result = scanner.scan()
-            score = float(result.get("readiness_score", 0.7))
+            readiness_score = result.get("readiness_score")
+            if readiness_score is None:
+                overall = (result.get("scores") or {}).get("Overall AI CTO Readiness")
+                if isinstance(overall, (int, float)):
+                    readiness_score = float(overall) / 100.0
+            score = float(readiness_score if readiness_score is not None else 0.7)
             findings = [str(f) for f in result.get("findings", [])][:10]
             evidence.append(f"CORE-008A: readiness={score:.0%}")
         except Exception as exc:  # noqa: BLE001

@@ -1,5 +1,5 @@
 {
-  "execution_id": "EXEC-C092A3B3",
+  "execution_id": "EXEC-F071A1FA",
   "validation_results": [
     {
       "evidence": {
@@ -13,13 +13,12 @@
     },
     {
       "evidence": {
+        "readiness_score": 0.98,
         "source": "CORE-008A"
       },
-      "findings": [
-        "Repository validation skipped: cannot import name 'AICTOScanner' from 'python.ai_cto_scanner.engine' (/data/data/com.termux/files/home/storage/shared/AI-Projects/AI-Toolkit/lib/python/ai_cto_scanner/engine.py)"
-      ],
-      "score": 0.5,
-      "status": "SKIPPED",
+      "findings": [],
+      "score": 0.98,
+      "status": "PASS",
       "validator": "RepositoryValidator"
     },
     {
@@ -40,13 +39,12 @@
     },
     {
       "evidence": {
+        "deviation_count": 0,
         "source": "CORE-007"
       },
-      "findings": [
-        "Canonical validation skipped: 'CanonicalIntelligenceEngine' object has no attribute 'analyze'"
-      ],
-      "score": 0.5,
-      "status": "SKIPPED",
+      "findings": [],
+      "score": 1.0,
+      "status": "PASS",
       "validator": "CanonicalValidator"
     },
     {
@@ -56,30 +54,23 @@
           "planning_id",
           "schema_version"
         ],
-        "missing_planning_keys": [
-          "execution_queue",
-          "planning_id"
-        ]
+        "missing_planning_keys": []
       },
-      "findings": [
-        "Missing planning keys: ['execution_queue', 'planning_id']"
-      ],
-      "score": 0.0,
-      "status": "FAIL",
+      "findings": [],
+      "score": 1.0,
+      "status": "PASS",
       "validator": "RegressionValidator"
     },
     {
       "evidence": {
-        "average_score": 0.438,
-        "failure_count": 1,
+        "average_score": 0.932,
+        "failure_count": 0,
         "mode": "SIMULATION",
         "validator_count": 4
       },
-      "findings": [
-        "RegressionValidator: [\"Missing planning keys: ['execution_queue', 'planning_id']\"]"
-      ],
-      "score": 0.438,
-      "status": "FAIL",
+      "findings": [],
+      "score": 0.932,
+      "status": "PASS",
       "validator": "AcceptanceValidator"
     }
   ]

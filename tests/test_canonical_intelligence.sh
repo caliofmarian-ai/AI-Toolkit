@@ -9,6 +9,7 @@ from python.canonical_intelligence import CanonicalIntelligenceEngine
 
 engine = CanonicalIntelligenceEngine(".")
 result = engine.run()
+result_alias = engine.analyze()
 
 assert "canonical_repository" in result
 assert "coverage" in result
@@ -16,6 +17,7 @@ assert "compliance" in result
 assert "drift" in result
 assert "batches" in result
 assert "reports" in result
+assert set(result.keys()) == set(result_alias.keys())
 
 stats = engine.statistics(result)
 print(f"Documents: {stats['canonical_documents']}")
