@@ -1,0 +1,41 @@
+{
+  "generated_at": "2026-08-03T08:53:36.842316+00:00",
+  "performance_metric_count": 3,
+  "performance_metrics": [
+    {
+      "baseline": 5000.0,
+      "evidence": {
+        "entry_count": 8,
+        "source": "CORE-015"
+      },
+      "metric_id": "PERF-EXEC-AVG",
+      "name": "average_execution_duration_ms",
+      "trend": "stable",
+      "unit": "ms",
+      "value": 731.5
+    },
+    {
+      "baseline": 0.8,
+      "evidence": {
+        "source": "CORE-016"
+      },
+      "metric_id": "PERF-EVAL-SCORE",
+      "name": "evaluation_overall_score",
+      "trend": "improving",
+      "unit": "score",
+      "value": 0.832
+    },
+    {
+      "baseline": 100.0,
+      "evidence": {
+        "directory": "/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python"
+      },
+      "metric_id": "PERF-REPO-SIZE",
+      "name": "python_file_count",
+      "trend": "growing",
+      "unit": "files",
+      "value": 224.0
+    }
+  ],
+  "plan_id": "IMP-FCF5C03E"
+}

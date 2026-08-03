@@ -1,0 +1,16 @@
+{
+  "coverage_scores": [
+    {
+      "dimension": "testing_quality",
+      "evidence": [
+        "Test coverage: 8/8 CORE packages"
+      ],
+      "findings": [],
+      "gate": "PASS",
+      "recommendation": "Test coverage is complete.",
+      "score": 1.0
+    }
+  ],
+  "evaluation_id": "EVAL-8ADF134D",
+  "generated_at": "2026-08-03T08:53:36.029602+00:00"
+}

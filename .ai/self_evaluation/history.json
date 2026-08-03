@@ -1,0 +1,57 @@
+{
+  "entries": [
+    {
+      "evaluation_id": "EVAL-51FD8639",
+      "overall_gate": "FAILED",
+      "overall_score": 0.764,
+      "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
+      "timestamp": "2026-08-03T08:50:57.825133+00:00"
+    },
+    {
+      "evaluation_id": "EVAL-E6BA7231",
+      "overall_gate": "PASS",
+      "overall_score": 0.832,
+      "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
+      "timestamp": "2026-08-03T08:53:31.776188+00:00"
+    },
+    {
+      "evaluation_id": "EVAL-D33C7DEE",
+      "overall_gate": "PASS",
+      "overall_score": 0.832,
+      "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
+      "timestamp": "2026-08-03T08:53:32.627423+00:00"
+    },
+    {
+      "evaluation_id": "EVAL-0B7CA18D",
+      "overall_gate": "PASS",
+      "overall_score": 0.832,
+      "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
+      "timestamp": "2026-08-03T08:53:33.424603+00:00"
+    },
+    {
+      "evaluation_id": "EVAL-D8B58EAA",
+      "overall_gate": "PASS",
+      "overall_score": 0.832,
+      "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
+      "timestamp": "2026-08-03T08:53:34.278291+00:00"
+    },
+    {
+      "evaluation_id": "EVAL-38FF2629",
+      "overall_gate": "PASS",
+      "overall_score": 0.832,
+      "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
+      "timestamp": "2026-08-03T08:53:35.153925+00:00"
+    },
+    {
+      "evaluation_id": "EVAL-8ADF134D",
+      "overall_gate": "PASS",
+      "overall_score": 0.832,
+      "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
+      "timestamp": "2026-08-03T08:53:36.029602+00:00"
+    }
+  ],
+  "entry_count": 7,
+  "generated_at": "2026-08-03T08:53:36.029602+00:00",
+  "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
+  "schema_version": "1.0.0"
+}

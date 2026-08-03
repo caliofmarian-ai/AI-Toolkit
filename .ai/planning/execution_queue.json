@@ -69,7 +69,10 @@
         "CORE-011",
         "CORE-012",
         "CORE-013",
-        "CORE-014"
+        "CORE-014",
+        "CORE-015",
+        "CORE-016",
+        "CORE-017"
       ],
       "entry_id": "MILESTONE-AUTONOMY",
       "estimated_effort": "high",
@@ -85,16 +88,19 @@
           "CORE-011",
           "CORE-012",
           "CORE-013",
-          "CORE-014"
+          "CORE-014",
+          "CORE-015",
+          "CORE-016",
+          "CORE-017"
         ],
         "estimated_effort": "high",
         "id": "MILESTONE-AUTONOMY",
         "priority": "high",
-        "reason": "Current phase is autonomy. 91% of documented COREs are implemented. 1 COREs remain before phase completion.",
+        "reason": "Current phase is autonomy. 93% of documented COREs are implemented. 1 COREs remain before phase completion.",
         "title": "Phase 3 — Autonomy Layer Complete"
       },
       "priority": "medium",
-      "reason": "Current phase is autonomy. 91% of documented COREs are implemented. 1 COREs remain before phase completion.",
+      "reason": "Current phase is autonomy. 93% of documented COREs are implemented. 1 COREs remain before phase completion.",
       "title": "Phase 3 — Autonomy Layer Complete",
       "type": "milestone"
     },
@@ -180,8 +186,8 @@
     }
   ],
   "entry_count": 8,
-  "generated_at": "2026-08-03T07:56:00.375431+00:00",
-  "queue_id": "PLAN-AD04E22E",
+  "generated_at": "2026-08-03T08:53:49.175333+00:00",
+  "queue_id": "PLAN-0B5CABE2",
   "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
   "schema_version": "1.0.0"
 }

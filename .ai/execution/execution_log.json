@@ -1,0 +1,15 @@
+{
+  "entries": [
+    {
+      "data": {
+        "execution_id": "EXEC-2FF426C2"
+      },
+      "level": "INFO",
+      "message": "Execution started",
+      "stage": "load_context",
+      "timestamp": "2026-08-03T08:53:32.757137+00:00"
+    }
+  ],
+  "entry_count": 1,
+  "execution_id": "EXEC-2FF426C2"
+}

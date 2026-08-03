@@ -1,0 +1,18 @@
+{
+  "captured_at": "2026-08-03T08:53:36.029602+00:00",
+  "context": {
+    "briefing_id": "BRIEF-6B9D1D901B98",
+    "evaluation_id": "EVAL-8ADF134D",
+    "execution_id": "EXEC-2FF426C2",
+    "generated_at": "2026-08-03T08:53:36.029602+00:00",
+    "planning_id": "PLAN-AD04E22E",
+    "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
+    "schema_version": "1.0.0",
+    "synchronization_id": "",
+    "workspace": "/home/runner/work/AI-Toolkit"
+  },
+  "evaluation_id": "EVAL-8ADF134D",
+  "overall_gate": "PASS",
+  "overall_score": 0.832,
+  "schema_version": "1.0.0"
+}

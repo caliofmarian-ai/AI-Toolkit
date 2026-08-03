@@ -1,0 +1,16 @@
+{
+  "compliance_scores": [
+    {
+      "dimension": "canonical_compliance",
+      "evidence": [
+        "CORE-007 unavailable: 'CanonicalIntelligenceEngine' object has no attribute 'analyze'"
+      ],
+      "findings": [],
+      "gate": "PASS",
+      "recommendation": "No action required.",
+      "score": 1.0
+    }
+  ],
+  "evaluation_id": "EVAL-8ADF134D",
+  "generated_at": "2026-08-03T08:53:36.029602+00:00"
+}

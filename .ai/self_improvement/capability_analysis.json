@@ -1,0 +1,37 @@
+{
+  "capability_gap_count": 3,
+  "capability_gaps": [
+    {
+      "category": "missing_cli_command",
+      "description": "CLI command `ai dependencies` is not registered",
+      "evidence": {
+        "missing_command": "dependencies",
+        "source": "cli/main.py"
+      },
+      "gap_id": "GAP-CLI-DEPENDENCIES",
+      "priority": "medium"
+    },
+    {
+      "category": "missing_cli_command",
+      "description": "CLI command `ai inventory` is not registered",
+      "evidence": {
+        "missing_command": "inventory",
+        "source": "cli/main.py"
+      },
+      "gap_id": "GAP-CLI-INVENTORY",
+      "priority": "medium"
+    },
+    {
+      "category": "missing_cli_command",
+      "description": "CLI command `ai validate` is not registered",
+      "evidence": {
+        "missing_command": "validate",
+        "source": "cli/main.py"
+      },
+      "gap_id": "GAP-CLI-VALIDATE",
+      "priority": "medium"
+    }
+  ],
+  "generated_at": "2026-08-03T08:53:36.842316+00:00",
+  "plan_id": "IMP-FCF5C03E"
+}

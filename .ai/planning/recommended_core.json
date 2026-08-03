@@ -8,7 +8,7 @@
   "id": "CORE-005",
   "incomplete_core_count": 1,
   "priority": "high",
-  "reason": "CORE-005 is the next CORE on the roadmap. 10 of 11 known COREs are implemented.",
+  "reason": "CORE-005 is the next CORE on the roadmap. 13 of 14 known COREs are implemented.",
   "title": "Implement CORE-005",
   "type": "core"
 }
