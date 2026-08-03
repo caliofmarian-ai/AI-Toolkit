@@ -1,48 +1,32 @@
 from __future__ import annotations
 
-from pathlib import Path
-
-from lib.python.engineering_engine.repository_model import (
-    RepositoryKnowledgeBuilder,
+from lib.python.engineering_engine.knowledge_graph import (
+    KnowledgeGraph,
 )
 
 
 class ScopeDetector:
 
-    def __init__(self, root: Path):
+    def __init__(self, root=None):
         self.root = root
 
-    def detect(self) -> list[str]:
-
-        knowledge = RepositoryKnowledgeBuilder(self.root).build()
+    def detect(
+        self,
+        graph: KnowledgeGraph,
+    ) -> list[str]:
 
         scope = []
 
-        if knowledge.modules:
+        if graph.modules:
             scope.append("Runtime Modules")
 
-        has_interfaces = any(
-            "/interfaces/" in module
-            for module in knowledge.modules
-        )
-
-        if has_interfaces:
+        if graph.interfaces:
             scope.append("Runtime Interfaces")
 
-        has_classes = any(
-            info.classes
-            for info in knowledge.modules.values()
-        )
-
-        if has_classes:
+        if graph.classes:
             scope.append("Python Components")
 
-        has_functions = any(
-            info.functions
-            for info in knowledge.modules.values()
-        )
-
-        if has_functions:
+        if graph.functions:
             scope.append("Engineering Services")
 
-        return sorted(set(scope))
+        return sorted(scope)

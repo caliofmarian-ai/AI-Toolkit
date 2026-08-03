@@ -6,14 +6,6 @@ from lib.python.engineering_engine.canonical_reference_detector import Canonical
 from lib.python.engineering_engine.scope_detector import ScopeDetector
 from lib.python.engineering_engine.deliverable_detector import DeliverableDetector
 from lib.python.engineering_engine.acceptance_detector import AcceptanceDetector
-
-from lib.python.engineering_engine.repository_model import (
-    RepositoryKnowledgeBuilder,
-)
-from lib.python.engineering_engine.knowledge_graph import (
-    KnowledgeGraphBuilder,
-)
-
 from lib.python.engineering_engine.models import (
     EngineeringBatch,
     ImplementationPackageModel,
@@ -47,13 +39,9 @@ class PackageBuilder:
                 "Engineering validation",
             ]
 
-        knowledge = RepositoryKnowledgeBuilder(self.root).build()
+        scope_detector = ScopeDetector(self.root)
 
-        graph = KnowledgeGraphBuilder().build(knowledge)
-
-        scope_detector = ScopeDetector()
-
-        scope = scope_detector.detect(graph)
+        scope = scope_detector.detect()
 
         deliverable_detector = DeliverableDetector(self.root)
 

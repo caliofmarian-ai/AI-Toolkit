@@ -4,11 +4,6 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from lib.python.engineering_engine.repository_model import RepositoryKnowledgeBuilder
-
-from lib.python.engineering_engine.knowledge_graph import (
-    KnowledgeGraphBuilder,
-)
-
 from lib.python.engineering_engine.dependency_graph import DependencyGraphBuilder
 from lib.python.engineering_engine.impact_analysis import ImpactAnalysis
 
@@ -30,16 +25,7 @@ class ReviewEngine:
 
         knowledge = RepositoryKnowledgeBuilder(self.root).build()
 
-        knowledge_graph = KnowledgeGraphBuilder().build(knowledge)
-
-        # v2.4 migration:
-        # DependencyGraph still consumes RepositoryKnowledge.
-        # KnowledgeGraph is created here so future migrations can
-        # reuse the same semantic model.
-
         graph = DependencyGraphBuilder(self.root).build(knowledge)
-
-        _ = knowledge_graph
 
         impact = ImpactAnalysis(graph).analyse(module)
 

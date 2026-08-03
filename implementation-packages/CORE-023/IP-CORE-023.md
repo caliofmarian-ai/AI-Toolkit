@@ -2,7 +2,7 @@
 
 CORE: CORE-023
 TITLE: CORE 023
-Generated: 2026-08-03T19:59:34.170048+00:00
+Generated: 2026-08-03T20:16:30.028589+00:00
 
 ## Canonical References
 
