@@ -220,7 +220,7 @@ class SemanticRepositoryEngine:
         if len(injection_points) > 10:
             core_id, core_name, rationale = _NEXT_CORE_SUGGESTIONS[0]
         # If the architecture graph is complex (many nodes), memory is needed
-        elif arch_graph.node_count >= 8:
+        elif len(arch_graph.nodes) >= 8:
             core_id, core_name, rationale = _NEXT_CORE_SUGGESTIONS[1]
         # Otherwise suggest the briefing engine
         else:

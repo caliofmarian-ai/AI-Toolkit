@@ -18,6 +18,7 @@ CORE modules.  It NEVER re-implements CORE-008B logic — it REUSES the
 SemanticRepositoryEngine output.
 """
 
+import sys
 from collections import Counter
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -155,18 +156,21 @@ class ExecutableRepositoryEngine:
         if self._persist:
             try:
                 persistence = ExecutablePersistence(self.root)
-                persistence.save_runtime_model(result)
-                persistence.save_executable_map(result)
-            except (OSError, IOError):
-                pass
+                runtime_model_path = persistence.save_runtime_model(result)
+                exec_map_path = persistence.save_executable_map(result)
+                print("[CORE-008C] Written: %s" % runtime_model_path, file=sys.stderr)
+                print("[CORE-008C] Written: %s" % exec_map_path, file=sys.stderr)
+            except Exception as exc:
+                print("[CORE-008C] WARNING: Persistence failed: %s" % exc, file=sys.stderr)
 
             # Phase 10 — Generate AI_CTO_EXECUTION_MODEL.md
             try:
                 report_gen = ExecutionModelReportGenerator()
                 report_path = self.root / "AI_CTO_EXECUTION_MODEL.md"
                 report_gen.generate(result, report_path)
-            except (OSError, IOError):
-                pass
+                print("[CORE-008C] Written: %s" % report_path, file=sys.stderr)
+            except Exception as exc:
+                print("[CORE-008C] WARNING: Report generation failed: %s" % exc, file=sys.stderr)
 
         return result
 
