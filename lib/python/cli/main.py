@@ -116,6 +116,22 @@ inspect_parser.add_argument(
     dest="semantic_only",
     help="Run semantic analysis only and print a JSON summary (no full report)",
 )
+inspect_parser.add_argument(
+    "--runtime",
+    action="store_true",
+    dest="runtime",
+    help="Run executable repository intelligence (CORE-008C) and print a JSON summary",
+)
+inspect_parser.add_argument(
+    "--execution-model",
+    action="store_true",
+    dest="execution_model",
+    help=(
+        "Run full executable intelligence pipeline (CORE-008C), persist "
+        ".ai/runtime_repository_model.json, .ai/executable_repository_map.json, "
+        "and generate AI_CTO_EXECUTION_MODEL.md"
+    ),
+)
 
 args = parser.parse_args()
 
@@ -137,7 +153,30 @@ elif args.command == "plan":
 
 elif args.command == "inspect":
 
-    if getattr(args, "semantic_only", False):
+    if getattr(args, "runtime", False) or getattr(args, "execution_model", False):
+        import json as _json
+        from python.executable_repository_intelligence import ExecutableRepositoryEngine
+        persist = getattr(args, "execution_model", False)
+        engine = ExecutableRepositoryEngine(repository=args.path, persist=persist)
+        result = engine.analyze()
+        summary = {
+            "repository": result["repository"],
+            "executable_file_count": result["executable_file_count"],
+            "non_executable_file_count": result["non_executable_file_count"],
+            "category_distribution": result["category_distribution"],
+            "zone_distribution": result["zone_distribution"],
+            "safety_distribution": result["safety_distribution"],
+            "main_entry_point": result["runtime_map"]["main_entry_point"],
+            "execution_chain": result["runtime_map"]["execution_chain"][:5],
+            "bootstrap_sequence": result["runtime_map"]["bootstrap_sequence"][:5],
+            "runtime_component_count": len(result["runtime_map"]["runtime_components"]),
+            "executable_dep_nodes": result["executable_dependency_graph"]["node_count"],
+            "executable_dep_edges": result["executable_dependency_graph"]["edge_count"],
+            "recommendation_count": len(result["recommendations"]),
+            "zone_count": len(result["zones"]),
+        }
+        print(_json.dumps(summary, indent=2))
+    elif getattr(args, "semantic_only", False):
         import json as _json
         from python.semantic_repository_intelligence import SemanticRepositoryEngine
         engine = SemanticRepositoryEngine(repository=args.path, persist=False)
