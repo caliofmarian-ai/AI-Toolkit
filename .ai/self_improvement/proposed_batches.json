@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-03T08:53:36.842316+00:00",
-  "plan_id": "IMP-FCF5C03E",
+  "generated_at": "2026-08-03T10:33:33.065983+00:00",
+  "plan_id": "IMP-0B28F5F5",
   "proposed_batch_count": 2,
   "proposed_batches": [
     {
@@ -48,37 +48,37 @@
         "priority": "low"
       },
       "execution_order": [
-        "ISS-DCC9C3",
-        "ISS-6C041D",
-        "ISS-408543",
-        "ISS-2229AE",
         "ISS-A0D3CD",
-        "ISS-CBDC9D",
         "ISS-27519E",
+        "ISS-1594DD",
+        "ISS-2229AE",
+        "ISS-DCC9C3",
         "ISS-5457C7",
-        "ISS-1594DD"
+        "ISS-CBDC9D",
+        "ISS-408543",
+        "ISS-6C041D"
       ],
       "issue_ids": [
-        "ISS-DCC9C3",
-        "ISS-6C041D",
-        "ISS-408543",
-        "ISS-2229AE",
         "ISS-A0D3CD",
-        "ISS-CBDC9D",
         "ISS-27519E",
+        "ISS-1594DD",
+        "ISS-2229AE",
+        "ISS-DCC9C3",
         "ISS-5457C7",
-        "ISS-1594DD"
+        "ISS-CBDC9D",
+        "ISS-408543",
+        "ISS-6C041D"
       ],
       "objectives": [
-        "Eliminate legacy_module debt in lib/python/knowledge_graph_engine.py",
-        "Eliminate legacy_module debt in lib/python/repository_profile.py",
-        "Eliminate legacy_module debt in lib/python/repository_inventory.py",
-        "Eliminate legacy_module debt in lib/python/foundation_audit.py",
         "Eliminate legacy_module debt in lib/python/autonomous_workflow_engine.py",
-        "Eliminate legacy_module debt in lib/python/repository_hygiene_audit.py",
         "Eliminate legacy_module debt in lib/python/decision_engine.py",
+        "Eliminate legacy_module debt in lib/python/development_validator.py",
+        "Eliminate legacy_module debt in lib/python/foundation_audit.py",
+        "Eliminate legacy_module debt in lib/python/knowledge_graph_engine.py",
         "Eliminate legacy_module debt in lib/python/memory_engine.py",
-        "Eliminate legacy_module debt in lib/python/development_validator.py"
+        "Eliminate legacy_module debt in lib/python/repository_hygiene_audit.py",
+        "Eliminate legacy_module debt in lib/python/repository_inventory.py",
+        "Eliminate legacy_module debt in lib/python/repository_profile.py"
       ],
       "owner_approval_required": true,
       "regression_strategy": "Run full test suite before and after batch execution.",

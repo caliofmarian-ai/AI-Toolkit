@@ -1,9 +1,9 @@
 # AI CTO Self Evaluation Report
-**Evaluation ID:** EVAL-8ADF134D
-**Generated:** 2026-08-03T08:53:36.029602+00:00
-**Repository:** /home/runner/work/AI-Toolkit/AI-Toolkit
+**Evaluation ID:** EVAL-798F03E0
+**Generated:** 2026-08-03T10:33:25.705520+00:00
+**Repository:** /storage/emulated/0/AI-Projects/AI-Toolkit
 **Overall Gate:** PASS
-**Overall Score:** `[████████████████░░░░] 83%`
+**Overall Score:** `[████████████████░░░░] 85%`
 ---
 ## Quality Scores
 | Dimension | Score | Gate |
@@ -14,8 +14,8 @@
 | execution_quality | `[████████░░] 80%` | WARNING |
 | testing_quality | `[██████████] 100%` | PASS |
 | confidence | `[████░░░░░░] 40%` | WARNING |
-| confidence | `[██████░░░░] 60%` | WARNING |
-| overall_engineering_quality | `[████████░░] 83%` | PASS |
+| confidence | `[████████░░] 80%` | PASS |
+| overall_engineering_quality | `[████████░░] 85%` | PASS |
 ---
 ## Regressions (1 found)
 - **[MEDIUM]** context: Missing context keys: ['current_branch', 'repository']
@@ -33,4 +33,4 @@
   - Fix 1 regression(s) before next execution.
 ---
 ## Summary
-Evaluation EVAL-8ADF134D completed. Overall engineering quality: 83% (PASS). Repository: AI-Toolkit.
+Evaluation EVAL-798F03E0 completed. Overall engineering quality: 85% (PASS). Repository: AI-Toolkit.

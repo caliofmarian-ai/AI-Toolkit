@@ -1,10 +1,10 @@
 {
-  "execution_id": "EXEC-2FF426C2",
+  "execution_id": "EXEC-C092A3B3",
   "validation_results": [
     {
       "evidence": {
         "approval": "APPROVED",
-        "mode": "VALIDATION_ONLY"
+        "mode": "SIMULATION"
       },
       "findings": [],
       "score": 1.0,
@@ -16,7 +16,7 @@
         "source": "CORE-008A"
       },
       "findings": [
-        "Repository validation skipped: cannot import name 'AICTOScanner' from 'python.ai_cto_scanner.engine' (/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python/ai_cto_scanner/engine.py)"
+        "Repository validation skipped: cannot import name 'AICTOScanner' from 'python.ai_cto_scanner.engine' (/data/data/com.termux/files/home/storage/shared/AI-Projects/AI-Toolkit/lib/python/ai_cto_scanner/engine.py)"
       ],
       "score": 0.5,
       "status": "SKIPPED",
@@ -72,7 +72,7 @@
       "evidence": {
         "average_score": 0.438,
         "failure_count": 1,
-        "mode": "VALIDATION_ONLY",
+        "mode": "SIMULATION",
         "validator_count": 4
       },
       "findings": [

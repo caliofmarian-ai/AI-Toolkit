@@ -47,22 +47,22 @@
     }
   ],
   "context": {
-    "briefing_id": "BRIEF-6B9D1D901B98",
-    "evaluation_id": "EVAL-8ADF134D",
-    "execution_id": "EXEC-2FF426C2",
-    "generated_at": "2026-08-03T08:53:36.029602+00:00",
-    "planning_id": "PLAN-AD04E22E",
-    "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
+    "briefing_id": "BRIEF-79827B10804F",
+    "evaluation_id": "EVAL-798F03E0",
+    "execution_id": "EXEC-C092A3B3",
+    "generated_at": "2026-08-03T10:33:25.705520+00:00",
+    "planning_id": "PLAN-0B5CABE2",
+    "repository": "/storage/emulated/0/AI-Projects/AI-Toolkit",
     "schema_version": "1.0.0",
     "synchronization_id": "",
-    "workspace": "/home/runner/work/AI-Toolkit"
+    "workspace": "/storage/emulated/0/AI-Projects"
   },
   "errors": [],
-  "evaluation_id": "EVAL-8ADF134D",
-  "generated_at": "2026-08-03T08:53:36.029602+00:00",
+  "evaluation_id": "EVAL-798F03E0",
+  "generated_at": "2026-08-03T10:33:25.705520+00:00",
   "overall_confidence": 0.4,
   "overall_gate": "PASS",
-  "overall_score": 0.832,
+  "overall_score": 0.846,
   "quality_scores": [
     {
       "dimension": "canonical_compliance",
@@ -93,7 +93,7 @@
     {
       "dimension": "repository_health",
       "evidence": [
-        "CORE-008A unavailable: cannot import name 'AICTOScanner' from 'python.ai_cto_scanner.engine' (/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python/ai_cto_scanner/engine.py)"
+        "CORE-008A unavailable: cannot import name 'AICTOScanner' from 'python.ai_cto_scanner.engine' (/data/data/com.termux/files/home/storage/shared/AI-Projects/AI-Toolkit/lib/python/ai_cto_scanner/engine.py)"
       ],
       "findings": [],
       "gate": "WARNING",
@@ -140,14 +140,14 @@
         "Execution data: available",
         "Context data: missing",
         "Briefing data: available",
-        "Workspace data: missing"
+        "Workspace data: available"
       ],
       "findings": [
-        "Only 3/5 data sources available"
+        "Only 4/5 data sources available"
       ],
-      "gate": "WARNING",
+      "gate": "PASS",
       "recommendation": "Synchronize all data sources for maximum confidence.",
-      "score": 0.6
+      "score": 0.8
     },
     {
       "dimension": "overall_engineering_quality",
@@ -157,12 +157,12 @@
         "repository_health: 70% (weight=10%)",
         "execution_quality: 80% (weight=15%)",
         "testing_quality: 100% (weight=10%)",
-        "confidence: 60% (weight=5%)"
+        "confidence: 80% (weight=5%)"
       ],
       "findings": [],
       "gate": "PASS",
-      "recommendation": "Engineering quality is good (score=83%). Continue current practices.",
-      "score": 0.832
+      "recommendation": "Engineering quality is good (score=85%). Continue current practices.",
+      "score": 0.846
     }
   ],
   "recommendations": [
@@ -187,8 +187,8 @@
       "severity": "medium"
     }
   ],
-  "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
+  "repository": "/storage/emulated/0/AI-Projects/AI-Toolkit",
   "schema_version": "1.0.0",
-  "summary": "Evaluation EVAL-8ADF134D completed. Overall engineering quality: 83% (PASS). Repository: AI-Toolkit.",
+  "summary": "Evaluation EVAL-798F03E0 completed. Overall engineering quality: 85% (PASS). Repository: AI-Toolkit.",
   "warnings": []
 }
