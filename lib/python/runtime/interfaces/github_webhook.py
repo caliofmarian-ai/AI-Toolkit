@@ -16,7 +16,7 @@ import json
 import logging
 from typing import TYPE_CHECKING, Any, Callable, Dict, Optional
 
-from python.runtime.event_dispatcher import EventDispatcher, RuntimeEvent
+from lib.python.runtime.event_dispatcher import EventDispatcher, RuntimeEvent
 
 logger = logging.getLogger(__name__)
 

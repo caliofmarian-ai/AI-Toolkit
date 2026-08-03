@@ -26,8 +26,8 @@ def main() -> int:
 
     Returns 0 on clean shutdown, non-zero on unrecoverable error.
     """
-    from python.runtime.bootstrap import RuntimeBootstrap
-    from python.runtime.shutdown import GracefulShutdown
+    from lib.python.runtime.bootstrap import RuntimeBootstrap
+    from lib.python.runtime.shutdown import GracefulShutdown
 
     # Create bootstrap (logging is configured inside bootstrap.bootstrap())
     runtime = RuntimeBootstrap()

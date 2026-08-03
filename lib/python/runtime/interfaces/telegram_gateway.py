@@ -152,7 +152,7 @@ class TelegramGateway:
         event_type = self._command_map_lookup(command)
 
         if event_type and self._dispatcher:
-            from python.runtime.event_dispatcher import RuntimeEvent
+            from lib.python.runtime.event_dispatcher import RuntimeEvent
             event = RuntimeEvent(
                 event_type=event_type,
                 source="telegram.gateway",
