@@ -110,6 +110,12 @@ inspect_parser.add_argument(
     metavar="DIR",
     help="Directory where AI_CTO_INTEGRATION_REPORT.md will be written (default: current directory)",
 )
+inspect_parser.add_argument(
+    "--semantic-only",
+    action="store_true",
+    dest="semantic_only",
+    help="Run semantic analysis only and print a JSON summary (no full report)",
+)
 
 args = parser.parse_args()
 
@@ -131,7 +137,30 @@ elif args.command == "plan":
 
 elif args.command == "inspect":
 
-    cmd_agent("inspect", repository=args.path, output_dir=args.output)
+    if getattr(args, "semantic_only", False):
+        import json as _json
+        from python.semantic_repository_intelligence import SemanticRepositoryEngine
+        engine = SemanticRepositoryEngine(repository=args.path, persist=False)
+        result = engine.analyze()
+        summary = {
+            "repository": result["repository"],
+            "file_count": result["file_count"],
+            "import_graph": result["import_graph"],
+            "architecture_graph": {
+                "node_count": result["architecture_graph"]["node_count"],
+                "edge_count": result["architecture_graph"]["edge_count"],
+                "hotspots": result["architecture_graph"]["hotspots"],
+                "extension_points": result["architecture_graph"]["extension_points"],
+                "risk_count": len(result["architecture_graph"]["risks"]),
+            },
+            "injection_point_count": len(result["injection_points"]),
+            "recommendation_count": len(result["recommendations"]),
+            "complexity": result["complexity"],
+            "next_core": result["next_core"],
+        }
+        print(_json.dumps(summary, indent=2))
+    else:
+        cmd_agent("inspect", repository=args.path, output_dir=args.output)
 
 else:
 

@@ -1,8 +1,9 @@
 """
-AI CTO Integration Scanner Engine — CORE-008A
+AI CTO Integration Scanner Engine — CORE-008A / CORE-008B
 
 Orchestrates the full integration scan pipeline:
-  WorkspaceIndex → Detectors → CanonicalIntelligence → Scoring → Report
+  WorkspaceIndex → Detectors → CanonicalIntelligence → Scoring
+  → SemanticRepositoryIntelligence → Report
 """
 
 from pathlib import Path
@@ -17,6 +18,7 @@ from python.drift_engine import DriftEngine
 from python.knowledge_graph import CanonicalKnowledgeGraphBuilder
 from python.reporting_engine import ReportingEngine
 from python.semantic_matching import SemanticMatcher
+from python.semantic_repository_intelligence import SemanticRepositoryEngine
 
 from .detectors import (
     TelegramDetector,
@@ -112,7 +114,23 @@ class AICTOScannerEngine:
         }
 
         # ------------------------------------------------------------------
-        # Phase 6 — Report generation
+        # Phase 6 — Semantic repository intelligence (CORE-008B)
+        # ------------------------------------------------------------------
+        semantic_result = None
+        try:
+            semantic_engine = SemanticRepositoryEngine(
+                repository=str(self.root),
+                workspace_index=index,
+                persist=True,
+            )
+            semantic_result = semantic_engine.analyze()
+        except Exception:
+            semantic_result = None
+
+        scan_result["semantic"] = semantic_result or {}
+
+        # ------------------------------------------------------------------
+        # Phase 7 — Report generation
         # ------------------------------------------------------------------
         report_path = self.output_dir / "AI_CTO_INTEGRATION_REPORT.md"
         generator = AICTOReportGenerator()
