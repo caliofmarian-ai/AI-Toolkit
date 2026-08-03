@@ -4,6 +4,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT))
 
+from lib.python.engineering_engine.build_engine import BuildEngine
 from lib.python.engineering_engine.repository_audit import RepositoryAudit
 from lib.python.engineering_engine.gap_analysis import GapAnalysis
 from lib.python.engineering_engine.ip_generator import ImplementationPackageGenerator
@@ -23,16 +24,12 @@ def engineering_gap(core):
 
 
 def engineering_ip(core):
-    print(
-        ImplementationPackageGenerator(ROOT).generate(core)
-    )
+    print(ImplementationPackageGenerator(ROOT).generate(core))
 
 
 def engineering_validate(core):
-    result = ValidationEngine(ROOT).validate(core)
-    print()
-    print("========================================")
-    print("ENGINEERING VALIDATION")
-    print("========================================")
-    print(f"PASSED : {result.passed}")
-    print(f"FAILED : {result.failed}")
+    ValidationEngine(ROOT).validate(core)
+
+
+def engineering_build(core):
+    BuildEngine(ROOT).build(core)

@@ -11,6 +11,7 @@ from lib.python.cli.engineering import (
     engineering_gap,
     engineering_ip,
     engineering_validate,
+    engineering_build,
 )
 
 args = sys.argv[1:]
@@ -21,6 +22,7 @@ if len(args) != 3 or args[0] != "engineering":
     print("  ai engineering gap CORE-XXX")
     print("  ai engineering ip CORE-XXX")
     print("  ai engineering validate CORE-XXX")
+    print("  ai engineering build CORE-XXX")
     raise SystemExit(1)
 
 command = args[1]
@@ -34,5 +36,7 @@ elif command == "ip":
     engineering_ip(core)
 elif command == "validate":
     engineering_validate(core)
+elif command == "build":
+    engineering_build(core)
 else:
     raise SystemExit(f"Unknown command: {command}")
