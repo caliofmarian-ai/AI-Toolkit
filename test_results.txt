@@ -1,0 +1,1872 @@
+=== Running tests/test_agent_cli.sh ===
+
+===== AGENT LIST =====
+['develop', 'inspect']
+
+===== AGENT EXECUTION =====
+{
+  "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
+  "repository_name": "AI-Toolkit",
+  "workspace": {
+    "total_files": 339,
+    "total_directories": 70
+  },
+  "scores": {
+    "Telegram Readiness": 100,
+    "Runtime Readiness": 100,
+    "State Readiness": 100,
+    "Persistence Readiness": 80,
+    "Owner Readiness": 100,
+    "Canonical Readiness": 100,
+    "Development Readiness": 85,
+    "Project Memory Readiness": 100,
+    "Context Integrity Readiness": 100,
+    "Overall AI CTO Readiness": 98
+  },
+  "detection_summary": {
+    "Telegram": {
+      "score": 1.0,
+      "detected": 10,
+      "total": 10
+    },
+    "OwnerControl": {
+      "score": 1.0,
+      "detected": 6,
+      "total": 6
+    },
+    "Runtime": {
+      "score": 1.0,
+      "detected": 6,
+      "total": 6
+    },
+    "State": {
+      "score": 1.0,
+      "detected": 6,
+      "total": 6
+    },
+    "Configuration": {
+      "score": 0.75,
+      "detected": 3,
+      "total": 4
+    },
+    "Canonical": {
+      "score": 1.0,
+      "detected": 4,
+      "total": 4
+    },
+    "ProjectMemory": {
+      "score": 1.0,
+      "detected": 6,
+      "total": 6
+    }
+  },
+  "canonical_stats": {
+    "canonical_documents": 43,
+    "graph_nodes": 950,
+    "overall_coverage": 0.7464449445694757,
+    "overall_compliance": 0.7760608200519518,
+    "drift_findings": 10,
+    "batches": 5
+  },
+  "report_path": "/home/runner/work/AI-Toolkit/AI-Toolkit/AI_CTO_INTEGRATION_REPORT.md",
+  "semantic_summary": {
+    "files_analyzed": 246,
+    "import_graph_nodes": 155,
+    "import_graph_edges": 365,
+    "circular_dependencies": 0,
+    "architecture_nodes": 15,
+    "architecture_risks": 5,
+    "injection_points": 60,
+    "recommendations": 10,
+    "next_core": "CORE-009 \u2014 Development State Engine: Persist full development state for cross-session reasoning."
+  }
+}
+AI CTO Integration Scanner completed.
+Report: /home/runner/work/AI-Toolkit/AI-Toolkit/AI_CTO_INTEGRATION_REPORT.md
+
+AGENT CLI PASS
+=== Running tests/test_agent_runtime.sh ===
+Registered Agents:
+['inspect']
+
+Repository inspection completed.
+HEALTHY
+
+Agent Runtime PASS
+=== Running tests/test_ai_cto_scanner.sh ===
+==================================
+AI CTO Integration Scanner Test
+CORE-008A
+==================================
+
+[1/6] Module import check
+Module import OK
+
+[2/6] Agent registration check
+Registered agents: ['develop', 'inspect']
+Agent registration OK
+
+[3/6] Scanner engine smoke test
+Scores: {'Telegram Readiness': 100, 'Runtime Readiness': 100, 'State Readiness': 100, 'Persistence Readiness': 80, 'Owner Readiness': 100, 'Canonical Readiness': 100, 'Development Readiness': 85, 'Project Memory Readiness': 100, 'Context Integrity Readiness': 100, 'Overall AI CTO Readiness': 98}
+Report written to: /tmp/tmpvp90y14p/AI_CTO_INTEGRATION_REPORT.md
+Scanner engine OK
+
+[4/6] Readiness scores check
+All readiness dimensions present and in range
+Readiness scores OK
+
+[5/6] CLI interface check
+inspect command present in help
+
+[6/6] Report content check
+All required sections present in AI_CTO_INTEGRATION_REPORT.md
+Report content OK
+
+==================================
+AI CTO Integration Scanner PASS
+==================================
+=== Running tests/test_autonomous_planner.sh ===
+[ENGINE] IncrementalWorkspaceIndex ...
+[DONE  ] IncrementalWorkspaceIndex (0.02s)
+[ENGINE] RepositoryEngine ...
+[DONE  ] RepositoryEngine (0.00s)
+[ENGINE] DependencyEngine ...
+[DONE  ] DependencyEngine (0.00s)
+[ENGINE] ValidationEngine ...
+[DONE  ] ValidationEngine (0.00s)
+[ENGINE] PlanningEngine ...
+[DONE  ] PlanningEngine (0.00s)
+[ENGINE] RepositoryInspector ...
+[DONE  ] RepositoryInspector (0.00s)
+[ENGINE] CanonicalAudit ...
+[DONE  ] CanonicalAudit (0.65s)
+[ENGINE] SemanticEngine ...
+[DONE  ] SemanticEngine (0.13s)
+[ENGINE] KnowledgeGraph ...
+[DONE  ] KnowledgeGraph (0.13s)
+
+============================================================
+ENGINE PROFILE
+============================================================
+IncrementalWorkspaceIndex          0.02s
+RepositoryEngine                   0.00s
+DependencyEngine                   0.00s
+ValidationEngine                   0.00s
+PlanningEngine                     0.00s
+RepositoryInspector                0.00s
+CanonicalAudit                     0.65s
+SemanticEngine                     0.13s
+KnowledgeGraph                     0.13s
+------------------------------------------------------------
+TOTAL                            0.93s
+
+INCREMENTAL INDEX
+  Status       partial rebuild
+  Files reused 317
+  Files rebuilt    1
+  Rebuild      0.3%
+
+Roadmap status: READY
+Estimated hours: 49
+
+Phase 1 - Critical
+ - Implement missing canonical modules
+Phase 2 - Improvements
+Phase 3 - Enhancements
+
+Autonomous Planner PASS
+## Roadmap
+
+Total estimate: 49 h
+
+### Phase 1 - Critical
+- Implement missing canonical modules
+
+### Phase 2 - Improvements
+- No actions
+
+### Phase 3 - Enhancements
+- No actions
+
+
+## Execution State
+
+Status: **RUNNING**
+
+- Phase 1 - Critical: READY
+- Phase 2 - Improvements: SKIPPED
+- Phase 3 - Enhancements: SKIPPED
+
+
+## Workspace
+
+
+## Planning Tasks
+
+- [HIGH] TASK-REPOSITORY: Inspect 318 files
+- [HIGH] TASK-DEPENDENCIES: Validate 318 dependencies
+- [HIGH] TASK-VALIDATION: Execute 5 validation checks
+
+## Workspace Summary
+
+Generated by Development Agent.
+=== Running tests/test_autonomous_workflow.sh ===
+Traceback (most recent call last):
+  File "/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python/autonomous_workflow_engine.py", line 55, in <module>
+    workflow_file.write_text(
+  File "/usr/lib/python3.12/pathlib.py", line 1049, in write_text
+    with self.open(mode='w', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/pathlib.py", line 1015, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/AI-Toolkit/AI-Toolkit/.ai/memory/workflow.json'
+FAILED: tests/test_autonomous_workflow.sh
+=== Running tests/test_batch_generator.sh ===
+[ENGINE] IncrementalWorkspaceIndex ...
+[DONE  ] IncrementalWorkspaceIndex (0.02s)
+[ENGINE] RepositoryEngine ...
+[DONE  ] RepositoryEngine (0.00s)
+[ENGINE] DependencyEngine ...
+[DONE  ] DependencyEngine (0.00s)
+[ENGINE] ValidationEngine ...
+[DONE  ] ValidationEngine (0.00s)
+[ENGINE] PlanningEngine ...
+[DONE  ] PlanningEngine (0.00s)
+[ENGINE] RepositoryInspector ...
+[DONE  ] RepositoryInspector (0.00s)
+[ENGINE] CanonicalAudit ...
+[DONE  ] CanonicalAudit (0.62s)
+[ENGINE] SemanticEngine ...
+[DONE  ] SemanticEngine (0.13s)
+[ENGINE] KnowledgeGraph ...
+[DONE  ] KnowledgeGraph (0.12s)
+
+============================================================
+ENGINE PROFILE
+============================================================
+IncrementalWorkspaceIndex          0.02s
+RepositoryEngine                   0.00s
+DependencyEngine                   0.00s
+ValidationEngine                   0.00s
+PlanningEngine                     0.00s
+RepositoryInspector                0.00s
+CanonicalAudit                     0.62s
+SemanticEngine                     0.13s
+KnowledgeGraph                     0.12s
+------------------------------------------------------------
+TOTAL                            0.90s
+
+INCREMENTAL INDEX
+  Status       partial rebuild
+  Files reused 317
+  Files rebuilt    1
+  Rebuild      0.3%
+  Time saved  ~0.000s
+
+Traceback (most recent call last):
+  File "<stdin>", line 18, in <module>
+TypeError: 'Batch' object is not subscriptable
+FAILED: tests/test_batch_generator.sh
+=== Running tests/test_batch_planner.sh ===
+Generated 5 batches
+Batch Planner PASS
+=== Running tests/test_batch_serialization.sh ===
+
+Serialization PASS
+=== Running tests/test_canonical_audit.sh ===
+
+Canonical Docs : 53
+Python Modules : 155
+Missing Modules: 49
+
+Examples:
+- CANON-036_CROSS_WORKSPACE_DEPENDENCY_SPECIFICATION_v1.0.0
+- CANON-042_AI_CTO_PLUGIN_ARCHITECTURE_SPECIFICATION_v1.0.0
+- CANON-005_WORKSPACE_INDEX_SPECIFICATION_v2.0
+- CANON-013_CANONICAL_KNOWLEDGE_GRAPH_SPECIFICATION_v1.0.0
+- CANON-021_MULTI_PROJECT_INTELLIGENCE_SPECIFICATION_v1.0.0
+- CANON-016_ARCHITECTURE_DRIFT_SPECIFICATION_v1.0.0
+- CANON-014_SEMANTIC_MATCHING_SPECIFICATION_v1.0.0
+- CANON-018_CANONICAL_INTELLIGENCE_REPORTING_SPECIFICATION_v1.0.0
+- CANON-004_AI_AGENT_SPECIFICATION_v2.0
+- CANON-012_CANONICAL_INTELLIGENCE_SPECIFICATION_v1.0.0
+
+Canonical Audit PASS
+=== Running tests/test_canonical_intelligence.sh ===
+Documents: 43
+Coverage: 75%
+Compliance: 78%
+Drift findings: 10
+Batches: 5
+
+Canonical Intelligence Engine PASS
+=== Running tests/test_canonical_parser.sh ===
+Parsed 43 canonical documents
+Canonical Parser PASS
+=== Running tests/test_canonical_repository.sh ===
+Repository: 43 documents
+Canonical Repository PASS
+=== Running tests/test_cli.sh ===
+
+=== INVENTORY ===
+{
+  "items": 412,
+  "files": 341,
+  "directories": 71
+}
+
+=== DEPENDENCIES ===
+{
+  "dependencies": 341,
+  "directories": 70,
+  "files": 341
+}
+
+=== VALIDATE ===
+{
+  "checks": 5,
+  "passed": 5,
+  "failed": 0
+}
+
+=== PLAN ===
+Execution Plan: PLAN-001
+
+[HIGH] TASK-REPOSITORY -> Inspect 341 files
+[HIGH] TASK-DEPENDENCIES -> Validate 341 dependencies
+[HIGH] TASK-VALIDATION -> Execute 5 validation checks
+
+CLI PASS
+=== Running tests/test_common_models.sh ===
+Batch(identifier='BATCH-001', title='Example', priority='HIGH', reason='Validation', estimated_hours=2, status='READY', acceptance_criteria=[], steps=[])
+
+Common Models PASS
+=== Running tests/test_compliance_engine.sh ===
+Compliance categories: 8
+Overall score: 78%
+Compliance Engine PASS
+=== Running tests/test_coverage_engine.sh ===
+Coverage categories: 9
+  Documentation: 98%
+  Implementation: 98%
+  Testing: 46%
+  Architecture: 100%
+  Runtime: 100%
+  Configuration: 25%
+  Observability: 80%
+  Security: 25%
+  Planning: 100%
+Coverage Engine PASS
+=== Running tests/test_decision_engine.sh ===
+Traceback (most recent call last):
+  File "/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python/decision_engine.py", line 52, in <module>
+    OUT.write_text(
+  File "/usr/lib/python3.12/pathlib.py", line 1049, in write_text
+    with self.open(mode='w', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/pathlib.py", line 1015, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/AI-Toolkit/AI-Toolkit/.ai/memory/decision.json'
+FAILED: tests/test_decision_engine.sh
+=== Running tests/test_dependency_engine.sh ===
+Traceback (most recent call last):
+  File "<stdin>", line 5, in <module>
+  File "/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python/dependency_engine/engine.py", line 4, in <module>
+    from .models import Dependency
+ImportError: attempted relative import with no known parent package
+FAILED: tests/test_dependency_engine.sh
+=== Running tests/test_development_agent.sh ===
+Registered agents:
+['develop', 'inspect']
+[ENGINE] IncrementalWorkspaceIndex ...
+[DONE  ] IncrementalWorkspaceIndex (0.02s)
+[ENGINE] RepositoryEngine ...
+[DONE  ] RepositoryEngine (0.00s)
+[ENGINE] DependencyEngine ...
+[DONE  ] DependencyEngine (0.00s)
+[ENGINE] ValidationEngine ...
+[DONE  ] ValidationEngine (0.00s)
+[ENGINE] PlanningEngine ...
+[DONE  ] PlanningEngine (0.00s)
+[ENGINE] RepositoryInspector ...
+[DONE  ] RepositoryInspector (0.00s)
+[ENGINE] CanonicalAudit ...
+[DONE  ] CanonicalAudit (0.61s)
+[ENGINE] SemanticEngine ...
+[DONE  ] SemanticEngine (0.13s)
+[ENGINE] KnowledgeGraph ...
+[DONE  ] KnowledgeGraph (0.12s)
+
+============================================================
+ENGINE PROFILE
+============================================================
+IncrementalWorkspaceIndex          0.02s
+RepositoryEngine                   0.00s
+DependencyEngine                   0.00s
+ValidationEngine                   0.00s
+PlanningEngine                     0.00s
+RepositoryInspector                0.00s
+CanonicalAudit                     0.61s
+SemanticEngine                     0.13s
+KnowledgeGraph                     0.12s
+------------------------------------------------------------
+TOTAL                            0.88s
+
+INCREMENTAL INDEX
+  Status       partial rebuild
+  Files reused 317
+  Files rebuilt    1
+  Rebuild      0.3%
+  Time saved  ~0.000s
+
+Development analysis completed.
+
+Repository files: 318
+Dependencies: 318
+Validation: 5
+Planning tasks: 3
+Canonical docs: 53
+Semantic files: 153
+Knowledge graph nodes: 155
+
+Development Agent PASS
+=== Running tests/test_development_report.sh ===
+[ENGINE] IncrementalWorkspaceIndex ...
+[DONE  ] IncrementalWorkspaceIndex (0.02s)
+[ENGINE] RepositoryEngine ...
+[DONE  ] RepositoryEngine (0.00s)
+[ENGINE] DependencyEngine ...
+[DONE  ] DependencyEngine (0.00s)
+[ENGINE] ValidationEngine ...
+[DONE  ] ValidationEngine (0.00s)
+[ENGINE] PlanningEngine ...
+[DONE  ] PlanningEngine (0.00s)
+[ENGINE] RepositoryInspector ...
+[DONE  ] RepositoryInspector (0.00s)
+[ENGINE] CanonicalAudit ...
+[DONE  ] CanonicalAudit (0.62s)
+[ENGINE] SemanticEngine ...
+[DONE  ] SemanticEngine (0.13s)
+[ENGINE] KnowledgeGraph ...
+[DONE  ] KnowledgeGraph (0.13s)
+
+============================================================
+ENGINE PROFILE
+============================================================
+IncrementalWorkspaceIndex          0.02s
+RepositoryEngine                   0.00s
+DependencyEngine                   0.00s
+ValidationEngine                   0.00s
+PlanningEngine                     0.00s
+RepositoryInspector                0.00s
+CanonicalAudit                     0.62s
+SemanticEngine                     0.13s
+KnowledgeGraph                     0.13s
+------------------------------------------------------------
+TOTAL                            0.90s
+
+INCREMENTAL INDEX
+  Status       partial rebuild
+  Files reused 317
+  Files rebuilt    1
+  Rebuild      0.3%
+
+Development report generated.
+
+Development Report PASS
+# AI Toolkit Development Report
+
+## Executive Summary
+
+Repository files: 318
+Dependencies: 318
+Validation passed: 5
+Canonical documents: 53
+Semantic files: 153
+Knowledge graph nodes: 155
+
+## Workspace Index
+
+Scanned files: 318
+Scanned directories: 70
+Ignored files: 0
+Ignored directories: 41
+Scan duration: 0.0142s
+Files per second: 22356
+
+=== Running tests/test_development_state_engine_models.sh ===
+test_identifier_is_immutable_for_all_models (__main__.DevelopmentStateModelsTest.test_identifier_is_immutable_for_all_models) ... ok
+test_round_trip_serialization_for_all_models (__main__.DevelopmentStateModelsTest.test_round_trip_serialization_for_all_models) ... ok
+test_validation_rejects_invalid_values (__main__.DevelopmentStateModelsTest.test_validation_rejects_invalid_values) ... ok
+test_versioning_defaults_and_is_serialized (__main__.DevelopmentStateModelsTest.test_versioning_defaults_and_is_serialized) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.001s
+
+OK
+
+Development State Engine Models PASS
+=== Running tests/test_development_state_persistence.sh ===
+test_create_snapshot_tracks_snapshot_history (__main__.DevelopmentStatePersistenceTest.test_create_snapshot_tracks_snapshot_history) ... ok
+test_deterministic_json_serialization (__main__.DevelopmentStatePersistenceTest.test_deterministic_json_serialization) ... ok
+test_export_and_import_state (__main__.DevelopmentStatePersistenceTest.test_export_and_import_state) ... ok
+test_import_supports_legacy_version_migration (__main__.DevelopmentStatePersistenceTest.test_import_supports_legacy_version_migration) ... ok
+test_integrity_verification_detects_tampering (__main__.DevelopmentStatePersistenceTest.test_integrity_verification_detects_tampering) ... ok
+test_restore_snapshot_replaces_current_state (__main__.DevelopmentStatePersistenceTest.test_restore_snapshot_replaces_current_state) ... ok
+test_save_and_load_state_with_layout_files (__main__.DevelopmentStatePersistenceTest.test_save_and_load_state_with_layout_files) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.033s
+
+OK
+
+Development State Persistence PASS
+=== Running tests/test_development_state_runtime.sh ===
+test_event_bus_deduplicates_same_event (__main__.RuntimeUnitTest.test_event_bus_deduplicates_same_event) ... ok
+test_record_methods_create_snapshots_and_preserve_unique_state (__main__.RuntimeUnitTest.test_record_methods_create_snapshots_and_preserve_unique_state) ... ok
+test_runtime_updates_outputs_and_integrations (__main__.RuntimeUnitTest.test_runtime_updates_outputs_and_integrations) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.068s
+
+OK
+
+Development State Runtime PASS
+=== Running tests/test_development_state_runtime_integration.sh ===
+test_multiple_repositories_are_isolated (__main__.RuntimeIntegrationTest.test_multiple_repositories_are_isolated) ... ok
+test_runtime_components_work_together_for_one_repository (__main__.RuntimeIntegrationTest.test_runtime_components_work_together_for_one_repository) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.118s
+
+OK
+
+Development State Runtime Integration PASS
+=== Running tests/test_development_validator.sh ===
+==================================
+Development Validator
+==================================
+
+Document: development/BATCH-000_DEVELOPMENT_VALIDATOR_v1.0.md
+Score: 100 /100
+
+STATUS: PASS
+
+Development Validator PASS
+=== Running tests/test_development_validator_v2.sh ===
+==================================
+Development Validator
+==================================
+
+Score: 100
+
+
+STATUS: PASS
+
+Validator v2 PASS
+=== Running tests/test_discovery_engine.sh ===
+
+Canonical documents discovered: 65
+
+- docs/canonical/AI_TOOLKIT_SYSTEM_ARCHITECTURE_v1.0.0.md
+- docs/canonical/AUTONOMOUS_AGENT_SPEC_v1.0.0.md
+- docs/canonical/AUTONOMOUS_WORKFLOW_SPEC_v1.0.0.md
+- docs/canonical/CANON-001_AI_TOOLKIT_ARCHITECTURE_v2.0.md
+- audit/canon-001/CANON-001_REPORT.md
+- docs/canonical/CANON-002_DEVELOPMENT_WORKFLOW_v2.0.md
+- docs/canonical/CANON-003_REPOSITORY_STANDARDS_v2.0.md
+- docs/canonical/CANON-004_AI_AGENT_SPECIFICATION_v2.0.md
+- docs/canonical/CANON-005_WORKSPACE_INDEX_SPECIFICATION_v2.0.md
+- docs/canonical/CANON-006_OBSERVABILITY_SPECIFICATION_v2.0.md
+- docs/canonical/CANON-007_AUTONOMOUS_EXECUTION_SPECIFICATION_v2.0.md
+- docs/canonical/CANON-008_PERFORMANCE_BENCHMARK_SPECIFICATION_v2.0.md
+- docs/canonical/CANON-009_TESTING_AND_VALIDATION_SPECIFICATION_v2.0.md
+- docs/canonical/CANON-010_AI_TOOLKIT_ROADMAP_AND_EVOLUTION_v2.0.md
+- docs/canonical/CANON-011_SYSTEM_INVARIANTS_v2.0.md
+- docs/canonical/CANON-012_CANONICAL_INTELLIGENCE_SPECIFICATION_v1.0.0.md
+- docs/canonical/CANON-013_CANONICAL_KNOWLEDGE_GRAPH_SPECIFICATION_v1.0.0.md
+- docs/canonical/CANON-014_SEMANTIC_MATCHING_SPECIFICATION_v1.0.0.md
+- docs/canonical/CANON-015_COVERAGE_AND_COMPLIANCE_SPECIFICATION_v1.0.0.md
+- docs/canonical/CANON-016_ARCHITECTURE_DRIFT_SPECIFICATION_v1.0.0.md
+
+Discovery Engine PASS
+=== Running tests/test_drift_engine.sh ===
+Drift findings: 10
+Severity distribution: {'CRITICAL': 1, 'LOW': 5, 'HIGH': 4}
+Drift Engine PASS
+=== Running tests/test_evidence_engine.sh ===
+
+DECISION_ENGINE_SPEC_v1.0.0
+Evidence: 4
+AUTONOMOUS_WORKFLOW_SPEC_v1.0.0
+Evidence: 4
+KNOWLEDGE_GRAPH_SPEC_v1.0.0
+Evidence: 6
+REPOSITORY_HYGIENE_SPEC_v1.0.0
+Evidence: 3
+
+Evidence Engine PASS
+=== Running tests/test_execution_coordinator.sh ===
+[ENGINE] IncrementalWorkspaceIndex ...
+[DONE  ] IncrementalWorkspaceIndex (0.02s)
+[ENGINE] RepositoryEngine ...
+[DONE  ] RepositoryEngine (0.00s)
+[ENGINE] DependencyEngine ...
+[DONE  ] DependencyEngine (0.00s)
+[ENGINE] ValidationEngine ...
+[DONE  ] ValidationEngine (0.00s)
+[ENGINE] PlanningEngine ...
+[DONE  ] PlanningEngine (0.00s)
+[ENGINE] RepositoryInspector ...
+[DONE  ] RepositoryInspector (0.00s)
+[ENGINE] CanonicalAudit ...
+[DONE  ] CanonicalAudit (0.61s)
+[ENGINE] SemanticEngine ...
+[DONE  ] SemanticEngine (0.14s)
+[ENGINE] KnowledgeGraph ...
+[DONE  ] KnowledgeGraph (0.12s)
+
+============================================================
+ENGINE PROFILE
+============================================================
+IncrementalWorkspaceIndex          0.02s
+RepositoryEngine                   0.00s
+DependencyEngine                   0.00s
+ValidationEngine                   0.00s
+PlanningEngine                     0.00s
+RepositoryInspector                0.00s
+CanonicalAudit                     0.61s
+SemanticEngine                     0.14s
+KnowledgeGraph                     0.12s
+------------------------------------------------------------
+TOTAL                            0.90s
+
+INCREMENTAL INDEX
+  Status       partial rebuild
+  Files reused 317
+  Files rebuilt    1
+  Rebuild      0.3%
+
+Coordinator: RUNNING
+Phase 1 - Critical -> READY
+Phase 2 - Improvements -> SKIPPED
+Phase 3 - Enhancements -> SKIPPED
+
+Execution Coordinator PASS
+## Execution State
+
+Status: **RUNNING**
+
+- Phase 1 - Critical: READY
+- Phase 2 - Improvements: SKIPPED
+- Phase 3 - Enhancements: SKIPPED
+
+
+## Workspace
+
+
+## Planning Tasks
+
+- [HIGH] TASK-REPOSITORY: Inspect 318 files
+- [HIGH] TASK-DEPENDENCIES: Validate 318 dependencies
+- [HIGH] TASK-VALIDATION: Execute 5 validation checks
+
+## Workspace Summary
+
+Generated by Development Agent.
+=== Running tests/test_execution_engine.sh ===
+[ENGINE] IncrementalWorkspaceIndex ...
+[DONE  ] IncrementalWorkspaceIndex (0.02s)
+[ENGINE] RepositoryEngine ...
+[DONE  ] RepositoryEngine (0.00s)
+[ENGINE] DependencyEngine ...
+[DONE  ] DependencyEngine (0.00s)
+[ENGINE] ValidationEngine ...
+[DONE  ] ValidationEngine (0.00s)
+[ENGINE] PlanningEngine ...
+[DONE  ] PlanningEngine (0.00s)
+[ENGINE] RepositoryInspector ...
+[DONE  ] RepositoryInspector (0.00s)
+[ENGINE] CanonicalAudit ...
+[DONE  ] CanonicalAudit (0.61s)
+[ENGINE] SemanticEngine ...
+[DONE  ] SemanticEngine (0.13s)
+[ENGINE] KnowledgeGraph ...
+[DONE  ] KnowledgeGraph (0.13s)
+
+============================================================
+ENGINE PROFILE
+============================================================
+IncrementalWorkspaceIndex          0.02s
+RepositoryEngine                   0.00s
+DependencyEngine                   0.00s
+ValidationEngine                   0.00s
+PlanningEngine                     0.00s
+RepositoryInspector                0.00s
+CanonicalAudit                     0.61s
+SemanticEngine                     0.13s
+KnowledgeGraph                     0.13s
+------------------------------------------------------------
+TOTAL                            0.89s
+
+INCREMENTAL INDEX
+  Status       partial rebuild
+  Files reused 317
+  Files rebuilt    1
+  Rebuild      0.3%
+
+BATCH-001 -> COMPLETED
+
+Execution Engine PASS
+
+Execution results match generated batches.
+=== Running tests/test_foundation_audit.sh ===
+======================================
+FOUNDATION AUDIT
+======================================
+
+Audit : AUD-001 Repository Architecture
+Score : 100
+
+directories: 8
+files: 652
+engines: 95
+canonical_docs: 63
+tests: 72
+
+Saved: /home/runner/work/AI-Toolkit/AI-Toolkit/.ai/audit/foundation_audit_001.json
+
+Foundation Audit PASS
+=== Running tests/test_foundation_audit_v2.sh ===
+Traceback (most recent call last):
+  File "/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python/foundation_audit/main.py", line 6, in <module>
+    from .checks import (
+ImportError: attempted relative import with no known parent package
+FAILED: tests/test_foundation_audit_v2.sh
+=== Running tests/test_github_materialization.sh ===
+[ENGINE] IncrementalWorkspaceIndex ...
+[DONE  ] IncrementalWorkspaceIndex (0.02s)
+[ENGINE] RepositoryEngine ...
+[DONE  ] RepositoryEngine (0.00s)
+[ENGINE] DependencyEngine ...
+[DONE  ] DependencyEngine (0.00s)
+[ENGINE] ValidationEngine ...
+[DONE  ] ValidationEngine (0.00s)
+[ENGINE] PlanningEngine ...
+[DONE  ] PlanningEngine (0.00s)
+[ENGINE] RepositoryInspector ...
+[DONE  ] RepositoryInspector (0.00s)
+[ENGINE] CanonicalAudit ...
+[DONE  ] CanonicalAudit (0.61s)
+[ENGINE] SemanticEngine ...
+[DONE  ] SemanticEngine (0.13s)
+[ENGINE] KnowledgeGraph ...
+[DONE  ] KnowledgeGraph (0.12s)
+
+============================================================
+ENGINE PROFILE
+============================================================
+IncrementalWorkspaceIndex          0.02s
+RepositoryEngine                   0.00s
+DependencyEngine                   0.00s
+ValidationEngine                   0.00s
+PlanningEngine                     0.00s
+RepositoryInspector                0.00s
+CanonicalAudit                     0.61s
+SemanticEngine                     0.13s
+KnowledgeGraph                     0.12s
+------------------------------------------------------------
+TOTAL                            0.89s
+
+INCREMENTAL INDEX
+  Status       partial rebuild
+  Files reused 317
+  Files rebuilt    1
+  Rebuild      0.3%
+  Time saved  ~0.000s
+
+.ai/batches/BATCH-001
+
+GitHub Materialization PASS
+
+Artifacts generated successfully.
+=== Running tests/test_incremental_workspace.sh ===
+============================================================
+IncrementalWorkspaceIndex — Test Suite (CORE-006)
+============================================================
+
+[PASS] Test 1 — Initial full build (files=4)
+[PASS] Test 2 — Second run without changes (cache hit, reused=4)
+[PASS] Test 3 — Single file modification (rebuilt=1, reused=3)
+[PASS] Test 4 — File deletion (files before=4, after=3)
+[PASS] Test 5 — File addition (files before=4, after=5)
+[PASS] Test 6 — Cache invalidation (version mismatch → full rebuild)
+[PASS] Test 7 — Identical analysis results (full build == cached build)
+[PASS] Test 8 — ChangeDetector unit test (added=1, removed=1, modified=1)
+[PASS] Test 9 — IndexDelta.is_empty
+[PASS] Test 10 — IncrementalStats.to_dict()
+[PASS] Test 11 — WorkspaceIndex immutability preserved
+[PASS] Test 12 — invalidate_cache() removes cache files
+[PASS] Test 13 — Engine compatibility with incremental index
+[PASS] Test 14 — RepositorySnapshot round-trip serialization
+
+============================================================
+All IncrementalWorkspaceIndex tests PASS
+============================================================
+=== Running tests/test_integration_pipeline.sh ===
+=== REGISTERED AGENTS ===
+['develop', 'inspect']
+
+=== EXECUTE DEVELOPMENT AGENT ===
+[ENGINE] IncrementalWorkspaceIndex ...
+[DONE  ] IncrementalWorkspaceIndex (0.02s)
+[ENGINE] RepositoryEngine ...
+[DONE  ] RepositoryEngine (0.00s)
+[ENGINE] DependencyEngine ...
+[DONE  ] DependencyEngine (0.00s)
+[ENGINE] ValidationEngine ...
+[DONE  ] ValidationEngine (0.00s)
+[ENGINE] PlanningEngine ...
+[DONE  ] PlanningEngine (0.00s)
+[ENGINE] RepositoryInspector ...
+[DONE  ] RepositoryInspector (0.00s)
+[ENGINE] CanonicalAudit ...
+[DONE  ] CanonicalAudit (0.60s)
+[ENGINE] SemanticEngine ...
+[DONE  ] SemanticEngine (0.13s)
+[ENGINE] KnowledgeGraph ...
+[DONE  ] KnowledgeGraph (0.12s)
+
+============================================================
+ENGINE PROFILE
+============================================================
+IncrementalWorkspaceIndex          0.02s
+RepositoryEngine                   0.00s
+DependencyEngine                   0.00s
+ValidationEngine                   0.00s
+PlanningEngine                     0.00s
+RepositoryInspector                0.00s
+CanonicalAudit                     0.60s
+SemanticEngine                     0.13s
+KnowledgeGraph                     0.12s
+------------------------------------------------------------
+TOTAL                            0.87s
+
+INCREMENTAL INDEX
+  Status       partial rebuild
+  Files reused 317
+  Files rebuilt    1
+  Rebuild      0.3%
+  Time saved  ~0.000s
+Development analysis completed.
+
+=== VERIFY REPORTS ===
+Reports OK
+
+=== VERIFY BATCHES ===
+Generated: 1
+
+=== VERIFY MATERIALIZATION ===
+Materialization OK
+
+=== VERIFY EXECUTION ===
+Execution OK
+
+=== VERIFY KNOWLEDGE GRAPH ===
+Knowledge Graph OK
+
+=== VERIFY SEMANTIC MODEL ===
+Semantic Engine OK
+
+===================================
+END-TO-END INTEGRATION TEST PASS
+===================================
+=== Running tests/test_knowledge_graph.sh ===
+==================================
+Knowledge Graph Engine
+==================================
+
+Nodes : 147
+Edges : 147
+
+Saved:
+/home/runner/work/AI-Toolkit/AI-Toolkit/.ai/memory/knowledge_graph.json
+
+========== GRAPH ==========
+Nodes : 147
+Edges : 147
+
+Knowledge Graph PASS
+=== Running tests/test_knowledge_graph_canonical.sh ===
+Graph: 950 nodes, 1107 edges
+Knowledge Graph (Canonical) PASS
+=== Running tests/test_knowledge_graph_v2.sh ===
+
+Nodes : 155
+Edges : 365
+
+Knowledge Graph PASS
+=== Running tests/test_markdown_report.sh ===
+Markdown report generated.
+
+Markdown Report PASS
+=== Running tests/test_memory_engine.sh ===
+==================================
+Memory Engine
+==================================
+
+Repository: AI-Toolkit
+Events: 2
+History: /home/runner/work/AI-Toolkit/AI-Toolkit/.ai/memory/history.json
+Index: /home/runner/work/AI-Toolkit/AI-Toolkit/.ai/memory/index.json
+
+Done.
+
+========== INDEX ==========
+{
+  "repository": "AI-Toolkit",
+  "created": "2026-08-03T04:59:58.410309+00:00",
+  "last_update": "2026-08-03T05:00:02.300871+00:00",
+  "events": 2,
+  "latest_profile": null,
+  "latest_plan": null,
+  "latest_review": null,
+  "latest_execution": null
+}
+Memory Engine PASS
+=== Running tests/test_planning_engine.sh ===
+Plan: PLAN-001
+- TASK-REPOSITORY Inspect 350 files
+- TASK-DEPENDENCIES Validate 350 dependencies
+- TASK-VALIDATION Execute 5 validation checks
+
+Planning Engine PASS
+=== Running tests/test_planning_optimizer.sh ===
+
+Planning Optimizer
+------------------
+Files: 312
+Elapsed: 0.01s
+
+Planning Optimizer PASS
+=== Running tests/test_profiler.sh ===
+[ENGINE] IncrementalWorkspaceIndex ...
+[DONE  ] IncrementalWorkspaceIndex (0.02s)
+[ENGINE] RepositoryEngine ...
+[DONE  ] RepositoryEngine (0.00s)
+[ENGINE] DependencyEngine ...
+[DONE  ] DependencyEngine (0.00s)
+[ENGINE] ValidationEngine ...
+[DONE  ] ValidationEngine (0.00s)
+[ENGINE] PlanningEngine ...
+[DONE  ] PlanningEngine (0.00s)
+[ENGINE] RepositoryInspector ...
+[DONE  ] RepositoryInspector (0.00s)
+[ENGINE] CanonicalAudit ...
+[DONE  ] CanonicalAudit (0.63s)
+[ENGINE] SemanticEngine ...
+[DONE  ] SemanticEngine (0.13s)
+[ENGINE] KnowledgeGraph ...
+[DONE  ] KnowledgeGraph (0.13s)
+
+============================================================
+ENGINE PROFILE
+============================================================
+IncrementalWorkspaceIndex          0.02s
+RepositoryEngine                   0.00s
+DependencyEngine                   0.00s
+ValidationEngine                   0.00s
+PlanningEngine                     0.00s
+RepositoryInspector                0.00s
+CanonicalAudit                     0.63s
+SemanticEngine                     0.13s
+KnowledgeGraph                     0.13s
+------------------------------------------------------------
+TOTAL                            0.92s
+
+INCREMENTAL INDEX
+  Status       partial rebuild
+  Files reused 317
+  Files rebuilt    1
+  Rebuild      0.3%
+
+Profiler PASS
+=== Running tests/test_progress_monitor.sh ===
+
+============================================================
+Workspace Execution
+============================================================
+[INFO ] Repositories discovered: 1
+[START] AI-Toolkit
+[ENGINE] IncrementalWorkspaceIndex ...
+[DONE  ] IncrementalWorkspaceIndex (0.02s)
+[ENGINE] RepositoryEngine ...
+[DONE  ] RepositoryEngine (0.00s)
+[ENGINE] DependencyEngine ...
+[DONE  ] DependencyEngine (0.00s)
+[ENGINE] ValidationEngine ...
+[DONE  ] ValidationEngine (0.00s)
+[ENGINE] PlanningEngine ...
+[DONE  ] PlanningEngine (0.00s)
+[ENGINE] RepositoryInspector ...
+[DONE  ] RepositoryInspector (0.00s)
+[ENGINE] CanonicalAudit ...
+[DONE  ] CanonicalAudit (0.61s)
+[ENGINE] SemanticEngine ...
+[DONE  ] SemanticEngine (0.13s)
+[ENGINE] KnowledgeGraph ...
+[DONE  ] KnowledgeGraph (0.12s)
+
+============================================================
+ENGINE PROFILE
+============================================================
+IncrementalWorkspaceIndex          0.02s
+RepositoryEngine                   0.00s
+DependencyEngine                   0.00s
+ValidationEngine                   0.00s
+PlanningEngine                     0.00s
+RepositoryInspector                0.00s
+CanonicalAudit                     0.61s
+SemanticEngine                     0.13s
+KnowledgeGraph                     0.12s
+------------------------------------------------------------
+TOTAL                            0.88s
+
+INCREMENTAL INDEX
+  Status       partial rebuild
+  Files reused 317
+  Files rebuilt    1
+  Rebuild      0.3%
+  Time saved  ~0.000s
+[DONE ] AI-Toolkit (0.88s)
+
+============================================================
+TOTAL ELAPSED: 0.88s
+============================================================
+
+SUMMARY
+-------
+AI-Toolkit: 0.88s
+
+Progress Monitor PASS
+=== Running tests/test_python_packages.sh ===
+Python package import PASS
+=== Running tests/test_recommendation_engine.sh ===
+[ENGINE] IncrementalWorkspaceIndex ...
+[DONE  ] IncrementalWorkspaceIndex (0.02s)
+[ENGINE] RepositoryEngine ...
+[DONE  ] RepositoryEngine (0.00s)
+[ENGINE] DependencyEngine ...
+[DONE  ] DependencyEngine (0.00s)
+[ENGINE] ValidationEngine ...
+[DONE  ] ValidationEngine (0.00s)
+[ENGINE] PlanningEngine ...
+[DONE  ] PlanningEngine (0.00s)
+[ENGINE] RepositoryInspector ...
+[DONE  ] RepositoryInspector (0.00s)
+[ENGINE] CanonicalAudit ...
+[DONE  ] CanonicalAudit (0.61s)
+[ENGINE] SemanticEngine ...
+[DONE  ] SemanticEngine (0.13s)
+[ENGINE] KnowledgeGraph ...
+[DONE  ] KnowledgeGraph (0.12s)
+
+============================================================
+ENGINE PROFILE
+============================================================
+IncrementalWorkspaceIndex          0.02s
+RepositoryEngine                   0.00s
+DependencyEngine                   0.00s
+ValidationEngine                   0.00s
+PlanningEngine                     0.00s
+RepositoryInspector                0.00s
+CanonicalAudit                     0.61s
+SemanticEngine                     0.13s
+KnowledgeGraph                     0.12s
+------------------------------------------------------------
+TOTAL                            0.89s
+
+INCREMENTAL INDEX
+  Status       partial rebuild
+  Files reused 317
+  Files rebuilt    1
+  Rebuild      0.3%
+  Time saved  ~0.000s
+
+HIGH - Implement missing canonical modules
+
+Recommendation Engine PASS
+## Next Actions
+
+- [HIGH] Implement missing canonical modules
+  Reason: 49 canonical specifications have no detected implementation.
+  Estimated: 49 h
+
+
+## Generated Batches
+
+- BATCH-001 [HIGH] Implement missing canonical modules
+  Estimate: 49 h
+
+
+## Review
+
+Status: **READY**
+Score: **100/100**
+
+- Score: 100/100
+- Critical: 0
+- Major: 0
+=== Running tests/test_reporting_engine.sh ===
+Executive report length: 170
+Reporting Engine PASS
+=== Running tests/test_repository_analysis.sh ===
+
+Repository Score : 100
+Findings         : 0
+Recommendations  : 0
+
+Repository Analysis PASS
+=== Running tests/test_repository_hygiene.sh ===
+==================================
+Repository Hygiene Audit
+==================================
+
+FOUND 172 issues
+
+lib/python/__pycache__
+lib/python/canonical_intelligence/__pycache__
+lib/python/development_validator/__pycache__
+lib/python/workspace_index/__pycache__
+lib/python/common/__pycache__
+lib/python/ai_cto_scanner/__pycache__
+lib/python/drift_engine/__pycache__
+lib/python/planning_engine/__pycache__
+lib/python/compliance_engine/__pycache__
+lib/python/github_materialization/__pycache__
+lib/python/autonomous_planner/__pycache__
+lib/python/semantic_engine/__pycache__
+lib/python/rule_engine/__pycache__
+lib/python/planning_optimizer/__pycache__
+lib/python/discovery_engine/__pycache__
+lib/python/cli/__pycache__
+lib/python/canonical_repository/__pycache__
+lib/python/knowledge_graph/__pycache__
+lib/python/canonical_parser/__pycache__
+lib/python/repository_engine/__pycache__
+lib/python/agent_runtime/__pycache__
+lib/python/execution_engine/__pycache__
+lib/python/recommendation_engine/__pycache__
+lib/python/validation_engine/__pycache__
+lib/python/batch_planner/__pycache__
+lib/python/execution_coordinator/__pycache__
+lib/python/development_state_engine/__pycache__
+lib/python/workspace_manager/__pycache__
+lib/python/coverage_engine/__pycache__
+lib/python/agents/__pycache__
+lib/python/__pycache__/__init__.cpython-312.pyc
+lib/python/semantic_matching/__pycache__
+lib/python/canonical_entities/__pycache__
+lib/python/review_agent/__pycache__
+lib/python/knowledge_graph_v2/__pycache__
+lib/python/profiler/__pycache__
+lib/python/knowledge_engine/__pycache__
+lib/python/repository_inspector_v2/__pycache__
+lib/python/progress_monitor/__pycache__
+lib/python/canonical_audit/__pycache__
+lib/python/evidence_engine/__pycache__
+lib/python/workspace_orchestrator/__pycache__
+lib/python/reporting_engine/__pycache__
+lib/python/dependency_engine/__pycache__
+lib/python/semantic_repository_intelligence/__pycache__
+lib/python/batch_generator/__pycache__
+lib/python/canonical_intelligence/__pycache__/__init__.cpython-312.pyc
+lib/python/canonical_intelligence/__pycache__/engine.cpython-312.pyc
+lib/python/development_validator/__pycache__/rules.cpython-312.pyc
+lib/python/development_validator/__pycache__/parser.cpython-312.pyc
+lib/python/development_validator/__pycache__/report.cpython-312.pyc
+lib/python/workspace_index/__pycache__/__init__.cpython-312.pyc
+lib/python/workspace_index/__pycache__/incremental.cpython-312.pyc
+lib/python/workspace_index/__pycache__/models.cpython-312.pyc
+lib/python/workspace_index/__pycache__/exporter.cpython-312.pyc
+lib/python/workspace_index/__pycache__/policy.cpython-312.pyc
+lib/python/workspace_index/__pycache__/builder.cpython-312.pyc
+lib/python/common/__pycache__/__init__.cpython-312.pyc
+lib/python/common/__pycache__/models.cpython-312.pyc
+lib/python/ai_cto_scanner/__pycache__/__init__.cpython-312.pyc
+lib/python/ai_cto_scanner/__pycache__/scoring.cpython-312.pyc
+lib/python/ai_cto_scanner/__pycache__/engine.cpython-312.pyc
+lib/python/ai_cto_scanner/__pycache__/detectors.cpython-312.pyc
+lib/python/ai_cto_scanner/__pycache__/report.cpython-312.pyc
+lib/python/drift_engine/__pycache__/__init__.cpython-312.pyc
+lib/python/drift_engine/__pycache__/engine.cpython-312.pyc
+lib/python/planning_engine/__pycache__/__init__.cpython-312.pyc
+lib/python/planning_engine/__pycache__/engine.cpython-312.pyc
+lib/python/planning_engine/__pycache__/models.cpython-312.pyc
+lib/python/planning_engine/__pycache__/exporter.cpython-312.pyc
+lib/python/compliance_engine/__pycache__/__init__.cpython-312.pyc
+lib/python/compliance_engine/__pycache__/engine.cpython-312.pyc
+lib/python/github_materialization/__pycache__/__init__.cpython-312.pyc
+lib/python/github_materialization/__pycache__/engine.cpython-312.pyc
+lib/python/autonomous_planner/__pycache__/__init__.cpython-312.pyc
+lib/python/autonomous_planner/__pycache__/engine.cpython-312.pyc
+lib/python/semantic_engine/__pycache__/__init__.cpython-312.pyc
+lib/python/semantic_engine/__pycache__/engine.cpython-312.pyc
+lib/python/rule_engine/rules/__pycache__
+lib/python/rule_engine/__pycache__/__init__.cpython-312.pyc
+lib/python/rule_engine/__pycache__/engine.cpython-312.pyc
+lib/python/rule_engine/__pycache__/models.cpython-312.pyc
+lib/python/rule_engine/__pycache__/base.cpython-312.pyc
+lib/python/rule_engine/rules/__pycache__/repository_size_rule.cpython-312.pyc
+lib/python/rule_engine/rules/__pycache__/validation_rule.cpython-312.pyc
+lib/python/planning_optimizer/__pycache__/__init__.cpython-312.pyc
+lib/python/planning_optimizer/__pycache__/engine.cpython-312.pyc
+lib/python/discovery_engine/__pycache__/__init__.cpython-312.pyc
+lib/python/discovery_engine/__pycache__/engine.cpython-312.pyc
+lib/python/cli/__pycache__/__init__.cpython-312.pyc
+lib/python/cli/__pycache__/main.cpython-312.pyc
+lib/python/canonical_repository/__pycache__/__init__.cpython-312.pyc
+lib/python/canonical_repository/__pycache__/repository.cpython-312.pyc
+lib/python/knowledge_graph/__pycache__/__init__.cpython-312.pyc
+lib/python/knowledge_graph/__pycache__/graph.cpython-312.pyc
+lib/python/knowledge_graph/__pycache__/builder.cpython-312.pyc
+lib/python/canonical_parser/__pycache__/__init__.cpython-312.pyc
+lib/python/canonical_parser/__pycache__/parser.cpython-312.pyc
+lib/python/repository_engine/__pycache__/__init__.cpython-312.pyc
+lib/python/repository_engine/__pycache__/engine.cpython-312.pyc
+lib/python/repository_engine/__pycache__/models.cpython-312.pyc
+lib/python/agent_runtime/__pycache__/__init__.cpython-312.pyc
+lib/python/agent_runtime/__pycache__/runtime.cpython-312.pyc
+lib/python/agent_runtime/__pycache__/models.cpython-312.pyc
+lib/python/agent_runtime/__pycache__/base.cpython-312.pyc
+lib/python/agent_runtime/__pycache__/registry.cpython-312.pyc
+lib/python/execution_engine/__pycache__/__init__.cpython-312.pyc
+lib/python/execution_engine/__pycache__/engine.cpython-312.pyc
+lib/python/recommendation_engine/__pycache__/__init__.cpython-312.pyc
+lib/python/recommendation_engine/__pycache__/engine.cpython-312.pyc
+lib/python/validation_engine/__pycache__/__init__.cpython-312.pyc
+lib/python/validation_engine/__pycache__/engine.cpython-312.pyc
+lib/python/validation_engine/__pycache__/models.cpython-312.pyc
+lib/python/batch_planner/__pycache__/__init__.cpython-312.pyc
+lib/python/batch_planner/__pycache__/planner.cpython-312.pyc
+lib/python/execution_coordinator/__pycache__/__init__.cpython-312.pyc
+lib/python/execution_coordinator/__pycache__/engine.cpython-312.pyc
+lib/python/development_state_engine/__pycache__/__init__.cpython-312.pyc
+lib/python/development_state_engine/__pycache__/runtime.cpython-312.pyc
+lib/python/development_state_engine/__pycache__/models.cpython-312.pyc
+lib/python/development_state_engine/__pycache__/repository.cpython-312.pyc
+lib/python/workspace_manager/__pycache__/__init__.cpython-312.pyc
+lib/python/workspace_manager/__pycache__/engine.cpython-312.pyc
+lib/python/coverage_engine/__pycache__/__init__.cpython-312.pyc
+lib/python/coverage_engine/__pycache__/engine.cpython-312.pyc
+lib/python/agents/__pycache__/__init__.cpython-312.pyc
+lib/python/agents/__pycache__/development_agent.cpython-312.pyc
+lib/python/agents/__pycache__/repository_inspector_agent.cpython-312.pyc
+lib/python/agents/__pycache__/ai_cto_scanner_agent.cpython-312.pyc
+lib/python/agents/__pycache__/development_report.cpython-312.pyc
+lib/python/semantic_matching/__pycache__/__init__.cpython-312.pyc
+lib/python/semantic_matching/__pycache__/matcher.cpython-312.pyc
+lib/python/canonical_entities/__pycache__/__init__.cpython-312.pyc
+lib/python/canonical_entities/__pycache__/models.cpython-312.pyc
+lib/python/review_agent/__pycache__/__init__.cpython-312.pyc
+lib/python/review_agent/__pycache__/engine.cpython-312.pyc
+lib/python/knowledge_graph_v2/__pycache__/__init__.cpython-312.pyc
+lib/python/knowledge_graph_v2/__pycache__/engine.cpython-312.pyc
+lib/python/profiler/__pycache__/__init__.cpython-312.pyc
+lib/python/profiler/__pycache__/engine.cpython-312.pyc
+lib/python/knowledge_engine/__pycache__/__init__.cpython-312.pyc
+lib/python/repository_inspector_v2/__pycache__/__init__.cpython-312.pyc
+lib/python/repository_inspector_v2/__pycache__/engine.cpython-312.pyc
+lib/python/repository_inspector_v2/__pycache__/report.cpython-312.pyc
+lib/python/progress_monitor/__pycache__/__init__.cpython-312.pyc
+lib/python/progress_monitor/__pycache__/engine.cpython-312.pyc
+lib/python/canonical_audit/__pycache__/__init__.cpython-312.pyc
+lib/python/canonical_audit/__pycache__/engine.cpython-312.pyc
+lib/python/evidence_engine/__pycache__/__init__.cpython-312.pyc
+lib/python/evidence_engine/__pycache__/engine.cpython-312.pyc
+lib/python/workspace_orchestrator/__pycache__/__init__.cpython-312.pyc
+lib/python/workspace_orchestrator/__pycache__/engine.cpython-312.pyc
+lib/python/reporting_engine/__pycache__/__init__.cpython-312.pyc
+lib/python/reporting_engine/__pycache__/engine.cpython-312.pyc
+lib/python/dependency_engine/__pycache__/__init__.cpython-312.pyc
+lib/python/dependency_engine/__pycache__/engine.cpython-312.pyc
+lib/python/dependency_engine/__pycache__/models.cpython-312.pyc
+lib/python/semantic_repository_intelligence/__pycache__/__init__.cpython-312.pyc
+lib/python/semantic_repository_intelligence/__pycache__/relationship_resolver.cpython-312.pyc
+lib/python/semantic_repository_intelligence/__pycache__/recommendation_engine.cpython-312.pyc
+lib/python/semantic_repository_intelligence/__pycache__/engine.cpython-312.pyc
+lib/python/semantic_repository_intelligence/__pycache__/call_graph.cpython-312.pyc
+lib/python/semantic_repository_intelligence/__pycache__/architecture_graph.cpython-312.pyc
+lib/python/semantic_repository_intelligence/__pycache__/models.cpython-312.pyc
+lib/python/semantic_repository_intelligence/__pycache__/persistence.cpython-312.pyc
+lib/python/semantic_repository_intelligence/__pycache__/dependency_graph.cpython-312.pyc
+lib/python/semantic_repository_intelligence/__pycache__/ast_analyzer.cpython-312.pyc
+lib/python/semantic_repository_intelligence/__pycache__/import_graph.cpython-312.pyc
+lib/python/semantic_repository_intelligence/__pycache__/confidence_engine.cpython-312.pyc
+lib/python/semantic_repository_intelligence/__pycache__/injection_point_analyzer.cpython-312.pyc
+lib/python/batch_generator/__pycache__/__init__.cpython-312.pyc
+lib/python/batch_generator/__pycache__/engine.cpython-312.pyc
+=== Running tests/test_repository_inspector.sh ===
+==================================
+Repository Inspector Test
+==================================
+
+[1/8] Repository
+/home/runner/work/AI-Toolkit/AI-Toolkit
+
+[2/8] Branch
+copilot/core-009a-development-state-data-model
+
+[3/8] Git Status
+ M .ai/batches/BATCH-001/implementation_plan.md
+ M .ai/batches/BATCH-001/issue.md
+ M .ai/batches/BATCH-001/metadata.json
+ M .ai/semantic_knowledge.json
+ M AI_CTO_INTEGRATION_REPORT.md
+?? test_results.txt
+
+[4/8] File count
+518
+
+[5/8] Directory count
+140
+
+[6/8] Canonical documents
+./docs/canonical/AI_TOOLKIT_SYSTEM_ARCHITECTURE_v1.0.0.md
+./docs/canonical/AUTONOMOUS_AGENT_SPEC_v1.0.0.md
+./docs/canonical/AUTONOMOUS_WORKFLOW_SPEC_v1.0.0.md
+./docs/canonical/CANON-001_AI_TOOLKIT_ARCHITECTURE_v2.0.md
+./docs/canonical/CANON-002_DEVELOPMENT_WORKFLOW_v2.0.md
+./docs/canonical/CANON-003_REPOSITORY_STANDARDS_v2.0.md
+./docs/canonical/CANON-004_AI_AGENT_SPECIFICATION_v2.0.md
+./docs/canonical/CANON-005_WORKSPACE_INDEX_SPECIFICATION_v2.0.md
+./docs/canonical/CANON-006_OBSERVABILITY_SPECIFICATION_v2.0.md
+./docs/canonical/CANON-007_AUTONOMOUS_EXECUTION_SPECIFICATION_v2.0.md
+./docs/canonical/CANON-008_PERFORMANCE_BENCHMARK_SPECIFICATION_v2.0.md
+./docs/canonical/CANON-009_TESTING_AND_VALIDATION_SPECIFICATION_v2.0.md
+./docs/canonical/CANON-010_AI_TOOLKIT_ROADMAP_AND_EVOLUTION_v2.0.md
+./docs/canonical/CANON-011_SYSTEM_INVARIANTS_v2.0.md
+./docs/canonical/CANON-012_CANONICAL_INTELLIGENCE_SPECIFICATION_v1.0.0.md
+./docs/canonical/CANON-013_CANONICAL_KNOWLEDGE_GRAPH_SPECIFICATION_v1.0.0.md
+./docs/canonical/CANON-014_SEMANTIC_MATCHING_SPECIFICATION_v1.0.0.md
+./docs/canonical/CANON-015_COVERAGE_AND_COMPLIANCE_SPECIFICATION_v1.0.0.md
+./docs/canonical/CANON-016_ARCHITECTURE_DRIFT_SPECIFICATION_v1.0.0.md
+./docs/canonical/CANON-017_INTELLIGENT_BATCH_PLANNING_SPECIFICATION_v1.0.0.md
+./docs/canonical/CANON-018_CANONICAL_INTELLIGENCE_REPORTING_SPECIFICATION_v1.0.0.md
+./docs/canonical/CANON-019_CANONICAL_VALIDATION_AND_GOVERNANCE_SPECIFICATION_v1.0.0.md
+./docs/canonical/CANON-020_DEVELOPMENT_BRAIN_SPECIFICATION_v1.0.0.md
+./docs/canonical/CANON-021_MULTI_PROJECT_INTELLIGENCE_SPECIFICATION_v1.0.0.md
+./docs/canonical/CANON-022_PROJECT_MEMORY_SPECIFICATION_v1.0.0.md
+./docs/canonical/CANON-023_OWNER_INTELLIGENCE_SPECIFICATION_v1.0.0.md
+./docs/canonical/CANON-024_TELEGRAM_CONTROL_PLANE_SPECIFICATION_v1.0.0.md
+./docs/canonical/CANON-025_AI_ORCHESTRATION_SPECIFICATION_v1.0.0.md
+./docs/canonical/CANON-026_AUTONOMOUS_DEVELOPMENT_WORKFLOW_SPECIFICATION_v1.0.0.md
+./docs/canonical/CANON-027_CTO_DECISION_ENGINE_SPECIFICATION_v1.0.0.md
+./docs/canonical/CANON-028_DAILY_EXECUTIVE_BRIEFING_SPECIFICATION_v1.0.0.md
+./docs/canonical/CANON-029_AUTONOMOUS_PROJECT_GOVERNANCE_SPECIFICATION_v1.0.0.md
+./docs/canonical/CANON-030_DEVELOPMENT_STATE_ENGINE_SPECIFICATION_v1.0.0.md
+./docs/canonical/CANON-031_AI_CTO_TELEGRAM_WORKSPACE_SPECIFICATION_v1.0.0.md
+./docs/canonical/CANON-032_SEMANTIC_REPOSITORY_INTELLIGENCE_SPECIFICATION_v1.0.0.md
+./docs/canonical/CANON-033_WORKSPACE_MATURITY_AND_LIFECYCLE_SPECIFICATION_v1.0.0.md
+./docs/canonical/CANON-034_AUTONOMOUS_EXECUTION_GOVERNANCE_SPECIFICATION_v1.0.0.md
+./docs/canonical/CANON-035_WORKSPACE_REGISTRY_SPECIFICATION_v1.0.0.md
+./docs/canonical/CANON-036_CROSS_WORKSPACE_DEPENDENCY_SPECIFICATION_v1.0.0.md
+./docs/canonical/CANON-037_KNOWLEDGE_PERSISTENCE_SPECIFICATION_v1.0.0.md
+./docs/canonical/CANON-038_OWNER_DECISION_INTELLIGENCE_SPECIFICATION_v1.0.0.md
+./docs/canonical/CANON-039_AI_CTO_CONVERSATION_ENGINE_SPECIFICATION_v1.0.0.md
+./docs/canonical/CANON-040_UNIVERSAL_CONNECTOR_SPECIFICATION_v1.0.0.md
+./docs/canonical/CANON-041_EXECUTIVE_DASHBOARD_SPECIFICATION_v1.0.0.md
+./docs/canonical/CANON-042_AI_CTO_PLUGIN_ARCHITECTURE_SPECIFICATION_v1.0.0.md
+./docs/canonical/CANON-043_SELF_EVOLUTION_FRAMEWORK_SPECIFICATION_v1.0.0.md
+./docs/canonical/CANONICAL_MASTER_INDEX_v1.0.0.md
+./docs/canonical/CLI_SPEC_v1.0.0.md
+./docs/canonical/DECISION_ENGINE_SPEC_v1.0.0.md
+./docs/canonical/DEVELOPMENT_MATERIALIZATION_SPEC_v1.0.0.md
+./docs/canonical/ENGINE_INTERFACE_SPEC_v1.0.0.md
+./docs/canonical/KNOWLEDGE_GRAPH_SPEC_v1.0.0.md
+./docs/canonical/MEMORY_SYSTEM_SPEC_v1.0.0.md
+./docs/canonical/MULTI_AGENT_ORCHESTRATION_SPEC_v1.0.0.md
+./docs/canonical/PLUGIN_SDK_SPEC_v1.0.0.md
+./docs/canonical/PROMPT_ENGINE_SPEC_v1.0.0.md
+./docs/canonical/REPOSITORY_HYGIENE_SPEC_v1.0.0.md
+./docs/canonical/ROADMAP_v2.0.0.md
+./docs/canonical/SELF_KNOWLEDGE_SYSTEM_SPEC_v1.0.0.md
+./docs/canonical/SEMANTIC_SEARCH_SPEC_v1.0.0.md
+./docs/canonical/STATE_MODEL_SPEC_v1.0.0.md
+./docs/canonical/SYSTEM_INVARIANTS_v1.0.0.md
+./docs/canonical/TEST_PLAN_v1.0.0.md
+
+[7/8] Engines
+./lib/context_engine.sh
+./lib/execution_engine.sh
+./lib/git_engine.sh
+./lib/github_engine.sh
+./lib/issue_engine.sh
+./lib/planner_engine.sh
+./lib/repository_profile_engine.sh
+./lib/review_engine.sh
+./lib/work_engine.sh
+./lib/workspace_engine.sh
+
+[8/8] Result
+PASS
+=== Running tests/test_repository_inspector_v2.sh ===
+
+Repository Health : HEALTHY
+Files             : 352
+Dependencies      : 352
+Validation Passed : 5
+Planning Tasks    : 3
+
+Repository Inspector v2 PASS
+=== Running tests/test_repository_inventory.sh ===
+==================================
+Repository Inventory
+==================================
+
+engines: 10
+python_modules: 153
+tests: 72
+canonical_documents: 63
+development_batches: 3
+audit_modules: 3
+cli_commands: 0
+
+Saved: /home/runner/work/AI-Toolkit/AI-Toolkit/.ai/audit/repository_inventory.json
+
+Repository Inventory PASS
+=== Running tests/test_repository_profile.sh ===
+========== Repository Intelligence Test ==========
+==================================
+Repository Intelligence
+==================================
+
+Languages
+  ✓ Python
+  ✓ Shell
+  ✓ Markdown
+
+Package Managers
+
+CI / CD
+
+Repository Features
+  ✓ Tests
+  ✓ Documentation
+  ✓ Canonical Architecture
+
+Analysis complete.
+
+PASS
+=== Running tests/test_repository_profile_python.sh ===
+{
+  "repository": "AI-Toolkit",
+  "root": "/home/runner/work/AI-Toolkit/AI-Toolkit",
+  "branch": "copilot/core-009a-development-state-data-model",
+  "languages": [
+    "Python",
+    "Shell",
+    "Markdown"
+  ],
+  "package_managers": [],
+  "features": {
+    "git": true,
+    "tests": true,
+    "canonical": true,
+    "plugins": false,
+    "railway": false,
+    "github_actions": false
+  },
+  "statistics": {
+    "engines": 10,
+    "tests": 70,
+    "canonical_documents": 63
+  }
+}
+
+Profile saved:
+/home/runner/work/AI-Toolkit/AI-Toolkit/.ai/context/repository_profile.json
+
+Repository profile generated successfully.
+=== Running tests/test_review_agent.sh ===
+[ENGINE] IncrementalWorkspaceIndex ...
+[DONE  ] IncrementalWorkspaceIndex (0.02s)
+[ENGINE] RepositoryEngine ...
+[DONE  ] RepositoryEngine (0.00s)
+[ENGINE] DependencyEngine ...
+[DONE  ] DependencyEngine (0.00s)
+[ENGINE] ValidationEngine ...
+[DONE  ] ValidationEngine (0.00s)
+[ENGINE] PlanningEngine ...
+[DONE  ] PlanningEngine (0.00s)
+[ENGINE] RepositoryInspector ...
+[DONE  ] RepositoryInspector (0.00s)
+[ENGINE] CanonicalAudit ...
+[DONE  ] CanonicalAudit (0.62s)
+[ENGINE] SemanticEngine ...
+[DONE  ] SemanticEngine (0.13s)
+[ENGINE] KnowledgeGraph ...
+[DONE  ] KnowledgeGraph (0.12s)
+
+============================================================
+ENGINE PROFILE
+============================================================
+IncrementalWorkspaceIndex          0.02s
+RepositoryEngine                   0.00s
+DependencyEngine                   0.00s
+ValidationEngine                   0.00s
+PlanningEngine                     0.00s
+RepositoryInspector                0.00s
+CanonicalAudit                     0.62s
+SemanticEngine                     0.13s
+KnowledgeGraph                     0.12s
+------------------------------------------------------------
+TOTAL                            0.90s
+
+INCREMENTAL INDEX
+  Status       partial rebuild
+  Files reused 317
+  Files rebuilt    1
+  Rebuild      0.3%
+  Time saved  ~0.000s
+
+Status : READY
+Score  : 100
+
+- Score: 100/100
+- Critical: 0
+- Major: 0
+- Minor: 0
+
+Review Agent PASS
+## Review
+
+Status: **READY**
+Score: **100/100**
+
+- Score: 100/100
+- Critical: 0
+- Major: 0
+- Minor: 0
+
+
+## Roadmap
+
+Total estimate: 49 h
+
+### Phase 1 - Critical
+=== Running tests/test_rule_engine.sh ===
+
+Repository Score: 100
+Findings: 0
+Recommendations: 0
+
+Rule Engine PASS
+=== Running tests/test_runtime_layout.sh ===
+Path must not exist: /home/runner/work/AI-Toolkit/AI-Toolkit/.ai/execution_state.json
+FAILED: tests/test_runtime_layout.sh
+=== Running tests/test_semantic_engine.sh ===
+
+Python files analysed: 153
+Classes : 174
+Functions: 541
+
+Semantic Engine PASS
+=== Running tests/test_semantic_matching.sh ===
+Total matches: 5009
+Documents with matches: 42
+Semantic Matching PASS
+=== Running tests/test_semantic_repository_intelligence.sh ===
+===========================================
+Semantic Repository Intelligence Test
+CORE-008B
+===========================================
+
+[1/12] Module import check
+All 11 components imported OK
+
+[2/12] ASTAnalyzer — Python analysis
+Python files analysed: 155
+ASTAnalyzer Python OK
+
+[3/12] ASTAnalyzer — multi-language
+Languages detected: ['json', 'markdown', 'python']
+Multi-language analysis OK
+
+[4/12] ImportGraphBuilder
+Import graph nodes: 155
+Import graph edges: 365
+Circular dependencies: 0
+ImportGraphBuilder OK
+
+[5/12] CallGraphBuilder
+Call graph edges: 123
+Entry points: 20
+CallGraphBuilder OK
+
+[6/12] DependencyGraphBuilder
+External dependencies: 0
+Internal modules: 155
+DependencyGraphBuilder OK
+
+[7/12] ArchitectureGraphBuilder
+Architecture nodes: 15
+Architecture edges: 44
+Architecture risks: 5
+ArchitectureGraphBuilder OK
+
+[8/12] InjectionPointAnalyzer
+Injection points found: 60
+Types: ['decorator', 'di_container', 'event_bus', 'plugin_interface', 'service_boundary']
+InjectionPointAnalyzer OK
+
+[9/12] ConfidenceEngine
+ConfidenceEngine OK
+
+[10/12] SemanticRecommendationEngine
+Recommendations: 10
+Findings: 22
+SemanticRecommendationEngine OK
+
+[11/12] SemanticRepositoryEngine — full pipeline (AI-Toolkit)
+File count: 259
+Import graph: 155 nodes
+Architecture: 15 layers
+Recommendations: 10
+Injection points: 60
+Next CORE: CORE-009 — Development State Engine: Persist full development state for cross-session reasoning.
+SemanticRepositoryEngine full pipeline OK
+
+[12/12] Determinism check
+Deterministic output confirmed: {
+  "file_count": 259,
+  "import_nodes": 155,
+  "import_edges": 365,
+  "circular_deps": 0,
+  "arch_nodes": 15,
+  "arch_edges": 44,
+  "injection_points": 60,
+  "recommendations": 10,
+  "complexity_files": 259,
+  "next_core": "CORE-009 \u2014 Development State Engine: Persist full development state for cross-session reasoning."
+}
+Determinism check OK
+
+===========================================
+Semantic Repository Intelligence PASS
+CORE-008B
+===========================================
+=== Running tests/test_session_runtime.sh ===
+
+Session : SESSION-20260803-050013
+Completed:
+- inspect
+- validation
+- planning
+
+Session Runtime PASS
+=== Running tests/test_steps_definition.sh ===
+
+===== STEP DEFINITIONS =====
+
+.ai/batches/BATCH-001
+Status: READY
+STEP-001 READY Implementation
+STEP-002 READY Run Tests
+STEP-003 READY Documentation Review
+
+.ai/batches/BATCH-002
+Status: READY
+STEP-001 READY Implementation
+STEP-002 READY Run Tests
+STEP-003 READY Documentation Review
+
+STEP DEFINITION PASS
+=== Running tests/test_trading_profile.sh ===
+
+Profile: Trading Signals Platform
+Canonical Found: 2
+Canonical Missing: 5
+
+Missing:
+- SYSTEM_ARCHITECTURE_MAP
+- ALGO_SPEC
+- SIGNAL_ENGINE_EXECUTION_SPEC
+- SIGNAL_DISTRIBUTION_SPEC
+- PERFORMANCE_ANALYTICS_SPEC
+
+Trading Profile PASS
+=== Running tests/test_validation_engine.sh ===
+Traceback (most recent call last):
+  File "<stdin>", line 5, in <module>
+  File "/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python/validation_engine/engine.py", line 3, in <module>
+    from .models import ValidationResult
+ImportError: attempted relative import with no known parent package
+FAILED: tests/test_validation_engine.sh
+=== Running tests/test_workspace.sh ===
+========== Workspace Validation ==========
+==================================
+Workspace Status
+==================================
+
+Context
+/home/runner/work/AI-Toolkit/AI-Toolkit/.ai/context/.gitkeep
+/home/runner/work/AI-Toolkit/AI-Toolkit/.ai/context/repository_profile.json
+
+Work
+/home/runner/work/AI-Toolkit/AI-Toolkit/.ai/work/.gitkeep
+/home/runner/work/AI-Toolkit/AI-Toolkit/.ai/work/development_validation.json
+
+Workspace validation
+ERROR: project_context.md missing
+ERROR: missing session.md
+ERROR: missing repository_summary.txt
+ERROR: missing plan.md
+ERROR: missing review.md
+ERROR: missing execution.log
+
+Git status
+ M .ai/batches/BATCH-001/implementation_plan.md
+ M .ai/batches/BATCH-001/issue.md
+ M .ai/batches/BATCH-001/metadata.json
+ M .ai/semantic_knowledge.json
+ M AI_CTO_INTEGRATION_REPORT.md
+?? .ai/sessions/
+?? test_results.txt
+
+Workspace: FAIL
+FAILED: tests/test_workspace.sh
+=== Running tests/test_workspace_index.sh ===
+============================================================
+WorkspaceIndex — Test Suite
+============================================================
+
+[PASS] WorkspaceIndex creation
+       files=354  dirs=73
+       scan=0.0137s  fps=25905
+[PASS] RepositoryPolicy application
+       ignored_dirs=50  ignored_files=0
+[PASS] Exactly one repository traversal (os.walk called 1 time)
+[PASS] Immutable WorkspaceIndex
+[PASS] Engine compatibility
+       repo_files=354  deps=354
+       plan_tasks=3  canonical_docs=53
+       semantic_files=153  kg_nodes=155
+[PASS] Performance metrics
+       scan_duration=0.0137s  files_per_second=25905
+[PASS] Serialization
+       exported 354 files to JSON
+
+============================================================
+All WorkspaceIndex tests PASS
+============================================================
+=== Running tests/test_workspace_manager.sh ===
+
+Repositories discovered: 1
+
+- AI-Toolkit
+
+Workspace Manager PASS
+=== Running tests/test_workspace_orchestrator.sh ===
+
+============================================================
+Workspace Execution
+============================================================
+[INFO ] Repositories discovered: 1
+[START] AI-Toolkit
+[ENGINE] IncrementalWorkspaceIndex ...
+[DONE  ] IncrementalWorkspaceIndex (0.02s)
+[ENGINE] RepositoryEngine ...
+[DONE  ] RepositoryEngine (0.00s)
+[ENGINE] DependencyEngine ...
+[DONE  ] DependencyEngine (0.00s)
+[ENGINE] ValidationEngine ...
+[DONE  ] ValidationEngine (0.00s)
+[ENGINE] PlanningEngine ...
+[DONE  ] PlanningEngine (0.00s)
+[ENGINE] RepositoryInspector ...
+[DONE  ] RepositoryInspector (0.00s)
+[ENGINE] CanonicalAudit ...
+[DONE  ] CanonicalAudit (0.60s)
+[ENGINE] SemanticEngine ...
+[DONE  ] SemanticEngine (0.13s)
+[ENGINE] KnowledgeGraph ...
+[DONE  ] KnowledgeGraph (0.14s)
+
+============================================================
+ENGINE PROFILE
+============================================================
+IncrementalWorkspaceIndex          0.02s
+RepositoryEngine                   0.00s
+DependencyEngine                   0.00s
+ValidationEngine                   0.00s
+PlanningEngine                     0.00s
+RepositoryInspector                0.00s
+CanonicalAudit                     0.60s
+SemanticEngine                     0.13s
+KnowledgeGraph                     0.14s
+------------------------------------------------------------
+TOTAL                            0.89s
+
+INCREMENTAL INDEX
+  Status       partial rebuild
+  Files reused 317
+  Files rebuilt    1
+  Rebuild      0.3%
+[DONE ] AI-Toolkit (0.89s)
+
+============================================================
+TOTAL ELAPSED: 0.89s
+============================================================
+
+Repositories processed: 1
+
+AI-Toolkit -> SUCCESS
+ Score: 100
+ Health: HEALTHY
+ Batches: 1
+
+Workspace Orchestrator PASS
+=== Running tests/test_workspace_profile.sh ===
+==========================================================================================
+WORKSPACE PERFORMANCE PROFILE
+==========================================================================================
+
+==========================================================================================
+AI-Toolkit
+==========================================================================================
+Repository               0.02s
+Dependencies             0.02s
+Validation               0.00s
+Planning                 0.03s
+Inspector                0.06s
+CanonicalAudit           0.61s
+Semantic                 0.14s
+KnowledgeGraph           0.13s
+
+==========================================================================================
+SUMMARY
+==========================================================================================
+Repository                   Repo     Dep    Plan    Insp   Audit     Sem   Graph     Total
+-------------------------------------------------------------------------------------------
+      0.02146226200000001     0.0     0.0     0.0     0.1     0.6     0.1     0.1       1.0
+
+==========================================================================================
+WORKSPACE PROFILE PASS
+==========================================================================================
+=== Running tests/test_knowledge_engine_v2.py ===
+Traceback (most recent call last):
+  File "<stdin>", line 5, in <module>
+  File "/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python/knowledge_engine/engine.py", line 1, in <module>
+    from .models import Entity
+ImportError: attempted relative import with no known parent package
+FAILED: tests/test_knowledge_engine_v2.py
+=== Running tests/test_repository_engine_v2.py ===
+Traceback (most recent call last):
+  File "<stdin>", line 5, in <module>
+  File "/home/runner/work/AI-Toolkit/AI-Toolkit/lib/python/repository_engine/engine.py", line 3, in <module>
+    from .models import RepositoryItem
+ImportError: attempted relative import with no known parent package
+FAILED: tests/test_repository_engine_v2.py
