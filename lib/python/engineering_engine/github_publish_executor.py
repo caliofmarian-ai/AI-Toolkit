@@ -8,10 +8,8 @@ from lib.python.engineering_engine.github_publish_engine import (
 from lib.python.engineering_engine.github_client import GitHubDryRunClient
 
 
-from lib.python.engineering_engine.github_client import GitHubDryRunClient
-
-
 class GitHubPublishExecutor:
+
 
     def execute(
         self,
@@ -21,17 +19,18 @@ class GitHubPublishExecutor:
 
         client = GitHubDryRunClient()
 
-        results = []
+        results: list[str] = []
 
         for operation in plan.operations:
 
-            if not dry_run:
+            if dry_run:
+                results.append(
+                    client.execute(operation)
+                )
+            else:
                 raise NotImplementedError(
                     "GitHub API execution not implemented yet."
                 )
 
-            results.append(
-                client.execute(operation)
-            )
-
         return results
+
