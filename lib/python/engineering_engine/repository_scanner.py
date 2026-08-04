@@ -11,6 +11,8 @@ class RepositoryModel:
 
     runtime_interfaces: list[str] = field(default_factory=list)
 
+    engineering_modules: list[str] = field(default_factory=list)
+
     tests: list[str] = field(default_factory=list)
 
     entrypoints: list[str] = field(default_factory=list)
@@ -39,6 +41,17 @@ class RepositoryScanner:
                     model.runtime_interfaces.append(rel)
                 else:
                     model.runtime_modules.append(rel)
+
+
+        engineering = self.root / "lib/python/engineering_engine"
+
+        if engineering.exists():
+
+            for file in engineering.rglob("*.py"):
+
+                rel = str(file.relative_to(self.root))
+
+                model.engineering_modules.append(rel)
 
         tests = self.root / "tests"
 
@@ -70,6 +83,7 @@ class RepositoryScanner:
 
         model.runtime_modules.sort()
         model.runtime_interfaces.sort()
+        model.engineering_modules.sort()
         model.tests.sort()
         model.entrypoints.sort()
         model.canonical_documents.sort()

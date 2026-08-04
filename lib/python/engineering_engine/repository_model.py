@@ -42,6 +42,7 @@ class RepositoryKnowledgeBuilder:
         files = (
             scan.runtime_modules
             + scan.runtime_interfaces
+            + scan.engineering_modules
         )
 
         for rel in files:

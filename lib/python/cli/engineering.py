@@ -1,4 +1,7 @@
 from pathlib import Path
+
+from lib.python.engineering_engine.engineering_workflow_engine import EngineeringWorkflowEngine
+from lib.python.engineering_engine.engineering_report_engine import EngineeringReportEngine
 import sys
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -38,3 +41,12 @@ def engineering_validate(core):
 
 def engineering_build(core):
     EngineeringPipeline(ROOT).run(core)
+
+
+def analyse(root: Path, module: str) -> None:
+    workflow = EngineeringWorkflowEngine(root)
+    result = workflow.analyse(module)
+
+    report = EngineeringReportEngine().render(result)
+
+    print(report)
