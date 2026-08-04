@@ -1,29 +1,18 @@
 from __future__ import annotations
 
-import subprocess
-
 from lib.python.engineering_engine.github_client import GitHubClient
 from lib.python.engineering_engine.github_publish_engine import PublishOperation
+from lib.python.engineering_engine.github_repository_resolver import (
+    GitHubRepositoryResolver,
+)
 
 
 class GitHubCLIClient(GitHubClient):
 
     def __init__(self):
-
-        repo = subprocess.check_output(
-            [
-                "gh",
-                "repo",
-                "view",
-                "--json",
-                "nameWithOwner",
-                "--jq",
-                ".nameWithOwner",
-            ],
-            text=True,
-        ).strip()
-
-        self.owner, self.repo = repo.split("/", 1)
+        repository = GitHubRepositoryResolver().resolve()
+        self.owner = repository.owner
+        self.repo = repository.repo
 
     def execute(
         self,
