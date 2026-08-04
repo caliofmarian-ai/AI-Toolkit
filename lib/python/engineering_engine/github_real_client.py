@@ -42,7 +42,9 @@ class GitHubRealClient(GitHubClient):
                 operation.title,
             ]
         else:
-            raise ValueError(f"Unsupported operation: {operation.kind}")
+            raise ValueError(
+                f"Unsupported operation: {operation.kind}"
+            )
 
         if plan_only:
             return "PLAN: " + " ".join(command)
