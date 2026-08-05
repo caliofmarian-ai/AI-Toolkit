@@ -2,9 +2,9 @@
 
 # ROADMAP
 
-Version: Draft 0.1
+Version: 1.0.0
 
-Status: Normative Planning
+Status: Normative
 
 Classification: Canonical Roadmap
 
@@ -64,7 +64,7 @@ Completion Criteria:
 
 Status:
 
-In Progress.
+Complete. Delivered in CSL Version 1.0.0.
 
 ---
 

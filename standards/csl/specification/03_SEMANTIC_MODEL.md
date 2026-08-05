@@ -4,7 +4,7 @@
 
 # SEMANTIC MODEL
 
-Version: Draft 0.1
+Version: 1.0.0
 
 Status: Normative
 
@@ -256,6 +256,12 @@ Cardinality rules shall be validated during semantic analysis.
 
 Invalid cardinality prevents successful compilation.
 
+The normative cardinality for each built-in relationship type is defined in the Relationship Schema.
+
+Implementations shall validate relationship instances against their declared cardinality.
+
+Policies may further restrict cardinality for specific entity type combinations.
+
 ---
 
 # Chapter 9
@@ -320,11 +326,7 @@ Draft
 
 ↓
 
-Proposed
-
-↓
-
-Reviewed
+Review
 
 ↓
 

@@ -14,13 +14,9 @@ Corrections shall be recorded as new entries.
 
 # Version 1.0.0
 
-Status:
+Status: Frozen
 
-Frozen
-
-Release Type:
-
-Initial Official Release
+Release Type: Initial Official Release
 
 ---
 
@@ -191,6 +187,23 @@ Migration Strategy
 Reference Implementation Update
 
 Version Increment
+
+---
+
+## Migration from Pre-Release (Draft 0.x) to Version 1.0.0
+
+CSL pre-release documents (versions marked as `Draft 0.1` or `0.1 Draft`) are considered pre-standard and are not conformant with CSL Version 1.0.0.
+
+Migration action required:
+
+1. Update all document Version fields to `1.0.0`.
+2. Update all document Status fields from `Draft` to an approved lifecycle status (`Review`, `Approved`, or `Canonical`).
+3. Update RFC Status fields from `Proposed` to `Final` for any RFC incorporated into the standard.
+4. Verify lifecycle states conform to the canonical lifecycle: Draft, Review, Approved, Canonical, Compiled, Generated, Operational, Deprecated, Archived.
+5. Verify all identifiers conform to the identifier rules defined in Volume II, Chapter 6.
+6. Add any missing mandatory document header fields as defined in the Document Schema.
+
+No engineering knowledge is lost during this migration. The migration updates metadata only.
 
 ---
 

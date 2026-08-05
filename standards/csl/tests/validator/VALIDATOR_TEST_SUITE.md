@@ -2,7 +2,7 @@
 
 # VALIDATOR TEST SUITE
 
-Version: Draft 1.0
+Version: 1.0.0
 
 Status: Normative
 
@@ -17,6 +17,8 @@ This document defines the mandatory verification suite for CSL Validator impleme
 The Validator is responsible for ensuring that Canonical Knowledge conforms to the CSL Standard before compilation.
 
 Every conforming Validator shall execute this suite.
+
+Test cases are identified by their Test ID (`VT-XXXX`). Test IDs are permanent and shall never be reused.
 
 ---
 
@@ -54,341 +56,445 @@ Validation shall never modify Canonical Knowledge.
 
 The Validator Test Suite consists of:
 
-Document Validation
+Document Validation (VT-0001 through VT-0099)
 
-Lexical Validation
+Lexical Validation (VT-0100 through VT-0199)
 
-Grammar Validation
+Grammar Validation (VT-0200 through VT-0299)
 
-Schema Validation
+Schema Validation (VT-0300 through VT-0399)
 
-Entity Validation
+Entity Validation (VT-0400 through VT-0499)
 
-Relationship Validation
+Relationship Validation (VT-0500 through VT-0599)
 
-Property Validation
+Property Validation (VT-0600 through VT-0699)
 
-Constraint Validation
+Constraint Validation (VT-0700 through VT-0799)
 
-Dependency Validation
+Dependency Validation (VT-0800 through VT-0899)
 
-Lifecycle Validation
+Lifecycle Validation (VT-0900 through VT-0999)
 
-Reference Validation
+Reference Validation (VT-1000 through VT-1099)
 
-Governance Validation
+Governance Validation (VT-1100 through VT-1199)
 
-Safety Validation
+Safety Validation (VT-1200 through VT-1299)
 
-Regression Validation
+Regression Validation (VT-1300 through VT-1399)
 
-Compatibility Validation
+Compatibility Validation (VT-1400 through VT-1499)
 
 ---
 
 # Document Validation
 
-Verify:
+## VT-0001 — Valid Document Header
 
-Document Header
+Input: A CSL document with all required header fields: Document Type, Version, Status, Classification.
 
-Metadata
+Expected: Document header validation passes.
 
-Version
+Expected Result: PASS
 
-Status
+---
 
-Classification
+## VT-0002 — Missing Required Header Field
 
-Required Sections
+Input: A CSL document missing the Status field in its header.
 
-Expected Result:
+Expected: Validation error CSL-0203 produced.
 
-PASS
+Expected Result: FAIL (CSL-0203)
+
+---
+
+## VT-0003 — Invalid Status Value
+
+Input: A document with `Status: UnknownState`.
+
+Expected: Validation warning CSL-0110 produced.
+
+Expected Result: FAIL (CSL-0110)
+
+---
+
+## VT-0004 — Valid Version Format
+
+Input: A document with `Version: 1.0.0`.
+
+Expected: Version validation passes.
+
+Expected Result: PASS
 
 ---
 
 # Lexical Validation
 
-Verify:
+## VT-0100 — UTF-8 Encoding
 
-Character Encoding
+Input: A CSL document encoded in UTF-8.
 
-Reserved Keywords
+Expected: Encoding validation passes.
 
-Identifiers
+Expected Result: PASS
 
-Literals
+---
 
-Whitespace
+## VT-0101 — Identifier Beginning with Letter
 
-Comments
+Input: `Identifier: REQ-001`
 
-Tokenization
+Expected: Lexical validation passes.
 
-Expected Result:
+Expected Result: PASS
 
-PASS
+---
+
+## VT-0102 — Identifier Beginning with Digit
+
+Input: `Identifier: 001-REQ`
+
+Expected: Lexical error CSL-0002 produced.
+
+Expected Result: FAIL (CSL-0002)
+
+---
+
+## VT-0103 — Whitespace in Identifier
+
+Input: `Identifier: REQ 001`
+
+Expected: Lexical error CSL-0002 produced.
+
+Expected Result: FAIL (CSL-0002)
 
 ---
 
 # Grammar Validation
 
-Verify:
+## VT-0200 — Valid Block Structure
 
-Document Grammar
+Input: A block with correct indentation and field declarations.
 
-Block Structure
+Expected: Grammar validation passes.
 
-Nested Blocks
+Expected Result: PASS
 
-Statement Structure
+---
 
-Unexpected Tokens
+## VT-0201 — Invalid Block Nesting
 
-Expected Result:
+Input: A Project block declared inside a Feature block.
 
-PASS
+Expected: Grammar error CSL-0102 produced.
+
+Expected Result: FAIL (CSL-0102)
+
+---
+
+## VT-0202 — Incomplete Statement
+
+Input: A block field with a name but no value.
+
+Expected: Grammar error CSL-0106 produced.
+
+Expected Result: FAIL (CSL-0106)
 
 ---
 
 # Schema Validation
 
-Verify:
+## VT-0300 — Entity Conforms to Entity Schema
 
-Entity Schema
+Input: A Feature entity with all mandatory fields (Identifier, Name, Status, Lifecycle, Owner).
 
-Relationship Schema
+Expected: Schema validation passes.
 
-Property Schema
+Expected Result: PASS
 
-Constraint Schema
+---
 
-Document Schema
+## VT-0301 — Entity Missing Mandatory Schema Field
 
-Expected Result:
+Input: A Requirement entity without an Identifier field.
 
-PASS
+Expected: Validation error CSL-0203 produced.
+
+Expected Result: FAIL (CSL-0203)
+
+---
+
+## VT-0302 — Relationship Conforms to Relationship Schema
+
+Input: A relationship block with Identifier, Type, Source, and Target fields.
+
+Expected: Schema validation passes.
+
+Expected Result: PASS
 
 ---
 
 # Entity Validation
 
-Verify:
+## VT-0400 — Unique Identifier Within Scope
 
-Identity
+Input: Two Feature entities with different Identifiers in the same document.
 
-Type
+Expected: Validation passes.
 
-Lifecycle
+Expected Result: PASS
 
-Ownership
+---
 
-Metadata
+## VT-0401 — Duplicate Identifier Within Scope
 
-Version
+Input: Two Feature entities with the same Identifier in the same document.
 
-Expected Result:
+Expected: Validation error CSL-0200 produced.
 
-PASS
+Expected Result: FAIL (CSL-0200)
+
+---
+
+## VT-0402 — Entity Identity Immutability
+
+Input: An entity that changes its Identifier between document versions.
+
+Expected: Validation warning produced indicating identity change creates a new object.
+
+Expected Result: WARNING
 
 ---
 
 # Relationship Validation
 
-Verify:
+## VT-0500 — Valid Relationship References Existing Entities
 
-Relationship Type
+Input: `FEAT-001 implements REQ-001` where both exist.
 
-Direction
+Expected: Relationship validation passes.
 
-Cardinality
+Expected Result: PASS
 
-Source
+---
 
-Target
+## VT-0501 — Broken Relationship Reference
 
-Reference Integrity
+Input: `FEAT-001 implements REQ-999` where REQ-999 does not exist.
 
-Expected Result:
+Expected: Semantic error CSL-0201 produced.
 
-PASS
+Expected Result: FAIL (CSL-0201)
+
+---
+
+## VT-0502 — Cardinality Violation
+
+Input: An entity with two `belongs_to` relationships to different parents.
+
+Expected: Semantic error CSL-0205 produced.
+
+Expected Result: FAIL (CSL-0205)
 
 ---
 
 # Property Validation
 
-Verify:
+## VT-0600 — Valid Property Type
 
-Property Type
+Input: A property declared as Integer containing a numeric value.
 
-Property Value
+Expected: Property validation passes.
 
-Required Fields
+Expected Result: PASS
 
-Default Values
+---
 
-Constraints
+## VT-0601 — Property Type Mismatch
 
-Expected Result:
+Input: A property declared as Integer containing a string value.
 
-PASS
+Expected: Validation error CSL-0204 produced.
+
+Expected Result: FAIL (CSL-0204)
 
 ---
 
 # Constraint Validation
 
-Verify:
+## VT-0700 — Satisfied Constraint
 
-Constraint Evaluation
+Input: A document where all declared constraints are satisfied.
 
-Severity
+Expected: Constraint validation passes.
 
-Validation Rules
+Expected Result: PASS
 
-Constraint Scope
+---
 
-Expected Result:
+## VT-0701 — Violated Constraint
 
-PASS
+Input: A document where a mandatory constraint is violated.
+
+Expected: Validation error CSL-0300 produced.
+
+Expected Result: FAIL (CSL-0300)
 
 ---
 
 # Dependency Validation
 
-Verify:
+## VT-0800 — Valid Dependency Chain
 
-Mandatory Dependencies
+Input: Entity A depends_on Entity B; Entity B depends_on Entity C; no cycle exists.
 
-Optional Dependencies
+Expected: Dependency validation passes.
 
-Dependency Graph
+Expected Result: PASS
 
-Circular Dependencies
+---
 
-Dependency Resolution
+## VT-0801 — Circular Dependency
 
-Expected Result:
+Input: Entity A depends_on Entity B; Entity B depends_on Entity A.
 
-PASS
+Expected: Validation error CSL-0202 produced.
+
+Expected Result: FAIL (CSL-0202)
+
+---
+
+## VT-0802 — Unresolved Mandatory Dependency
+
+Input: Entity A depends_on Entity B; Entity B is not declared.
+
+Expected: Validation error CSL-0201 produced.
+
+Expected Result: FAIL (CSL-0201)
 
 ---
 
 # Lifecycle Validation
 
-Verify:
+## VT-0900 — Valid Lifecycle State
 
-Lifecycle States
+Input: An entity with `Status: Approved` in a document context consistent with the Approved lifecycle state.
 
-Valid Transitions
+Expected: Lifecycle validation passes.
 
-Approval Requirements
+Expected Result: PASS
 
-Deprecation Rules
+---
 
-Archival Rules
+## VT-0901 — Invalid Lifecycle Transition
 
-Expected Result:
+Input: An entity transitioning directly from Draft to Operational.
 
-PASS
+Expected: Validation error CSL-0206 produced.
+
+Expected Result: FAIL (CSL-0206)
 
 ---
 
 # Reference Validation
 
-Verify:
+## VT-1000 — Valid Reference
 
-Reference Resolution
+Input: A Reference pointing to an Engineering Entity that exists in the same Knowledge Package.
 
-Broken References
+Expected: Reference validation passes.
 
-Missing References
+Expected Result: PASS
 
-Duplicate References
+---
 
-Reference Consistency
+## VT-1001 — Broken Reference
 
-Expected Result:
+Input: A Reference pointing to an Engineering Entity that does not exist.
 
-PASS
+Expected: Validation error CSL-0201 produced.
+
+Expected Result: FAIL (CSL-0201)
 
 ---
 
 # Governance Validation
 
-Verify:
+## VT-1100 — Critical Action with Approval
 
-Permissions
+Input: A critical action request with an explicit Approval record attached.
 
-Policies
+Expected: Governance validation passes.
 
-Approvals
+Expected Result: PASS
 
-Audit Requirements
+---
 
-Compliance Rules
+## VT-1101 — Critical Action without Approval
 
-Expected Result:
+Input: A critical action request without an Approval record.
 
-PASS
+Expected: Critical error CSL-0401 produced.
+
+Expected Result: FAIL (CSL-0401)
 
 ---
 
 # Safety Validation
 
-Verify:
+## VT-1200 — Authorized Execution Request
 
-Safety Constraints
+Input: An execution request from an authenticated actor with the required permissions.
 
-Risk Classification
+Expected: Safety validation passes.
 
-Execution Restrictions
+Expected Result: PASS
 
-Emergency Stop Rules
+---
 
-Authorization Requirements
+## VT-1201 — Unauthorized Execution Request
 
-Expected Result:
+Input: An execution request from an actor without the required permissions.
 
-PASS
+Expected: Critical error CSL-0400 produced.
+
+Expected Result: FAIL (CSL-0400)
 
 ---
 
 # Regression Validation
 
-Verify:
+## VT-1300 — CSL Version 1.0.0 Backward Compatibility
 
-Backward Compatibility
+Input: Any document conforming to CSL Version 1.0.0.
 
-Stable Validation Behavior
+Expected: Validation succeeds without modification.
 
-Deterministic Diagnostics
-
-Historical Compatibility
-
-Expected Result:
-
-PASS
+Expected Result: PASS
 
 ---
 
 # Compatibility Validation
 
-Verify:
+## VT-1400 — Supported CSL Version
 
-CSL Version
+Input: A document declaring `Version: 1.0.0` validated by a Version 1.x.x validator.
 
-Schema Version
+Expected: Compatibility validation passes.
 
-RFC Version
+Expected Result: PASS
 
-Compiler Version
+---
 
-Reference Implementation Version
+## VT-1401 — Unsupported CSL Version
 
-Expected Result:
+Input: A document declaring a CSL version higher than the validator supports.
 
-PASS
+Expected: Error CSL-0500 produced.
+
+Expected Result: FAIL (CSL-0500)
 
 ---
 
@@ -404,9 +510,17 @@ Validation Timestamp
 
 Validated Documents
 
-Warnings
+Test ID
 
-Errors
+Expected Result
+
+Actual Result
+
+Pass or Fail per test
+
+Warnings with codes
+
+Errors with codes
 
 Execution Duration
 

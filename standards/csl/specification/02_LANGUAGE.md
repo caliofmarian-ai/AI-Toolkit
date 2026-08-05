@@ -4,7 +4,7 @@
 
 # LANGUAGE SPECIFICATION
 
-Version: Draft 0.1
+Version: 1.0.0
 
 Status: Normative
 
@@ -174,23 +174,61 @@ Every engineering object possesses an identifier.
 
 Identifiers shall be unique within their scope.
 
+Scope is defined as the containing document when operating on a single document, or the Knowledge Package when multiple documents are compiled together.
+
 Identifiers are immutable.
 
-Identifiers may contain:
+Identifiers shall:
 
-letters,
+begin with an ASCII letter (A through Z or a through z),
 
-numbers,
+contain only ASCII letters, ASCII digits, hyphens, and underscores after the first character,
 
-hyphen,
+never contain whitespace,
 
-underscore.
+not be identical to a reserved keyword,
 
-Identifiers shall never contain whitespace.
+have a minimum length of one character,
+
+support a maximum length of at least 128 characters.
 
 Identifiers are case-sensitive.
 
+Duplicate identifiers within the same scope are validation errors.
+
 Changing an identifier creates a new engineering object.
+
+---
+
+# Chapter 6a
+
+Visibility
+
+Visibility defines the accessibility of an Engineering Entity outside its declaring scope.
+
+Visibility is declared using the reserved attribute name `Visibility`.
+
+Valid visibility values are:
+
+`Private` — accessible only within the declaring document.
+
+`Internal` — accessible within the same Knowledge Package.
+
+`Protected` — accessible to Engineering Entities that directly depend upon this entity.
+
+`Public` — accessible to any conforming implementation or Knowledge Package.
+
+`Restricted` — accessibility governed by explicit Policy rules.
+
+When the `Visibility` attribute is absent the default visibility is `Public`.
+
+Visibility values are case-sensitive.
+
+Visibility is validated during semantic analysis.
+
+Visibility violations are semantic errors.
+
+Visibility never changes engineering semantic identity.
 
 ---
 

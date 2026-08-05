@@ -2,7 +2,7 @@
 
 # CONSTITUTION
 
-Version: Draft 0.1
+Version: 1.0.0
 
 Status: Normative
 
@@ -817,6 +817,44 @@ Proposals become RFCs.
 Approved RFCs become Standard.
 
 The Standard becomes the basis for compiler implementation.
+
+---
+
+# Article XXVIII-A
+
+CSL Foundation
+
+The CSL Foundation is the governing body of the Canonical Specification Language.
+
+The CSL Foundation is responsible for:
+
+maintaining the canonical standard,
+
+approving and rejecting RFCs,
+
+issuing official releases,
+
+designating conformance requirements,
+
+protecting the long-term integrity of Canonical Knowledge.
+
+The CSL Foundation operates according to the following principles.
+
+Decisions are made by consensus of active maintainers.
+
+An active maintainer is any contributor who has participated in at least one RFC review within the preceding twelve months.
+
+Any RFC requiring a formal vote shall require a simple majority of active maintainers.
+
+In the event of a tie the RFC is considered rejected and may be resubmitted with revisions.
+
+RFC approval decisions shall be documented and published as part of the RFC record.
+
+The CSL Foundation shall publish a list of active maintainers with each major release.
+
+The Reference Implementation maintainer (AI-Toolkit) holds a permanent seat.
+
+The governance model may be revised through the RFC process.
 
 ---
 

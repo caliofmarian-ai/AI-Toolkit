@@ -2,7 +2,7 @@
 
 # DOCUMENT SCHEMA
 
-Version: Draft 1.0
+Version: 1.0.0
 
 Status: Normative
 
@@ -55,6 +55,8 @@ Status
 Classification
 
 Language
+
+(Valid values: `csl/1.0` for documents written in CSL, or an IETF BCP 47 language tag such as `en` for documents whose body is in a natural language. The field identifies the document authoring language, not a programming language.)
 
 Created
 

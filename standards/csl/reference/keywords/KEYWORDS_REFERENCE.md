@@ -2,7 +2,7 @@
 
 # KEYWORDS REFERENCE
 
-Version: Draft 1.0
+Version: 1.0.0
 
 Status: Normative
 
@@ -186,7 +186,13 @@ Validators never modify Canonical Knowledge.
 
 # Compiler
 
-Represents the Engineering Compiler responsible for constructing the Universal Engineering Model.
+Represents a formal description of an Engineering Compiler within canonical knowledge.
+
+When used as a keyword in a CSL document, Compiler describes a compiler component as an engineering object — for example, when documenting the reference compiler's capabilities, version, supported features, or conformance level.
+
+The Compiler keyword operates at the engineering description level, not the meta-compiler level. It is the canonical way to declare compiler configuration and capability documentation within a Knowledge Package.
+
+Example use: A project may declare the supported compiler version and its conformance level as Compiler entities within its canonical knowledge.
 
 ---
 
@@ -200,9 +206,13 @@ Runtime behavior remains implementation specific.
 
 # Knowledge
 
-Represents Canonical Engineering Knowledge.
+Represents a named grouping of Canonical Engineering statements that do not map to a more specific entity type.
 
-Knowledge remains the authoritative engineering source.
+The Knowledge keyword may be used to introduce custom engineering concepts that are not yet formally represented by an established keyword.
+
+Use of the Knowledge keyword is discouraged when a more specific entity type exists.
+
+The Universal Engineering Model treats Knowledge entities as generic engineering objects with full lifecycle, provenance, and relationship support.
 
 ---
 
@@ -276,9 +286,15 @@ Execution Model
 
 # Prompt
 
-Represents structured input supplied to an Artificial Intelligence Provider.
+Represents canonical configuration of structured input supplied to an Artificial Intelligence Provider.
 
-Prompts never become Canonical Knowledge.
+A Prompt entity defines reusable, versioned AI task inputs as part of the engineering model.
+
+Prompt entities are Canonical Knowledge. They define how AI tasks shall be executed, and may be generated from the Universal Engineering Model.
+
+The content supplied to an AI Provider at runtime is derived from a Prompt entity through the Generator Framework. That derived runtime content is an Engineering Artifact, not Canonical Knowledge.
+
+Prompt entities may reference Requirements, Features and Components to establish AI task context from canonical sources.
 
 ---
 

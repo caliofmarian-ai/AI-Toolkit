@@ -2,9 +2,9 @@
 
 # AI-TOOLKIT REFERENCE PROJECT
 
-Version: Draft 1.0
+Version: 1.0.0
 
-Status: Normative Example
+Status: Informative Example
 
 Classification: Reference Project
 
