@@ -2,9 +2,13 @@
 
 # CSL RFC Process
 
-Version: Draft 1.0
+Version: 1.0.0
 
-Status: Proposed
+Status: Final
+
+Approved: 2026-08-05
+
+Approval Identifier: RFC-0001-FINAL
 
 Category: Governance
 
@@ -184,6 +188,6 @@ Implementation second.
 
 ---
 
-# 10. Closing Statement
+# Closing Statement
 
 RFCs preserve the stability, quality and long-term evolution of the Canonical Specification Language.

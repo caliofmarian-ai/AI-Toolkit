@@ -2,9 +2,11 @@
 
 # Versioning and Migration Policy
 
-Version: Draft 1.0
+Version: 1.0.0
 
-Status: Proposed
+Status: Final
+
+Approved: 2026-08-05
 
 Category: Governance
 
@@ -40,7 +42,19 @@ This RFC establishes deterministic evolution.
 
 ---
 
-# 3. Objectives
+# 3. Background
+
+Engineering standards evolve continuously. Without a defined versioning policy, implementations cannot determine which version of the standard they must support, or whether a given piece of canonical knowledge remains valid.
+
+---
+
+# 4. Problem Statement
+
+CSL documents and implementations may evolve independently, leading to compatibility gaps. Without a versioning and migration policy, breaking changes cannot be managed safely and canonical knowledge may become permanently incompatible with newer compilers.
+
+---
+
+# 5. Objectives
 
 The Versioning Policy shall:
 
@@ -60,7 +74,13 @@ preserve Canonical Knowledge.
 
 ---
 
-# 4. Version Format
+# 6. Alternatives
+
+Alternative A: No formal versioning. Changes are made informally. Rejected because it prevents migration planning. Alternative B: Date-based versioning. Versions are identified by release date. Rejected because it provides no compatibility signal. Alternative C: Semantic versioning with migration policy (Selected). Major, Minor and Patch versions encode compatibility expectations; migration tooling is required for breaking changes.
+
+---
+
+# 7. Version Format
 
 The CSL Standard shall use Semantic Versioning.
 
@@ -78,7 +98,7 @@ Examples:
 
 ---
 
-# 5. Major Version
+# 8. Major Version
 
 A Major Version indicates:
 
@@ -102,7 +122,7 @@ Reference Implementation update
 
 ---
 
-# 6. Minor Version
+# 9. Minor Version
 
 A Minor Version introduces:
 
@@ -120,7 +140,7 @@ Backward compatibility shall be preserved.
 
 ---
 
-# 7. Patch Version
+# 10. Patch Version
 
 A Patch Version introduces:
 
@@ -136,7 +156,7 @@ No semantic changes.
 
 ---
 
-# 8. Compatibility Levels
+# 11. Compatibility Levels
 
 Compatibility classifications include:
 
@@ -154,7 +174,7 @@ Every release shall explicitly declare compatibility.
 
 ---
 
-# 9. Migration Policy
+# 12. Migration Policy
 
 Migration shall preserve:
 
@@ -172,7 +192,7 @@ Migration shall never silently discard engineering information.
 
 ---
 
-# 10. Migration Process
+# 13. Migration Process
 
 The canonical migration process is:
 
@@ -210,7 +230,7 @@ Migration shall remain deterministic.
 
 ---
 
-# 11. Deprecation
+# 14. Deprecation
 
 Features may become deprecated.
 
@@ -228,7 +248,7 @@ Immediate removal is prohibited except for critical safety issues.
 
 ---
 
-# 12. Long-Term Support
+# 15. Long-Term Support
 
 Reference versions may receive Long-Term Support (LTS).
 
@@ -246,7 +266,7 @@ LTS releases minimize breaking changes.
 
 ---
 
-# 13. Migration Reports
+# 16. Migration Reports
 
 Every migration shall produce a report.
 
@@ -272,7 +292,7 @@ Migration Timestamp
 
 ---
 
-# 14. Tooling
+# 17. Tooling
 
 Reference implementations shall provide migration tooling.
 
@@ -292,7 +312,7 @@ Migration tools shall never modify Canonical Knowledge without authorization.
 
 ---
 
-# 15. Audit
+# 18. Audit
 
 Migration operations shall produce immutable audit records.
 
@@ -316,7 +336,7 @@ Timestamp
 
 ---
 
-# 16. Governance
+# 19. Governance
 
 Breaking changes require:
 
@@ -334,7 +354,13 @@ No breaking change becomes part of the standard without governance approval.
 
 ---
 
-# 17. Implementation Impact
+# 20. Risks
+
+Risk: Major version accumulation may fragment the ecosystem. Mitigation: Strict RFC governance for breaking changes; LTS releases minimize migration frequency. Risk: Automated migration may produce semantically incorrect results. Mitigation: Migration requires human approval before publication.
+
+---
+
+# 21. Implementation Impact
 
 Affected Components:
 
@@ -356,7 +382,7 @@ Repository Engine
 
 ---
 
-# 18. Acceptance Criteria
+# 22. Acceptance Criteria
 
 This RFC is complete when:
 
@@ -374,7 +400,7 @@ Canonical Knowledge remains intact.
 
 ---
 
-# 19. Future Evolution
+# 23. Future Evolution
 
 Future versions of this RFC may introduce:
 
@@ -394,7 +420,7 @@ Future evolution shall preserve the constitutional principles of CSL.
 
 ---
 
-# 20. Closing Statement
+# Closing Statement
 
 Versioning preserves stability.
 
