@@ -117,6 +117,7 @@ class CslParser:
             if tok.token_type == TokenType.HEADING2:
                 section = self._parse_section()
                 doc.add_child(section)
+                self._capture_document_metadata_from_section(doc, section)
                 continue
 
             if tok.token_type == TokenType.METADATA:
@@ -158,7 +159,42 @@ class CslParser:
             if m:
                 doc.doc_id = m.group(1)
 
+        if not doc.version:
+            inferred = self._infer_version(source_name, doc.title)
+            if inferred:
+                doc.version = inferred
+
         return doc
+
+    def _capture_document_metadata_from_section(self, doc: DocumentNode, section: SectionNode) -> None:
+        heading = section.heading.strip().lower()
+        if heading == "status" and not doc.status:
+            value = self._extract_first_text_value(section)
+            if value:
+                doc.status = value
+        elif heading == "version" and not doc.version:
+            value = self._extract_first_text_value(section)
+            if value:
+                doc.version = value
+
+    def _extract_first_text_value(self, section: SectionNode) -> str:
+        for child in section.children:
+            if isinstance(child, ParagraphNode) and child.text.strip():
+                return child.text.strip()
+            if isinstance(child, TextNode) and child.text.strip():
+                return child.text.strip()
+            if isinstance(child, BulletListNode):
+                items = child.items()
+                if items and items[0].text.strip():
+                    return items[0].text.strip()
+        return ""
+
+    def _infer_version(self, source_name: str, title: str) -> str:
+        for candidate in (source_name, title):
+            m = re.search(r"v(\d+\.\d+(?:\.\d+)?)", candidate, re.IGNORECASE)
+            if m:
+                return m.group(1)
+        return ""
 
     def _parse_section_from_heading(self, tok: Token) -> SectionNode:
         section = SectionNode(
