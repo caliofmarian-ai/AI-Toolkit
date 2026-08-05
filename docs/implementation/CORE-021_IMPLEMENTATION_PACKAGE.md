@@ -133,9 +133,9 @@ Runtime Reports
 
 Railway Bootstrap
 
-GitHub Webhook Listener
+GitHub Webhook Listener (optional adapter)
 
-Telegram Runtime Gateway
+Telegram Runtime Gateway (optional adapter)
 
 ---
 
@@ -181,9 +181,9 @@ observe scheduler
 
 observe job queue
 
-observe telegram
+observe telegram when enabled
 
-observe github
+observe github when enabled
 
 observe health
 
@@ -366,3 +366,28 @@ END OF IMPLEMENTATION PACKAGE
 CORE-021
 
 READY FOR GITHUB COPILOT
+# Offline and Adapter Boundaries
+
+The runtime core SHALL start and run without external network access.
+
+External providers MUST remain isolated behind adapter layers.
+
+Mandatory core runtime capabilities:
+
+- bootstrap
+- lifecycle management
+- health/readiness/metrics/status endpoints
+- persistence and recovery
+- scheduler, job queue, and event loop
+
+Optional adapters:
+
+- GitHub webhook host for inbound GitHub events
+- Telegram gateway for Owner communication
+- Engineering GitHub publishing adapters for milestones/issues
+
+External services required only when enabled:
+
+- GitHub webhook deliveries to the runtime HTTP endpoint
+- Telegram Bot API endpoints for message send and update retrieval
+- GitHub CLI authenticated access for engineering publication workflows

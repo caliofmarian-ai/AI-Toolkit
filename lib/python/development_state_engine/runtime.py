@@ -1038,9 +1038,9 @@ class DevelopmentStateEngine:
         identifier_seed = f"{self.repository_root}-{branch}-{head_commit}"
         identifier = hashlib.sha256(str(identifier_seed).encode("utf-8")).hexdigest()[:12].upper()
         return DevelopmentState(
-            identifier=f"DEV-{identifier}",
+            identifier=f"ATK-STATE-{identifier}",
             workspace_state=WorkspaceState(
-                identifier="WS-001",
+                identifier="ATK-WS-001",
                 active_project=self.repository_root.name,
                 active_workspace=self.repository_root.name,
                 current_milestone="UNSPECIFIED",
@@ -1052,7 +1052,7 @@ class DevelopmentStateEngine:
                 estimated_progress=0.0,
             ),
             repository_state=RepositoryState(
-                identifier="REPO-001",
+                identifier="ATK-REPO-001",
                 repository=repository_name,
                 branch=branch,
                 head_commit=head_commit,
@@ -1063,7 +1063,7 @@ class DevelopmentStateEngine:
                 repository_health="UNKNOWN",
             ),
             execution_state=ExecutionState(
-                identifier="EXEC-001",
+                identifier="ATK-EXEC-001",
                 current_executor="runtime",
                 running_jobs=(),
                 completed_jobs=(),
@@ -1073,7 +1073,7 @@ class DevelopmentStateEngine:
                 execution_history=(),
             ),
             planning_state=PlanningState(
-                identifier="PLAN-001",
+                identifier="ATK-PLAN-001",
                 current_roadmap="UNSPECIFIED",
                 current_sprint="UNSPECIFIED",
                 recommended_batch="UNSPECIFIED",
@@ -1083,7 +1083,7 @@ class DevelopmentStateEngine:
                 dependencies=(),
             ),
             review_state=ReviewState(
-                identifier="REV-001",
+                identifier="ATK-REVIEW-001",
                 pending_reviews=(),
                 open_prs=(),
                 architecture_findings=(),
@@ -1092,7 +1092,7 @@ class DevelopmentStateEngine:
                 approval_status="PENDING",
             ),
             owner_state=OwnerState(
-                identifier="OWN-001",
+                identifier="ATK-OWNER-001",
                 owner_priorities=(),
                 manual_decisions=(),
                 overrides=(),
@@ -1100,7 +1100,7 @@ class DevelopmentStateEngine:
                 deferred_tasks=(),
             ),
             telegram_state=TelegramState(
-                identifier="TG-001",
+                identifier="ATK-TELEGRAM-001",
                 session_id="UNBOUND",
                 chat_id="UNBOUND",
                 active_thread="",
@@ -1109,7 +1109,7 @@ class DevelopmentStateEngine:
                 pending_notifications=(),
             ),
             snapshot_metadata=SnapshotMetadata(
-                identifier="SNAP-000000",
+                identifier="ATK-SNAP-000000",
                 trigger="bootstrap",
                 created_at=timestamp,
                 source_event="bootstrap",
@@ -1117,7 +1117,7 @@ class DevelopmentStateEngine:
                 tags=("bootstrap",),
             ),
             integrity_report=IntegrityReport(
-                identifier="INT-001",
+                identifier="ATK-INTEGRITY-001",
                 repository_integrity=100.0,
                 canonical_integrity=100.0,
                 memory_integrity=100.0,

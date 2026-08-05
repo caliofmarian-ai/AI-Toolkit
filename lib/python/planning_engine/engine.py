@@ -18,14 +18,14 @@ class PlanningEngine:
     def build_plan(self):
 
         plan = ExecutionPlan(
-            identifier="PLAN-001"
+            identifier="ATK-PLAN-001"
         )
 
         stats = self.repository.statistics()
 
         plan.tasks.append(
             PlanningTask(
-                identifier="TASK-REPOSITORY",
+                identifier="ATK-PLAN-TASK-REPOSITORY",
                 title=f"Inspect {stats['files']} files",
                 priority="HIGH"
             )
@@ -35,7 +35,7 @@ class PlanningEngine:
 
         plan.tasks.append(
             PlanningTask(
-                identifier="TASK-DEPENDENCIES",
+                identifier="ATK-PLAN-TASK-DEPENDENCIES",
                 title=f"Validate {deps['dependencies']} dependencies",
                 priority="HIGH"
             )
@@ -45,7 +45,7 @@ class PlanningEngine:
 
         plan.tasks.append(
             PlanningTask(
-                identifier="TASK-VALIDATION",
+                identifier="ATK-PLAN-TASK-VALIDATION",
                 title=f"Execute {validation['checks']} validation checks",
                 priority="HIGH"
             )

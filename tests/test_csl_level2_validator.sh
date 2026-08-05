@@ -59,15 +59,23 @@ print("L2-08 PASS: Deterministic diagnostics confirmed")
 docs_path = Path("docs/canonical")
 files = sorted(docs_path.glob("CANON-*.md"))
 errors = []
+warnings = []
 for f in files:
     r = validator.validate_file(f)
     for e in r.errors():
         errors.append(f"{f.name}: [{e.code}] {e.message}")
+    for w in r.warnings():
+        warnings.append(f"{f.name}: [{w.code}] {w.message}")
 print(f"L2-09: {len(files)} canonical documents validated, {len(errors)} errors")
 if errors:
     for e in errors[:5]:
         print(f"  WARN: {e}")
 print("L2-09 PASS")
+
+# L2-10: Canonical documents may rely on section headings, but should not rely on inferred metadata
+unexpected = [w for w in warnings if "[GOV-001]" in w]
+assert not unexpected, f"L2-10 FAIL: unexpected canonical warnings: {unexpected[:5]}"
+print("L2-10 PASS: canonical documents avoid governance failures and preserve explicit metadata rules")
 
 print("\nCSL Level 2 (Core Validator): ALL PASS")
 PY

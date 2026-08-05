@@ -25,6 +25,11 @@ class RuntimeConfig:
     # Environment
     environment: str = "production"
 
+    # Integration switches
+    enable_external_interfaces: bool = False
+    enable_github_webhooks: bool = False
+    enable_telegram: bool = False
+
     # GitHub integration
     github_webhook_secret: str = ""
     github_token: str = ""
@@ -52,11 +57,17 @@ class RuntimeConfig:
     @classmethod
     def from_environment(cls) -> "RuntimeConfig":
         """Load configuration from environment variables."""
+        enable_external_interfaces = os.environ.get("RUNTIME_ENABLE_EXTERNAL_INTERFACES", "false").lower() == "true"
+        enable_github_webhooks = os.environ.get("RUNTIME_ENABLE_GITHUB_WEBHOOKS", "false").lower() == "true"
+        enable_telegram = os.environ.get("RUNTIME_ENABLE_TELEGRAM", "false").lower() == "true"
         return cls(
             runtime_mode=os.environ.get("RUNTIME_MODE", "NORMAL").upper(),
             http_host=os.environ.get("RUNTIME_HTTP_HOST", "0.0.0.0"),
             http_port=int(os.environ.get("PORT", os.environ.get("RUNTIME_HTTP_PORT", "8080"))),
             environment=os.environ.get("RAILWAY_ENVIRONMENT", os.environ.get("ENVIRONMENT", "production")),
+            enable_external_interfaces=enable_external_interfaces,
+            enable_github_webhooks=enable_external_interfaces and enable_github_webhooks,
+            enable_telegram=enable_external_interfaces and enable_telegram,
             github_webhook_secret=os.environ.get("GITHUB_WEBHOOK_SECRET", ""),
             github_token=os.environ.get("GITHUB_TOKEN", ""),
             telegram_bot_token=os.environ.get("TELEGRAM_BOT_TOKEN", ""),
@@ -87,6 +98,9 @@ class RuntimeConfig:
             "http_host": self.http_host,
             "http_port": self.http_port,
             "environment": self.environment,
+            "enable_external_interfaces": self.enable_external_interfaces,
+            "enable_github_webhooks": self.enable_github_webhooks,
+            "enable_telegram": self.enable_telegram,
             "scheduler_interval_seconds": self.scheduler_interval_seconds,
             "runtime_loop_interval_seconds": self.runtime_loop_interval_seconds,
             "state_dir": self.state_dir,

@@ -337,51 +337,50 @@ class RuntimeBootstrap:
         self.http_server.set_status_handler(status_handler)
 
     def _step_initialize_external_interfaces(self) -> None:
-        """Initialize GitHub webhook host and Telegram gateway."""
-        # GitHub webhook host
+        """Initialize isolated external adapters when enabled."""
         self.github_webhook = GitHubWebhookHost(
             dispatcher=self.dispatcher,
-            webhook_secret=self.secrets.get("GITHUB_WEBHOOK_SECRET"),
+            webhook_secret=self.secrets.get("GITHUB_WEBHOOK_SECRET") if self.config.enable_github_webhooks else "",
         )
         self.http_server.set_github_webhook_handler(self.github_webhook.process)
 
-        # Telegram gateway
         self.telegram = TelegramGateway(
             bot_token=self.secrets.get("TELEGRAM_BOT_TOKEN"),
             chat_id=self.secrets.get("TELEGRAM_CHAT_ID"),
             event_dispatcher=self.dispatcher,
+            enabled=self.config.enable_telegram,
         )
         self.http_server.set_telegram_update_handler(
             self.telegram.process_webhook_update
         )
 
-        # Subscribe status/health commands from Telegram
-        self.dispatcher.subscribe(
-            "telegram.command.status", self._handle_telegram_status
-        )
-        self.dispatcher.subscribe(
-            "telegram.command.health", self._handle_telegram_health
-        )
-        self.dispatcher.subscribe(
-            "telegram.command.report", self._handle_telegram_report
-        )
-
-        # Register Telegram polling in scheduler (if enabled)
-        if self.telegram._enabled:
-            self.scheduler.register(
-                "telegram.poll",
-                "Telegram Update Polling",
-                self._poll_telegram,
-                interval_seconds=10,
+        if self.config.enable_telegram:
+            self.dispatcher.subscribe(
+                "telegram.command.status", self._handle_telegram_status
             )
+            self.dispatcher.subscribe(
+                "telegram.command.health", self._handle_telegram_health
+            )
+            self.dispatcher.subscribe(
+                "telegram.command.report", self._handle_telegram_report
+            )
+
+            if self.telegram.is_enabled():
+                self.scheduler.register(
+                    "telegram.poll",
+                    "Telegram Update Polling",
+                    self._poll_telegram,
+                    interval_seconds=10,
+                )
 
         self.registry.register_service("github_webhook", self.github_webhook)
         self.registry.register_service("telegram", self.telegram)
 
         logger.info(
-            "Bootstrap: external interfaces initialized (github=%s, telegram=%s)",
-            bool(self.secrets.get("GITHUB_WEBHOOK_SECRET")),
-            self.telegram._enabled,
+            "Bootstrap: external adapters initialized (interfaces=%s, github=%s, telegram=%s)",
+            self.config.enable_external_interfaces,
+            self.config.enable_github_webhooks,
+            self.telegram.is_enabled(),
         )
 
     def _step_verify_health(self) -> None:

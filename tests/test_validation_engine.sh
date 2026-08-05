@@ -4,10 +4,10 @@ set -e
 python3 - <<'PY'
 import sys
 
-sys.path.insert(0,"lib/python/validation_engine")
+sys.path.insert(0,"lib")
 
-from engine import ValidationEngine
-from exporter import ValidationExporter
+from python.validation_engine.engine import ValidationEngine
+from python.validation_engine.exporter import ValidationExporter
 
 engine = ValidationEngine(".")
 
@@ -16,6 +16,7 @@ results = engine.validate()
 stats = engine.statistics()
 
 assert stats["checks"] > 0
+assert all(r.identifier.startswith("ATK-VAL-") for r in results)
 
 ValidationExporter.export(
     results,

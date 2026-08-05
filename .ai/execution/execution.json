@@ -9,21 +9,21 @@
     "commit": "",
     "confidence": 0.75,
     "core": "",
-    "environment": "/storage/emulated/0/AI-Projects/AI-Toolkit",
-    "execution_id": "EXEC-EC52125C",
+    "environment": "/home/runner/work/AI-Toolkit/AI-Toolkit",
+    "execution_id": "ATK-EXEC-64FDBE45",
     "issue": "",
     "milestone": "",
-    "mode": "SIMULATION",
+    "mode": "READ_ONLY",
     "owner": "",
     "planning_id": "PLAN-A6FFF182",
-    "policy": "SIMULATION",
-    "repository": "/storage/emulated/0/AI-Projects/AI-Toolkit",
+    "policy": "READ_ONLY",
+    "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
     "roadmap": "",
     "schema_version": "1.0.0",
     "state_id": "",
     "synchronization_id": "",
-    "timestamp": "2026-08-03T13:04:59.388677+00:00",
-    "workspace": "/storage/emulated/0/AI-Projects"
+    "timestamp": "2026-08-05T03:01:10.476399+00:00",
+    "workspace": "/home/runner/work/AI-Toolkit"
   },
   "errors": [],
   "evidence": {
@@ -137,7 +137,7 @@
           }
         },
         "source": "CORE-009",
-        "timestamp": "2026-08-03T13:04:59.639887+00:00"
+        "timestamp": "2026-08-05T03:01:10.496045+00:00"
       },
       {
         "category": "briefing",
@@ -456,13 +456,13 @@
           "suggested_next_pr": ""
         },
         "source": "CORE-010",
-        "timestamp": "2026-08-03T13:04:59.712162+00:00"
+        "timestamp": "2026-08-05T03:01:10.503530+00:00"
       },
       {
         "category": "live_context",
         "data": {},
         "source": "CORE-013",
-        "timestamp": "2026-08-03T13:04:59.633122+00:00"
+        "timestamp": "2026-08-05T03:01:10.495431+00:00"
       },
       {
         "category": "planning_queue",
@@ -620,35 +620,35 @@
           "schema_version": "1.0.0"
         },
         "source": "CORE-014",
-        "timestamp": "2026-08-03T13:04:59.799359+00:00"
+        "timestamp": "2026-08-05T03:01:10.509455+00:00"
       }
     ]
   },
-  "execution_id": "EXEC-EC52125C",
-  "generated_at": "2026-08-03T13:04:59.388677+00:00",
+  "execution_id": "ATK-EXEC-64FDBE45",
+  "generated_at": "2026-08-05T03:01:10.476399+00:00",
   "metrics": {
     "artifact_count": 0,
     "confidence": 0.75,
     "error_count": 0,
     "evidence_count": 4,
-    "execution_id": "EXEC-EC52125C",
-    "generated_at": "2026-08-03T13:04:59.388677+00:00",
+    "execution_id": "ATK-EXEC-64FDBE45",
+    "generated_at": "2026-08-05T03:01:10.476399+00:00",
     "schema_version": "1.0.0",
     "stage_durations": {
-      "collect_evidence": 0.021,
-      "execute_approved_step": 0.051,
-      "load_context": 244.073,
-      "load_development_state": 6.671,
-      "load_executive_briefing": 72.174,
-      "load_planning_queue": 87.084,
-      "prepare_execution_context": 0.078,
-      "run_validation": 149562.204,
-      "update_state": 0.003,
-      "validate_approvals": 0.042,
-      "validate_dependencies": 0.018,
+      "collect_evidence": 0.004,
+      "execute_approved_step": 0.011,
+      "load_context": 18.976,
+      "load_development_state": 0.598,
+      "load_executive_briefing": 7.47,
+      "load_planning_queue": 5.908,
+      "prepare_execution_context": 0.019,
+      "run_validation": 14808.865,
+      "update_state": 0.001,
+      "validate_approvals": 0.008,
+      "validate_dependencies": 0.004,
       "validate_policies": 0.001
     },
-    "total_duration_ms": 149973.307,
+    "total_duration_ms": 14842.011,
     "validation_scores": {
       "AcceptanceValidator": 0.935,
       "CanonicalValidator": 1.0,
@@ -659,16 +659,16 @@
     },
     "warning_count": 1
   },
-  "mode": "SIMULATION",
+  "mode": "READ_ONLY",
   "next_actions": [
     "Next: CORE-005 — Implement CORE-005"
   ],
-  "repository": "/storage/emulated/0/AI-Projects/AI-Toolkit",
+  "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
   "schema_version": "1.0.0",
   "snapshot": {},
   "stage_results": [
     {
-      "duration_ms": 244.073,
+      "duration_ms": 18.976,
       "errors": [],
       "evidence": {
         "source": "CORE-013"
@@ -678,7 +678,7 @@
       "warnings": []
     },
     {
-      "duration_ms": 6.671,
+      "duration_ms": 0.598,
       "errors": [],
       "evidence": {
         "source": "CORE-009"
@@ -688,7 +688,7 @@
       "warnings": []
     },
     {
-      "duration_ms": 72.174,
+      "duration_ms": 7.47,
       "errors": [],
       "evidence": {
         "source": "CORE-010"
@@ -698,7 +698,7 @@
       "warnings": []
     },
     {
-      "duration_ms": 87.084,
+      "duration_ms": 5.908,
       "errors": [],
       "evidence": {
         "entry_count": 6,
@@ -709,7 +709,7 @@
       "warnings": []
     },
     {
-      "duration_ms": 0.018,
+      "duration_ms": 0.004,
       "errors": [],
       "evidence": {},
       "stage": "validate_dependencies",
@@ -721,7 +721,7 @@
       "errors": [],
       "evidence": {
         "is_safe_mode": true,
-        "mode": "SIMULATION",
+        "mode": "READ_ONLY",
         "protected_operations": [
           "delete_branch",
           "destructive_command",
@@ -737,18 +737,18 @@
       "warnings": []
     },
     {
-      "duration_ms": 0.042,
+      "duration_ms": 0.008,
       "errors": [],
       "evidence": {
         "approval": "APPROVED",
-        "mode": "SIMULATION"
+        "mode": "READ_ONLY"
       },
       "stage": "validate_approvals",
       "status": "PASS",
       "warnings": []
     },
     {
-      "duration_ms": 0.078,
+      "duration_ms": 0.019,
       "errors": [],
       "evidence": {},
       "stage": "prepare_execution_context",
@@ -756,17 +756,17 @@
       "warnings": []
     },
     {
-      "duration_ms": 0.051,
+      "duration_ms": 0.011,
       "errors": [],
       "evidence": {},
       "stage": "execute_approved_step",
       "status": "PASS",
       "warnings": [
-        "[SIMULATION] Would execute: 'CORE-005' — Implement CORE-005"
+        "[READ_ONLY] Would execute: 'CORE-005' — Implement CORE-005"
       ]
     },
     {
-      "duration_ms": 0.021,
+      "duration_ms": 0.004,
       "errors": [],
       "evidence": {
         "evidence_count": 4
@@ -776,7 +776,7 @@
       "warnings": []
     },
     {
-      "duration_ms": 149562.204,
+      "duration_ms": 14808.865,
       "errors": [],
       "evidence": {
         "validator_count": 6
@@ -786,7 +786,7 @@
       "warnings": []
     },
     {
-      "duration_ms": 0.003,
+      "duration_ms": 0.001,
       "errors": [],
       "evidence": {
         "note": "State read-only in safe modes"
@@ -796,7 +796,7 @@
       "warnings": []
     },
     {
-      "duration_ms": 0.513,
+      "duration_ms": 0.133,
       "errors": [],
       "evidence": {},
       "stage": "generate_reports",
@@ -805,12 +805,12 @@
     }
   ],
   "status": "COMPLETED",
-  "summary": "Execution EXEC-EC52125C completed with status 'COMPLETED'. Duration: 149973.3 ms. Mode: SIMULATION. Confidence: 75%.",
+  "summary": "Execution ATK-EXEC-64FDBE45 completed with status 'COMPLETED'. Duration: 14842.0 ms. Mode: READ_ONLY. Confidence: 75%.",
   "validation_results": [
     {
       "evidence": {
         "approval": "APPROVED",
-        "mode": "SIMULATION"
+        "mode": "READ_ONLY"
       },
       "findings": [],
       "score": 1.0,
@@ -835,8 +835,8 @@
       "findings": [
         "{'id': 'ARCH-RISK-001', 'title': 'Architectural hotspot', 'description': 'lib/python/workspace_index/__init__.py is imported by many modules, creating a high-coupling hub.', 'severity': 'medium', 'affected_modules': ['lib/python/workspace_index/__init__.py'], 'evidence': ['in-degree: 13'], 'confidence': 0.85}",
         "{'id': 'ARCH-RISK-002', 'title': 'Architectural hotspot', 'description': 'lib/python/autonomous_planning_engine/models.py is imported by many modules, creating a high-coupling hub.', 'severity': 'medium', 'affected_modules': ['lib/python/autonomous_planning_engine/models.py'], 'evidence': ['in-degree: 11'], 'confidence': 0.85}",
-        "{'id': 'ARCH-RISK-003', 'title': 'Architectural hotspot', 'description': 'lib/python/executive_briefing_engine/models.py is imported by many modules, creating a high-coupling hub.', 'severity': 'medium', 'affected_modules': ['lib/python/executive_briefing_engine/models.py'], 'evidence': ['in-degree: 10'], 'confidence': 0.85}",
-        "{'id': 'ARCH-RISK-004', 'title': 'Unclassified modules', 'description': '108 modules could not be assigned to a known architectural layer.', 'severity': 'low', 'affected_modules': ['lib/python/__init__.py', 'lib/python/autonomous_execution_engine/__init__.py', 'lib/python/autonomous_execution_engine/engine.py', 'lib/python/autonomous_execution_engine/evidence.py', 'lib/python/autonomous_execution_engine/logger.py', 'lib/python/autonomous_execution_engine/persistence.py', 'lib/python/autonomous_execution_engine/policy.py', 'lib/python/autonomous_execution_engine/rollback.py', 'lib/python/autonomous_execution_engine/validator.py', 'lib/python/autonomous_planner/__init__.py'], 'evidence': ['Layer classification: Uncategorised'], 'confidence': 0.7}",
+        "{'id': 'ARCH-RISK-003', 'title': 'Architectural hotspot', 'description': 'lib/python/canonical_entities/__init__.py is imported by many modules, creating a high-coupling hub.', 'severity': 'medium', 'affected_modules': ['lib/python/canonical_entities/__init__.py'], 'evidence': ['in-degree: 11'], 'confidence': 0.85}",
+        "{'id': 'ARCH-RISK-004', 'title': 'Unclassified modules', 'description': '157 modules could not be assigned to a known architectural layer.', 'severity': 'low', 'affected_modules': ['lib/python/__init__.py', 'lib/python/autonomous_execution_engine/__init__.py', 'lib/python/autonomous_execution_engine/engine.py', 'lib/python/autonomous_execution_engine/evidence.py', 'lib/python/autonomous_execution_engine/logger.py', 'lib/python/autonomous_execution_engine/persistence.py', 'lib/python/autonomous_execution_engine/policy.py', 'lib/python/autonomous_execution_engine/rollback.py', 'lib/python/autonomous_execution_engine/validator.py', 'lib/python/autonomous_planner/__init__.py'], 'evidence': ['Layer classification: Uncategorised'], 'confidence': 0.7}",
         "{'id': 'ARCH-RISK-005', 'title': 'High coupling detected', 'description': '15 modules have an excessive number of outbound imports.', 'severity': 'medium', 'affected_modules': ['lib/python/agents/development_agent.py', 'lib/python/ai_cto_scanner/engine.py', 'lib/python/autonomous_execution_engine/engine.py', 'lib/python/autonomous_planning_engine/__init__.py', 'lib/python/autonomous_planning_engine/engine.py', 'lib/python/canonical_intelligence/engine.py', 'lib/python/cli/main.py', 'lib/python/context_synchronization_engine/engine.py', 'lib/python/development_state_engine/runtime.py', 'lib/python/executable_repository_intelligence/engine.py'], 'evidence': ['Outbound import count exceeds threshold'], 'confidence': 0.8}"
       ],
       "score": 0.75,
@@ -871,7 +871,7 @@
       "evidence": {
         "average_score": 0.935,
         "failure_count": 0,
-        "mode": "SIMULATION",
+        "mode": "READ_ONLY",
         "validator_count": 4
       },
       "findings": [],
@@ -881,6 +881,6 @@
     }
   ],
   "warnings": [
-    "[SIMULATION] Would execute: 'CORE-005' — Implement CORE-005"
+    "[READ_ONLY] Would execute: 'CORE-005' — Implement CORE-005"
   ]
 }

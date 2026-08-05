@@ -11,7 +11,7 @@ class RepositorySizeRule(Rule):
             return None
 
         return RuleResult(
-            identifier="RULE-001",
+            identifier="ATK-RULE-001",
             severity="WARNING",
             message="Repository contains very few files.",
             recommendation="Continue repository development.",

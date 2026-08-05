@@ -57,17 +57,21 @@ class TelegramGateway:
         bot_token: str = "",
         chat_id: str = "",
         event_dispatcher: Optional[Any] = None,
+        enabled: bool = True,
     ):
         self._bot_token = bot_token
         self._chat_id = chat_id
         self._dispatcher = event_dispatcher
-        self._enabled = bool(bot_token) and _REQUESTS_AVAILABLE
+        self._enabled = enabled and bool(bot_token) and _REQUESTS_AVAILABLE
         self._last_update_id = 0
         self._sent_count = 0
         self._received_count = 0
 
         if not self._enabled:
-            logger.info("TelegramGateway: disabled (no token or requests unavailable)")
+            logger.info("TelegramGateway: disabled (integration disabled, no token, or requests unavailable)")
+
+    def is_enabled(self) -> bool:
+        return self._enabled
 
     # ------------------------------------------------------------------ #
     # Outbound

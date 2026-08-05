@@ -161,7 +161,7 @@ snap = ExecutionSnapshot.capture(
     live_context={"branch": "main"},
     schema_version=EXECUTION_VERSION,
 )
-assert snap["snapshot_id"].startswith("SNAP-")
+assert snap["snapshot_id"].startswith("ATK-SNAP-")
 assert snap["execution_id"] == "EXEC-001"
 assert snap["schema_version"] == EXECUTION_VERSION
 print("7. ExecutionSnapshot OK")
@@ -376,7 +376,7 @@ assert "paths" in result
 
 d = result["execution_dict"]
 assert d["schema_version"] == EXECUTION_VERSION
-assert d["execution_id"].startswith("EXEC-")
+assert d["execution_id"].startswith("ATK-EXEC-")
 assert d["mode"] == MODE_READ_ONLY
 assert d["approval"] in APPROVAL_STATES
 assert len(d["stage_results"]) == len(PIPELINE_STAGES)
@@ -432,7 +432,7 @@ print("16. Determinism OK")
 import subprocess
 
 proc = subprocess.run(
-    ["bash", "bin/ai", "execute"],
+    ["python3", "-m", "lib.python.cli.main", "execute"],
     capture_output=True,
     text=True,
     cwd=".",
@@ -441,7 +441,7 @@ assert proc.returncode == 0, f"ai execute exited {proc.returncode}: {proc.stderr
 assert "Execution ID" in proc.stdout
 
 proc_json = subprocess.run(
-    ["bash", "bin/ai", "execute", "--json"],
+    ["python3", "-m", "lib.python.cli.main", "execute", "--json"],
     capture_output=True,
     text=True,
     cwd=".",
@@ -458,7 +458,7 @@ print("17. CLI smoke test OK")
 
 for flag in ("--simulate", "--dry-run", "--validate"):
     p = subprocess.run(
-        ["bash", "bin/ai", "execute", flag],
+        ["python3", "-m", "lib.python.cli.main", "execute", flag],
         capture_output=True,
         text=True,
         cwd=".",

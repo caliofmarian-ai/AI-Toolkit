@@ -33,6 +33,9 @@ class SmartSyncPlan:
 
 class GitHubSyncStrategy:
 
+    def __init__(self, issue_state_provider: GitHubIssueStateProvider | None = None):
+        self._issue_state_provider = issue_state_provider or GitHubIssueStateProvider()
+
     def build(
         self,
         project: GitHubProjectPlan,
@@ -40,7 +43,7 @@ class GitHubSyncStrategy:
     ) -> SmartSyncPlan:
 
         state = provider.load()
-        issue_state = GitHubIssueStateProvider().load()
+        issue_state = self._issue_state_provider.load()
         compare = GitHubComparisonEngine()
 
         plan = SmartSyncPlan()
