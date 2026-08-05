@@ -325,7 +325,7 @@ assert "paths" in result
 
 d = result["evaluation_dict"]
 assert d["schema_version"] == EVALUATION_VERSION
-assert d["evaluation_id"].startswith("EVAL-")
+assert d["evaluation_id"].startswith("ATK-EVAL-")
 assert 0 <= d["overall_score"] <= 1.0
 assert d["overall_gate"] in QUALITY_GATES
 assert isinstance(d["quality_scores"], list)
@@ -361,7 +361,7 @@ print("16. Determinism OK")
 import subprocess
 
 proc = subprocess.run(
-    ["bash", "bin/ai", "evaluate"],
+    ["python3", "bin/ai", "evaluate"],
     capture_output=True,
     text=True,
     cwd=".",
@@ -370,7 +370,7 @@ assert proc.returncode == 0, f"ai evaluate exited {proc.returncode}: {proc.stder
 assert "Evaluation ID" in proc.stdout
 
 proc_json = subprocess.run(
-    ["bash", "bin/ai", "evaluate", "--json"],
+    ["python3", "bin/ai", "evaluate", "--json"],
     capture_output=True,
     text=True,
     cwd=".",

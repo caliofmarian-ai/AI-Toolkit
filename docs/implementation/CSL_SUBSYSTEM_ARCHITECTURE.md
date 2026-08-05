@@ -275,6 +275,12 @@ Diagnostics shall be deterministic.
 
 Equivalent inputs shall always produce equivalent diagnostics.
 
+Implementation namespace policy:
+
+- CSL-facing diagnostic codes may retain their normative short forms such as `SEM-001` and `GOV-001`.
+- AI-Toolkit-generated operational identifiers shall use the `ATK-` namespace to avoid collisions with external systems.
+- Inferred metadata discovered from filenames or titles shall be tracked separately from declared metadata and shall not override explicit CSL requirements.
+
 ---
 
 # 7. Traceability Requirement

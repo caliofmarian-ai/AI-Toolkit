@@ -173,6 +173,18 @@ All Phase 1 tests pass.
 
 ---
 
+# 5A. Namespace Hardening Status
+
+| Namespace Area | Status | Evidence |
+|----------------|--------|----------|
+| Operational identifiers use `ATK-` prefix | IMPLEMENTED | planning_engine/engine.py, validation_engine/engine.py, development_state_engine/runtime.py |
+| Rule identifiers use `ATK-RULE-*` | IMPLEMENTED | rule_engine/rules/*.py |
+| Execution and evaluation identifiers use `ATK-*` | IMPLEMENTED | autonomous_execution_engine/engine.py, autonomous_execution_engine/evidence.py, self_evaluation_engine/engine.py |
+| CSL metadata inference is non-authoritative | IMPLEMENTED | canonical_parser/csl_parser.py, canonical_parser/ast_nodes.py |
+| Explicit metadata requirements preserved | IMPLEMENTED | canonical_parser/semantic_analyzer.py |
+
+---
+
 # 6. Phase 1 Restrictions Compliance
 
 Phase 1 prohibits AI provider integrations.

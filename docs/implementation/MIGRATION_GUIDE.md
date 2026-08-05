@@ -216,4 +216,28 @@ Generated artifacts shall be placed in `generated/` in future phases.
 
 ---
 
+# 7. Identifier Namespace Migration
+
+Phase 1 now reserves the `ATK-` prefix for AI-Toolkit-generated runtime identifiers.
+
+Examples:
+
+- `ATK-VAL-*` for validation checks
+- `ATK-RULE-*` for rule-engine findings
+- `ATK-PLAN-*` for planning identifiers
+- `ATK-EXEC-*` for execution identifiers
+- `ATK-EVAL-*` for self-evaluation identifiers
+- `ATK-SNAP-*` for generated snapshots
+- `ATK-STATE-*`, `ATK-WS-*`, `ATK-REPO-*`, `ATK-REVIEW-*`, `ATK-OWNER-*`, `ATK-TELEGRAM-*`, `ATK-INTEGRITY-*` for development-state records
+
+This change reduces collisions with generic identifiers from external systems such as CI platforms, issue trackers, REST APIs, and provider SDKs.
+
+Compatibility notes:
+
+- CSL canonical document references such as `CANON-001` remain unchanged.
+- Semantic diagnostic codes such as `SEM-001` remain unchanged in Phase 1 because they are part of the CSL-facing diagnostics contract.
+- Parser metadata inference is now non-authoritative: inferred values are stored separately from declared metadata and do not satisfy explicit metadata requirements.
+
+---
+
 End of Phase 1 Migration Guide.

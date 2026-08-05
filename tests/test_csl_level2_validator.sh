@@ -72,10 +72,10 @@ if errors:
         print(f"  WARN: {e}")
 print("L2-09 PASS")
 
-# L2-10: Canonical documents should not produce governance/status warnings
-unexpected = [w for w in warnings if "[SEM-001]" in w or "[SEM-003]" in w or "[GOV-001]" in w]
+# L2-10: Canonical documents may rely on section headings, but should not rely on inferred metadata
+unexpected = [w for w in warnings if "[GOV-001]" in w]
 assert not unexpected, f"L2-10 FAIL: unexpected canonical warnings: {unexpected[:5]}"
-print("L2-10 PASS: canonical documents parse governance metadata without warnings")
+print("L2-10 PASS: canonical documents avoid governance failures and preserve explicit metadata rules")
 
 print("\nCSL Level 2 (Core Validator): ALL PASS")
 PY

@@ -161,7 +161,7 @@ snap = ExecutionSnapshot.capture(
     live_context={"branch": "main"},
     schema_version=EXECUTION_VERSION,
 )
-assert snap["snapshot_id"].startswith("SNAP-")
+assert snap["snapshot_id"].startswith("ATK-SNAP-")
 assert snap["execution_id"] == "EXEC-001"
 assert snap["schema_version"] == EXECUTION_VERSION
 print("7. ExecutionSnapshot OK")
@@ -376,7 +376,7 @@ assert "paths" in result
 
 d = result["execution_dict"]
 assert d["schema_version"] == EXECUTION_VERSION
-assert d["execution_id"].startswith("EXEC-")
+assert d["execution_id"].startswith("ATK-EXEC-")
 assert d["mode"] == MODE_READ_ONLY
 assert d["approval"] in APPROVAL_STATES
 assert len(d["stage_results"]) == len(PIPELINE_STAGES)
