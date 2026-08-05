@@ -1,0 +1,30 @@
+Project:
+    Identifier: AI-Toolkit
+    Title: "AI Toolkit"
+    Version: 1.0.0
+    Status: Approved
+    Classification: "Reference Implementation"
+    Visibility: Public
+    Tags: ["compiler", "toolkit"]
+
+Capability:
+    Identifier: CSL-Core
+    Name: "CSL Core"
+    Version: 1.0.0
+    Status: Approved
+    Visibility: Internal
+    Owners:
+        - "Engineering"
+        - "Platform"
+
+Requirement:
+    Identifier: REQ-Deterministic
+    Name: "Deterministic Compilation"
+    Version: 1.0.0
+    Status: Approved
+
+Relationship:
+    CSL-Core implements REQ-Deterministic
+
+Relationship:
+    AI-Toolkit contains CSL-Core

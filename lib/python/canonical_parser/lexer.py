@@ -2,200 +2,236 @@
 CSL Lexer — Canonical Specification Language v1.0.0
 
 Transforms CSL source text into a deterministic token stream.
-
-CSL Reference: Volume IV Chapters 4–5 (Tokens, Keywords)
-CORE: CORE-023-004
 """
 
 from __future__ import annotations
 
-import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
-from typing import Iterator, List, Optional
+from typing import List
 
-
-# ---------------------------------------------------------------------------
-# Token types
-# ---------------------------------------------------------------------------
 
 class TokenType(str, Enum):
-    # Document structure
-    HEADING1 = "HEADING1"        # # Title
-    HEADING2 = "HEADING2"        # ## Section
-    HEADING3 = "HEADING3"        # ### Subsection
-    # Metadata key-value pairs
-    METADATA = "METADATA"        # Key: Value
-    # Bullet items
-    BULLET = "BULLET"            # - item
-    # Table rows
-    TABLE_ROW = "TABLE_ROW"      # | col | col |
-    TABLE_SEP = "TABLE_SEP"      # |---|---|
-    # Code blocks
-    CODE_FENCE = "CODE_FENCE"    # ```
-    CODE_LINE = "CODE_LINE"      # line inside code fence
-    # Block separators
-    SEPARATOR = "SEPARATOR"      # ---
-    # Plain text
-    TEXT = "TEXT"
-    # Empty line
-    BLANK = "BLANK"
-    # End of file
+    KEYWORD = "KEYWORD"
+    IDENTIFIER = "IDENTIFIER"
+    STRING = "STRING"
+    INTEGER = "INTEGER"
+    DECIMAL = "DECIMAL"
+    BOOLEAN = "BOOLEAN"
+    DATE = "DATE"
+    TIMESTAMP = "TIMESTAMP"
+    DURATION = "DURATION"
+    VERSION = "VERSION"
+    NULL = "NULL"
+    COLON = "COLON"
+    DASH = "DASH"
+    COMMA = "COMMA"
+    LBRACKET = "LBRACKET"
+    RBRACKET = "RBRACKET"
+    LBRACE = "LBRACE"
+    RBRACE = "RBRACE"
+    NEWLINE = "NEWLINE"
+    INDENT = "INDENT"
+    DEDENT = "DEDENT"
+    COMMENT = "COMMENT"
     EOF = "EOF"
 
 
-# CSL reserved metadata keywords (Volume IV Chapter 5)
 RESERVED_KEYWORDS = frozenset([
-    "version",
-    "status",
-    "classification",
-    "author",
-    "date",
-    "id",
-    "title",
-    "scope",
-    "purpose",
-    "objectives",
-    "dependencies",
-    "invariants",
-    "constraints",
-    "phase",
-    "priority",
-    "risk",
-    "approval",
+    "Project", "Capability", "Feature", "Requirement", "Decision", "Constraint",
+    "Policy", "Rule", "Risk", "Issue", "Epic", "Milestone", "Task", "Component",
+    "Module", "Service", "API", "Entity", "Relationship", "Generator", "Validator",
+    "Compiler", "Runtime", "Knowledge", "Reference", "Approval", "Deployment",
+    "Environment", "Provider", "Model", "Prompt",
 ])
 
 
 @dataclass(frozen=True)
 class SourceLocation:
-    """Source location for diagnostics traceability."""
-
     line: int
     column: int
     source: str = ""
 
     def __str__(self) -> str:
-        if self.source:
-            return f"{self.source}:{self.line}:{self.column}"
-        return f"{self.line}:{self.column}"
+        return f"{self.source + ':' if self.source else ''}{self.line}:{self.column}"
 
 
 @dataclass(frozen=True)
 class Token:
-    """Single CSL token."""
-
     token_type: TokenType
     value: str
     location: SourceLocation
-    # For METADATA tokens: key and raw value
-    key: str = ""
-    raw_value: str = ""
-
-    def is_keyword(self) -> bool:
-        return self.token_type == TokenType.METADATA and self.key.lower() in RESERVED_KEYWORDS
-
-
-# ---------------------------------------------------------------------------
-# Lexer
-# ---------------------------------------------------------------------------
-
-_HEADING1_RE = re.compile(r"^# (.+)$")
-_HEADING2_RE = re.compile(r"^## (.+)$")
-_HEADING3_RE = re.compile(r"^### (.+)$")
-_METADATA_RE = re.compile(r"^([A-Za-z][A-Za-z0-9 _-]*):\s*(.*)$")
-_BULLET_RE = re.compile(r"^-\s+(.+)$")
-_TABLE_ROW_RE = re.compile(r"^\|.+\|")
-_TABLE_SEP_RE = re.compile(r"^\|[-| :]+\|")
-_CODE_FENCE_RE = re.compile(r"^```")
-_SEPARATOR_RE = re.compile(r"^---\s*$")
 
 
 class CslLexer:
-    """
-    CSL Lexer: transforms source text into a token stream.
-
-    Deterministic: identical inputs always produce identical token streams.
-    Preserves source location for every token.
-    """
-
     def __init__(self, source: str, source_name: str = ""):
         self._source = source
         self._source_name = source_name
-        self._lines = source.splitlines()
-        self._in_code_fence = False
+        self._indent_stack = [0]
 
     def tokenize(self) -> List[Token]:
-        """Return the complete token list for the source."""
-        return list(self._iter_tokens())
-
-    def _iter_tokens(self) -> Iterator[Token]:
-        for line_idx, raw_line in enumerate(self._lines):
-            line_num = line_idx + 1
-            line = raw_line.rstrip("\n\r")
-
-            loc = SourceLocation(line=line_num, column=1, source=self._source_name)
-
-            # Code fence toggle
-            if _CODE_FENCE_RE.match(line):
-                self._in_code_fence = not self._in_code_fence
-                yield Token(TokenType.CODE_FENCE, line, loc)
+        tokens: List[Token] = []
+        lines = self._source.splitlines()
+        for line_index, raw_line in enumerate(lines, start=1):
+            indent_prefix = raw_line[: len(raw_line) - len(raw_line.lstrip(' 	'))]
+            if '	' in indent_prefix:
+                raise ValueError('Tab character used for indentation')
+            if not raw_line.strip():
+                tokens.append(Token(TokenType.NEWLINE, '', SourceLocation(line_index, 1, self._source_name)))
                 continue
-
-            if self._in_code_fence:
-                yield Token(TokenType.CODE_LINE, line, loc)
+            indent = len(raw_line) - len(raw_line.lstrip(' '))
+            if indent % 4 != 0:
+                raise ValueError(f'Invalid indentation level at line {line_index}')
+            tokens.extend(self._emit_indent_dedent(indent, line_index))
+            content = raw_line[indent:]
+            if content.startswith('#'):
+                tokens.append(Token(TokenType.COMMENT, content[1:].strip(), SourceLocation(line_index, indent + 1, self._source_name)))
+                tokens.append(Token(TokenType.NEWLINE, '', SourceLocation(line_index, len(raw_line) + 1, self._source_name)))
                 continue
+            tokens.extend(self._tokenize_content(content, line_index, indent + 1))
+            tokens.append(Token(TokenType.NEWLINE, '', SourceLocation(line_index, len(raw_line) + 1, self._source_name)))
+        while len(self._indent_stack) > 1:
+            self._indent_stack.pop()
+            tokens.append(Token(TokenType.DEDENT, '', SourceLocation(len(lines) + 1, 1, self._source_name)))
+        tokens.append(Token(TokenType.EOF, '', SourceLocation(len(lines) + 1, 1, self._source_name)))
+        return tokens
 
-            # Blank line
-            if not line.strip():
-                yield Token(TokenType.BLANK, "", loc)
+    def _emit_indent_dedent(self, indent: int, line: int) -> List[Token]:
+        emitted: List[Token] = []
+        if indent > self._indent_stack[-1]:
+            self._indent_stack.append(indent)
+            emitted.append(Token(TokenType.INDENT, '', SourceLocation(line, 1, self._source_name)))
+        else:
+            while indent < self._indent_stack[-1]:
+                self._indent_stack.pop()
+                emitted.append(Token(TokenType.DEDENT, '', SourceLocation(line, 1, self._source_name)))
+            if indent != self._indent_stack[-1]:
+                raise ValueError(f'Unmatched dedent at line {line}')
+        return emitted
+
+    def _tokenize_content(self, content: str, line: int, column_start: int) -> List[Token]:
+        tokens: List[Token] = []
+        i = 0
+        while i < len(content):
+            ch = content[i]
+            col = column_start + i
+            if ch == ' ':
+                i += 1
                 continue
-
-            # Separator
-            if _SEPARATOR_RE.match(line):
-                yield Token(TokenType.SEPARATOR, "---", loc)
+            if ch == ':':
+                tokens.append(Token(TokenType.COLON, ch, SourceLocation(line, col, self._source_name)))
+                i += 1
                 continue
-
-            # Headings (most specific first)
-            m = _HEADING3_RE.match(line)
-            if m:
-                yield Token(TokenType.HEADING3, m.group(1).strip(), loc)
+            if ch == '-' and not (i + 1 < len(content) and content[i + 1].isalnum()):
+                tokens.append(Token(TokenType.DASH, ch, SourceLocation(line, col, self._source_name)))
+                i += 1
                 continue
-
-            m = _HEADING2_RE.match(line)
-            if m:
-                yield Token(TokenType.HEADING2, m.group(1).strip(), loc)
+            if ch == ',':
+                tokens.append(Token(TokenType.COMMA, ch, SourceLocation(line, col, self._source_name)))
+                i += 1
                 continue
-
-            m = _HEADING1_RE.match(line)
-            if m:
-                yield Token(TokenType.HEADING1, m.group(1).strip(), loc)
+            if ch == '[':
+                tokens.append(Token(TokenType.LBRACKET, ch, SourceLocation(line, col, self._source_name)))
+                i += 1
                 continue
-
-            # Table separator (before row check)
-            if _TABLE_SEP_RE.match(line):
-                yield Token(TokenType.TABLE_SEP, line.strip(), loc)
+            if ch == ']':
+                tokens.append(Token(TokenType.RBRACKET, ch, SourceLocation(line, col, self._source_name)))
+                i += 1
                 continue
-
-            # Table row
-            if _TABLE_ROW_RE.match(line):
-                yield Token(TokenType.TABLE_ROW, line.strip(), loc)
+            if ch == '{':
+                tokens.append(Token(TokenType.LBRACE, ch, SourceLocation(line, col, self._source_name)))
+                i += 1
                 continue
-
-            # Bullet
-            m = _BULLET_RE.match(line)
-            if m:
-                yield Token(TokenType.BULLET, m.group(1).strip(), loc, key="", raw_value=m.group(1).strip())
+            if ch == '}':
+                tokens.append(Token(TokenType.RBRACE, ch, SourceLocation(line, col, self._source_name)))
+                i += 1
                 continue
-
-            # Metadata key: value
-            m = _METADATA_RE.match(line)
-            if m:
-                key = m.group(1).strip()
-                raw_value = m.group(2).strip()
-                yield Token(TokenType.METADATA, line.strip(), loc, key=key, raw_value=raw_value)
+            if ch == '"':
+                value, i = self._read_string(content, i)
+                tokens.append(Token(TokenType.STRING, value, SourceLocation(line, col, self._source_name)))
                 continue
+            value, i = self._read_word(content, i)
+            tokens.append(self._classify_word(value, line, col))
+        return tokens
 
-            # Plain text
-            yield Token(TokenType.TEXT, line.strip(), loc)
+    def _read_string(self, content: str, start: int):
+        chars = []
+        i = start + 1
+        while i < len(content):
+            ch = content[i]
+            if ch == '"':
+                return ''.join(chars), i + 1
+            if ch == '\\':
+                i += 1
+                if i >= len(content):
+                    break
+                chars.append(content[i])
+                i += 1
+                continue
+            chars.append(ch)
+            i += 1
+        raise ValueError('Unterminated string literal')
 
-        yield Token(TokenType.EOF, "", SourceLocation(line=len(self._lines) + 1, column=1, source=self._source_name))
+    def _read_word(self, content: str, start: int):
+        i = start
+        while i < len(content) and content[i] not in ' :,[]{}"':
+            i += 1
+        return content[start:i], i
+
+    def _classify_word(self, value: str, line: int, column: int) -> Token:
+        location = SourceLocation(line, column, self._source_name)
+        if value in RESERVED_KEYWORDS:
+            return Token(TokenType.KEYWORD, value, location)
+        if value in {'true', 'false'}:
+            return Token(TokenType.BOOLEAN, value, location)
+        if value == 'null':
+            return Token(TokenType.NULL, value, location)
+        if self._is_version(value):
+            return Token(TokenType.VERSION, value, location)
+        if self._is_timestamp(value):
+            return Token(TokenType.TIMESTAMP, value, location)
+        if self._is_date(value):
+            return Token(TokenType.DATE, value, location)
+        if self._is_duration(value):
+            return Token(TokenType.DURATION, value, location)
+        if self._is_decimal(value):
+            return Token(TokenType.DECIMAL, value, location)
+        if self._is_integer(value):
+            return Token(TokenType.INTEGER, value, location)
+        if self._is_identifier(value):
+            return Token(TokenType.IDENTIFIER, value, location)
+        raise ValueError(f"Invalid token '{value}'")
+
+    def _is_identifier(self, value: str) -> bool:
+        return bool(value) and value[0].isalpha() and all(ch.isalnum() or ch in '-_' for ch in value)
+
+    def _is_integer(self, value: str) -> bool:
+        return value.isdigit() or (value.startswith('-') and value[1:].isdigit())
+
+    def _is_decimal(self, value: str) -> bool:
+        if value.count('.') != 1:
+            return False
+        left, right = value.split('.', 1)
+        if left.startswith('-'):
+            left = left[1:]
+        return bool(left) and left.isdigit() and bool(right) and right.isdigit()
+
+    def _is_version(self, value: str) -> bool:
+        parts = value.split('.')
+        return len(parts) == 3 and all(part.isdigit() for part in parts)
+
+    def _is_date(self, value: str) -> bool:
+        parts = value.split('-')
+        return len(parts) == 3 and len(parts[0]) == 4 and all(part.isdigit() for part in parts)
+
+    def _is_timestamp(self, value: str) -> bool:
+        if 'T' not in value:
+            return False
+        date_part, time_part = value.split('T', 1)
+        if time_part.endswith('Z'):
+            time_part = time_part[:-1]
+        parts = time_part.split(':')
+        return self._is_date(date_part) and len(parts) == 3 and all(part.isdigit() and len(part) == 2 for part in parts)
+
+    def _is_duration(self, value: str) -> bool:
+        return len(value) > 1 and self._is_integer(value[:-1]) and value[-1] in 'dhms'

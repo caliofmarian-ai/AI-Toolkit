@@ -1,220 +1,102 @@
-"""
-CSL Semantic Analyzer — Canonical Specification Language v1.0.0
-
-Assigns engineering meaning to AST nodes.
-Produces semantic annotations and semantic diagnostics.
-
-CSL Reference: Volume III (Semantic Model), Volume V Chapter 8 (Semantic Analysis)
-CORE: CORE-023-005
-"""
-
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List
 
-from .ast_nodes import (
-    AstNodeType,
-    BulletItemNode,
-    BulletListNode,
-    DocumentNode,
-    MetadataNode,
-    SectionNode,
-)
-from .diagnostics import (
-    Diagnostic,
-    DiagnosticCategory,
-    DiagnosticCollection,
-    DiagnosticSeverity,
-)
-from .lexer import SourceLocation
-
-
-_CANON_REF_RE = re.compile(r"(CANON-\d+)")
-_VERSION_RE = re.compile(r"^\d+\.\d+(\.\d+)?$")
+from .ast_nodes import DocumentNode, EntityNode, ListValueNode, MapValueNode, ScalarValueNode
+from .diagnostics import DiagnosticCategory, DiagnosticCollection
+from .lexer import RESERVED_KEYWORDS
 
 
 @dataclass(frozen=True)
 class SemanticAnnotation:
-    """Semantic annotation for an AST node."""
-
     node_id: str
     semantic_type: str
     properties: Dict[str, object] = field(default_factory=dict)
     canonical_refs: List[str] = field(default_factory=list)
-    source_ref: str = ""
+    source_ref: str = ''
 
 
 @dataclass
 class SemanticResult:
-    """Output of semantic analysis for one document."""
-
     doc_id: str
     title: str
     version: str
     status: str
-    purpose: str = ""
-    objectives: List[str] = field(default_factory=list)
-    scope_included: List[str] = field(default_factory=list)
-    scope_excluded: List[str] = field(default_factory=list)
-    dependencies: List[str] = field(default_factory=list)
-    invariants: List[str] = field(default_factory=list)
-    sections: List[Dict] = field(default_factory=list)
+    classification: str = ''
+    source_path: str = ''
+    entities: List[Dict] = field(default_factory=list)
+    relationships: List[Dict] = field(default_factory=list)
     annotations: List[SemanticAnnotation] = field(default_factory=list)
     diagnostics: DiagnosticCollection = field(default_factory=DiagnosticCollection)
 
 
 class SemanticAnalyzer:
-    """
-    CSL Semantic Analyzer.
-
-    Takes a DocumentNode (AST) and produces a SemanticResult.
-    Validates semantic rules from Volume III and produces diagnostics.
-    """
-
     def analyze(self, doc: DocumentNode) -> SemanticResult:
-        diag = DiagnosticCollection()
-        result = SemanticResult(
-            doc_id=doc.doc_id or doc.title,
-            title=doc.title,
-            version=doc.version,
-            status=doc.status,
-            diagnostics=diag,
-        )
-
-        # Validate required metadata
-        self._validate_metadata(doc, result, diag)
-
-        # Extract semantics from sections
-        section_index = 0
-        for section in doc.sections():
-            sec_data = self._analyze_section(section, result, diag)
-            sec_data["index"] = section_index
-            result.sections.append(sec_data)
-            section_index += 1
-
-        # Semantic rules
-        self._check_dependency_references(result, diag)
-
+        diagnostics = DiagnosticCollection()
+        doc_id = doc.header_value('Identifier') or doc.title or doc.doc_type or 'UNIDENTIFIED'
+        result = SemanticResult(doc_id=doc_id, title=doc.title, version=doc.version, status=doc.status, classification=doc.classification, source_path=doc.source_path, diagnostics=diagnostics)
+        if self._contains_reserved_keyword_conflict(doc):
+            diagnostics.error('CSL-0104', 'Reserved keyword used as identifier', DiagnosticCategory.SEMANTIC, doc.source_path)
+        identifiers = set()
+        for entity in doc.entities():
+            entity_data = self._entity(entity, doc_id, identifiers, diagnostics)
+            result.entities.append(entity_data)
+            result.annotations.append(SemanticAnnotation(entity_data['identifier'], entity.entity_type, entity_data['properties'], source_ref=doc.source_path))
+        known_ids = {entity['identifier'] for entity in result.entities}
+        for relationship in doc.relationships():
+            if relationship.source not in known_ids:
+                diagnostics.error('CSL-0201', f'Unresolvable reference: {relationship.source}', DiagnosticCategory.RELATIONSHIP, doc.source_path)
+            if relationship.target not in known_ids:
+                diagnostics.error('CSL-0201', f'Unresolvable reference: {relationship.target}', DiagnosticCategory.RELATIONSHIP, doc.source_path)
+            result.relationships.append({'source': relationship.source, 'relation_type': relationship.relation_type, 'target': relationship.target, 'attributes': {a.name: self._value(a.value) for a in relationship.attributes}})
+        for field in ('Title', 'Version', 'Status'):
+            if not doc.header_value(field):
+                diagnostics.error('CSL-0203', f'Required property missing: {field}', DiagnosticCategory.SEMANTIC, doc.source_path)
         return result
 
-    def _validate_metadata(self, doc: DocumentNode, result: SemanticResult, diag: DiagnosticCollection) -> None:
-        if not doc.version:
-            diag.warning(
-                "SEM-001",
-                f"Document '{doc.doc_id}' is missing a Version declaration",
-                DiagnosticCategory.SEMANTIC,
-                source_ref=doc.source_path,
-            )
-        elif not _VERSION_RE.match(doc.version):
-            diag.warning(
-                "SEM-002",
-                f"Document '{doc.doc_id}' version '{doc.version}' does not match expected semver format",
-                DiagnosticCategory.SEMANTIC,
-                source_ref=doc.source_path,
-            )
-
-        if not doc.status:
-            diag.warning(
-                "SEM-003",
-                f"Document '{doc.doc_id}' is missing a Status declaration",
-                DiagnosticCategory.SEMANTIC,
-                source_ref=doc.source_path,
-            )
-
-        if not doc.title:
-            diag.error(
-                "SEM-004",
-                f"Document at '{doc.source_path}' has no title (H1 heading)",
-                DiagnosticCategory.SEMANTIC,
-                source_ref=doc.source_path,
-            )
-
-    def _analyze_section(self, section: SectionNode, result: SemanticResult, diag: DiagnosticCollection) -> Dict:
-        heading_lower = section.heading.lower().strip()
-        content = section.text_content()
-
-        sec_data: Dict = {
-            "id": f"{result.doc_id}:section:{self._slugify(section.heading)}",
-            "heading": section.heading,
-            "content": content,
-            "bullets": [],
-            "metadata": {},
-        }
-
-        # Extract bullets
-        for bl in section.find_all(AstNodeType.BULLET_LIST):
-            if isinstance(bl, BulletListNode):
-                for item in bl.items():
-                    sec_data["bullets"].append(item.text)
-
-        # Extract section-level metadata
-        for meta in section.find_all(AstNodeType.METADATA):
-            if isinstance(meta, MetadataNode):
-                sec_data["metadata"][meta.key.lower()] = meta.value
-
-        # Semantic extraction by known section names
-        if heading_lower in ("purpose",):
-            result.purpose = content
-
-        elif heading_lower in ("objectives", "goals"):
-            if sec_data["bullets"]:
-                result.objectives = sec_data["bullets"]
-            elif content:
-                result.objectives = [line.strip() for line in content.splitlines() if line.strip()]
-
-        elif heading_lower in ("dependencies",):
-            refs = _CANON_REF_RE.findall(content)
-            for ref in refs:
-                if ref not in result.dependencies:
-                    result.dependencies.append(ref)
-
-        elif heading_lower in ("invariants",):
-            if sec_data["bullets"]:
-                result.invariants = sec_data["bullets"]
-            elif content:
-                result.invariants = [line.strip() for line in content.splitlines() if line.strip()]
-
-        elif heading_lower in ("scope",):
-            included, excluded = self._extract_scope(content, sec_data["bullets"])
-            result.scope_included = included
-            result.scope_excluded = excluded
-
-        return sec_data
-
-    def _extract_scope(self, content: str, bullets: List[str]) -> Tuple[List[str], List[str]]:
-        included: List[str] = []
-        excluded: List[str] = []
-        state = None
-        for line in content.splitlines():
-            stripped = line.strip().lower()
-            if stripped.startswith("included"):
-                state = "included"
+    def _contains_reserved_keyword_conflict(self, doc: DocumentNode) -> bool:
+        keywords = RESERVED_KEYWORDS - {'Relationship'}
+        for raw_line in doc.source_text.splitlines():
+            stripped = raw_line.strip()
+            if not stripped or stripped.startswith('#') or ':' not in stripped:
                 continue
-            if stripped.startswith("excluded"):
-                state = "excluded"
-                continue
-            if line.strip().startswith("- "):
-                item = line.strip()[2:].strip()
-                if state == "excluded":
-                    excluded.append(item)
-                else:
-                    included.append(item)
-        if not included and not excluded:
-            included = bullets
-        return included, excluded
+            name = stripped.split(':', 1)[0].strip()
+            if name in keywords:
+                if not any(name == entity.entity_type for entity in doc.entities()) or raw_line.startswith('    '):
+                    return True
+        return False
 
-    def _check_dependency_references(self, result: SemanticResult, diag: DiagnosticCollection) -> None:
-        for dep in result.dependencies:
-            if not _CANON_REF_RE.match(dep):
-                diag.warning(
-                    "SEM-010",
-                    f"Dependency reference '{dep}' does not match CANON-NNN identifier format",
-                    DiagnosticCategory.RELATIONSHIP,
-                    source_ref=result.doc_id,
-                )
+    def _entity(self, entity: EntityNode, fallback: str, identifiers: set, diagnostics: DiagnosticCollection) -> Dict:
+        identifier = self._scalar(entity, 'Identifier') or f'{fallback}:{entity.entity_type}:{len(identifiers)}'
+        if identifier in identifiers:
+            diagnostics.error('CSL-0200', f'Duplicate identifier within the same scope: {identifier}', DiagnosticCategory.SEMANTIC)
+        identifiers.add(identifier)
+        for attribute in entity.attributes:
+            if attribute.name in RESERVED_KEYWORDS or attribute.name == entity.entity_type:
+                diagnostics.error('CSL-0104', f'Reserved keyword used as identifier: {attribute.name}', DiagnosticCategory.SEMANTIC)
+        props = {a.name: self._value(a.value) for a in entity.attributes}
+        return {'identifier': identifier, 'entity_type': entity.entity_type, 'name': props.get('Name', props.get('Title', identifier)), 'version': props.get('Version', ''), 'status': props.get('Status', ''), 'visibility': props.get('Visibility', 'Public'), 'properties': props}
 
-    def _slugify(self, value: str) -> str:
-        value = re.sub(r"[^a-zA-Z0-9]+", "_", value.strip().lower())
-        return value.strip("_")
+    def _scalar(self, entity: EntityNode, name: str) -> str:
+        attribute = entity.get_attribute(name)
+        if attribute and isinstance(attribute.value, ScalarValueNode):
+            return str(attribute.value.value)
+        return ''
+
+    def _value(self, value):
+        if isinstance(value, ScalarValueNode):
+            if value.value_type == 'integer':
+                return int(value.value)
+            if value.value_type == 'decimal':
+                return float(value.value)
+            if value.value_type == 'boolean':
+                return value.value == 'true'
+            if value.value_type == 'null':
+                return None
+            return value.value
+        if isinstance(value, ListValueNode):
+            return [self._value(item) for item in value.items]
+        if isinstance(value, MapValueNode):
+            return {entry.key: self._value(entry.value) for entry in value.entries}
+        return None
