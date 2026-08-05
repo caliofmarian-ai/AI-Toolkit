@@ -103,14 +103,10 @@ class TelegramGateway:
             return False
 
     def send_status_report(self, report_text: str) -> bool:
-        return self.send_message(f"*Runtime Status*
-
-{report_text}")
+        return self.send_message(f"*Runtime Status*\n\n{report_text}")
 
     def send_health_alert(self, message: str) -> bool:
-        return self.send_message(f"⚠️ *Health Alert*
-
-{message}")
+        return self.send_message(f"⚠️ *Health Alert*\n\n{message}")
 
     def send_notification(self, message: str) -> bool:
         return self.send_message(f"🔔 {message}")
