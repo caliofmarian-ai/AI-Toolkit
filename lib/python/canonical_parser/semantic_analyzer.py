@@ -50,9 +50,9 @@ class SemanticAnalyzer:
             if relationship.target not in known_ids:
                 diagnostics.error('CSL-0201', f'Unresolvable reference: {relationship.target}', DiagnosticCategory.RELATIONSHIP, doc.source_path)
             result.relationships.append({'source': relationship.source, 'relation_type': relationship.relation_type, 'target': relationship.target, 'attributes': {a.name: self._value(a.value) for a in relationship.attributes}})
-        for field in ('Title', 'Version', 'Status'):
-            if not doc.header_value(field):
-                diagnostics.error('CSL-0203', f'Required property missing: {field}', DiagnosticCategory.SEMANTIC, doc.source_path)
+        for field_name in ('Title', 'Version', 'Status'):
+            if not doc.header_value(field_name):
+                diagnostics.error('CSL-0203', f'Required property missing: {field_name}', DiagnosticCategory.SEMANTIC, doc.source_path)
         return result
 
     def _contains_reserved_keyword_conflict(self, doc: DocumentNode) -> bool:

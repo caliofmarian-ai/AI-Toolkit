@@ -209,7 +209,9 @@ class CslParser:
         return False
 
     def _peek(self) -> Token:
-        return self._tokens[self._pos]
+        if self._pos < len(self._tokens):
+            return self._tokens[self._pos]
+        return Token(TokenType.EOF, '', SourceLocation(0, 0))
 
     def _previous(self) -> Token:
         return self._tokens[self._pos - 1]

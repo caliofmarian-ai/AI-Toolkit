@@ -13,8 +13,8 @@ compiler = EngineeringCompiler()
 result = compiler.compile('tests')
 assert result.uem is not None and len(result.uem) > 0, 'L3-01 FAIL: UEM not constructed'
 print(f'L3-01 PASS: UEM constructed with {len(result.uem)} Engineering Objects')
-assert all('fixtures_csl_invalid_keyword.csl' in error for error in result.errors), f'L3-02 FAIL: unexpected compilation errors: {result.errors}'
-print('L3-02 PASS: Compilation succeeded without errors')
+assert not any('fixtures_csl_invalid_keyword.csl' not in error for error in result.errors), f'L3-02 FAIL: unexpected compilation errors: {result.errors}'
+print('L3-02 PASS: only invalid-fixture errors were reported')
 assert len(result.validation_results) > 0, 'L3-03 FAIL: No validation results'
 print(f'L3-03 PASS: {len(result.validation_results)} validation results')
 all_cats = set()

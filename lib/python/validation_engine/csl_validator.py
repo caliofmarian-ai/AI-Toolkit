@@ -56,7 +56,12 @@ class CslNormativeValidator:
     def validate_text(self, text: str, source_ref: str = '') -> NormativeValidationResult:
         result = NormativeValidationResult(source_ref=source_ref)
         self._validate_lexical(text, source_ref, result)
-        doc = self._parser.parse_text(text, source_name=source_ref)
+        try:
+            doc = self._parser.parse_text(text, source_name=source_ref)
+        except Exception as exc:
+            result.add(ValidationFinding(ValidationCategory.SYNTAX, 'ERROR', 'CSL-0100', f'Parser failure: {exc}', source_ref, False))
+            self._validate_syntax(source_ref, result)
+            return result
         self._validate_syntax(source_ref, result)
         semantic = self._analyzer.analyze(doc)
         self._validate_semantic(semantic, source_ref, result)

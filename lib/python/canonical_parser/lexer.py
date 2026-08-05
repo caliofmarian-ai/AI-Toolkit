@@ -73,8 +73,8 @@ class CslLexer:
         tokens: List[Token] = []
         lines = self._source.splitlines()
         for line_index, raw_line in enumerate(lines, start=1):
-            indent_prefix = raw_line[: len(raw_line) - len(raw_line.lstrip(' 	'))]
-            if '	' in indent_prefix:
+            indent_prefix = raw_line[: len(raw_line) - len(raw_line.lstrip(' '))]
+            if '\t' in indent_prefix or raw_line.startswith('\t'):
                 raise ValueError('Tab character used for indentation')
             if not raw_line.strip():
                 tokens.append(Token(TokenType.NEWLINE, '', SourceLocation(line_index, 1, self._source_name)))
