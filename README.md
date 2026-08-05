@@ -206,6 +206,28 @@ Its responsibilities include:
 
 The Runtime remains operational continuously and supervises engineering activities as they occur.
 
+## Offline Operation
+
+AI Toolkit core and the CSL compiler are designed to run offline by default. Runtime external integrations are disabled unless explicitly enabled through configuration.
+
+Mandatory offline-safe core behavior:
+
+- CSL parsing, validation, compilation, and repository analysis run without Internet access.
+- Runtime bootstrap, health, readiness, metrics, status, persistence, and scheduling run without cloud dependencies.
+- GitHub publication and synchronization remain optional adapter-driven workflows rather than core runtime requirements.
+
+Optional external adapters:
+
+- GitHub webhook adapter: inbound repository event ingestion when `RUNTIME_ENABLE_EXTERNAL_INTERFACES=true` and `RUNTIME_ENABLE_GITHUB_WEBHOOKS=true`.
+- Telegram adapter: Owner messaging when `RUNTIME_ENABLE_EXTERNAL_INTERFACES=true` and `RUNTIME_ENABLE_TELEGRAM=true`.
+- Railway deployment metadata: platform detection through environment variables only.
+
+Required external services and endpoints when adapters are enabled:
+
+- GitHub Webhooks: GitHub delivers POST requests to `/webhook/github` so the runtime can ingest repository events.
+- Telegram Bot API: `https://api.telegram.org/bot{token}/sendMessage` and `https://api.telegram.org/bot{token}/getUpdates` for outbound notifications and polling.
+- GitHub CLI / GitHub API: used only by engineering publishing adapters that create or inspect milestones and issues.
+
 ---
 
 # Architecture Overview
