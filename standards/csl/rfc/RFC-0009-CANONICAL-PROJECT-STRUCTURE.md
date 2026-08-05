@@ -2,9 +2,11 @@
 
 # Canonical Project Structure
 
-Version: Draft 1.0
+Version: 1.0.0
 
-Status: Proposed
+Status: Final
+
+Approved: 2026-08-05
 
 Category: Project Architecture
 
@@ -30,7 +32,19 @@ A Canonical Project Structure enables automated tooling to understand projects w
 
 ---
 
-# 3. Objectives
+# 3. Background
+
+Engineering projects accumulate files without predictable organization. Automation tools must make assumptions about file locations that differ across projects, making universal tooling impossible.
+
+---
+
+# 4. Problem Statement
+
+The absence of a standardized project structure forces every tool to discover project organization independently. This prevents reliable automation, reduces interoperability and makes onboarding significantly more expensive.
+
+---
+
+# 5. Objectives
 
 The Canonical Project Structure shall:
 
@@ -50,7 +64,13 @@ remain implementation independent.
 
 ---
 
-# 4. Architectural Principles
+# 6. Alternatives
+
+Alternative A: Convention-only structure. No enforced structure; conventions documented informally. Rejected because conventions diverge without enforcement. Alternative B: Single flat directory. All knowledge in one directory. Rejected because projects of realistic scale require hierarchy. Alternative C: Canonical layered directory structure (Selected). Defined top-level directories with defined purposes; extensible within defined boundaries.
+
+---
+
+# 7. Architectural Principles
 
 A Canonical Project shall separate:
 
@@ -78,7 +98,7 @@ Canonical Knowledge shall remain independent from implementation artifacts.
 
 ---
 
-# 5. Root Structure
+# 8. Root Structure
 
 A conforming project may contain the following top-level directories:
 
@@ -106,7 +126,7 @@ Additional directories are permitted provided they do not modify Canonical Knowl
 
 ---
 
-# 6. Standards Directory
+# 9. Standards Directory
 
 The `standards/` directory contains normative specifications.
 
@@ -126,7 +146,7 @@ The Standards directory defines engineering rules.
 
 ---
 
-# 7. Knowledge Directory
+# 10. Knowledge Directory
 
 The `knowledge/` directory stores project-specific Canonical Knowledge.
 
@@ -150,7 +170,7 @@ The contents of this directory become compiler input.
 
 ---
 
-# 8. Generated Directory
+# 11. Generated Directory
 
 The `generated/` directory stores artifacts produced by the Engineering Compiler.
 
@@ -176,7 +196,7 @@ Generated artifacts shall never become Canonical Knowledge.
 
 ---
 
-# 9. Runtime Directory
+# 12. Runtime Directory
 
 The `runtime/` directory contains implementation-specific runtime assets.
 
@@ -196,7 +216,7 @@ Runtime assets remain replaceable.
 
 ---
 
-# 10. Tools Directory
+# 13. Tools Directory
 
 The `tools/` directory contains engineering utilities.
 
@@ -216,7 +236,7 @@ Utilities never redefine Canonical Knowledge.
 
 ---
 
-# 11. Documentation Directory
+# 14. Documentation Directory
 
 The `docs/` directory contains human-oriented documentation.
 
@@ -228,7 +248,7 @@ Documentation shall never replace Canonical Knowledge.
 
 ---
 
-# 12. Separation of Concerns
+# 15. Separation of Concerns
 
 Every directory possesses one primary responsibility.
 
@@ -240,7 +260,7 @@ Generated files shall remain reproducible.
 
 ---
 
-# 13. Traceability
+# 16. Traceability
 
 Every generated artifact shall identify:
 
@@ -258,7 +278,7 @@ Project organization shall preserve traceability.
 
 ---
 
-# 14. Extensibility
+# 17. Extensibility
 
 Projects may introduce additional directories.
 
@@ -272,7 +292,7 @@ preserve deterministic organization.
 
 ---
 
-# 15. Compatibility
+# 18. Compatibility
 
 Existing projects may migrate incrementally.
 
@@ -290,7 +310,7 @@ Migration shall remain deterministic.
 
 ---
 
-# 16. Governance
+# 19. Governance
 
 Project organization shall comply with:
 
@@ -306,7 +326,13 @@ Project organization shall remain auditable.
 
 ---
 
-# 17. Implementation Impact
+# 20. Risks
+
+Risk: Implementations may extend the structure in incompatible ways. Mitigation: Extension rules defined in this RFC; unknown directories produce validation warnings. Risk: Migration from existing non-canonical structures may be disruptive. Mitigation: Migration tooling defined in RFC-0010.
+
+---
+
+# 21. Implementation Impact
 
 Affected Components:
 
@@ -324,7 +350,7 @@ Project Validator
 
 ---
 
-# 18. Acceptance Criteria
+# 22. Acceptance Criteria
 
 The RFC is complete when:
 

@@ -2,9 +2,11 @@
 
 # Universal Engineering Model
 
-Version: Draft 1.0
+Version: 1.0.0
 
-Status: Proposed
+Status: Final
+
+Approved: 2026-08-05
 
 Category: Architecture
 
@@ -30,7 +32,13 @@ The Universal Engineering Model solves this problem.
 
 ---
 
-# 3. Problem Statement
+# 3. Background
+
+The CSL standard requires a common internal representation to ensure that independent compilers, validators and generators interpret Canonical Knowledge identically. Without such a model, every implementation would build a private semantic interpretation, preventing interoperability.
+
+---
+
+# 4. Problem Statement
 
 Current engineering tools typically generate artifacts directly from source documents.
 
@@ -52,7 +60,7 @@ Interoperability becomes impossible.
 
 ---
 
-# 4. Proposed Solution
+# 5. Proposed Solution
 
 Every conforming compiler shall construct a Universal Engineering Model before generating Engineering Artifacts.
 
@@ -82,7 +90,13 @@ No generator shall operate directly on Canonical Knowledge.
 
 ---
 
-# 5. Objectives
+# 6. Alternatives
+
+Alternative A: Direct document interpretation. Each tool reads source documents directly. Rejected because it prevents interoperability. Alternative B: Shared schema only. A common schema without a semantic model. Rejected because schemas describe structure, not semantic meaning. Alternative C: Universal Engineering Model (Selected). A fully specified implementation-independent semantic model.
+
+---
+
+# 7. Objectives
 
 The Universal Engineering Model shall:
 
@@ -102,7 +116,7 @@ Remain traceable.
 
 ---
 
-# 6. Mandatory Components
+# 8. Mandatory Components
 
 The UEM shall contain:
 
@@ -128,7 +142,7 @@ Governance Metadata
 
 ---
 
-# 7. Compatibility
+# 9. Compatibility
 
 This proposal is fully backward compatible.
 
@@ -138,7 +152,13 @@ Only compiler internals change.
 
 ---
 
-# 8. Risks
+# 10. Migration
+
+No migration is required. The Universal Engineering Model is a new internal implementation requirement. Existing Canonical Knowledge documents remain valid without modification.
+
+---
+
+# 11. Risks
 
 Increased implementation complexity.
 
@@ -148,7 +168,7 @@ Common semantic model reduces long-term complexity.
 
 ---
 
-# 9. Implementation Impact
+# 12. Implementation Impact
 
 Affected specifications:
 
@@ -170,7 +190,7 @@ Generators
 
 ---
 
-# 10. Acceptance Criteria
+# 13. Acceptance Criteria
 
 The RFC is complete when:
 

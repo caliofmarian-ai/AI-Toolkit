@@ -2,9 +2,11 @@
 
 # Safety and Governance Kernel
 
-Version: Draft 1.0
+Version: 1.0.0
 
-Status: Proposed
+Status: Final
+
+Approved: 2026-08-05
 
 Category: Safety
 
@@ -50,7 +52,13 @@ Safety must therefore become a first-class engineering capability.
 
 ---
 
-# 3. Core Principle
+# 3. Problem Statement
+
+Engineering automation without governance creates uncontrolled execution risk. Artificial Intelligence systems may modify canonical knowledge, execute destructive operations, or escalate permissions without human awareness. A mandatory safety kernel is required to enforce human authority over all automated actions.
+
+---
+
+# 4. Core Principle
 
 Automation accelerates engineering.
 
@@ -62,7 +70,13 @@ Safety always precedes execution.
 
 ---
 
-# 4. Responsibilities
+# 5. Alternatives
+
+Alternative A: No centralized safety layer. Each component implements its own permission checks. Rejected because inconsistent enforcement creates gaps exploitable by automation. Alternative B: Read-only safety flags. Safety implemented as metadata only. Rejected because it does not prevent execution. Alternative C: Mandatory Safety and Governance Kernel (Selected). Every engineering action passes through a single controlled execution pipeline.
+
+---
+
+# 6. Responsibilities
 
 The Safety and Governance Kernel shall provide:
 
@@ -88,7 +102,7 @@ Compliance Verification
 
 ---
 
-# 5. Kernel Architecture
+# 7. Kernel Architecture
 
 Identity
 
@@ -136,7 +150,7 @@ Every engineering action passes through the complete pipeline.
 
 ---
 
-# 6. Identity
+# 8. Identity
 
 Every actor shall possess an Engineering Identity.
 
@@ -162,7 +176,7 @@ Identity shall be auditable.
 
 ---
 
-# 7. Authentication
+# 9. Authentication
 
 Authentication verifies identity.
 
@@ -174,7 +188,7 @@ Anonymous execution is prohibited.
 
 ---
 
-# 8. Authorization
+# 10. Authorization
 
 Authorization determines whether an authenticated actor may execute a requested action.
 
@@ -196,7 +210,7 @@ Authorization failures terminate execution.
 
 ---
 
-# 9. Permission Engine
+# 11. Permission Engine
 
 Permissions define allowed actions.
 
@@ -230,7 +244,7 @@ Implicit permissions are prohibited.
 
 ---
 
-# 10. Risk Engine
+# 12. Risk Engine
 
 Every engineering action shall receive a Risk Classification.
 
@@ -250,7 +264,7 @@ Risk calculations shall remain deterministic.
 
 ---
 
-# 11. Approval Engine
+# 13. Approval Engine
 
 Approval determines whether execution may continue.
 
@@ -272,7 +286,7 @@ Critical actions require explicit human approval.
 
 ---
 
-# 12. Policy Engine
+# 14. Policy Engine
 
 Policies govern engineering behavior.
 
@@ -298,7 +312,7 @@ Policies remain auditable.
 
 ---
 
-# 13. Execution Controller
+# 15. Execution Controller
 
 The Execution Controller coordinates execution after successful governance validation.
 
@@ -320,7 +334,7 @@ Successful validation becomes the execution authorization.
 
 ---
 
-# 14. Audit Engine
+# 16. Audit Engine
 
 Every engineering action shall generate an immutable audit record.
 
@@ -346,7 +360,7 @@ Audit history shall never be silently modified.
 
 ---
 
-# 15. Monitoring
+# 17. Monitoring
 
 Monitoring continuously observes:
 
@@ -368,7 +382,7 @@ Monitoring produces engineering observations.
 
 ---
 
-# 16. Emergency Stop
+# 18. Emergency Stop
 
 Every implementation shall provide an Emergency Stop capability.
 
@@ -390,7 +404,7 @@ Emergency Stop never destroys Canonical Knowledge.
 
 ---
 
-# 17. Compliance
+# 19. Compliance
 
 The kernel shall verify compliance with:
 
@@ -408,7 +422,7 @@ Compliance failures terminate execution.
 
 ---
 
-# 18. Compatibility
+# 20. Compatibility
 
 The kernel shall remain independent of:
 
@@ -426,7 +440,13 @@ Future implementations shall preserve behavioral compatibility.
 
 ---
 
-# 19. Implementation Impact
+# 21. Migration
+
+No migration is required. The Safety Kernel is a new implementation requirement. Existing canonical knowledge documents remain valid.
+
+---
+
+# 22. Implementation Impact
 
 Affected Specifications:
 
@@ -454,7 +474,7 @@ Emergency Stop
 
 ---
 
-# 20. Acceptance Criteria
+# 23. Acceptance Criteria
 
 The RFC is complete when:
 

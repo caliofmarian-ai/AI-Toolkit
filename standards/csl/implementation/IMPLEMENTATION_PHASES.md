@@ -2,7 +2,7 @@
 
 # IMPLEMENTATION PHASES
 
-Version: Draft 1.0
+Version: 1.0.0
 
 Status: Normative
 
