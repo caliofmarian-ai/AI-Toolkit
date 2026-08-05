@@ -16,6 +16,15 @@ from .models import (
     Priority,
     SemanticMatch,
 )
+from .uem import (
+    EngObject,
+    EngObjectType,
+    EngRelationship,
+    EngRelationType,
+    EngVisibility,
+    UniversalEngineeringModel,
+    UemBuilder,
+)
 
 __all__ = [
     "CanonicalDocument",
@@ -34,4 +43,11 @@ __all__ = [
     "PlanBatch",
     "Priority",
     "SemanticMatch",
+    "EngObject",
+    "EngObjectType",
+    "EngRelationship",
+    "EngRelationType",
+    "EngVisibility",
+    "UniversalEngineeringModel",
+    "UemBuilder",
 ]
