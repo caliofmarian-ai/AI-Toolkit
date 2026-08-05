@@ -5,6 +5,7 @@ import subprocess
 from dataclasses import dataclass, field
 
 from lib.python.engineering_engine.github_repository_resolver import (
+    GitHubRepository,
     GitHubRepositoryResolver,
 )
 from lib.python.engineering_engine.github_issue_generator import (
@@ -20,9 +21,16 @@ class GitHubIssueState:
 
 class GitHubIssueStateProvider:
 
+    def __init__(
+        self,
+        repository: GitHubRepository | None = None,
+        repository_resolver: GitHubRepositoryResolver | None = None,
+    ):
+        self._repository_resolver = repository_resolver or GitHubRepositoryResolver(repository)
+
     def load(self) -> GitHubIssueState:
 
-        repository = GitHubRepositoryResolver().resolve()
+        repository = self._repository_resolver.resolve()
 
         data = subprocess.check_output(
             [

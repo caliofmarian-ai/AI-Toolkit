@@ -4,6 +4,7 @@ import json
 import subprocess
 
 from lib.python.engineering_engine.github_repository_resolver import (
+    GitHubRepository,
     GitHubRepositoryResolver,
 )
 from lib.python.engineering_engine.github_state_provider import (
@@ -14,9 +15,16 @@ from lib.python.engineering_engine.github_state_provider import (
 
 class GitHubCLIStateProvider(GitHubStateProvider):
 
+    def __init__(
+        self,
+        repository: GitHubRepository | None = None,
+        repository_resolver: GitHubRepositoryResolver | None = None,
+    ):
+        self._repository_resolver = repository_resolver or GitHubRepositoryResolver(repository)
+
     def load(self) -> GitHubState:
 
-        repository = GitHubRepositoryResolver().resolve()
+        repository = self._repository_resolver.resolve()
 
         milestones = subprocess.check_output(
             [
@@ -32,6 +40,8 @@ class GitHubCLIStateProvider(GitHubStateProvider):
                 "gh",
                 "issue",
                 "list",
+                "--repo",
+                f"{repository.owner}/{repository.repo}",
                 "--limit",
                 "1000",
                 "--json",

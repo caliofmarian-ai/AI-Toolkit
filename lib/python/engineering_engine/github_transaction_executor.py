@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from lib.python.engineering_engine.github_client import GitHubClient, GitHubDryRunClient
 from lib.python.engineering_engine.github_publish_engine import (
     PublishPlan,
 )
@@ -15,6 +16,9 @@ from lib.python.engineering_engine.github_transaction_log import (
 
 class GitHubTransactionalExecutor:
 
+    def __init__(self, client: GitHubClient | None = None):
+        self._client = client
+
     def execute(
         self,
         plan: PublishPlan,
@@ -26,7 +30,7 @@ class GitHubTransactionalExecutor:
         logger = GitHubTransactionLogger()
         log = logger.load(log_path)
 
-        client = GitHubRealClient()
+        client = self._client or (GitHubDryRunClient() if plan_only else GitHubRealClient())
 
         results: list[str] = []
 
@@ -34,7 +38,6 @@ class GitHubTransactionalExecutor:
 
             result = client.execute(
                 operation,
-                plan_only=plan_only,
             )
 
             status = "SUCCESS"

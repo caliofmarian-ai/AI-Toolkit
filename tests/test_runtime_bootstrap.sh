@@ -10,6 +10,9 @@ os.environ["RUNTIME_LOOP_INTERVAL_SECONDS"] = "300"
 os.environ["SCHEDULER_INTERVAL_SECONDS"] = "300"
 os.environ["RUNTIME_HTTP_PORT"] = "19001"
 os.environ["JSON_LOGS"] = "false"
+os.environ["RUNTIME_ENABLE_EXTERNAL_INTERFACES"] = "false"
+os.environ["RUNTIME_ENABLE_GITHUB_WEBHOOKS"] = "false"
+os.environ["RUNTIME_ENABLE_TELEGRAM"] = "false"
 
 from lib.python.runtime.bootstrap import RuntimeBootstrap
 from lib.python.runtime.lifecycle import LifecyclePhase
@@ -35,6 +38,8 @@ assert rt.reports is not None, "reports must be set"
 assert rt.http_server is not None, "http_server must be set"
 assert rt.github_webhook is not None, "github_webhook must be set"
 assert rt.telegram is not None, "telegram must be set"
+assert not rt.telegram.is_enabled(), "telegram should be disabled by default for offline runtime"
+assert rt.config.enable_external_interfaces is False
 
 # --- Lifecycle is in READY state after bootstrap ---
 assert rt.lifecycle.is_ready(), f"Expected READY, got {rt.lifecycle.current_phase}"

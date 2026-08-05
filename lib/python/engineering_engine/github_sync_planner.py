@@ -6,6 +6,7 @@ from lib.python.engineering_engine.github_project_planner import GitHubProjectPl
 from lib.python.engineering_engine.github_issue_state_provider import GitHubIssueStateProvider
 from lib.python.engineering_engine.github_cli_state_provider import GitHubCLIStateProvider
 from lib.python.engineering_engine.github_sync_engine import SyncAction
+from lib.python.engineering_engine.github_state_provider import EmptyGitHubStateProvider
 
 
 @dataclass(slots=True)
@@ -22,13 +23,21 @@ class PlannedSync:
 
 class GitHubSyncPlanner:
 
+    def __init__(
+        self,
+        milestone_provider=None,
+        issue_provider=None,
+    ):
+        self._milestone_provider = milestone_provider or EmptyGitHubStateProvider()
+        self._issue_provider = issue_provider or GitHubIssueStateProvider()
+
     def build(
         self,
         project: GitHubProjectPlan,
     ) -> PlannedSync:
 
-        milestone_state = GitHubCLIStateProvider().load()
-        issue_state = GitHubIssueStateProvider().load()
+        milestone_state = self._milestone_provider.load()
+        issue_state = self._issue_provider.load()
 
         plan = PlannedSync()
 

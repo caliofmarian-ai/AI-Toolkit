@@ -5,14 +5,19 @@ import subprocess
 from lib.python.engineering_engine.github_client import GitHubClient
 from lib.python.engineering_engine.github_publish_engine import PublishOperation
 from lib.python.engineering_engine.github_repository_resolver import (
+    GitHubRepository,
     GitHubRepositoryResolver,
 )
 
 
 class GitHubRealClient(GitHubClient):
 
-    def __init__(self):
-        repo = GitHubRepositoryResolver().resolve()
+    def __init__(
+        self,
+        repository: GitHubRepository | None = None,
+        repository_resolver: GitHubRepositoryResolver | None = None,
+    ):
+        repo = (repository_resolver or GitHubRepositoryResolver(repository)).resolve()
         self.owner = repo.owner
         self.repo = repo.repo
 
@@ -38,6 +43,8 @@ class GitHubRealClient(GitHubClient):
                 "gh",
                 "issue",
                 "create",
+                "--repo",
+                f"{self.owner}/{self.repo}",
                 "--title",
                 operation.title,
             ]
