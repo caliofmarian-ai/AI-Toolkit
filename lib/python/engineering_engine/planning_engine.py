@@ -1,121 +1,218 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from pathlib import Path
 
 from lib.python.engineering_engine.gap_analysis import GapAnalysis
-from lib.python.engineering_engine.repository_model import RepositoryKnowledgeBuilder
-from lib.python.engineering_engine.dependency_graph import DependencyGraphBuilder
-from lib.python.engineering_engine.impact_analysis import ImpactAnalysis
-from lib.python.engineering_engine.rule_engine import RuleEngine
-from lib.python.engineering_engine.dependency_rule_engine import DependencyRuleEngine
 
 
-from lib.python.engineering_engine.package_builder import PackageBuilder
-from lib.python.engineering_engine.models import (
-    EngineeringBatch,
-    ImplementationPackageModel,
-)
-
-PlanningBatch = EngineeringBatch
-
+@dataclass(slots=True)
+class PlanningBatch:
+    id: str
+    title: str
+    priority: str
+    status: str
+    risk: str
+    rationale: str
+    affected_modules: list[str]
+    objective: str
+    suggested_tests: list[str]
 
 
 class PlanningEngine:
 
     def __init__(self, root: Path):
         self.root = root
-        self.rules = RuleEngine()
-        self.dependencies = DependencyRuleEngine(self.root)
-        self.package_builder = PackageBuilder(self.root)
 
     def plan(self, core: str):
-
         gaps = GapAnalysis(self.root).analyse()
-
-        knowledge = RepositoryKnowledgeBuilder(self.root).build()
-        graph = DependencyGraphBuilder(self.root).build(knowledge)
-
-        impact = ImpactAnalysis(graph)
-
-        runtime = impact.analyse(
-            "lib/python/runtime/interfaces/http_server.py"
-        )
-
-        affected = runtime.affected
+        batch_specs = [
+            (
+                'Define authoritative CSL subsystem architecture',
+                'CRITICAL',
+                'HIGH',
+                'Define the official subsystem map: source loader, parser, semantic analyzer, UEM, validator, compiler, generators, governance kernel, repository adapters, runtime integrations.',
+                ['lib/python/canonical_parser', 'lib/python/canonical_repository', 'lib/python/engineering_engine'],
+            ),
+            (
+                'Inventory and classify modules',
+                'HIGH',
+                'MEDIUM',
+                'Classify every existing module into keep/refactor/replace/deprecate and freeze legacy modules as compatibility-only.',
+                ['lib/python', 'lib/*.sh', 'bin'],
+            ),
+            (
+                'Publish formal compliance declaration',
+                'HIGH',
+                'MEDIUM',
+                'Create the supported feature declaration, conformance statement, known limitations register, and deviation register.',
+                ['docs', 'standards/csl', 'implementation-packages'],
+            ),
+            (
+                'Build canonical source loader and parser boundary',
+                'CRITICAL',
+                'HIGH',
+                'Replace the markdown-section parser approach with a real CSL lexical/syntax parsing boundary and diagnostics contract.',
+                ['lib/python/canonical_parser', 'lib/python/canonical_entities'],
+            ),
+            (
+                'Add AST, semantic analysis, and UEM',
+                'CRITICAL',
+                'HIGH',
+                'Introduce first-class AST, semantic analyzer, and Universal Engineering Model subsystems.',
+                ['lib/python/canonical_entities', 'lib/python/knowledge_graph', 'lib/python/knowledge_graph_v2', 'lib/python/canonical_intelligence'],
+            ),
+            (
+                'Rework validation to normative CSL categories',
+                'CRITICAL',
+                'HIGH',
+                'Implement lexical, syntax, semantic, relationship, constraint, dependency, governance, and safety validation with deterministic diagnostics.',
+                ['lib/python/validation_engine', 'lib/python/compliance_engine'],
+            ),
+            (
+                'Reframe audit and planning outputs as generators',
+                'HIGH',
+                'MEDIUM',
+                'Move existing audit/planning/report engines behind compiler/UEM-driven generator contracts.',
+                ['lib/python/engineering_engine', 'implementation-packages'],
+            ),
+            (
+                'Consolidate duplicate graph and engine subsystems',
+                'HIGH',
+                'HIGH',
+                'Collapse overlapping graph, planning, execution, and validation abstractions around the authoritative CSL core.',
+                ['lib/python/engineering_engine', 'lib/python/autonomous_*', 'lib/python/workspace_*'],
+            ),
+            (
+                'Implement governance kernel',
+                'CRITICAL',
+                'HIGH',
+                'Promote rule/policy pieces into mandatory permission, risk, approval, audit, authorization, and emergency-stop services.',
+                ['lib/python/rule_engine', 'lib/python/autonomous_execution_engine', 'lib/python/runtime'],
+            ),
+            (
+                'Align repository structure with RFC-0009',
+                'HIGH',
+                'MEDIUM',
+                'Introduce canonical separation for knowledge, generated outputs, runtime assets, and implementation responsibilities.',
+                ['.', '.ai', 'docs', 'implementation-packages'],
+            ),
+            (
+                'Remap tests to CSL conformance levels',
+                'HIGH',
+                'MEDIUM',
+                'Map and expand tests to core reader, validator, compiler, reference implementation, and platform conformance categories.',
+                ['tests', 'standards/csl/tests'],
+            ),
+            (
+                'Publish Phase 1 status and migration path',
+                'MEDIUM',
+                'LOW',
+                'Publish conformance status, supported/unsupported capabilities, known limitations, and migration guidance.',
+                ['docs', 'implementation-packages'],
+            ),
+        ]
 
         batches = []
-
-        for index, gap in enumerate(
-            [g for g in gaps if g.status == "MISSING"],
-            start=1,
-        ):
-
-            rule = self.rules.classify(gap.component)
-            dependency = self.dependencies.evaluate(gap.component)
-
+        for index, spec in enumerate(batch_specs, start=1):
+            title, priority, risk, rationale, affected = spec
             batches.append(
                 PlanningBatch(
-                    id=f"{core}-{index:03d}",
-                    title=gap.component,
-                    priority=rule.priority,
-                    status=dependency.status,
-                    risk=rule.risk,
-                    rationale=gap.evidence,
+                    id=f'{core}-{index:03d}',
+                    title=title,
+                    priority=priority,
+                    status='READY' if index <= 3 else 'PLANNED',
+                    risk=risk,
+                    rationale=rationale,
                     affected_modules=affected,
-                    objective=gap.component,
-suggested_tests=[
-                        "tests/test_runtime_bootstrap.sh",
-                        "tests/test_runtime_health.sh",
-                        "tests/test_runtime_webhooks.sh",
+                    objective=title,
+                    suggested_tests=[
+                        'tests/test_canonical_parser.sh',
+                        'tests/test_compliance_engine.sh',
+                        'tests/test_validation_engine.sh',
                     ],
                 )
             )
 
+        missing_components = {item.component for item in gaps if item.status == 'MISSING'}
+        for batch in batches:
+            if any(keyword in batch.title for keyword in ['parser', 'validation', 'governance', 'compliance']):
+                referenced = sorted(component for component in missing_components if component.lower() in batch.rationale.lower() or component.lower() in batch.title.lower())
+                if referenced:
+                    batch.rationale = f"{batch.rationale} Missing components addressed: {', '.join(referenced)}."
         return batches
 
     def write_markdown(self, core: str):
-
-        package = self.root / "implementation-packages" / core
+        package = self.root / 'implementation-packages' / core
         package.mkdir(parents=True, exist_ok=True)
-
-        report = package / "planning-report.md"
-
+        report = package / 'planning-report.md'
         batches = self.plan(core)
 
-        with report.open("w", encoding="utf-8") as md:
+        with report.open('w', encoding='utf-8') as md:
+            md.write('# Phase 1 Implementation Roadmap
 
-            md.write("# Dependency Aware Planning Report\n\n")
-            md.write(f"CORE: {core}\n\n")
+')
+            md.write(f'CORE: {core}
 
-            md.write("| Batch | Status | Risk | Priority | Affected |\n")
-            md.write("|-------|--------|------|----------|----------|\n")
+')
+            md.write('## Refactoring Plan
 
+')
+            md.write('- Phase A: establish canonical implementation boundaries.
+')
+            md.write('- Phase B: normalize repository structure to CSL.
+')
+            md.write('- Phase C: consolidate duplicate engines and graph implementations.
+')
+            md.write('- Phase D: implement compliance infrastructure.
+')
+            md.write('- Phase E: harden governance kernel.
+')
+            md.write('- Phase F: realign tests to CSL conformance levels.
+
+')
+
+            md.write('## Ordered Implementation Plan
+
+')
+            md.write('| Batch | Status | Risk | Priority | Affected |
+')
+            md.write('|-------|--------|------|----------|----------|
+')
             for batch in batches:
-                md.write(
-                    f"| {batch.id} | {batch.status} | {batch.risk} | {batch.priority} | {batch.affected_modules} |\n"
-                )
+                md.write(f"| {batch.id} | {batch.status} | {batch.risk} | {batch.priority} | {', '.join(batch.affected_modules)} |
+")
 
-            md.write("\n## Details\n\n")
+            md.write('
+## Details
 
+')
             for batch in batches:
-                md.write(f"### {batch.id}\n\n")
-                md.write(f"Objective: {batch.title}\n\n")
-                md.write(f"Status: {batch.status}\n\n")
-                md.write(f"Risk: {batch.risk}\n\n")
-                md.write(f"Priority: {batch.priority}\n\n")
-                md.write(f"Affected modules: {batch.affected_modules}\n\n")
-                md.write(f"Reason: {batch.rationale}\n\n")
+                md.write(f'### {batch.id}
 
+')
+                md.write(f'Objective: {batch.title}
+
+')
+                md.write(f'Status: {batch.status}
+
+')
+                md.write(f'Risk: {batch.risk}
+
+')
+                md.write(f'Priority: {batch.priority}
+
+')
+                md.write(f'Affected modules: {", ".join(batch.affected_modules)}
+
+')
+                md.write(f'Reason: {batch.rationale}
+
+')
+                md.write(f'Suggested tests: {", ".join(batch.suggested_tests)}
+
+')
         return report
 
-
-    
     def build_package_model(self, core: str):
-
-        batches = self.plan(core)
-
-        return self.package_builder.build(
-            core=core,
-            title=core.replace("-", " "),
-            batches=batches,
-        )
+        return self.plan(core)
