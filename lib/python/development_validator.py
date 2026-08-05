@@ -1,3 +1,7 @@
+# DEPRECATED: This module is frozen for compatibility only.
+# See docs/implementation/MODULE_CLASSIFICATION.md — Disposition: DEPRECATE
+# Do not add features. Use the canonical module packages instead.
+
 #!/usr/bin/env python3
 
 from pathlib import Path
