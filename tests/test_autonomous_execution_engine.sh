@@ -432,7 +432,7 @@ print("16. Determinism OK")
 import subprocess
 
 proc = subprocess.run(
-    ["bash", "bin/ai", "execute"],
+    ["python3", "-m", "lib.python.cli.main", "execute"],
     capture_output=True,
     text=True,
     cwd=".",
@@ -441,7 +441,7 @@ assert proc.returncode == 0, f"ai execute exited {proc.returncode}: {proc.stderr
 assert "Execution ID" in proc.stdout
 
 proc_json = subprocess.run(
-    ["bash", "bin/ai", "execute", "--json"],
+    ["python3", "-m", "lib.python.cli.main", "execute", "--json"],
     capture_output=True,
     text=True,
     cwd=".",
@@ -458,7 +458,7 @@ print("17. CLI smoke test OK")
 
 for flag in ("--simulate", "--dry-run", "--validate"):
     p = subprocess.run(
-        ["bash", "bin/ai", "execute", flag],
+        ["python3", "-m", "lib.python.cli.main", "execute", flag],
         capture_output=True,
         text=True,
         cwd=".",

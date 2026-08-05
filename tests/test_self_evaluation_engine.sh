@@ -361,7 +361,7 @@ print("16. Determinism OK")
 import subprocess
 
 proc = subprocess.run(
-    ["python3", "bin/ai", "evaluate"],
+    ["python3", "-m", "lib.python.cli.main", "evaluate"],
     capture_output=True,
     text=True,
     cwd=".",
@@ -370,7 +370,7 @@ assert proc.returncode == 0, f"ai evaluate exited {proc.returncode}: {proc.stder
 assert "Evaluation ID" in proc.stdout
 
 proc_json = subprocess.run(
-    ["python3", "bin/ai", "evaluate", "--json"],
+    ["python3", "-m", "lib.python.cli.main", "evaluate", "--json"],
     capture_output=True,
     text=True,
     cwd=".",
@@ -383,7 +383,7 @@ assert "overall_score" in payload
 
 # Quality flag
 proc_quality = subprocess.run(
-    ["bash", "bin/ai", "evaluate", "--quality"],
+    ["python3", "-m", "lib.python.cli.main", "evaluate", "--quality"],
     capture_output=True,
     text=True,
     cwd=".",
@@ -392,7 +392,7 @@ assert proc_quality.returncode == 0
 
 # Regressions flag
 proc_reg = subprocess.run(
-    ["bash", "bin/ai", "evaluate", "--regressions"],
+    ["python3", "-m", "lib.python.cli.main", "evaluate", "--regressions"],
     capture_output=True,
     text=True,
     cwd=".",

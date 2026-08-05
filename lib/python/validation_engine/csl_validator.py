@@ -341,7 +341,16 @@ class CslNormativeValidator:
 
     def _validate_governance(self, semantic, source_ref: str, result: NormativeValidationResult) -> None:
         """Validate governance metadata presence."""
-        if not semantic.status:
+        status_value = semantic.status
+        if not status_value and source_ref:
+            parsed = self._parser.parse_file(source_ref)
+            status_value = parsed.status or parsed.inferred_value("status")
+            if not status_value:
+                for section in parsed.sections():
+                    if section.heading.strip().lower() == "status":
+                        status_value = section.text_content().strip()
+                        break
+        if not status_value:
             result.add(ValidationFinding(
                 category=ValidationCategory.GOVERNANCE,
                 severity="WARNING",
@@ -355,7 +364,7 @@ class CslNormativeValidator:
                 category=ValidationCategory.GOVERNANCE,
                 severity="INFO",
                 code="GOV-OK",
-                message=f"Governance validation: status='{semantic.status}'",
+                message=f"Governance validation: status='{status_value}'",
                 source_ref=source_ref,
                 passed=True,
             ))
