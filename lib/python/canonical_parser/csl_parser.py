@@ -93,7 +93,9 @@ class CslParser:
         )
         doc.__post_init__()
 
-        # Pre-section content: title (HEADING1) + metadata + separators
+        # Top-level content: first H1 is the document title. Subsequent H1/H2
+        # headings are treated as sections to preserve legacy canonical docs
+        # that use both heading levels for section boundaries.
         seen_title = False
         while self._peek().token_type != TokenType.EOF:
             tok = self._peek()
@@ -108,10 +110,8 @@ class CslParser:
                     if m:
                         doc.doc_id = m.group(1)
                 else:
-                    # Second H1 means a new logical section in some docs; treat as text
-                    text_node = TextNode(node_type=None, location=tok.location, text=f"# {tok.value}")
-                    text_node.__post_init__()
-                    doc.add_child(text_node)
+                    section = self._parse_section_from_heading(tok)
+                    doc.add_child(section)
                 continue
 
             if tok.token_type == TokenType.HEADING2:
@@ -160,14 +160,22 @@ class CslParser:
 
         return doc
 
-    def _parse_section(self) -> SectionNode:
-        tok = self._advance()  # consume HEADING2
+    def _parse_section_from_heading(self, tok: Token) -> SectionNode:
         section = SectionNode(
             node_type=None,
             location=tok.location,
             heading=tok.value,
         )
         section.__post_init__()
+        self._parse_section_body(section)
+        return section
+
+    def _parse_section(self) -> SectionNode:
+        tok = self._advance()  # consume HEADING2
+        return self._parse_section_from_heading(tok)
+
+    def _parse_section_body(self, section: SectionNode) -> None:
+        stop_tokens = (TokenType.HEADING1, TokenType.HEADING2, TokenType.EOF)
 
         current_bullet_list: Optional[BulletListNode] = None
         current_table: Optional[TableNode] = None
@@ -199,7 +207,7 @@ class CslParser:
                 section.add_child(current_table)
                 current_table = None
 
-        while self._peek().token_type not in (TokenType.HEADING2, TokenType.EOF):
+        while self._peek().token_type not in stop_tokens:
             tok = self._peek()
 
             if tok.token_type == TokenType.HEADING3:
@@ -303,8 +311,6 @@ class CslParser:
         _flush_paragraph()
         _flush_bullet_list()
         _flush_table()
-
-        return section
 
     def _parse_subsection(self) -> SubsectionNode:
         tok = self._advance()  # consume HEADING3

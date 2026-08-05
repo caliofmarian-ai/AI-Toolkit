@@ -35,6 +35,11 @@ print(f"L1-02 PASS: title='{doc.title}' version='{doc.version}' status='{doc.sta
 assert len(doc.sections()) > 0, "L1-03 FAIL: document has no sections"
 print(f"L1-03 PASS: {len(doc.sections())} sections in document")
 
+# L1-03b: Legacy canonical H1 sections are preserved as sections
+legacy_sections = [s.heading for s in doc.sections()]
+assert "Core Principles" in legacy_sections, f"L1-03b FAIL: missing legacy H1 section parsing: {legacy_sections[:5]}"
+print("L1-03b PASS: legacy H1 section headings parsed as sections")
+
 # L1-04: Recognize Relationships (CANON references)
 repo = CanonicalRepository.load_from_directory(docs_path)
 all_docs = repo.all_documents()
