@@ -70,7 +70,7 @@ class ExecutionSnapshot:
         """Return a snapshot dict."""
         captured_at = _utcnow()
         content = f"{execution_id}{captured_at}"
-        snapshot_id = "SNAP-" + hashlib.sha1(
+        snapshot_id = "ATK-SNAP-" + hashlib.sha1(
             content.encode("utf-8")
         ).hexdigest()[:8].upper()
 

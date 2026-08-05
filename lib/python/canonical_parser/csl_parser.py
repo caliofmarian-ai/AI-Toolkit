@@ -117,7 +117,6 @@ class CslParser:
             if tok.token_type == TokenType.HEADING2:
                 section = self._parse_section()
                 doc.add_child(section)
-                self._capture_document_metadata_from_section(doc, section)
                 continue
 
             if tok.token_type == TokenType.METADATA:
@@ -131,8 +130,9 @@ class CslParser:
                 )
                 meta.__post_init__()
                 doc.add_child(meta)
-                # Extract well-known metadata
                 key = tok.key.lower()
+                if key in {"version", "status"}:
+                    doc.metadata[key] = tok.raw_value
                 if key == "version":
                     doc.version = tok.raw_value
                 elif key == "status":
@@ -159,42 +159,21 @@ class CslParser:
             if m:
                 doc.doc_id = m.group(1)
 
-        if not doc.version:
-            inferred = self._infer_version(source_name, doc.title)
-            if inferred:
-                doc.version = inferred
+        inferred = self._infer_metadata(source_name, doc.title)
+        if not doc.version and inferred.get("version"):
+            doc.inferred_metadata["version"] = inferred["version"]
+        if not doc.status and inferred.get("status"):
+            doc.inferred_metadata["status"] = inferred["status"]
 
         return doc
 
-    def _capture_document_metadata_from_section(self, doc: DocumentNode, section: SectionNode) -> None:
-        heading = section.heading.strip().lower()
-        if heading == "status" and not doc.status:
-            value = self._extract_first_text_value(section)
-            if value:
-                doc.status = value
-        elif heading == "version" and not doc.version:
-            value = self._extract_first_text_value(section)
-            if value:
-                doc.version = value
-
-    def _extract_first_text_value(self, section: SectionNode) -> str:
-        for child in section.children:
-            if isinstance(child, ParagraphNode) and child.text.strip():
-                return child.text.strip()
-            if isinstance(child, TextNode) and child.text.strip():
-                return child.text.strip()
-            if isinstance(child, BulletListNode):
-                items = child.items()
-                if items and items[0].text.strip():
-                    return items[0].text.strip()
-        return ""
-
-    def _infer_version(self, source_name: str, title: str) -> str:
+    def _infer_metadata(self, source_name: str, title: str) -> dict:
+        inferred = {}
         for candidate in (source_name, title):
             m = re.search(r"v(\d+\.\d+(?:\.\d+)?)", candidate, re.IGNORECASE)
             if m:
-                return m.group(1)
-        return ""
+                inferred.setdefault("version", m.group(1))
+        return inferred
 
     def _parse_section_from_heading(self, tok: Token) -> SectionNode:
         section = SectionNode(

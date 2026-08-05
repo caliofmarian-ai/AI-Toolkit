@@ -71,7 +71,7 @@ def _evaluation_id(repository: str, generated_at: str) -> str:
     digest = hashlib.sha1(
         f"{repository}{generated_at}".encode("utf-8")
     ).hexdigest()[:8].upper()
-    return f"EVAL-{digest}"
+    return f"ATK-EVAL-{digest}"
 
 
 class EvaluationCoordinator:

@@ -107,6 +107,13 @@ class SemanticAnalyzer:
                 DiagnosticCategory.SEMANTIC,
                 source_ref=doc.source_path,
             )
+        elif doc.inferred_value("version"):
+            diag.info(
+                "SEM-010",
+                f"Document '{doc.doc_id}' inferred version '{doc.inferred_value('version')}' from title or path; explicit Version metadata is still required",
+                DiagnosticCategory.SEMANTIC,
+                source_ref=doc.source_path,
+            )
         elif not _VERSION_RE.match(doc.version):
             diag.warning(
                 "SEM-002",

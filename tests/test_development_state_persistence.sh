@@ -36,11 +36,11 @@ class DevelopmentStatePersistenceTest(unittest.TestCase):
         self.tmp.cleanup()
 
     def _state(self, task="TASK-1", seq=1, snapshot_id=None):
-        snapshot_id = snapshot_id or f"SNAP-{seq:03d}"
+        snapshot_id = snapshot_id or f"ATK-SNAP-{seq:03d}"
         return DevelopmentState(
-            identifier="DEV-001",
+            identifier="ATK-STATE-001",
             workspace_state=WorkspaceState(
-                identifier="WS-001",
+                identifier="ATK-WS-001",
                 active_project="AI-Toolkit",
                 active_workspace="main",
                 current_milestone="M1",
@@ -52,7 +52,7 @@ class DevelopmentStatePersistenceTest(unittest.TestCase):
                 estimated_progress=40.0,
             ),
             repository_state=RepositoryState(
-                identifier="REPO-001",
+                identifier="ATK-REPO-001",
                 repository="caliofmarian-ai/AI-Toolkit",
                 branch="main",
                 head_commit="abc1234",
@@ -63,7 +63,7 @@ class DevelopmentStatePersistenceTest(unittest.TestCase):
                 repository_health="HEALTHY",
             ),
             execution_state=ExecutionState(
-                identifier="EXEC-001",
+                identifier="ATK-EXEC-001",
                 current_executor="agent",
                 running_jobs=("job-1",),
                 completed_jobs=("job-0",),
@@ -73,7 +73,7 @@ class DevelopmentStatePersistenceTest(unittest.TestCase):
                 execution_history=("job-0", "job-1"),
             ),
             planning_state=PlanningState(
-                identifier="PLAN-001",
+                identifier="ATK-PLAN-001",
                 current_roadmap="RM-Q3",
                 current_sprint="SPRINT-1",
                 recommended_batch="B2",
@@ -83,7 +83,7 @@ class DevelopmentStatePersistenceTest(unittest.TestCase):
                 dependencies=("dep-A",),
             ),
             review_state=ReviewState(
-                identifier="REV-001",
+                identifier="ATK-REVIEW-001",
                 pending_reviews=("PR-1",),
                 open_prs=("PR-1",),
                 architecture_findings=(),
@@ -92,7 +92,7 @@ class DevelopmentStatePersistenceTest(unittest.TestCase):
                 approval_status="PENDING",
             ),
             owner_state=OwnerState(
-                identifier="OWN-001",
+                identifier="ATK-OWNER-001",
                 owner_priorities=("quality",),
                 manual_decisions=(),
                 overrides=(),
@@ -100,7 +100,7 @@ class DevelopmentStatePersistenceTest(unittest.TestCase):
                 deferred_tasks=(),
             ),
             telegram_state=TelegramState(
-                identifier="TG-001",
+                identifier="ATK-TELEGRAM-001",
                 session_id="session-1",
                 chat_id="chat-1",
                 active_thread="thread-1",
@@ -117,7 +117,7 @@ class DevelopmentStatePersistenceTest(unittest.TestCase):
                 tags=("core-009b",),
             ),
             integrity_report=IntegrityReport(
-                identifier="INT-001",
+                identifier="ATK-INTEGRITY-001",
                 repository_integrity=99,
                 canonical_integrity=98,
                 memory_integrity=97,
@@ -157,10 +157,10 @@ class DevelopmentStatePersistenceTest(unittest.TestCase):
         self.assertEqual(first_integrity, second_integrity)
 
     def test_create_snapshot_tracks_snapshot_history(self):
-        self.repo.SaveState(self._state(task="TASK-A", seq=1, snapshot_id="SNAP-A"))
+        self.repo.SaveState(self._state(task="TASK-A", seq=1, snapshot_id="ATK-SNAP-A"))
         first = self.repo.CreateSnapshot()
 
-        self.repo.SaveState(self._state(task="TASK-B", seq=2, snapshot_id="SNAP-B"))
+        self.repo.SaveState(self._state(task="TASK-B", seq=2, snapshot_id="ATK-SNAP-B"))
         second = self.repo.CreateSnapshot()
 
         self.assertTrue(first.exists())
@@ -169,23 +169,23 @@ class DevelopmentStatePersistenceTest(unittest.TestCase):
         integrity = json.loads((self.root / ".ai" / "development_state" / "integrity.json").read_text(encoding="utf-8"))
         history = integrity["snapshot_history"]
         self.assertEqual(len(history), 2)
-        self.assertEqual(history[0]["snapshot_id"], "SNAP-A")
-        self.assertEqual(history[1]["snapshot_id"], "SNAP-B")
+        self.assertEqual(history[0]["snapshot_id"], "ATK-SNAP-A")
+        self.assertEqual(history[1]["snapshot_id"], "ATK-SNAP-B")
 
     def test_restore_snapshot_replaces_current_state(self):
-        first_state = self._state(task="TASK-OLD", seq=1, snapshot_id="SNAP-OLD")
+        first_state = self._state(task="TASK-OLD", seq=1, snapshot_id="ATK-SNAP-OLD")
         self.repo.SaveState(first_state)
         first_snapshot = self.repo.CreateSnapshot()
 
-        self.repo.SaveState(self._state(task="TASK-NEW", seq=2, snapshot_id="SNAP-NEW"))
-        restored = self.repo.RestoreSnapshot("SNAP-OLD")
+        self.repo.SaveState(self._state(task="TASK-NEW", seq=2, snapshot_id="ATK-SNAP-NEW"))
+        restored = self.repo.RestoreSnapshot("ATK-SNAP-OLD")
 
         self.assertEqual(restored.workspace_state.current_task, "TASK-OLD")
         self.assertEqual(self.repo.LoadState().workspace_state.current_task, "TASK-OLD")
         self.assertTrue(first_snapshot.exists())
 
     def test_export_and_import_state(self):
-        original = self._state(task="TASK-EXPORT", seq=10, snapshot_id="SNAP-EXPORT")
+        original = self._state(task="TASK-EXPORT", seq=10, snapshot_id="ATK-SNAP-EXPORT")
         self.repo.SaveState(original)
 
         export_path = self.root / "state_export.json"
@@ -211,7 +211,7 @@ class DevelopmentStatePersistenceTest(unittest.TestCase):
             self.repo.LoadState()
 
     def test_import_supports_legacy_version_migration(self):
-        legacy = self._state(task="TASK-LEGACY", seq=3, snapshot_id="SNAP-LEGACY").to_dict()
+        legacy = self._state(task="TASK-LEGACY", seq=3, snapshot_id="ATK-SNAP-LEGACY").to_dict()
         legacy["schema_version"] = "0.9.0"
         for key in (
             "workspace_state",

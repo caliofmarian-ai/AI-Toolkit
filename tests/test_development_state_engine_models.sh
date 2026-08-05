@@ -26,7 +26,7 @@ from python.development_state_engine.models import (
 class DevelopmentStateModelsTest(unittest.TestCase):
     def make_workspace(self):
         return WorkspaceState(
-            identifier="WS-001",
+            identifier="ATK-WS-001",
             active_project="AI-Toolkit",
             active_workspace="main",
             current_milestone="M1",
@@ -40,7 +40,7 @@ class DevelopmentStateModelsTest(unittest.TestCase):
 
     def make_repository(self):
         return RepositoryState(
-            identifier="REPO-001",
+            identifier="ATK-REPO-001",
             repository="caliofmarian-ai/AI-Toolkit",
             branch="main",
             head_commit="abcdef1",
@@ -53,7 +53,7 @@ class DevelopmentStateModelsTest(unittest.TestCase):
 
     def make_execution(self):
         return ExecutionState(
-            identifier="EXEC-001",
+            identifier="ATK-EXEC-001",
             current_executor="copilot-agent",
             running_jobs=("job-1",),
             completed_jobs=("job-0",),
@@ -65,7 +65,7 @@ class DevelopmentStateModelsTest(unittest.TestCase):
 
     def make_planning(self):
         return PlanningState(
-            identifier="PLAN-001",
+            identifier="ATK-PLAN-001",
             current_roadmap="RM-2026-Q3",
             current_sprint="SPRINT-32",
             recommended_batch="BATCH-10",
@@ -77,7 +77,7 @@ class DevelopmentStateModelsTest(unittest.TestCase):
 
     def make_review(self):
         return ReviewState(
-            identifier="REV-001",
+            identifier="ATK-REVIEW-001",
             pending_reviews=("PR-101",),
             open_prs=("PR-101", "PR-102"),
             architecture_findings=("risk-1",),
@@ -88,7 +88,7 @@ class DevelopmentStateModelsTest(unittest.TestCase):
 
     def make_owner(self):
         return OwnerState(
-            identifier="OWN-001",
+            identifier="ATK-OWNER-001",
             owner_priorities=("stability", "delivery"),
             manual_decisions=("defer-x",),
             overrides=("override-y",),
@@ -98,7 +98,7 @@ class DevelopmentStateModelsTest(unittest.TestCase):
 
     def make_telegram(self):
         return TelegramState(
-            identifier="TG-001",
+            identifier="ATK-TELEGRAM-001",
             session_id="sess-1",
             chat_id="chat-777",
             active_thread="thread-main",
@@ -109,7 +109,7 @@ class DevelopmentStateModelsTest(unittest.TestCase):
 
     def make_snapshot(self):
         return SnapshotMetadata(
-            identifier="SNAP-001",
+            identifier="ATK-SNAP-001",
             trigger="pull_request",
             created_at="2026-08-03T03:53:31Z",
             source_event="pr_opened",
@@ -119,7 +119,7 @@ class DevelopmentStateModelsTest(unittest.TestCase):
 
     def make_integrity(self):
         return IntegrityReport(
-            identifier="INT-001",
+            identifier="ATK-INTEGRITY-001",
             repository_integrity=98.0,
             canonical_integrity=96.0,
             memory_integrity=97.0,
@@ -131,7 +131,7 @@ class DevelopmentStateModelsTest(unittest.TestCase):
 
     def make_development_state(self):
         return DevelopmentState(
-            identifier="DEV-001",
+            identifier="ATK-STATE-001",
             workspace_state=self.make_workspace(),
             repository_state=self.make_repository(),
             execution_state=self.make_execution(),

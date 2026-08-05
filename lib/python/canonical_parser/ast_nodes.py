@@ -86,6 +86,8 @@ class DocumentNode(AstNode):
     title: str = ""
     version: str = ""
     status: str = ""
+    metadata: Dict[str, str] = field(default_factory=dict)
+    inferred_metadata: Dict[str, str] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         self.node_type = AstNodeType.DOCUMENT
@@ -99,6 +101,14 @@ class DocumentNode(AstNode):
             if isinstance(child, MetadataNode):
                 result[child.key.lower()] = child.value
         return result
+
+    def declared_metadata(self) -> Dict[str, str]:
+        if self.metadata:
+            return dict(self.metadata)
+        return self.metadata_map()
+
+    def inferred_value(self, key: str) -> str:
+        return self.inferred_metadata.get(key.lower(), "")
 
 
 @dataclass

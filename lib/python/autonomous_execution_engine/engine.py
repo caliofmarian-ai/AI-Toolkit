@@ -85,7 +85,7 @@ def _execution_id(repository: str, generated_at: str) -> str:
     digest = hashlib.sha1(
         f"{repository}{generated_at}".encode("utf-8")
     ).hexdigest()[:8].upper()
-    return f"EXEC-{digest}"
+    return f"ATK-EXEC-{digest}"
 
 
 def _ms(start: float) -> float:

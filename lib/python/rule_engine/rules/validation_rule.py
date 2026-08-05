@@ -13,7 +13,7 @@ class ValidationRule(Rule):
             return None
 
         return RuleResult(
-            identifier="RULE-002",
+            identifier="ATK-RULE-002",
             severity="CRITICAL",
             message=f"{failed} validation checks failed.",
             recommendation="Resolve validation failures.",

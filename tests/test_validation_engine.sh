@@ -16,6 +16,7 @@ results = engine.validate()
 stats = engine.statistics()
 
 assert stats["checks"] > 0
+assert all(r.identifier.startswith("ATK-VAL-") for r in results)
 
 ValidationExporter.export(
     results,
