@@ -4,7 +4,7 @@
 
 # COMPILER SPECIFICATION
 
-Version: Draft 0.1
+Version: 1.0.0
 
 Status: Normative
 
@@ -304,6 +304,24 @@ Optimization shall never modify Canonical Knowledge.
 
 Optimization shall preserve semantic equivalence.
 
+Optimization shall be deterministic.
+
+Given the same Universal Engineering Model as input, the same optimization pass shall always produce an identical output model.
+
+Non-deterministic optimization is prohibited.
+
+Every optimization pass shall document:
+
+its purpose,
+
+its input requirements,
+
+its semantic equivalence guarantee,
+
+its performance characteristics.
+
+Conformance tests shall verify that optimization does not alter the semantic meaning of the Engineering Model.
+
 ---
 
 # Chapter 12
@@ -418,7 +436,7 @@ Hidden errors are prohibited.
 
 Incremental Compilation
 
-The compiler should support incremental compilation.
+The compiler shall support incremental compilation.
 
 Incremental compilation recompiles only Engineering Objects affected by changes.
 
@@ -507,6 +525,85 @@ Partial implementations shall declare unsupported capabilities.
 ---
 
 # Chapter 20
+
+Error Code Registry
+
+Every compiler diagnostic shall carry a unique error code from the registry defined in this chapter.
+
+Error codes are permanent identifiers.
+
+Error codes shall never be reused.
+
+Error code format: `CSL-XXXX` where XXXX is a zero-padded four-digit number.
+
+## Lexical Error Codes (CSL-0001 through CSL-0099)
+
+| Code     | Severity | Description                                          |
+|----------|----------|------------------------------------------------------|
+| CSL-0001 | Error    | Invalid character in source document.                |
+| CSL-0002 | Error    | Invalid character in identifier.                     |
+| CSL-0003 | Error    | Unterminated string literal.                         |
+| CSL-0004 | Error    | Tab character used for indentation.                  |
+| CSL-0005 | Error    | Unexpected end of document during lexical analysis.  |
+| CSL-0010 | Warning  | Source file encoding may not be UTF-8.               |
+
+## Syntax Error Codes (CSL-0100 through CSL-0199)
+
+| Code     | Severity | Description                                          |
+|----------|----------|------------------------------------------------------|
+| CSL-0100 | Error    | Unexpected token encountered.                        |
+| CSL-0101 | Error    | Missing required block field.                        |
+| CSL-0102 | Error    | Invalid block nesting.                               |
+| CSL-0103 | Error    | Missing block termination.                           |
+| CSL-0104 | Error    | Reserved keyword used as identifier.                 |
+| CSL-0105 | Error    | Invalid indentation level.                           |
+| CSL-0106 | Error    | Statement is incomplete.                             |
+| CSL-0110 | Warning  | Unknown attribute name encountered.                  |
+
+## Semantic Error Codes (CSL-0200 through CSL-0399)
+
+| Code     | Severity | Description                                              |
+|----------|----------|----------------------------------------------------------|
+| CSL-0200 | Error    | Duplicate identifier within the same scope.              |
+| CSL-0201 | Error    | Unresolvable reference.                                  |
+| CSL-0202 | Error    | Circular dependency detected where not permitted.        |
+| CSL-0203 | Error    | Required property missing.                               |
+| CSL-0204 | Error    | Property type mismatch.                                  |
+| CSL-0205 | Error    | Relationship cardinality violation.                      |
+| CSL-0206 | Error    | Invalid lifecycle transition.                            |
+| CSL-0207 | Error    | Visibility constraint violation.                         |
+| CSL-0208 | Error    | Ownership constraint violated; entity has no owner.      |
+| CSL-0210 | Warning  | Entity has no outgoing relationships.                    |
+| CSL-0211 | Warning  | Property value is empty.                                 |
+| CSL-0300 | Error    | Constraint violation.                                    |
+| CSL-0301 | Error    | Dependency cycle in planning graph.                      |
+
+## Governance Error Codes (CSL-0400 through CSL-0499)
+
+| Code     | Severity       | Description                                      |
+|----------|----------------|--------------------------------------------------|
+| CSL-0400 | Critical Error | Unauthorized execution attempted.                |
+| CSL-0401 | Critical Error | Critical action attempted without approval.      |
+| CSL-0402 | Error          | Permission denied for requested operation.       |
+| CSL-0403 | Error          | Policy violation detected.                       |
+| CSL-0404 | Error          | Risk classification exceeds approved threshold.  |
+
+## Compatibility Error Codes (CSL-0500 through CSL-0599)
+
+| Code     | Severity | Description                                              |
+|----------|----------|----------------------------------------------------------|
+| CSL-0500 | Error    | CSL version unsupported by this compiler.                |
+| CSL-0501 | Error    | Grammar version mismatch.                                |
+| CSL-0502 | Warning  | Document targets a newer CSL version than this compiler. |
+| CSL-0510 | Info     | Migration may be required for this document version.     |
+
+Future error codes shall be assigned sequentially within the appropriate range.
+
+Additional ranges may be defined through approved RFCs.
+
+---
+
+# Chapter 21
 
 Closing Statement
 

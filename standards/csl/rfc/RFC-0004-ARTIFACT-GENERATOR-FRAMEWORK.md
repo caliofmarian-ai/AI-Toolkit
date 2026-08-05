@@ -2,9 +2,11 @@
 
 # Artifact Generator Framework
 
-Version: Draft 1.0
+Version: 1.0.0
 
-Status: Proposed
+Status: Final
+
+Approved: 2026-08-05
 
 Category: Generators
 
@@ -54,7 +56,19 @@ The Generator Framework eliminates this duplication.
 
 ---
 
-# 3. Architectural Principle
+# 3. Background
+
+Engineering Artifact generation has historically been performed by independent tools that read source documents directly. This creates tight coupling between artifact tools and document formats, prevents deterministic regeneration, and makes traceability impossible. A canonical generator framework solves this by requiring all generators to operate exclusively on the Universal Engineering Model.
+
+---
+
+# 4. Problem Statement
+
+Artifact generators operate on source documents directly, producing different results from the same knowledge when formats change. Traceability from generated artifacts back to canonical knowledge is lost. Extending the generator ecosystem requires modifying existing tools.
+
+---
+
+# 5. Architectural Principle
 
 Canonical Knowledge
 
@@ -74,7 +88,7 @@ The Generator Framework becomes the only approved mechanism for artifact generat
 
 ---
 
-# 4. Objectives
+# 6. Objectives
 
 The framework shall:
 
@@ -94,7 +108,13 @@ Support future extensibility.
 
 ---
 
-# 5. Generator Definition
+# 7. Alternatives
+
+Alternative A: Independent tools per artifact type. Each artifact type has its own tool reading documents directly. Rejected because traceability is lost and determinism cannot be guaranteed. Alternative B: Single monolithic generator. One generator produces all artifacts. Rejected because it cannot be extended without modifying core code. Alternative C: Plugin-based generator framework operating on the UEM (Selected). Generators are independently versioned, registered, and replaceable.
+
+---
+
+# 8. Generator Definition
 
 A Generator transforms a Universal Engineering Model into one or more Engineering Artifacts.
 
@@ -106,7 +126,7 @@ Generators produce derived artifacts only.
 
 ---
 
-# 6. Generator Categories
+# 9. Generator Categories
 
 Documentation Generators
 
@@ -138,7 +158,7 @@ Future categories may be introduced.
 
 ---
 
-# 7. Generator Interface
+# 10. Generator Interface
 
 Every Generator shall expose:
 
@@ -162,7 +182,7 @@ Capability Declaration
 
 ---
 
-# 8. Generator Lifecycle
+# 11. Generator Lifecycle
 
 Discovery
 
@@ -198,7 +218,7 @@ Every Generator follows the same lifecycle.
 
 ---
 
-# 9. Generator Registration
+# 12. Generator Registration
 
 Every Generator shall register itself.
 
@@ -222,7 +242,7 @@ Unsupported Features
 
 ---
 
-# 10. Generator Configuration
+# 13. Generator Configuration
 
 Generators may expose configuration parameters.
 
@@ -234,7 +254,7 @@ Configuration shall remain versioned.
 
 ---
 
-# 11. Generator Validation
+# 14. Generator Validation
 
 Before execution every Generator shall validate:
 
@@ -252,7 +272,7 @@ Validation failures terminate execution.
 
 ---
 
-# 12. Artifact Metadata
+# 15. Artifact Metadata
 
 Every generated artifact shall include metadata describing:
 
@@ -276,7 +296,7 @@ Traceability Reference
 
 ---
 
-# 13. Determinism
+# 16. Determinism
 
 Equivalent Universal Engineering Models shall produce semantically equivalent Engineering Artifacts.
 
@@ -286,7 +306,7 @@ Determinism is mandatory.
 
 ---
 
-# 14. Extensibility
+# 17. Extensibility
 
 New Generators may be added without modifying:
 
@@ -302,7 +322,7 @@ The framework shall remain open for extension.
 
 ---
 
-# 15. Compatibility
+# 18. Compatibility
 
 Generators shall declare:
 
@@ -316,7 +336,19 @@ Compatibility shall be validated before execution.
 
 ---
 
-# 16. Security
+# 19. Migration
+
+No migration is required. The generator framework is a new implementation requirement. Existing canonical documents remain valid.
+
+---
+
+# 20. Risks
+
+Risk: Generator proliferation may produce conflicting artifacts. Mitigation: Governance rules for generator registration. Risk: Determinism guarantees may be difficult to enforce across providers. Mitigation: Mandatory determinism testing in the conformance test suite.
+
+---
+
+# 21. Security
 
 Generators shall execute within governed environments.
 
@@ -334,7 +366,7 @@ Security violations terminate execution.
 
 ---
 
-# 17. Audit
+# 22. Audit
 
 Generator execution shall produce immutable audit records.
 
@@ -360,7 +392,7 @@ Execution Status
 
 ---
 
-# 18. Implementation Impact
+# 23. Implementation Impact
 
 Affected Components:
 
@@ -378,7 +410,7 @@ Future Generator Plugins
 
 ---
 
-# 19. Acceptance Criteria
+# 24. Acceptance Criteria
 
 The Generator Framework is complete when:
 

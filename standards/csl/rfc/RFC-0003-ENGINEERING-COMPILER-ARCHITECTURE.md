@@ -2,9 +2,11 @@
 
 # Engineering Compiler Architecture
 
-Version: Draft 1.0
+Version: 1.0.0
 
-Status: Proposed
+Status: Final
+
+Approved: 2026-08-05
 
 Category: Compiler
 
@@ -38,7 +40,19 @@ This RFC establishes a common architecture for every conforming compiler.
 
 ---
 
-# 3. Architectural Principles
+# 3. Background
+
+The Engineering Compiler translates Canonical Knowledge into Engineering Artifacts. Without a defined architecture, compiler implementations diverge, extensions become incompatible, and diagnostic behavior becomes unpredictable. A canonical architecture establishes the shared execution model required for conformance.
+
+---
+
+# 4. Problem Statement
+
+Different compiler implementations apply different processing stages in different orders, producing semantically inconsistent Universal Engineering Models and Engineering Artifacts. Interoperability requires a single, normatively defined compiler architecture.
+
+---
+
+# 5. Architectural Principles
 
 The Engineering Compiler shall be:
 
@@ -60,7 +74,13 @@ Every stage shall possess one clearly defined responsibility.
 
 ---
 
-# 4. Compiler Pipeline
+# 6. Alternatives
+
+Alternative A: Ad-hoc pipeline. Each implementation defines its own pipeline. Rejected because it prevents interoperability. Alternative B: Two-stage model (parse + generate). Simpler but insufficient for governance and safety requirements. Alternative C: Canonical multi-stage pipeline (Selected). Each stage has one clearly defined responsibility, enabling modular extension and deterministic behavior.
+
+---
+
+# 7. Compiler Pipeline
 
 The canonical pipeline is:
 
@@ -110,7 +130,7 @@ No stage may bypass another mandatory stage.
 
 ---
 
-# 5. Knowledge Loader
+# 8. Knowledge Loader
 
 Responsibilities:
 
@@ -128,7 +148,7 @@ The Knowledge Loader never modifies knowledge.
 
 ---
 
-# 6. Lexer
+# 9. Lexer
 
 Responsibilities:
 
@@ -150,7 +170,7 @@ Lexer output becomes Parser input.
 
 ---
 
-# 7. Parser
+# 10. Parser
 
 Responsibilities:
 
@@ -168,7 +188,7 @@ Parser output becomes Semantic Analyzer input.
 
 ---
 
-# 8. Semantic Analyzer
+# 11. Semantic Analyzer
 
 Responsibilities:
 
@@ -190,7 +210,7 @@ The Semantic Analyzer produces the Universal Engineering Model.
 
 ---
 
-# 9. Validation Engine
+# 12. Validation Engine
 
 Responsibilities:
 
@@ -210,7 +230,7 @@ Validation failures terminate compilation.
 
 ---
 
-# 10. Optimization Engine
+# 13. Optimization Engine
 
 Responsibilities:
 
@@ -228,7 +248,7 @@ Optimization shall never modify engineering meaning.
 
 ---
 
-# 11. Artifact Generator
+# 14. Artifact Generator
 
 Responsibilities:
 
@@ -268,7 +288,7 @@ Future generators may be added independently.
 
 ---
 
-# 12. Verification
+# 15. Verification
 
 Verification confirms that generated artifacts remain semantically equivalent to the Universal Engineering Model.
 
@@ -286,7 +306,7 @@ Verification failures invalidate publication.
 
 ---
 
-# 13. Publication
+# 16. Publication
 
 Publication exports Engineering Artifacts.
 
@@ -308,7 +328,7 @@ Publication never modifies Canonical Knowledge.
 
 ---
 
-# 14. Extensibility
+# 17. Extensibility
 
 Compiler extensions may introduce:
 
@@ -326,7 +346,7 @@ Extensions shall preserve compiler conformance.
 
 ---
 
-# 15. Compatibility
+# 18. Compatibility
 
 The canonical compiler architecture shall remain stable across CSL versions.
 
@@ -336,7 +356,13 @@ Observable compiler behavior shall remain semantically equivalent.
 
 ---
 
-# 16. Risks
+# 19. Migration
+
+No migration is required. The compiler architecture is an implementation requirement. Existing Canonical Knowledge remains valid.
+
+---
+
+# 20. Risks
 
 Primary risks include:
 
@@ -356,7 +382,7 @@ Deterministic behavior.
 
 ---
 
-# 17. Implementation Impact
+# 21. Implementation Impact
 
 Affected Specifications:
 
@@ -384,7 +410,7 @@ Runtime
 
 ---
 
-# 18. Acceptance Criteria
+# 22. Acceptance Criteria
 
 The RFC is complete when:
 

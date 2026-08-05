@@ -2,7 +2,7 @@
 
 # MANIFESTO
 
-Version: 0.1 Draft
+Version: 1.0.0
 
 Status: Foundational Specification
 
@@ -883,6 +883,22 @@ It shall be measured by human understanding.
 If future generations of engineers can understand, regenerate and evolve complex software systems from canonical knowledge alone,
 
 then the objectives of the Canonical Specification Language have been achieved.
+
+---
+
+# 37. License
+
+The Canonical Specification Language and all associated normative documents are published under the Creative Commons Attribution 4.0 International License (CC BY 4.0).
+
+You are free to share and adapt this material for any purpose, including commercial use, provided that appropriate credit is given to the CSL Foundation, a link to the license is provided, and changes are indicated.
+
+The full license text is available at: https://creativecommons.org/licenses/by/4.0/
+
+Reference implementations may be published under separate licenses.
+
+The AI-Toolkit reference implementation license is defined within the AI-Toolkit repository.
+
+No license grants permission to misrepresent a non-conformant implementation as conformant with the CSL Standard.
 
 ---
 

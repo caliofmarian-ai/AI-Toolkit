@@ -2,7 +2,7 @@
 
 # GLOSSARY
 
-Version: Draft 1.0
+Version: 1.0.0
 
 Status: Normative
 
@@ -197,6 +197,44 @@ The deterministic verification of Canonical Knowledge against the CSL Standard.
 Validation confirms correctness.
 
 Validation never modifies engineering meaning.
+
+---
+
+# Visibility
+
+A property of an Engineering Entity that determines its accessibility outside its declaring scope.
+
+Valid values are Private, Internal, Protected, Public, and Restricted.
+
+The default visibility is Public when no visibility attribute is declared.
+
+---
+
+# Prompt
+
+A Prompt is a Canonical Knowledge entity that defines reusable, versioned configuration of structured input for an Artificial Intelligence Provider.
+
+Prompt entities are maintained as Canonical Knowledge and may reference Requirements, Features and Components.
+
+The runtime input actually transmitted to an AI Provider is derived from a Prompt entity through the Generator Framework. That derived runtime input is an Engineering Artifact, not a new Canonical Knowledge entity.
+
+---
+
+# Lifecycle
+
+The defined sequence of states that an Engineering Entity progresses through during its existence.
+
+The canonical lifecycle sequence is: Draft, Review, Approved, Canonical, Compiled, Generated, Operational, Deprecated, Archived.
+
+---
+
+# CSL Foundation
+
+The governing body of the Canonical Specification Language.
+
+The CSL Foundation maintains the canonical standard, approves RFCs, issues official releases, and protects the long-term integrity of Canonical Knowledge.
+
+The CSL Foundation operates by consensus of active maintainers as defined in the Constitution.
 
 ---
 

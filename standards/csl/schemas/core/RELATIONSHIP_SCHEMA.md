@@ -2,7 +2,7 @@
 
 # RELATIONSHIP SCHEMA
 
-Version: Draft 1.0
+Version: 1.0.0
 
 Status: Normative
 
@@ -133,6 +133,29 @@ Many-to-One
 Many-to-Many
 
 Cardinality shall be validated.
+
+The following table defines the normative cardinality for each built-in relationship type.
+
+| Relationship Type | Cardinality   | Notes                                              |
+|-------------------|---------------|----------------------------------------------------|
+| contains          | One-to-Many   | One parent may contain many children.              |
+| depends_on        | Many-to-Many  | Any entity may depend on any number of entities.   |
+| implements        | Many-to-Many  | One entity may implement multiple targets.         |
+| extends           | Many-to-One   | An entity extends at most one target entity.       |
+| references        | Many-to-Many  | Unrestricted semantic references.                  |
+| requires          | Many-to-Many  | Any entity may require any number of entities.     |
+| owns              | Many-to-Many  | Ownership may be shared.                           |
+| approves          | Many-to-Many  | Multiple approvers may authorize one entity.       |
+| tests             | Many-to-Many  | One test may verify multiple requirements.         |
+| validates         | Many-to-Many  | One validator may validate multiple objects.       |
+| generates         | One-to-Many   | One generator may produce many artifacts.          |
+| deploys           | Many-to-Many  | One deployment may publish many artifacts.         |
+| publishes         | Many-to-Many  | One publisher may publish many targets.            |
+| consumes          | Many-to-Many  | One consumer may consume many targets.             |
+| supports          | Many-to-Many  | Support relationships are unrestricted.            |
+| belongs_to        | Many-to-One   | An entity belongs to at most one parent group.     |
+
+Implementations may tighten cardinality for specific entity type combinations through Policy declarations.
 
 ---
 

@@ -2,9 +2,9 @@
 
 # ENTERPRISE PROJECT
 
-Version: Draft 1.0
+Version: 1.0.0
 
-Status: Normative Example
+Status: Informative Example
 
 Classification: Advanced Example
 
