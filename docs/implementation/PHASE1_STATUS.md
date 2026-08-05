@@ -20,6 +20,8 @@ Phase 1 objective: Implement the complete CSL Core Engineering Platform.
 
 Phase 1 status: **COMPLETE**
 
+Phase 2 note: a true `.csl` lexer/parser/semantic/compiler path is now being introduced separately from the legacy markdown-oriented implementation.
+
 ---
 
 # 2. Conformance Level Achieved

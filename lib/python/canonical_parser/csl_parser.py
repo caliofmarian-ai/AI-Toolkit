@@ -1,371 +1,226 @@
-"""
-CSL Grammar Parser — Canonical Specification Language v1.0.0
-
-Transforms a token stream into a typed Abstract Syntax Tree.
-
-CSL Reference: Volume IV Chapters 6–17 (Grammar)
-CORE: CORE-023-004
-"""
-
 from __future__ import annotations
 
-import re
-from dataclasses import dataclass, field
-from pathlib import Path
-from typing import List, Optional
+from typing import List
 
-from .lexer import CslLexer, SourceLocation, Token, TokenType
-from .ast_nodes import (
-    AstNode,
-    BulletItemNode,
-    BulletListNode,
-    CodeBlockNode,
-    DocumentNode,
-    MetadataNode,
-    ParagraphNode,
-    SectionNode,
-    SeparatorNode,
-    SubsectionNode,
-    TableNode,
-    TableRowNode,
-    TextNode,
-)
+from .ast_nodes import AttributeNode, DocumentNode, EntityNode, HeaderFieldNode, ListValueNode, MapEntryNode, MapValueNode, RelationshipNode, ScalarValueNode
 from .diagnostics import Diagnostic, DiagnosticCategory, DiagnosticSeverity
-
-
-_CANON_ID_RE = re.compile(r"(CANON-\d+)")
-_CODE_FENCE_LANG_RE = re.compile(r"^```(\w*)$")
+from .lexer import CslLexer, SourceLocation, Token, TokenType
 
 
 class CslParser:
-    """
-    CSL Grammar Parser.
-
-    Builds a typed AST from a CSL token stream.
-
-    Deterministic: equivalent inputs always produce equivalent ASTs.
-    """
-
     def __init__(self) -> None:
         self._tokens: List[Token] = []
-        self._pos: int = 0
+        self._pos = 0
         self._diagnostics: List[Diagnostic] = []
 
     @property
     def diagnostics(self) -> List[Diagnostic]:
         return list(self._diagnostics)
 
-    def parse_file(self, path) -> DocumentNode:
-        """Parse a CSL file into an AST DocumentNode."""
-        path = Path(path)
-        text = path.read_text(encoding="utf-8")
-        return self.parse_text(text, source_name=str(path))
-
-    def parse_text(self, text: str, source_name: str = "") -> DocumentNode:
-        """Parse CSL source text into an AST DocumentNode."""
+    def parse_text(self, text: str, source_name: str = '') -> DocumentNode:
         self._diagnostics = []
-        lexer = CslLexer(text, source_name=source_name)
-        self._tokens = lexer.tokenize()
+        self._tokens = CslLexer(text, source_name=source_name).tokenize()
         self._pos = 0
-        return self._parse_document(source_name)
+        document = DocumentNode(node_type=None, location=self._peek().location, source_path=source_name, source_text=text)
+        document.__post_init__()
+        while self._peek().token_type != TokenType.EOF:
+            if self._match(TokenType.NEWLINE, TokenType.COMMENT):
+                continue
+            if self._peek().token_type != TokenType.KEYWORD:
+                self._error(self._peek(), 'CSL-0100', 'Expected declaration keyword')
+                self._advance()
+                continue
+            name = self._advance().value
+            if not self._consume(TokenType.COLON, 'CSL-0106', f"Missing ':' after {name}"):
+                break
+            if name == 'Relationship':
+                relationship = self._parse_relationship()
+                if relationship:
+                    document.declarations.append(relationship)
+            else:
+                entity = self._parse_entity(name)
+                if entity:
+                    document.declarations.append(entity)
+        self._populate_header_fields(document)
+        return document
 
-    # ------------------------------------------------------------------
-    # Internal parsing
-    # ------------------------------------------------------------------
+    def _parse_entity(self, entity_type: str):
+        entity = EntityNode(node_type=None, location=self._previous().location, entity_type=entity_type)
+        entity.__post_init__()
+        if self._peek().token_type == TokenType.NEWLINE:
+            self._advance()
+        if not self._consume(TokenType.INDENT, 'CSL-0103', f'Missing indented block for {entity_type}'):
+            return entity
+        while self._peek().token_type not in (TokenType.DEDENT, TokenType.EOF):
+            if self._match(TokenType.NEWLINE, TokenType.COMMENT):
+                continue
+            if self._peek().token_type == TokenType.KEYWORD and self._peek().value != 'Relationship':
+                child_type = self._advance().value
+                self._consume(TokenType.COLON, 'CSL-0106', f"Missing ':' after nested {child_type}")
+                child = self._parse_entity(child_type)
+                entity.children.append(child)
+                continue
+            attribute = self._parse_attribute()
+            if attribute:
+                entity.attributes.append(attribute)
+        self._consume(TokenType.DEDENT, 'CSL-0103', f'Missing dedent for {entity_type}')
+        return entity
+
+    def _parse_relationship(self):
+        location = self._previous().location
+        if self._peek().token_type == TokenType.NEWLINE:
+            self._advance()
+        if not self._consume(TokenType.INDENT, 'CSL-0103', 'Missing indented block for Relationship'):
+            return None
+        source = self._consume_identifier('CSL-0106', 'Missing relationship source')
+        relation = self._consume_identifier('CSL-0106', 'Missing relationship verb')
+        target = self._consume_identifier('CSL-0106', 'Missing relationship target')
+        relationship = RelationshipNode(node_type=None, location=location, source=source, relation_type=relation, target=target)
+        relationship.__post_init__()
+        self._consume(TokenType.NEWLINE, 'CSL-0106', 'Missing newline after relationship expression')
+        while self._peek().token_type not in (TokenType.DEDENT, TokenType.EOF):
+            if self._match(TokenType.NEWLINE, TokenType.COMMENT):
+                continue
+            attribute = self._parse_attribute()
+            if attribute:
+                relationship.attributes.append(attribute)
+        self._consume(TokenType.DEDENT, 'CSL-0103', 'Missing dedent for Relationship block')
+        return relationship
+
+    def _parse_attribute(self):
+        token = self._peek()
+        if token.token_type != TokenType.IDENTIFIER:
+            self._error(token, 'CSL-0100', 'Expected attribute identifier')
+            self._advance()
+            return None
+        name = self._advance().value
+        self._consume(TokenType.COLON, 'CSL-0106', f"Missing ':' after attribute {name}")
+        if self._peek().token_type == TokenType.NEWLINE:
+            self._advance()
+            if self._peek().token_type == TokenType.INDENT:
+                self._advance()
+                value = self._parse_indented_list(token.location)
+                self._consume(TokenType.DEDENT, 'CSL-0103', f'Missing dedent for attribute {name}')
+            else:
+                value = ScalarValueNode(node_type=None, location=token.location, value_type='null', value='')
+                value.__post_init__()
+        else:
+            value = self._parse_value()
+            self._consume(TokenType.NEWLINE, 'CSL-0106', f'Missing newline after attribute {name}')
+        attribute = AttributeNode(node_type=None, location=token.location, name=name, value=value)
+        attribute.__post_init__()
+        return attribute
+
+    def _parse_indented_list(self, location):
+        items = []
+        while self._peek().token_type not in (TokenType.DEDENT, TokenType.EOF):
+            if self._match(TokenType.NEWLINE, TokenType.COMMENT):
+                continue
+            self._consume(TokenType.DASH, 'CSL-0106', 'Missing list item marker')
+            items.append(self._parse_value())
+            self._consume(TokenType.NEWLINE, 'CSL-0106', 'Missing newline after list item')
+        node = ListValueNode(node_type=None, location=location, items=items)
+        node.__post_init__()
+        return node
+
+    def _parse_value(self):
+        token = self._peek()
+        if token.token_type == TokenType.LBRACKET:
+            return self._parse_inline_list()
+        if token.token_type == TokenType.LBRACE:
+            return self._parse_map()
+        if token.token_type in {TokenType.STRING, TokenType.INTEGER, TokenType.DECIMAL, TokenType.BOOLEAN, TokenType.DATE, TokenType.TIMESTAMP, TokenType.DURATION, TokenType.VERSION, TokenType.NULL, TokenType.IDENTIFIER, TokenType.KEYWORD}:
+            self._advance()
+            node = ScalarValueNode(node_type=None, location=token.location, value_type=token.token_type.value.lower(), value=token.value)
+            node.__post_init__()
+            return node
+        self._error(token, 'CSL-0100', 'Unexpected token in value')
+        self._advance()
+        node = ScalarValueNode(node_type=None, location=token.location, value_type='invalid', value='')
+        node.__post_init__()
+        return node
+
+    def _parse_inline_list(self):
+        start = self._advance()
+        items = []
+        while self._peek().token_type not in (TokenType.RBRACKET, TokenType.EOF):
+            items.append(self._parse_value())
+            if self._peek().token_type == TokenType.COMMA:
+                self._advance()
+            else:
+                break
+        self._consume(TokenType.RBRACKET, 'CSL-0106', 'Missing closing ]')
+        node = ListValueNode(node_type=None, location=start.location, items=items)
+        node.__post_init__()
+        return node
+
+    def _parse_map(self):
+        start = self._advance()
+        entries = []
+        while self._peek().token_type not in (TokenType.RBRACE, TokenType.EOF):
+            key_token = self._peek()
+            if key_token.token_type not in (TokenType.STRING, TokenType.IDENTIFIER):
+                self._error(key_token, 'CSL-0100', 'Expected map key')
+                self._advance()
+                break
+            self._advance()
+            self._consume(TokenType.COLON, 'CSL-0106', 'Missing : after map key')
+            value = self._parse_value()
+            entries.append(MapEntryNode(key_token.value, value))
+            if self._peek().token_type == TokenType.COMMA:
+                self._advance()
+            else:
+                break
+        self._consume(TokenType.RBRACE, 'CSL-0106', 'Missing closing }')
+        node = MapValueNode(node_type=None, location=start.location, entries=entries)
+        node.__post_init__()
+        return node
+
+    def _populate_header_fields(self, document: DocumentNode):
+        entity = next((item for item in document.declarations if isinstance(item, EntityNode)), None)
+        if entity is None:
+            return
+        for field_name in ('Identifier', 'Title', 'Version', 'Status', 'Classification'):
+            attribute = entity.get_attribute(field_name)
+            if attribute:
+                field = HeaderFieldNode(node_type=None, location=attribute.location, name=field_name, value=attribute.value)
+                field.__post_init__()
+                document.header_fields.append(field)
+
+    def _consume_identifier(self, code: str, message: str) -> str:
+        token = self._peek()
+        if token.token_type not in (TokenType.IDENTIFIER, TokenType.KEYWORD):
+            self._error(token, code, message)
+            return ''
+        self._advance()
+        return token.value
+
+    def _consume(self, token_type: TokenType, code: str, message: str) -> bool:
+        if self._peek().token_type == token_type:
+            self._advance()
+            return True
+        self._error(self._peek(), code, message)
+        return False
+
+    def _match(self, *token_types: TokenType) -> bool:
+        if self._peek().token_type in token_types:
+            self._advance()
+            return True
+        return False
 
     def _peek(self) -> Token:
         if self._pos < len(self._tokens):
             return self._tokens[self._pos]
-        return Token(TokenType.EOF, "", SourceLocation(0, 0))
+        return Token(TokenType.EOF, '', SourceLocation(0, 0))
+
+    def _previous(self) -> Token:
+        return self._tokens[self._pos - 1]
 
     def _advance(self) -> Token:
-        tok = self._peek()
-        if tok.token_type != TokenType.EOF:
+        token = self._tokens[self._pos]
+        if token.token_type != TokenType.EOF:
             self._pos += 1
-        return tok
+        return token
 
-    def _parse_document(self, source_name: str) -> DocumentNode:
-        loc = self._peek().location
-        doc = DocumentNode(
-            node_type=None,  # set in __post_init__
-            location=loc,
-            source_path=source_name,
-        )
-        doc.__post_init__()
-
-        # Pre-section content: title (HEADING1) + metadata + separators
-        seen_title = False
-        while self._peek().token_type != TokenType.EOF:
-            tok = self._peek()
-
-            if tok.token_type == TokenType.HEADING1:
-                self._advance()
-                if not seen_title:
-                    seen_title = True
-                    doc.title = tok.value
-                    # Attempt to extract CANON id from title
-                    m = _CANON_ID_RE.search(tok.value)
-                    if m:
-                        doc.doc_id = m.group(1)
-                else:
-                    # Second H1 means a new logical section in some docs; treat as text
-                    text_node = TextNode(node_type=None, location=tok.location, text=f"# {tok.value}")
-                    text_node.__post_init__()
-                    doc.add_child(text_node)
-                continue
-
-            if tok.token_type == TokenType.HEADING2:
-                section = self._parse_section()
-                doc.add_child(section)
-                continue
-
-            if tok.token_type == TokenType.METADATA:
-                self._advance()
-                meta = MetadataNode(
-                    node_type=None,
-                    location=tok.location,
-                    key=tok.key,
-                    value=tok.raw_value,
-                    is_keyword=tok.is_keyword(),
-                )
-                meta.__post_init__()
-                doc.add_child(meta)
-                # Extract well-known metadata
-                key = tok.key.lower()
-                if key == "version":
-                    doc.version = tok.raw_value
-                elif key == "status":
-                    doc.status = tok.raw_value
-                continue
-
-            if tok.token_type in (TokenType.SEPARATOR, TokenType.BLANK):
-                self._advance()
-                if tok.token_type == TokenType.SEPARATOR:
-                    sep = SeparatorNode(node_type=None, location=tok.location)
-                    sep.__post_init__()
-                    doc.add_child(sep)
-                continue
-
-            # Everything else at top level is text
-            self._advance()
-            text_node = TextNode(node_type=None, location=tok.location, text=tok.value)
-            text_node.__post_init__()
-            doc.add_child(text_node)
-
-        # Populate doc_id if not extracted from title
-        if not doc.doc_id:
-            m = _CANON_ID_RE.search(source_name)
-            if m:
-                doc.doc_id = m.group(1)
-
-        return doc
-
-    def _parse_section(self) -> SectionNode:
-        tok = self._advance()  # consume HEADING2
-        section = SectionNode(
-            node_type=None,
-            location=tok.location,
-            heading=tok.value,
-        )
-        section.__post_init__()
-
-        current_bullet_list: Optional[BulletListNode] = None
-        current_table: Optional[TableNode] = None
-        current_paragraph_lines: List[str] = []
-        paragraph_loc: Optional[SourceLocation] = None
-
-        def _flush_paragraph() -> None:
-            nonlocal current_paragraph_lines, paragraph_loc
-            if current_paragraph_lines:
-                para = ParagraphNode(
-                    node_type=None,
-                    location=paragraph_loc,
-                    text="\n".join(current_paragraph_lines),
-                )
-                para.__post_init__()
-                section.add_child(para)
-            current_paragraph_lines = []
-            paragraph_loc = None
-
-        def _flush_bullet_list() -> None:
-            nonlocal current_bullet_list
-            if current_bullet_list is not None:
-                section.add_child(current_bullet_list)
-                current_bullet_list = None
-
-        def _flush_table() -> None:
-            nonlocal current_table
-            if current_table is not None:
-                section.add_child(current_table)
-                current_table = None
-
-        while self._peek().token_type not in (TokenType.HEADING2, TokenType.EOF):
-            tok = self._peek()
-
-            if tok.token_type == TokenType.HEADING3:
-                _flush_paragraph()
-                _flush_bullet_list()
-                _flush_table()
-                subsection = self._parse_subsection()
-                section.add_child(subsection)
-                continue
-
-            if tok.token_type == TokenType.HEADING1:
-                # H1 inside a section is unusual; treat as text
-                self._advance()
-                _flush_bullet_list()
-                _flush_table()
-                if not current_paragraph_lines:
-                    paragraph_loc = tok.location
-                current_paragraph_lines.append(f"# {tok.value}")
-                continue
-
-            if tok.token_type == TokenType.SEPARATOR:
-                self._advance()
-                _flush_paragraph()
-                _flush_bullet_list()
-                _flush_table()
-                sep = SeparatorNode(node_type=None, location=tok.location)
-                sep.__post_init__()
-                section.add_child(sep)
-                continue
-
-            if tok.token_type == TokenType.BLANK:
-                self._advance()
-                _flush_paragraph()
-                _flush_bullet_list()
-                _flush_table()
-                continue
-
-            if tok.token_type == TokenType.BULLET:
-                self._advance()
-                _flush_paragraph()
-                _flush_table()
-                if current_bullet_list is None:
-                    current_bullet_list = BulletListNode(node_type=None, location=tok.location)
-                    current_bullet_list.__post_init__()
-                item = BulletItemNode(node_type=None, location=tok.location, text=tok.value)
-                item.__post_init__()
-                current_bullet_list.add_child(item)
-                continue
-
-            if tok.token_type == TokenType.TABLE_SEP:
-                self._advance()
-                # separator after header row; already handled
-                continue
-
-            if tok.token_type == TokenType.TABLE_ROW:
-                self._advance()
-                _flush_paragraph()
-                _flush_bullet_list()
-                cells = [c.strip() for c in tok.value.strip("|").split("|")]
-                if current_table is None:
-                    current_table = TableNode(node_type=None, location=tok.location, headers=cells)
-                    current_table.__post_init__()
-                else:
-                    row = TableRowNode(node_type=None, location=tok.location, cells=cells)
-                    row.__post_init__()
-                    current_table.add_child(row)
-                continue
-
-            if tok.token_type == TokenType.CODE_FENCE:
-                self._advance()
-                _flush_paragraph()
-                _flush_bullet_list()
-                _flush_table()
-                code_node = self._parse_code_block(tok)
-                section.add_child(code_node)
-                continue
-
-            if tok.token_type == TokenType.METADATA:
-                self._advance()
-                _flush_bullet_list()
-                _flush_table()
-                meta = MetadataNode(
-                    node_type=None,
-                    location=tok.location,
-                    key=tok.key,
-                    value=tok.raw_value,
-                    is_keyword=tok.is_keyword(),
-                )
-                meta.__post_init__()
-                section.add_child(meta)
-                continue
-
-            # Plain text
-            self._advance()
-            _flush_bullet_list()
-            _flush_table()
-            if not current_paragraph_lines:
-                paragraph_loc = tok.location
-            current_paragraph_lines.append(tok.value)
-
-        _flush_paragraph()
-        _flush_bullet_list()
-        _flush_table()
-
-        return section
-
-    def _parse_subsection(self) -> SubsectionNode:
-        tok = self._advance()  # consume HEADING3
-        subsection = SubsectionNode(node_type=None, location=tok.location, heading=tok.value)
-        subsection.__post_init__()
-
-        while self._peek().token_type not in (TokenType.HEADING2, TokenType.HEADING3, TokenType.EOF):
-            child_tok = self._peek()
-
-            if child_tok.token_type in (TokenType.SEPARATOR, TokenType.BLANK):
-                self._advance()
-                continue
-
-            if child_tok.token_type == TokenType.BULLET:
-                self._advance()
-                item = BulletItemNode(node_type=None, location=child_tok.location, text=child_tok.value)
-                item.__post_init__()
-                subsection.add_child(item)
-                continue
-
-            if child_tok.token_type == TokenType.TABLE_SEP:
-                self._advance()
-                continue
-
-            if child_tok.token_type == TokenType.TABLE_ROW:
-                self._advance()
-                cells = [c.strip() for c in child_tok.value.strip("|").split("|")]
-                row = TableRowNode(node_type=None, location=child_tok.location, cells=cells)
-                row.__post_init__()
-                subsection.add_child(row)
-                continue
-
-            if child_tok.token_type == TokenType.CODE_FENCE:
-                self._advance()
-                code_node = self._parse_code_block(child_tok)
-                subsection.add_child(code_node)
-                continue
-
-            self._advance()
-            text_node = TextNode(node_type=None, location=child_tok.location, text=child_tok.value)
-            text_node.__post_init__()
-            subsection.add_child(text_node)
-
-        return subsection
-
-    def _parse_code_block(self, fence_tok: Token) -> CodeBlockNode:
-        lang_match = _CODE_FENCE_LANG_RE.match(fence_tok.value)
-        language = lang_match.group(1) if lang_match else ""
-        lines: List[str] = []
-
-        while self._peek().token_type != TokenType.EOF:
-            tok = self._advance()
-            if tok.token_type == TokenType.CODE_FENCE:
-                break
-            lines.append(tok.value)
-
-        code_node = CodeBlockNode(
-            node_type=None,
-            location=fence_tok.location,
-            language=language,
-            lines=lines,
-        )
-        code_node.__post_init__()
-        return code_node
+    def _error(self, token: Token, code: str, message: str):
+        self._diagnostics.append(Diagnostic(DiagnosticSeverity.ERROR, DiagnosticCategory.SYNTAX, code, message, token.location.source, token.location))
