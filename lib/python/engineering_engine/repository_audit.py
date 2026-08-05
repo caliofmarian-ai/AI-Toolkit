@@ -194,111 +194,52 @@ class RepositoryAudit:
         output.parent.mkdir(parents=True, exist_ok=True)
 
         with output.open('w', encoding='utf-8') as md:
-            md.write('# Repository Inventory
+            md.write('# Repository Inventory\n\n')
+            md.write(f'Generated: {datetime.now(UTC).isoformat()}\n\n')
+            md.write('## Executive Summary\n\n')
+            md.write('| Metric | Value |\n')
+            md.write('|-------|------:|\n')
+            md.write(f'| Module Families Audited | {len(result.modules)} |\n')
+            md.write(f'| Entrypoints | {len(result.entrypoints)} |\n')
+            md.write(f'| Legacy Shell Modules | {len(result.legacy_shell_modules)} |\n')
+            md.write(f'| Top-Level Directories | {len(result.top_level_directories)} |\n\n')
+            md.write('Status: PHASE 1 IMPLEMENTATION AUDIT COMPLETE\n\n')
 
-')
-            md.write(f'Generated: {datetime.now(UTC).isoformat()}
+            md.write('## Architecture Map\n\n')
+            md.write('- Standards layer: standards/csl\n')
+            md.write('- Human documentation layer: docs, development, implementation-packages\n')
+            md.write('- Runtime layer: lib/python/runtime\n')
+            md.write('- Compiler/intelligence layer: canonical_*, engineering_engine, planning_engine, validation_engine, knowledge_graph*\n')
+            md.write('- Agent/execution layer: agent_runtime, agents, autonomous_*\n')
+            md.write('- Generated/runtime-state layer: .ai\n\n')
+            md.write('Expected CSL reference architecture: Canonical Repository → CSL Parser → Semantic Analyzer → Universal Engineering Model → Validation Engine → Engineering Compiler → Artifact Generators → Safety & Governance Kernel → Runtime Integrations.\n\n')
 
-')
-
-            md.write('## Executive Summary
-
-')
-            md.write('| Metric | Value |
-')
-            md.write('|-------|------:|
-')
-            md.write(f'| Module Families Audited | {len(result.modules)} |
-')
-            md.write(f'| Entrypoints | {len(result.entrypoints)} |
-')
-            md.write(f'| Legacy Shell Modules | {len(result.legacy_shell_modules)} |
-')
-            md.write(f'| Top-Level Directories | {len(result.top_level_directories)} |
-
-')
-            md.write('Status: PHASE 1 IMPLEMENTATION AUDIT COMPLETE
-
-')
-
-            md.write('## Architecture Map
-
-')
-            md.write('- Standards layer: standards/csl
-')
-            md.write('- Human documentation layer: docs, development, implementation-packages
-')
-            md.write('- Runtime layer: lib/python/runtime
-')
-            md.write('- Compiler/intelligence layer: canonical_*, engineering_engine, planning_engine, validation_engine, knowledge_graph*
-')
-            md.write('- Agent/execution layer: agent_runtime, agents, autonomous_*
-')
-            md.write('- Generated/runtime-state layer: .ai
-
-')
-            md.write('Expected CSL reference architecture: Canonical Repository → CSL Parser → Semantic Analyzer → Universal Engineering Model → Validation Engine → Engineering Compiler → Artifact Generators → Safety & Governance Kernel → Runtime Integrations.
-
-')
-
-            md.write('## Module Inventory
-
-')
+            md.write('## Module Inventory\n\n')
             for module in result.modules:
-                md.write(f'### {module.name}
+                md.write(f'### {module.name}\n\n')
+                md.write(f'- Path: `{module.path}`\n')
+                md.write(f'- Category: {module.category}\n')
+                md.write(f'- Purpose: {module.purpose}\n')
+                md.write(f'- Current implementation status: {module.status}\n')
+                md.write(f'- CSL compliance: {module.csl_compliance}\n')
+                md.write(f'- Reusable without changes: {"yes" if module.reusable_without_changes else "no"}\n')
+                md.write(f'- Requires refactoring: {"yes" if module.requires_refactoring else "no"}\n')
+                md.write(f'- Must be replaced: {"yes" if module.must_be_replaced else "no"}\n')
+                md.write(f'- Missing interfaces: {", ".join(module.missing_interfaces) if module.missing_interfaces else "none"}\n')
+                md.write(f'- Missing tests: {", ".join(module.missing_tests) if module.missing_tests else "none"}\n')
+                md.write(f'- Missing documentation: {", ".join(module.missing_documentation) if module.missing_documentation else "none"}\n')
+                md.write(f'- Dependencies: {", ".join(module.dependencies) if module.dependencies else "none"}\n')
+                md.write(f'- Risks: {", ".join(module.risks) if module.risks else "none"}\n\n')
 
-')
-                md.write(f'- Path: `{module.path}`
-')
-                md.write(f'- Category: {module.category}
-')
-                md.write(f'- Purpose: {module.purpose}
-')
-                md.write(f'- Current implementation status: {module.status}
-')
-                md.write(f'- CSL compliance: {module.csl_compliance}
-')
-                md.write(f'- Reusable without changes: {"yes" if module.reusable_without_changes else "no"}
-')
-                md.write(f'- Requires refactoring: {"yes" if module.requires_refactoring else "no"}
-')
-                md.write(f'- Must be replaced: {"yes" if module.must_be_replaced else "no"}
-')
-                md.write(f'- Missing interfaces: {", ".join(module.missing_interfaces) if module.missing_interfaces else "none"}
-')
-                md.write(f'- Missing tests: {", ".join(module.missing_tests) if module.missing_tests else "none"}
-')
-                md.write(f'- Missing documentation: {", ".join(module.missing_documentation) if module.missing_documentation else "none"}
-')
-                md.write(f'- Dependencies: {", ".join(module.dependencies) if module.dependencies else "none"}
-')
-                md.write(f'- Risks: {", ".join(module.risks) if module.risks else "none"}
+            md.write('## Dependency Graph\n\n')
+            md.write('- CLI/bin → `lib/python/cli/engineering.py` → `lib/python/engineering_engine/*`\n')
+            md.write('- runtime process → `lib/python/runtime/bootstrap.py` → runtime subsystems and interfaces\n')
+            md.write('- canonical components → `canonical_repository` → `canonical_parser` → `canonical_entities`\n')
+            md.write('- compliance path → `compliance_engine` → `workspace_index` + coverage/match inputs\n')
+            md.write('- engineering pipeline → `pipeline.py` → repository audit + gap analysis + planning + package generation + validation + review\n\n')
 
-')
-
-            md.write('## Dependency Graph
-
-')
-            md.write('- CLI/bin → `lib/python/cli/engineering.py` → `lib/python/engineering_engine/*`
-')
-            md.write('- runtime process → `lib/python/runtime/bootstrap.py` → runtime subsystems and interfaces
-')
-            md.write('- canonical components → `canonical_repository` → `canonical_parser` → `canonical_entities`
-')
-            md.write('- compliance path → `compliance_engine` → `workspace_index` + coverage/match inputs
-')
-            md.write('- engineering pipeline → `pipeline.py` → repository audit + gap analysis + planning + package generation + validation + review
-
-')
-
-            md.write('## Repository Structure Observations
-
-')
-            md.write(f'- Top-level directories: {", ".join(result.top_level_directories)}
-')
-            md.write(f'- Entrypoints: {", ".join(result.entrypoints)}
-')
-            md.write(f'- Legacy shell modules: {", ".join(result.legacy_shell_modules)}
-')
-            md.write('- Structural mismatch to RFC-0009: `knowledge/`, `generated/`, and a CSL-scoped `runtime/` top-level layout are not yet first-class repository directories.
-')
+            md.write('## Repository Structure Observations\n\n')
+            md.write(f'- Top-level directories: {", ".join(result.top_level_directories)}\n')
+            md.write(f'- Entrypoints: {", ".join(result.entrypoints)}\n')
+            md.write(f'- Legacy shell modules: {", ".join(result.legacy_shell_modules)}\n')
+            md.write('- Structural mismatch to RFC-0009: `knowledge/`, `generated/`, and a CSL-scoped `runtime/` top-level layout are not yet first-class repository directories.\n')
