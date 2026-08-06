@@ -78,9 +78,8 @@ covering gap analysis, dependency graphs, semantic extraction, planning, executi
 sync. Individual modules import cleanly. No documented end-to-end workflow demonstrates the
 complete cycle: inspect → plan → execute → validate on a real external repository.
 
-**Next action:** Run `bin/ai engineering audit CORE-001` against the AI-Toolkit repository itself
-and record the output. Fix every error until the command completes and produces a readable report.
-That becomes Sprint 1.
+**Next action:** Treat this audit recommendation as superseded by the accepted implementation baseline.
+Sprint 1 now starts with `bin/ai inspect` plus the inspect-first Dashboard, while any legacy `engineering audit` work remains reference material rather than the sprint entry point.
 
 ---
 
@@ -514,7 +513,7 @@ AI-Toolkit. Commit the result. That is the first step.
 | Validation Engine | Prototype | Consolidated entry point |
 | Repository Engine | Prototype | Unified module + CLI command |
 | Executive Briefing | Prototype | Wired to real data + cron |
-| Admin Dashboard / Runtime | Not Started | Defer to Phase 6 |
+| Admin Dashboard / Runtime | Planning Aligned | Inspect-first Dashboard starts in Sprint 1 and evolves in parallel |
 
 ---
 
