@@ -120,7 +120,7 @@ requirements.txt, go.mod, etc.). This is a prerequisite for Knowledge Engine.
 ## Issue #3 — CLI: Add `validate` Command
 
 **Priority:** High  
-**Sprint:** 1 (stretch) / Sprint 3  
+**Sprint:** 3  
 **Complexity:** Low (wiring only)
 
 ### Purpose
