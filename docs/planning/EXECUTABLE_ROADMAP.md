@@ -2,38 +2,36 @@
 
 **Status:** Active  
 **Created:** 2026-08-06  
-**Philosophy:** Every milestone ends with working software, not documentation.
+**Philosophy:** Every milestone ends with working software, and the Dashboard evolves with the engines.
 
 ---
 
 ## Roadmap Overview
 
 ```
-M1: Repository Engine     bin/ai inspect
-M2: Knowledge Engine      bin/ai knowledge extract
-M3: Validation Engine     bin/ai validate
-M4: Executive Briefing    bin/ai briefing generate
-M5: Dashboard Phase 1     bin/ai dashboard serve
-M6: AI Provider Layer     provider abstraction
-M7: Runtime Server        bin/runtime-server (end-to-end)
-M8: Telegram              notifications + commands
-M9: Railway Deployment    production hosting
-M10: GitHub Integration   PR/issue triggers
+M1: Repository Inspection Foundation   bin/ai inspect + dashboard serve
+M2: Knowledge Expansion                bin/ai knowledge extract
+M3: Validation + Engineering Session   bin/ai validate
+M4: Executive Briefing + Actions       bin/ai briefing generate
+M5: Project Manager + Multi-Repo       project registration + context switching
+M6: AI Agent + Provider Layer          optional AI-assisted engine enrichment
+M7: Runtime Operations                 bin/runtime-server
+M8: Telegram + Railway                 notifications + deployment
+M9: GitHub Integration                 PR/issue/workflow triggers
 ```
 
-Each milestone is a prerequisite for the next. No milestone begins until the previous
-one passes acceptance tests on all three validation repositories.
+The Dashboard is a parallel companion track from M1 onward.
+It does not wait until the engine track is complete.
 
 ---
 
-## M1 — Repository Engine
+## M1 — Repository Inspection Foundation
 
-**Objective:** Any repository can be inspected with a single command.
+**Objective:** Any repository can be inspected with a single command, and the first Dashboard view becomes usable immediately from that output.
 
 **Sprint:** 1 (2 weeks)
 
 **Deliverables:**
-
 - `lib/python/repository_engine/classifier.py`
 - `lib/python/repository_engine/metrics.py`
 - `lib/python/repository_engine/deps.py`
@@ -41,307 +39,247 @@ one passes acceptance tests on all three validation repositories.
 - `lib/python/repository_engine/cli.py`
 - `bin/ai inspect <path>` CLI command
 - Markdown report written to `<path>/.ai/reports/inspect-<date>.md`
+- `bin/ai dashboard serve` CLI command
+- inspect-first local Dashboard with Engineering Session header
 
 **Tests:**
-
 - `tests/test_repository_engine_inspect.sh`
+- `tests/test_dashboard_phase1.sh`
 
 **Validation repositories:**
-
-- AI-Toolkit (self-inspection)
+- AI-Toolkit
 - Trading Signals Platform
 - DROPi
 
 **Acceptance:**
-
-`bin/ai inspect .` produces a valid Markdown report on all three repositories.
+- `bin/ai inspect .` produces a valid Markdown report
+- `bin/ai dashboard serve` displays the latest inspect report without error
+- Dashboard shows current Engineering Session context
 
 ---
 
-## M2 — Knowledge Engine
+## M2 — Knowledge Expansion
 
-**Objective:** Semantic knowledge graph extracted from any repository.
+**Objective:** Extract repository knowledge and expand the Dashboard beyond inspection-only use.
 
 **Sprint:** 2 (2 weeks)
 
 **Prerequisite:** M1 complete
 
 **Deliverables:**
-
 - `lib/python/knowledge_engine/extractor.py`
 - `lib/python/knowledge_engine/graph.py`
 - `lib/python/knowledge_engine/report.py`
 - `lib/python/knowledge_engine/cli.py`
 - `bin/ai knowledge extract <path>` CLI command
 - Knowledge graph written to `<path>/.ai/knowledge/graph.json`
+- Dashboard knowledge surface linked from inspect results
 
 **Tests:**
-
 - `tests/test_knowledge_engine_extract.sh`
 
-**Validation repositories:**
-
-- AI-Toolkit
-- Trading Signals Platform
-- DROPi
-
 **Acceptance:**
-
-`bin/ai knowledge extract .` produces a `graph.json` containing modules, entry points,
-and canonical document references for all three repositories.
-
----
-
-## M3 — Architecture Revision Cycle
-
-**Objective:** Update only the specs that M1 and M2 proved wrong or incomplete.
-
-**Sprint:** 3 (1 week)
-
-**Prerequisite:** M1 and M2 complete
-
-**Deliverables:**
-
-- `docs/audits/PHASE_1_2_LEARNINGS.md` — list of spec changes made and why
-- Only revise specs that implementation referenced and found incorrect
-
-**Constraint:** No new CANON-XXX documents. Revisions only.
+- `bin/ai knowledge extract .` produces repository knowledge output
+- Dashboard can surface inspect and knowledge outputs together
 
 ---
 
-## M4 — Validation Engine
+## M3 — Validation + Engineering Session
 
-**Objective:** Any repository can be scored for canonical conformance.
+**Objective:** Produce validation scores and unify the active working context.
 
-**Sprint:** 4 (2 weeks)
+**Sprint:** 3 (2 weeks)
 
 **Prerequisite:** M2 complete
 
 **Deliverables:**
-
-- `lib/python/validation_engine/rules.py` (extended from stub)
-- `lib/python/validation_engine/score.py`
-- `lib/python/validation_engine/report.py`
-- Consolidation of `audit_engine/`, `compliance_engine/`, `development_validator/`
 - `bin/ai validate <path>` CLI command
-- Scored report written to `<path>/.ai/reports/validate-<date>.md`
+- scored validation report written to `<path>/.ai/reports/validate-<date>.md`
+- unified Engineering Session model carrying active project, repository, branch, workspace, issue, sprint, AI provider, and engineering task
+- Dashboard validation surface using the same session context
 
 **Tests:**
-
 - `tests/test_validation_engine_cli.sh`
-
-**Validation repositories:**
-
-- AI-Toolkit
-- Trading Signals Platform
-- DROPi
+- Engineering Session state tests added to runtime or dashboard coverage
 
 **Acceptance:**
-
-`bin/ai validate .` produces a scored report (0–100) on all three repositories.
+- `bin/ai validate .` produces a scored report
+- active context remains consistent across the Dashboard surfaces built so far
 
 ---
 
-## M5 — Executive Briefing
+## M4 — Executive Briefing + Dashboard Actions
 
-**Objective:** Auto-generated executive briefing from real data.
+**Objective:** Turn the Dashboard into an operational workspace.
 
-**Sprint:** 5 (1 week)
+**Sprint:** 4 (1 week)
+
+**Prerequisite:** M3 complete
+
+**Deliverables:**
+- `lib/python/executive_briefing_engine/cli.py`
+- `bin/ai briefing generate <path>` CLI command
+- `AI_CTO_EXECUTIVE_BRIEFING.md` generated in target repository
+- dashboard action panel for inspect, validate, and briefing generation
+- dashboard job history and job state display
+- `.github/workflows/weekly_briefing.yml`
+
+**Tests:**
+- `tests/test_executive_briefing_cli.sh`
+- dashboard action/job tests
+
+**Acceptance:**
+- `bin/ai briefing generate .` produces a briefing from real data
+- Dashboard can trigger inspect, validate, and briefing runs and show their status
+
+---
+
+## M5 — Project Manager + Multi-Repository Dashboard
+
+**Objective:** Make repository management and active context selection first-class product capabilities.
+
+**Sprint:** 5 (2 weeks)
 
 **Prerequisite:** M4 complete
 
 **Deliverables:**
-
-- `lib/python/executive_briefing_engine/cli.py` (wiring only — engine exists)
-- `bin/ai briefing generate <path>` CLI command
-- `AI_CTO_EXECUTIVE_BRIEFING.md` generated in target repository
-- `.github/workflows/weekly_briefing.yml` — cron job
+- Project Manager runtime service built from existing workspace registry/state foundations
+- project registration and repository metadata management
+- workspace selection and active-context switching
+- multi-repository Dashboard views
+- repository browser and project-level navigation foundation
 
 **Tests:**
-
-- `tests/test_executive_briefing_cli.sh`
-
-**Validation repositories:**
-
-- AI-Toolkit
+- project registration tests
+- repository context switching tests
+- multi-repository dashboard tests
 
 **Acceptance:**
-
-`bin/ai briefing generate .` produces a briefing that includes real data from
-the inspect and validate reports. Briefing is automatically committed weekly.
+- Owner can manage multiple repositories from one dashboard
+- Active Engineering Session updates correctly when project context changes
 
 ---
 
-## M6 — Dashboard Phase 1
+## M6 — AI Agent + Provider Layer
 
-**Objective:** Read-only local web dashboard displaying engine outputs.
+**Objective:** Add optional AI-assisted engine enrichment without coupling engines directly to providers.
 
 **Sprint:** 6 (2 weeks)
 
 **Prerequisite:** M5 complete
 
 **Deliverables:**
-
-- `lib/python/dashboard/__init__.py`
-- `lib/python/dashboard/reader.py`
-- `lib/python/dashboard/renderer.py`
-- `lib/python/dashboard/server.py`
-- `bin/ai dashboard serve` CLI command
-- HTML dashboard served on port 8080
-- Three panels: Inspect, Validate, Briefing
+- aligned Agent Layer using `lib/python/agent_runtime/` and `lib/python/agents/`
+- `lib/python/ai_provider/` provider abstraction layer
+- `StubProvider`
+- at least one real provider implementation
+- agent-to-provider execution path for optional engine enrichment
+- Dashboard visibility into agent and provider status
 
 **Tests:**
-
-- `tests/test_dashboard_phase1.sh`
-
-**Validation repositories:**
-
-- AI-Toolkit (local)
+- provider interface tests
+- stub provider tests
+- agent/provider integration tests
 
 **Acceptance:**
-
-`bin/ai dashboard serve` starts a local server. Dashboard displays reports from
-`.ai/reports/` without error. No external dependencies.
+- engines remain functional without AI providers
+- all provider traffic goes through the Provider Layer
+- AI-assisted paths go through the Agent Layer first
 
 ---
 
-## M7 — AI Provider Layer + Runtime Server
+## M7 — Runtime Operations
 
-**Objective:** Provider abstraction layer and end-to-end runtime server test.
+**Objective:** Validate and expose the continuously running operational substrate.
 
-**Sprint:** 7 (2 weeks)
+**Sprint:** 6 (parallel completion) / 7
 
-**Prerequisite:** M6 complete
+**Prerequisite:** M6 in progress or complete
 
 **Deliverables:**
-
-- `lib/python/ai_provider/` module (full structure as per `AI_PROVIDER_INTEGRATION_PLAN.md`)
-- `StubProvider` (always available)
-- `OllamaProvider` (local)
-- `OpenAIProvider`
-- `AnthropicProvider`
 - `tests/test_runtime_server_e2e.sh`
-- Runtime server responds to `/health`, `/api/v1/runtime`
+- Runtime server responds to `/health` and runtime API endpoints
+- Dashboard Runtime, Logs, Jobs, Monitoring, and Metrics surfaces
 
 **Tests:**
-
-- `tests/test_ai_provider_stub.sh`
-- `tests/test_ai_provider_ollama.sh` (requires Ollama, skipped if not available)
 - `tests/test_runtime_server_e2e.sh`
+- runtime operational view tests
 
 **Acceptance:**
-
-`bin/runtime-server` starts, responds to `/health`, shuts down cleanly.
-`StubProvider.complete()` returns a response.
-All provider calls go through `ProviderInterface`.
+- `bin/runtime-server` starts, responds, and shuts down cleanly
+- Dashboard exposes runtime state and job evidence
 
 ---
 
-## M8 — Telegram Integration
+## M8 — Telegram + Railway
 
-**Objective:** Receive notifications and send basic commands via Telegram.
+**Objective:** Extend operational visibility and notifications to hosted and remote channels.
 
-**Sprint:** 8 (1 week)
+**Sprint:** 7 (1 week)
 
 **Prerequisite:** M7 complete
 
 **Deliverables:**
-
-- `lib/python/runtime/telegram.py` extended with outbound notification
-- Notifications sent when inspect / validate / briefing complete
-- Basic command: `/status` returns runtime health
-- Configuration via `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` env vars
+- Telegram notifications for inspect / validate / briefing completion
+- Runtime deployed on Railway with health checks
+- Dashboard surfaces Telegram and Railway status
 
 **Tests:**
-
-- `tests/test_runtime_telegram.sh` (existing, extend)
+- `tests/test_runtime_telegram.sh`
+- `tests/test_railway_bootstrap.sh`
 
 **Acceptance:**
-
-When `bin/ai inspect .` completes, a Telegram message is sent with a summary.
-`/status` command returns `{"ready": true}`.
+- Telegram receives operational notifications
+- Railway deployment passes health checks
 
 ---
 
-## M9 — Railway Deployment
+## M9 — GitHub Integration
 
-**Objective:** Runtime server running continuously on Railway.
+**Objective:** Close the loop between repository hosting events and AI-Toolkit operations.
 
-**Sprint:** 9 (1 week)
+**Sprint:** 8 (2 weeks)
 
 **Prerequisite:** M8 complete
 
 **Deliverables:**
-
-- `railway.json` updated to confirmed working configuration
-- `requirements.txt` complete with all production dependencies
-- Deployed and responding to health checks on Railway URL
-- Environment variables configured in Railway dashboard
+- GitHub-triggered inspect/validate flows
+- PR validation feedback publication
+- Dashboard GitHub surface for workflow and review state
 
 **Tests:**
-
-- `tests/test_railway_bootstrap.sh` (existing, verify)
-- Manual health check against deployed Railway URL
+- manual or automated GitHub integration validation
 
 **Acceptance:**
-
-`https://<railway-url>/health` returns `{"ready": true}`.
-Server restarts automatically on crash.
-
----
-
-## M10 — GitHub Integration
-
-**Objective:** Engine runs triggered by GitHub events (PR open, push to main).
-
-**Sprint:** 10 (2 weeks)
-
-**Prerequisite:** M9 complete
-
-**Deliverables:**
-
-- `.github/workflows/inspect_on_push.yml` — run inspect on push to main
-- `.github/workflows/validate_on_pr.yml` — run validate on PR, post result as comment
-- PR comment includes validation score and summary
-
-**Tests:**
-
-- Manual test via test PR
-
-**Acceptance:**
-
-Opening a PR on AI-Toolkit triggers validation. Result posted as PR comment with score.
+- Opening a PR or relevant repository event triggers the planned AI-Toolkit workflow
+- Dashboard shows GitHub-connected operational state
 
 ---
 
 ## Milestone Summary Table
 
-| # | Milestone | Command | Sprint | Prerequisite |
+| # | Milestone | Primary command / capability | Sprint | Prerequisite |
 |---|---|---|---|---|
-| M1 | Repository Engine | `bin/ai inspect` | 1 | — |
-| M2 | Knowledge Engine | `bin/ai knowledge extract` | 2 | M1 |
-| — | Architecture Revision | — | 3 | M1+M2 |
-| M4 | Validation Engine | `bin/ai validate` | 4 | M2 |
-| M5 | Executive Briefing | `bin/ai briefing generate` | 5 | M4 |
-| M6 | Dashboard Phase 1 | `bin/ai dashboard serve` | 6 | M5 |
-| M7 | AI Provider + Runtime | `bin/runtime-server` | 7 | M6 |
-| M8 | Telegram | — | 8 | M7 |
-| M9 | Railway Deployment | — | 9 | M8 |
-| M10 | GitHub Integration | — | 10 | M9 |
+| M1 | Repository Inspection Foundation | `bin/ai inspect`, `bin/ai dashboard serve` | 1 | — |
+| M2 | Knowledge Expansion | `bin/ai knowledge extract` | 2 | M1 |
+| M3 | Validation + Engineering Session | `bin/ai validate` | 3 | M2 |
+| M4 | Executive Briefing + Actions | `bin/ai briefing generate` | 4 | M3 |
+| M5 | Project Manager + Multi-Repo | project/context management | 5 | M4 |
+| M6 | AI Agent + Provider Layer | provider-assisted engine enrichment | 6 | M5 |
+| M7 | Runtime Operations | `bin/runtime-server` | 6/7 | M6 |
+| M8 | Telegram + Railway | notifications + hosting | 7 | M7 |
+| M9 | GitHub Integration | repository event triggers | 8 | M8 |
 
 ---
 
 ## What This Roadmap Does Not Include
 
-- Additional canonical specifications
-- New governance documents
-- CSL compiler (deferred — no engine needs it yet)
-- Commercial platform features (billing, licensing, identity)
-- Multi-tenant cloud platform
-- Autonomous governance
-
-These are deferred until implementation demonstrates a real need.
+- additional canonical specifications
+- architecture redesign
+- speculative cloud-only platform work
+- commercial platform features
+- dashboard-only logic that duplicates engines
 
 ---
 
-## Start implementing Issue #1
+## Start implementing Sprint 1

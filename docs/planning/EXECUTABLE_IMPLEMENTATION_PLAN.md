@@ -3,52 +3,57 @@
 **Status:** Active  
 **Created:** 2026-08-06  
 **Based on:** `docs/audits/EXECUTIVE_REPOSITORY_AUDIT.md`  
-**Scope:** Transform audit recommendations into shipped code
+**Scope:** Transform the accepted planning baseline into shipped code
 
 ---
 
 ## Philosophy
 
-Architecture is frozen. Implementation starts now.
+Architecture is frozen.
+Planning alignment is complete.
+Implementation begins now.
 
-Every two-week sprint must end with working software running on at least one of:
-- AI-Toolkit (self)
-- Trading Signals Platform
-- DROPi
-
-No sprint ends with documentation only.
+Every sprint must end with working software, and the Dashboard must evolve in parallel with the engines instead of waiting until the end.
 
 ---
 
-## Current State (as of audit)
+## Current State
 
-| Engine | Module | Status |
+| Capability | Module | Status |
 |---|---|---|
-| Repository Engine | `lib/python/repository_engine/` | Stub — `discover()` wraps workspace index, no file classification, no CLI |
-| Knowledge Engine | `lib/python/knowledge_engine/` | Stub — entity registry only, no extraction |
-| Validation Engine | `lib/python/validation_engine/` | Stub — path-existence checks only |
+| Repository Engine | `lib/python/repository_engine/` | Stub — no complete inspect CLI yet |
+| Knowledge Engine | `lib/python/knowledge_engine/` | Stub — no extract CLI yet |
+| Validation Engine | `lib/python/validation_engine/` | Stub — path checks only |
 | Executive Briefing | `lib/python/executive_briefing_engine/` | Implemented — not wired to CLI |
-| Runtime Server | `lib/python/runtime/` | Implemented — not tested end-to-end |
-| CLI | `bin/ai` | Routes only to `engineering` — no `inspect`, `validate`, `briefing` |
-| Dashboard | — | Not started |
+| Dashboard | — | Blueprint complete — implementation not started |
+| Project Manager | `workspace_manager` / `workspace_orchestrator` foundation exists | Not unified as a runtime service |
+| Engineering Session | runtime and state concepts exist in fragments | Not unified as one working context |
+| AI Agent Layer | `lib/python/agent_runtime/`, `lib/python/agents/` exist | Not aligned with provider strategy |
 | AI Provider Layer | — | Not started |
+| Runtime Server | `lib/python/runtime/` | Implemented — end-to-end validation still needed |
 
 ---
 
 ## Implementation Order
 
-The order is determined by data dependencies between engines:
+Implementation now proceeds on coordinated tracks rather than a single delayed dashboard step.
 
-```
-Repository Engine (inspect)
-    └─► Knowledge Engine (extract)
-            └─► Validation Engine (validate)
-                    └─► Executive Briefing (briefing generate)
-                                └─► Dashboard (display)
-                                └─► Runtime Server (serve)
-```
+### Track A — Core Engineering Outputs
+`inspect` → `knowledge extract` → `validate` → `briefing generate`
 
-AI Provider Layer is independent; it is introduced when Knowledge Engine needs LLM inference.
+### Track B — Dashboard Evolution
+Inspect-first dashboard → knowledge/validation expansion → action panel/jobs → project manager/multi-repository control
+
+### Track C — Operational Context
+Workspace registry/state → Project Manager runtime service → Engineering Session persistence → active-context aware dashboard
+
+### Track D — AI Assistance
+Existing `agent_runtime` / `agents` alignment → provider abstraction → optional AI-assisted engine enrichment
+
+### Track E — Runtime and Integrations
+Runtime server validation → Telegram → Railway → GitHub triggers
+
+These tracks share outputs, but the Dashboard starts as soon as Track A produces the first inspect report.
 
 ---
 
@@ -56,58 +61,53 @@ AI Provider Layer is independent; it is introduced when Knowledge Engine needs L
 
 | Sprint | Goal | Duration |
 |---|---|---|
-| Sprint 1 | `bin/ai inspect` working on 3 repositories | 2 weeks |
-| Sprint 2 | `bin/ai knowledge extract` producing a knowledge graph | 2 weeks |
-| Sprint 3 | Architecture revision cycle | 1 week |
-| Sprint 4 | `bin/ai validate` producing a scored report | 2 weeks |
-| Sprint 5 | `bin/ai briefing generate` auto-generating from real data | 1 week |
-| Sprint 6 | Dashboard phase 1 (read-only, local) | 2 weeks |
-| Sprint 7 | AI Provider Layer + Runtime Server | 2 weeks |
-| Sprint 8 | Telegram + Railway deployment | 1 week |
+| Sprint 1 | `bin/ai inspect` + inspect-first Dashboard | 2 weeks |
+| Sprint 2 | `bin/ai knowledge extract` + dashboard knowledge expansion | 2 weeks |
+| Sprint 3 | `bin/ai validate` + Engineering Session unification | 2 weeks |
+| Sprint 4 | `bin/ai briefing generate` + dashboard action panel | 1 week |
+| Sprint 5 | Project Manager runtime service + multi-repository dashboard | 2 weeks |
+| Sprint 6 | AI Agent Layer + AI Provider Layer + runtime server validation | 2 weeks |
+| Sprint 7 | Telegram + Railway deployment | 1 week |
+| Sprint 8 | GitHub integration | 2 weeks |
 
 ---
 
 ## Constraints
 
-1. No new canonical specification documents until Sprint 3 architecture revision.
-2. Every new module must have at least one integration test before merge.
-3. Tests must run on AI-Toolkit itself as the default target.
-4. `requirements.txt` must list every dependency before it is used.
-5. All CLI commands follow the pattern: `bin/ai <engine> <command> [path]`.
+1. No new canonical specification documents are required for implementation.
+2. Every new module must have at least one automated test before merge.
+3. The Dashboard must stay simple: HTML + CSS served by the existing runtime server.
+4. Project Manager must reuse existing workspace/state foundations rather than inventing a new orchestration system.
+5. Engineering Session must be the authoritative current working context across CLI, runtime, and Dashboard.
+6. Engines remain deterministic and provider-independent.
+7. AI-assisted enrichment, when present, must flow through the Agent Layer and then the Provider Layer.
 
 ---
 
 ## Definition of Done (per sprint)
 
-- [ ] All new code has unit or integration tests
-- [ ] `bin/ai <command>` runs without error on AI-Toolkit
-- [ ] `bin/ai <command>` runs without error on Trading Signals Platform
-- [ ] `bin/ai <command>` runs without error on DROPi
-- [ ] Results are committed to `.ai/reports/` in each target repository
-- [ ] All existing tests still pass
+- [ ] New code has unit or integration tests
+- [ ] The sprint’s primary command or UI surface works on AI-Toolkit
+- [ ] Existing tests still pass
+- [ ] The Dashboard remains working after the sprint’s changes
+- [ ] Engineering Session context remains visible and consistent where applicable
+- [ ] No new planning-only sprint is introduced
 
 ---
 
-## Files to Never Modify
+## Reuse, Don’t Redesign
 
-- `standards/css/` — frozen
-- `standards/csl/` — frozen
-- `governance/` — frozen
-- `docs/canonical/v4/`, `docs/canonical/v5/` — frozen
-- `architecture/` — read-only reference
-
----
-
-## Files to Consolidate (not rewrite)
-
-| Target module | Sources to merge |
+| Target capability | Existing foundation to reuse |
 |---|---|
-| `lib/python/repository_engine/` | `engineering_engine/repository_scanner.py`, `engineering_engine/repository_model.py`, `executable_repository_intelligence/file_classifier.py`, `executable_repository_intelligence/zone_classifier.py` |
-| `lib/python/validation_engine/` | `audit_engine/`, `compliance_engine/`, `development_validator/` |
-| `lib/python/knowledge_engine/` | `canonical_intelligence/engine.py`, `knowledge_graph/`, `knowledge_graph_v2/`, `semantic_repository_intelligence/` |
+| Repository Engine | `engineering_engine/repository_scanner.py`, `executable_repository_intelligence/*` |
+| Knowledge Engine | `canonical_intelligence/`, `knowledge_graph/`, `knowledge_graph_v2/`, `semantic_repository_intelligence/` |
+| Validation Engine | `audit_engine/`, `compliance_engine/`, `development_validator/` |
+| Project Manager | `workspace_manager/`, `workspace_orchestrator/registry.py`, `workspace_orchestrator/state_manager.py` |
+| AI Agent Layer | `agent_runtime/`, `agents/` |
+| Dashboard | existing runtime server + report outputs |
 
 ---
 
 ## Immediate Next Action
 
-**Start implementing Issue #1** — see `IMPLEMENTATION_BACKLOG.md`.
+**Start Sprint 1 implementation:** deliver `bin/ai inspect <path>` and the first usable Dashboard from the inspect output.

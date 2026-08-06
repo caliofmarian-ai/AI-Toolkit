@@ -120,7 +120,7 @@ requirements.txt, go.mod, etc.). This is a prerequisite for Knowledge Engine.
 ## Issue #3 — CLI: Add `validate` Command
 
 **Priority:** High  
-**Sprint:** 1 (stretch) / Sprint 4  
+**Sprint:** 1 (stretch) / Sprint 3  
 **Complexity:** Low (wiring only)
 
 ### Purpose
@@ -161,7 +161,7 @@ This issue extends it to check canonical document presence and structure.
 ## Issue #4 — CLI: Add `briefing generate` Command
 
 **Priority:** High  
-**Sprint:** 5  
+**Sprint:** 4  
 **Complexity:** Low (wiring only — engine is implemented)
 
 ### Purpose
@@ -249,7 +249,7 @@ from a repository and persist them to `.ai/knowledge/graph.json`.
 ## Issue #6 — Validation Engine: Consolidation
 
 **Priority:** Medium  
-**Sprint:** 4  
+**Sprint:** 3  
 **Complexity:** Medium
 
 ### Purpose
@@ -279,7 +279,7 @@ Three overlapping validation subsystems exist: `audit_engine/`, `compliance_engi
 ## Issue #7 — Runtime Server: End-to-End Test
 
 **Priority:** Medium  
-**Sprint:** 7  
+**Sprint:** 6  
 **Complexity:** Low
 
 ### Purpose
@@ -309,16 +309,16 @@ end-to-end. The server must start, respond to `/health`, and shut down cleanly.
 
 ---
 
-## Issue #8 — Dashboard: Phase 1 (Read-Only Local)
+## Issue #8 — Dashboard: Phase 1 (Inspect-First Local)
 
 **Priority:** Medium  
-**Sprint:** 6  
+**Sprint:** 1  
 **Complexity:** Medium
 
 ### Purpose
 
-A minimal local web UI that displays the outputs of inspect, validate, and briefing.
-No database. No authentication. Reads from `.ai/reports/` and renders HTML.
+A minimal local web UI that becomes usable as soon as inspect output exists.
+It starts with the latest inspect report and an Engineering Session header, then grows with later engines.
 
 See `DASHBOARD_IMPLEMENTATION_STRATEGY.md` for full phased plan.
 
@@ -326,16 +326,16 @@ See `DASHBOARD_IMPLEMENTATION_STRATEGY.md` for full phased plan.
 
 - [ ] `bin/ai dashboard serve` starts a local HTTP server on port 8080
 - [ ] Dashboard displays latest inspect report
-- [ ] Dashboard displays latest validate report
-- [ ] Dashboard displays latest briefing
+- [ ] Dashboard shows the Engineering Session header
 - [ ] No external dependencies beyond Python stdlib
+- [ ] Dashboard can evolve without redesign when later engine outputs are added
 
 ---
 
 ## Issue #9 — GitHub Actions: Weekly Briefing Cron
 
 **Priority:** Low  
-**Sprint:** 5  
+**Sprint:** 4  
 **Complexity:** Low
 
 ### Purpose
@@ -356,22 +356,64 @@ Auto-generate and commit `AI_CTO_EXECUTIVE_BRIEFING.md` weekly via GitHub Action
 
 ---
 
-## Issue #10 — AI Provider Layer
+## Issue #10 — AI Agent + Provider Layer
 
 **Priority:** Low  
-**Sprint:** 7  
+**Sprint:** 6  
 **Complexity:** High
 
 See `AI_PROVIDER_INTEGRATION_PLAN.md` for full design.
 
 ### Purpose
 
-A single provider interface through which every engine that needs LLM inference must pass.
-No engine communicates directly with an AI provider.
+A combined AI Agent + Provider path through which every engine that needs AI-assisted inference must pass.
+Engines communicate with agents. Agents communicate with providers. No engine communicates directly with an AI provider.
 
 ### Acceptance Criteria
 
+- [ ] existing `agent_runtime` / `agents` foundations are aligned into an Agent Layer contract
 - [ ] `lib/python/ai_provider/` module exists
-- [ ] `ProviderInterface.complete(prompt) -> str` is the only public method any engine calls
-- [ ] At least one provider is implemented (Ollama or stub)
-- [ ] Test verifies interface contract with a mock provider
+- [ ] engines request AI assistance through agents rather than direct provider calls
+- [ ] at least one provider is implemented (stub or Ollama)
+- [ ] tests verify both agent and provider interface contracts
+
+
+---
+
+## Issue #11 — Project Manager and Engineering Session
+
+**Priority:** Medium  
+**Sprint:** 5  
+**Complexity:** Medium
+
+### Purpose
+
+AI-Toolkit needs an explicit Project Manager runtime service so project registration, workspace selection, repository metadata, lifecycle state, and active context are not scattered across the Dashboard and runtime.
+
+The same implementation must unify the Engineering Session carrying:
+- active project
+- active repository
+- active branch
+- active workspace
+- active issue
+- active sprint
+- active AI provider
+- active engineering task
+
+### Files to Modify / Create
+
+| Action | File |
+|---|---|
+| Extend | existing workspace state / registry modules |
+| Create or extend | Project Manager runtime service module |
+| Extend | dashboard session/context handling |
+| Extend | runtime state persistence for Engineering Session |
+| Create | tests for project registration and active-context switching |
+
+### Acceptance Criteria
+
+- [ ] project registration works without introducing a new engine type
+- [ ] active repository and workspace can be selected explicitly
+- [ ] Engineering Session persists the required active-context fields
+- [ ] Dashboard reflects active-context changes consistently
+- [ ] multi-repository Dashboard work reuses this service instead of duplicating state logic

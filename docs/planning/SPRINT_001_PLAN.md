@@ -1,28 +1,30 @@
 # Sprint 001 Plan
 
 **Duration:** 2 weeks (2026-08-07 — 2026-08-20)  
-**Goal:** `bin/ai inspect <path>` working on AI-Toolkit, Trading Signals Platform, and DROPi  
-**Sprint ends with:** A committed Markdown inspection report for each of the three repositories
+**Goal:** `bin/ai inspect <path>` working on AI-Toolkit, Trading Signals Platform, and DROPi, with the first usable Dashboard served from inspect output  
+**Sprint ends with:** a committed Markdown inspection report for each repository and a local dashboard page that displays the latest inspect report for AI-Toolkit
 
 ---
 
 ## Sprint Objective
 
-Deliver one complete, useful, testable command:
+Deliver the first complete AI-Toolkit operational loop:
 
 ```bash
 bin/ai inspect /path/to/repository
+bin/ai dashboard serve
 ```
 
-The command must:
-1. Walk the repository directory tree.
-2. Classify every file (source, test, config, doc, generated, build, unknown).
-3. Extract metrics: language distribution, file counts, entry points, test ratio.
-4. Detect tech stack.
-5. Render a Markdown report.
-6. Write report to `<path>/.ai/reports/inspect-<date>.md`.
+This sprint must:
+1. walk the repository directory tree;
+2. classify every file;
+3. extract repository metrics and dependency summaries;
+4. render a Markdown inspection report;
+5. write the report to `<path>/.ai/reports/inspect-<date>.md`;
+6. display the latest inspect report in a local Dashboard;
+7. show the current Engineering Session header in the Dashboard.
 
-This sprint delivers **Issue #1** and **Issue #2** from the backlog.
+This sprint delivers **Issue #1**, **Issue #2**, and **Issue #8** from the backlog.
 
 ---
 
@@ -32,118 +34,106 @@ This sprint delivers **Issue #1** and **Issue #2** from the backlog.
 |---|---|---|
 | #1 | Repository Engine: File Classification and CLI | Medium |
 | #2 | Repository Engine: Dependency Graph | Low |
-
-Issue #3 (validate CLI wiring) is stretch goal if both primary issues complete early.
+| #8 | Dashboard Phase 1: Inspect-First Local Dashboard | Medium |
 
 ---
 
 ## Day-by-Day Plan
 
-### Day 1–2: Audit existing code, design interface
+### Day 1–2: Audit existing code and fix the inspect contract
+- Read `lib/python/repository_engine/engine.py`.
+- Read reusable classification and scanning code from existing modules.
+- Confirm report shape and inspect CLI contract.
+- Sketch the minimum Engineering Session fields required in Sprint 1.
+- Write `tests/test_repository_engine_inspect.sh` skeleton.
 
-- Read `lib/python/repository_engine/engine.py` (current stub).
-- Read `lib/python/executable_repository_intelligence/file_classifier.py`.
-- Read `lib/python/executable_repository_intelligence/zone_classifier.py`.
-- Read `lib/python/engineering_engine/repository_scanner.py`.
-- Design `RepositoryProfile` dataclass (no code yet).
-- Write `tests/test_repository_engine_inspect.sh` skeleton (failing tests first).
+### Day 3–5: Implement repository profiling
+- Create `classifier.py`, `metrics.py`, and report rendering support.
+- Extend `models.py` with the inspect profile structure.
+- Add dependency extraction for root package files.
+- Run tests and iterate until the report is stable.
 
-### Day 3–4: Implement classifier and metrics
-
-- Create `lib/python/repository_engine/classifier.py`.
-- Port classification logic from `executable_repository_intelligence/file_classifier.py`.
-- Create `lib/python/repository_engine/metrics.py`.
-- Write unit tests embedded in the shell test.
-- Run tests — fix until green.
-
-### Day 5–6: Implement profile and report
-
-- Extend `lib/python/repository_engine/models.py` with `RepositoryProfile`.
-- Add `RepositoryEngine.profile(root) -> RepositoryProfile`.
-- Create `lib/python/repository_engine/report.py` with `ReportRenderer.render()`.
-- Verify report output is valid Markdown.
-
-### Day 7: Implement dependency extraction
-
-- Create `lib/python/repository_engine/deps.py`.
-- Parse `requirements.txt`, `package.json`, `go.mod` at repository root.
-- Add `DependencyMap` to `RepositoryProfile`.
-- Add Dependencies section to report renderer.
-
-### Day 8–9: Wire CLI
-
-- Create `lib/python/repository_engine/cli.py` with `inspect(path)` function.
+### Day 6–7: Wire the inspect CLI
+- Create `lib/python/repository_engine/cli.py`.
 - Modify `bin/ai` to add `inspect <path>` routing.
-- Run `bin/ai inspect .` on AI-Toolkit — fix until clean.
-- Commit first working report to `.ai/reports/`.
+- Run `bin/ai inspect .` on AI-Toolkit.
+- Commit the first working inspect report to `.ai/reports/`.
 
-### Day 10–11: Validate on all three repositories
+### Day 8–10: Build the inspect-first Dashboard
+- Add dashboard serving support to the runtime server or dashboard module.
+- Render the latest inspect report as readable HTML.
+- Add the Engineering Session header with active project, repository, branch, workspace, issue, sprint, AI provider, and engineering task.
+- Add `bin/ai dashboard serve` routing.
 
-- Clone or access Trading Signals Platform.
+### Day 11–12: Validate across repositories
 - Run `bin/ai inspect /path/to/trading-signals-platform`.
-- Fix any failures.
 - Run `bin/ai inspect /path/to/dropi`.
 - Fix any failures.
-- Commit reports to each repository's `.ai/reports/`.
+- Verify the AI-Toolkit dashboard still displays the latest local inspect report.
 
-### Day 12–13: Tests and cleanup
-
+### Day 13: Tests and cleanup
 - Complete `tests/test_repository_engine_inspect.sh`.
-- Ensure all 8 existing test categories still pass.
-- Remove any dead code introduced.
-- Update `requirements.txt` with any new dependencies.
+- Add or complete `tests/test_dashboard_phase1.sh`.
+- Ensure existing tests still pass.
+- Update `requirements.txt` only if genuinely required.
 
-### Day 14: Sprint review and merge
-
-- Run full test suite.
+### Day 14: Sprint review
 - Verify all acceptance criteria.
+- Confirm the Dashboard is usable from inspect output.
 - Merge PR.
-- Tag `v0.1.0-inspect`.
 
 ---
 
 ## Acceptance Criteria
 
 - [ ] `bin/ai inspect .` completes without error on AI-Toolkit
-- [ ] Report written to `.ai/reports/inspect-<date>.md`
-- [ ] Report contains: Summary, File Distribution, Language Distribution, Tech Stack,
-      Entry Points, Test Coverage Ratio, Documentation Coverage, Dependencies
+- [ ] report written to `.ai/reports/inspect-<date>.md`
+- [ ] report contains: Summary, File Distribution, Language Distribution, Tech Stack, Entry Points, Test Coverage Ratio, Documentation Coverage, Dependencies
 - [ ] `bin/ai inspect /path/to/trading-signals-platform` completes without error
 - [ ] `bin/ai inspect /path/to/dropi` completes without error
-- [ ] `tests/test_repository_engine_inspect.sh` PASS
-- [ ] All previously passing tests still pass
-- [ ] No new canonical specification documents were created during the sprint
+- [ ] `bin/ai dashboard serve` starts a local HTTP server on port 8080
+- [ ] Dashboard displays the latest inspect report
+- [ ] Dashboard shows the Engineering Session header
+- [ ] `tests/test_repository_engine_inspect.sh` passes
+- [ ] `tests/test_dashboard_phase1.sh` passes
+- [ ] all previously passing tests still pass
+- [ ] no new canonical specification documents were created during the sprint
 
 ---
 
 ## Files Created or Modified This Sprint
 
 ```
-lib/python/repository_engine/classifier.py     (new)
-lib/python/repository_engine/metrics.py        (new)
-lib/python/repository_engine/models.py         (extend)
-lib/python/repository_engine/report.py         (new)
-lib/python/repository_engine/deps.py           (new)
-lib/python/repository_engine/cli.py            (new)
-bin/ai                                          (extend)
-tests/test_repository_engine_inspect.sh        (new)
-requirements.txt                               (extend if needed)
+lib/python/repository_engine/classifier.py
+lib/python/repository_engine/metrics.py
+lib/python/repository_engine/models.py
+lib/python/repository_engine/report.py
+lib/python/repository_engine/deps.py
+lib/python/repository_engine/cli.py
+lib/python/dashboard/__init__.py
+lib/python/dashboard/reader.py
+lib/python/dashboard/renderer.py
+lib/python/dashboard/server.py
+bin/ai
+tests/test_repository_engine_inspect.sh
+tests/test_dashboard_phase1.sh
+requirements.txt
 ```
 
 ---
 
 ## Done Condition
 
-The sprint is done when this command succeeds on a clean clone:
+The sprint is done when these commands succeed on a clean AI-Toolkit clone:
 
 ```bash
-git clone <trading-signals-platform>
-cd AI-Toolkit
+bin/ai inspect .
+bin/ai dashboard serve
 bin/ai inspect ../trading-signals-platform
-cat ../trading-signals-platform/.ai/reports/inspect-*.md
+cat .ai/reports/inspect-*.md
 ```
 
-And the output contains a readable, structured report.
+And the Dashboard shows the latest inspect report in readable form.
 
 ---
 

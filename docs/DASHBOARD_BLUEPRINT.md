@@ -53,6 +53,26 @@ The complete Dashboard includes the following major sections:
 
 ---
 
+## Cross-Page Operating Context
+Every page in the Dashboard runs inside an Engineering Session.
+
+The Engineering Session always exposes:
+- active project;
+- active repository;
+- active branch;
+- active workspace;
+- active issue;
+- active sprint;
+- active AI provider;
+- active engineering task.
+
+This context is owned by the Project Manager runtime service, persisted by the Runtime, and shown as a persistent operating header across the Dashboard.
+
+The Project Manager is not a separate analysis engine.
+It is the runtime capability responsible for project registration, workspace selection, repository metadata, lifecycle state, project configuration, and active context switching.
+
+---
+
 ## Home
 **Purpose**  
 Provide the single highest-level operational overview of AI-Toolkit.
@@ -60,6 +80,7 @@ Provide the single highest-level operational overview of AI-Toolkit.
 **Visible information**  
 - overall AI-Toolkit status;
 - active project or workspace;
+- active Engineering Session summary;
 - repository fleet summary;
 - critical alerts and blockers;
 - current runtime health;
@@ -70,6 +91,7 @@ Provide the single highest-level operational overview of AI-Toolkit.
 
 **Available actions**  
 - switch active project;
+- adjust active session context;
 - open priority alerts;
 - jump to key work areas;
 - trigger approved refresh operations;
@@ -85,26 +107,30 @@ Evolves from a local summary page into a real-time portfolio command center with
 
 ## Projects
 **Purpose**  
-Organize and select the repositories, workspaces, and engineering contexts managed by AI-Toolkit.
+Act as the Dashboard surface of the Project Manager by organizing, registering, selecting, and configuring the repositories, workspaces, and engineering contexts managed by AI-Toolkit.
 
 **Visible information**  
 - registered projects and repositories;
+- active project, repository, and workspace;
 - project health indicators;
 - lifecycle stage;
 - last activity;
 - current priorities;
+- repository metadata and configuration summary;
 - linked integrations;
 - ownership and workspace context.
 
 **Available actions**  
 - open a project;
 - compare project health;
-- register or activate a workspace;
+- register a project or repository;
+- select the active workspace and repository;
+- manage project lifecycle and configuration;
 - filter and sort projects;
 - view project-level readiness.
 
 **Engines used**  
-Workspace management, Repository Engine, Runtime, synchronization services.
+Project Manager runtime service, workspace management foundations, Repository Engine, Runtime, synchronization services.
 
 **Future evolution**  
 Expands into portfolio grouping, organization views, team ownership, and cross-repository prioritization.
@@ -142,6 +168,7 @@ Provide the main action surface for supervised engineering operations.
 
 **Visible information**  
 - active engineering context;
+- active project, repository, branch, workspace, issue, sprint, AI provider, and engineering task;
 - current tasks and recommended flows;
 - repository status;
 - current evidence and decision inputs;
@@ -153,11 +180,12 @@ Provide the main action surface for supervised engineering operations.
 - launch approved engineering flows;
 - move between inspection, knowledge, validation, and merge work;
 - review execution outcomes;
+- update active issue, sprint, provider, or engineering task when governance allows;
 - capture decisions and operator intent;
 - continue recent work.
 
 **Engines used**  
-Planning Engine, Execution Engine, Validation Engine, Executive Briefing Engine, Runtime, decision and recommendation services.
+Planning Engine, Execution Engine, Validation Engine, Executive Briefing Engine, Project Manager runtime service, Runtime, decision and recommendation services.
 
 **Future evolution**  
 Becomes the primary mission-oriented workbench for governed AI-assisted engineering across single and multiple repositories.
@@ -303,8 +331,10 @@ Give the user operational visibility and governance over configured AI capabilit
 
 **Visible information**  
 - configured providers;
+- active AI provider from the current Engineering Session;
 - provider availability;
 - model classes and allowed usage;
+- agent-to-provider routing visibility;
 - policy posture;
 - cost and usage signals;
 - failover and health state.
@@ -313,10 +343,11 @@ Give the user operational visibility and governance over configured AI capabilit
 - review provider configuration;
 - enable or disable approved providers;
 - inspect provider health;
+- change the active session provider when permitted;
 - manage usage posture and routing policies.
 
 **Engines used**  
-Provider registry, runtime configuration, policy and monitoring services.
+Provider registry, agent runtime visibility, runtime configuration, policy and monitoring services.
 
 **Future evolution**  
 Adds provider strategy controls, capability routing, tenant-aware policy management, and commercial visibility.
@@ -488,6 +519,7 @@ Show the operational queue of work handled by AI-Toolkit.
 - completed jobs;
 - failed jobs;
 - job origin and purpose;
+- job-to-session context;
 - execution results and timestamps.
 
 **Available actions**  

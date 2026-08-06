@@ -12,6 +12,7 @@ AI-Toolkit is an AI-assisted engineering platform that continuously helps a user
 
 From the user's perspective, AI-Toolkit is the place where they:
 - connect and supervise repositories;
+- manage projects, workspaces, and active engineering context;
 - inspect engineering health;
 - understand architecture and progress;
 - generate and review plans;
@@ -83,6 +84,7 @@ The user sees AI-Toolkit as a complete product surface anchored by the Dashboard
 ### Visible Product Surfaces
 - Dashboard Home
 - Project and repository views
+- Project Manager controls and Engineering Session context
 - Repository Browser
 - Engineering Workspace
 - Repository Inspection views
@@ -120,13 +122,41 @@ Internally, AI-Toolkit continuously maintains an engineering understanding of th
 
 From the user's perspective, the product is always:
 - collecting repository state and engineering signals;
-- maintaining project knowledge and history;
+- maintaining project knowledge, project registration, and active session context;
 - generating reports, recommendations, and briefings;
 - coordinating validation and operational workflows;
+- routing optional AI-assisted work through agents and providers without changing core engine behavior;
 - tracking jobs, runtime health, and integration status;
 - preserving decisions, standards, and governance context.
 
 The user does not need to think in terms of internal implementation layers. They experience this as a product that is always aware of project condition and always ready to support the next engineering decision.
+
+## Project Manager and Engineering Session
+AI-Toolkit requires an explicit Project Manager.
+
+The Project Manager is not a separate scoring or analysis engine.
+It is a runtime service and dashboard capability responsible for:
+- managing multiple repositories;
+- project registration;
+- workspace selection;
+- project lifecycle;
+- active project context;
+- repository metadata;
+- project configuration.
+
+Every user action in AI-Toolkit occurs inside an Engineering Session.
+
+The Engineering Session always carries the current working context:
+- active project;
+- active repository;
+- active branch;
+- active workspace;
+- active issue;
+- active sprint;
+- active AI provider;
+- active engineering task.
+
+The Project Manager owns this context operationally, the Runtime persists it, and the Dashboard continuously exposes it to the user.
 
 ## Visible Modules
 The following modules are visible because the user experiences them directly as product capabilities.
@@ -134,14 +164,14 @@ The following modules are visible because the user experiences them directly as 
 ### 1. Dashboard
 The operational control center and main entry point into AI-Toolkit.
 
-### 2. Projects
-The portfolio surface for choosing, organizing, and comparing engineering workspaces and repositories.
+### 2. Projects and Project Manager
+The portfolio surface for choosing, organizing, registering, and comparing engineering workspaces and repositories while maintaining the active working context.
 
 ### 3. Repository Browser
 The navigable view of repository structure, key artifacts, generated reports, standards, and important engineering assets.
 
 ### 4. Engineering Workspace
-The action-oriented work surface for inspection, planning, validation, execution support, and decision making.
+The action-oriented work surface for inspection, planning, validation, execution support, decision making, and Engineering Session awareness.
 
 ### 5. Repository Inspection
 The product area that explains repository condition, architecture posture, activity, risks, and findings.
@@ -177,6 +207,8 @@ The administrative surface for product configuration, workspace setup, permissio
 The following modules are internal because they power the product but are not the product's primary user-facing identity.
 
 - Repository understanding engines
+- Project Manager runtime service
+- Engineering Session state management
 - Knowledge extraction and memory services
 - Validation and audit engines
 - Executive briefing generation
@@ -188,6 +220,7 @@ The following modules are internal because they power the product but are not th
 - Recovery and resiliency services
 - Integration connectors and synchronization services
 - Policy, governance, and approval enforcement services
+- AI Agent Layer built from the existing agent runtime and agent modules
 
 These internal modules matter because they create the trust model of the product: AI-Toolkit is not only informative, it is explainable, traceable, and governable.
 
@@ -196,6 +229,7 @@ A user opens AI-Toolkit and immediately lands in a live operational environment.
 
 They can:
 - choose a project or repository;
+- confirm or change the active Engineering Session;
 - inspect current engineering status;
 - review repository findings and validation posture;
 - understand jobs, logs, and runtime health;
@@ -231,13 +265,13 @@ It is a product that turns existing engineering systems, knowledge, and automati
 AI-Toolkit evolves in clear product stages while preserving one continuous identity.
 
 ### Stage 1 — Local Engineering Control
-The MVP begins as a local operational dashboard backed by repository inspection, validation outputs, and executive briefings for a single repository. The user gains immediate read access to engineering state without needing multiple commands or documents.
+The MVP begins as a local operational dashboard backed first by repository inspection output for a single repository. The Dashboard becomes usable as soon as inspect output exists, and it already exposes the Engineering Session instead of waiting for the rest of the platform.
 
 ### Stage 2 — Interactive Engineering Operations
-The product becomes actionable. The user can trigger inspection, validation, knowledge extraction, and briefing flows from the Dashboard and review job history, recent outputs, and runtime status in one place.
+The product grows with each new engine. Knowledge, validation, and briefing outputs appear in the same Dashboard, and the user can trigger engineering flows while preserving active project and session context.
 
 ### Stage 3 — Multi-Repository Management
-AI-Toolkit becomes a workspace product. The user can supervise several repositories, compare health, review active work, and operate shared engineering workflows across a portfolio.
+AI-Toolkit becomes a workspace product. The Project Manager makes repository registration, workspace selection, lifecycle state, metadata, and portfolio context first-class capabilities while the user supervises several repositories from one Dashboard.
 
 ### Stage 4 — Integrated Engineering Control Center
 The Dashboard expands into repository browsing, engineering workspace operations, merge readiness, standards awareness, governance views, and operational integrations for GitHub, Railway, Telegram, and runtime control.
@@ -246,7 +280,7 @@ The Dashboard expands into repository browsing, engineering workspace operations
 AI-Toolkit becomes the operational command center for leaders. It provides executive briefings, portfolio intelligence, canonical oversight, provider management, metrics, monitoring, administration, and approval workflows for governed engineering at scale.
 
 ### Stage 6 — Complete Platform
-AI-Toolkit matures into a full engineering operating system with continuous runtime awareness, multi-workspace memory, modular integrations, configurable AI providers, persistent governance, and a user experience that spans local operation, cloud workspaces, and long-term engineering stewardship.
+AI-Toolkit matures into a full engineering operating system with continuous runtime awareness, Project Manager-driven context continuity, multi-workspace memory, modular integrations, configurable AI providers, an internal AI Agent Layer, persistent governance, and a user experience that spans local operation, cloud workspaces, and long-term engineering stewardship.
 
 ## Long-Term Product Definition
 In its complete form, AI-Toolkit is the single place where a user can understand, direct, validate, and govern software engineering work across repositories, runtimes, integrations, and organizational priorities.
