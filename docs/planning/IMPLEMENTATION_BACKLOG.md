@@ -390,7 +390,7 @@ Engines communicate with agents. Agents communicate with providers. No engine co
 
 AI-Toolkit needs an explicit Project Manager runtime service so project registration, workspace selection, repository metadata, lifecycle state, and active context are not scattered across the Dashboard and runtime.
 
-This sprint builds on the Engineering Session introduced in Sprint 1 through the Dashboard header and unified in Sprint 3 through the validation and session track.
+This sprint builds on the Engineering Session introduced in Sprint 1 through the Dashboard header and unified in Sprint 3 as part of the Validation + Engineering Session milestone.
 Its purpose is to connect that session to multi-repository project management, context switching, and persistent project-level metadata.
 
 ### Files to Modify / Create
