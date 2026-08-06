@@ -280,6 +280,3 @@ It does not wait until the engine track is complete.
 - commercial platform features
 - dashboard-only logic that duplicates engines
 
----
-
-## Start implementing Sprint 1

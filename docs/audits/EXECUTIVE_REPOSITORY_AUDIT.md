@@ -167,8 +167,8 @@ repository.
 No web server code exists in `lib/python/`. `railway.json` is present but `requirements.txt`
 contains only a comment (Python stdlib only). No service is running or deployable today.
 
-**Next action:** Do not build the Admin Dashboard until at least one engine (Repository Engine or
-Knowledge Engine) produces real output. Defer all dashboard work to Phase 3 of the roadmap.
+**Next action:** Begin the Dashboard as soon as Repository Engine produces the first inspect output.
+Treat the Dashboard as a parallel operational track that evolves with Knowledge, Validation, and Briefing rather than deferring it to a later phase.
 
 ---
 

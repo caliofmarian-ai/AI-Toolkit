@@ -135,6 +135,3 @@ cat .ai/reports/inspect-*.md
 
 And the Dashboard shows the latest inspect report in readable form.
 
----
-
-## Start implementing Issue #1
