@@ -279,7 +279,7 @@ Three overlapping validation subsystems exist: `audit_engine/`, `compliance_engi
 ## Issue #7 — Runtime Server: End-to-End Test
 
 **Priority:** Medium  
-**Sprint:** 6  
+**Sprint:** 7  
 **Complexity:** Low
 
 ### Purpose

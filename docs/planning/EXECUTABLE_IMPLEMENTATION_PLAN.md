@@ -66,9 +66,10 @@ These tracks share outputs, but the Dashboard starts as soon as Track A produces
 | Sprint 3 | `bin/ai validate` + Engineering Session unification | 2 weeks |
 | Sprint 4 | `bin/ai briefing generate` + dashboard action panel | 1 week |
 | Sprint 5 | Project Manager runtime service + multi-repository dashboard | 2 weeks |
-| Sprint 6 | AI Agent Layer + AI Provider Layer + runtime server validation | 2 weeks |
-| Sprint 7 | Telegram + Railway deployment | 1 week |
-| Sprint 8 | GitHub integration | 2 weeks |
+| Sprint 6 | AI Agent Layer + AI Provider Layer | 2 weeks |
+| Sprint 7 | runtime server validation | 1 week |
+| Sprint 8 | Telegram + Railway deployment | 1 week |
+| Sprint 9 | GitHub integration | 2 weeks |
 
 ---
 

@@ -215,7 +215,7 @@ It does not wait until the engine track is complete.
 
 **Objective:** Extend operational visibility and notifications to hosted and remote channels.
 
-**Sprint:** 7 (1 week)
+**Sprint:** 8 (1 week)
 
 **Prerequisite:** M7 complete
 
@@ -238,7 +238,7 @@ It does not wait until the engine track is complete.
 
 **Objective:** Close the loop between repository hosting events and AI-Toolkit operations.
 
-**Sprint:** 8 (2 weeks)
+**Sprint:** 9 (2 weeks)
 
 **Prerequisite:** M8 complete
 
@@ -267,8 +267,8 @@ It does not wait until the engine track is complete.
 | M5 | Project Manager + Multi-Repo | project/context management | 5 | M4 |
 | M6 | AI Agent + Provider Layer | provider-assisted engine enrichment | 6 | M5 |
 | M7 | Runtime Operations | `bin/runtime-server` | 7 | M6 |
-| M8 | Telegram + Railway | notifications + hosting | 7 | M7 |
-| M9 | GitHub Integration | repository event triggers | 8 | M8 |
+| M8 | Telegram + Railway | notifications + hosting | 8 | M7 |
+| M9 | GitHub Integration | repository event triggers | 9 | M8 |
 
 ---
 
