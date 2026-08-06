@@ -192,7 +192,7 @@ It does not wait until the engine track is complete.
 
 **Objective:** Validate and expose the continuously running operational substrate.
 
-**Sprint:** 6 (parallel completion) / 7
+**Sprint:** 7 (after M6 contract completion)
 
 **Prerequisite:** M6 in progress or complete
 
@@ -266,7 +266,7 @@ It does not wait until the engine track is complete.
 | M4 | Executive Briefing + Actions | `bin/ai briefing generate` | 4 | M3 |
 | M5 | Project Manager + Multi-Repo | project/context management | 5 | M4 |
 | M6 | AI Agent + Provider Layer | provider-assisted engine enrichment | 6 | M5 |
-| M7 | Runtime Operations | `bin/runtime-server` | 6/7 | M6 |
+| M7 | Runtime Operations | `bin/runtime-server` | 7 | M6 |
 | M8 | Telegram + Railway | notifications + hosting | 7 | M7 |
 | M9 | GitHub Integration | repository event triggers | 8 | M8 |
 

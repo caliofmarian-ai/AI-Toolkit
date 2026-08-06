@@ -380,7 +380,7 @@ Engines communicate with agents. Agents communicate with providers. No engine co
 
 ---
 
-## Issue #11 — Project Manager and Engineering Session
+## Issue #11 — Project Manager and Multi-Repository Context
 
 **Priority:** Medium  
 **Sprint:** 5  
@@ -390,15 +390,8 @@ Engines communicate with agents. Agents communicate with providers. No engine co
 
 AI-Toolkit needs an explicit Project Manager runtime service so project registration, workspace selection, repository metadata, lifecycle state, and active context are not scattered across the Dashboard and runtime.
 
-The same implementation must unify the Engineering Session carrying:
-- active project
-- active repository
-- active branch
-- active workspace
-- active issue
-- active sprint
-- active AI provider
-- active engineering task
+This sprint builds on the Engineering Session already introduced earlier in the Dashboard and validation track.
+Its purpose is to connect that session to multi-repository project management, context switching, and persistent project-level metadata.
 
 ### Files to Modify / Create
 
@@ -414,6 +407,6 @@ The same implementation must unify the Engineering Session carrying:
 
 - [ ] project registration works without introducing a new engine type
 - [ ] active repository and workspace can be selected explicitly
-- [ ] Engineering Session persists the required active-context fields
+- [ ] Project Manager reuses the existing Engineering Session fields during context switching
 - [ ] Dashboard reflects active-context changes consistently
 - [ ] multi-repository Dashboard work reuses this service instead of duplicating state logic
