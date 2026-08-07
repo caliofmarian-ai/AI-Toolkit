@@ -5,7 +5,7 @@ import threading
 import webbrowser
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from typing import Any, Dict, Optional
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse
 
 from .service import EngineeringDashboardService
 
@@ -17,6 +17,7 @@ class _DashboardRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:
         parsed = urlparse(self.path)
         path = parsed.path
+        query = parse_qs(parsed.query)
         server = self.server._dashboard_server  # type: ignore[attr-defined]
         if path == "/health":
             self._send_json({"ok": True, "service": "dashboard"})
@@ -36,6 +37,18 @@ class _DashboardRequestHandler(BaseHTTPRequestHandler):
             payload = server.service.build(refresh="refresh=1" in parsed.query)
             self._send_json(payload["diagnostics"])
             return
+        if path == "/api/ai/control-center":
+            payload = server.service.build(refresh="refresh=1" in parsed.query)
+            self._send_json(payload["ai_control_center"])
+            return
+        if path == "/api/ai/ask":
+            question = (query.get("q") or [""])[0].strip()
+            prompt_name = (query.get("prompt") or [""])[0].strip()
+            if not question and not prompt_name:
+                self._send_json({"error": "missing query"}, status=400)
+                return
+            self._send_json(server.service.ask_repository(question=question, prompt_name=prompt_name))
+            return
         payload = server.service.build(refresh="refresh=1" in parsed.query)
         if path == "/":
             self._send_html(server.service.render_home(payload))
@@ -43,8 +56,25 @@ class _DashboardRequestHandler(BaseHTTPRequestHandler):
         if path == "/projects":
             self._send_html(server.service.render_projects(payload))
             return
+        if path == "/repository":
+            question = (query.get("q") or [""])[0].strip()
+            prompt_name = (query.get("prompt") or [""])[0].strip()
+            self._send_html(server.service.render_repository(payload, question=question, prompt_name=prompt_name))
+            return
         if path == "/session":
             self._send_html(server.service.render_session(payload))
+            return
+        if path == "/ai-control-center":
+            self._send_html(server.service.render_ai_control_center(payload))
+            return
+        if path == "/knowledge":
+            self._send_html(server.service.render_explorer(payload))
+            return
+        if path == "/validation":
+            self._send_html(server.service.render_diagnostics(payload))
+            return
+        if path == "/settings":
+            self._send_html(server.service.render_runtime(payload))
             return
         if path == "/explorer":
             self._send_html(server.service.render_explorer(payload))

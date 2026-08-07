@@ -9,6 +9,7 @@ from html import escape
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping, Optional
 
+from python.ai_platform import AIPlatformService
 from python.context_synchronization_engine.engine import GitContextProvider
 from python.repository_engine.engine import RepositoryEngine
 from python.repository_engine.serializer import RepositoryProfileSerializer
@@ -239,6 +240,10 @@ class EngineeringDashboardService:
         self.cache_ttl_seconds = cache_ttl_seconds
         self._cache_expires_at = 0.0
         self._cached_payload: Optional[Dict[str, Any]] = None
+        self.ai_platform = AIPlatformService(
+            repository_root=str(self.repository_root),
+            workspace_root=str(self.workspace_root),
+        )
 
     def build(self, refresh: bool = False) -> Dict[str, Any]:
         now = time.time()
@@ -249,7 +254,8 @@ class EngineeringDashboardService:
         ):
             return self._cached_payload
 
-        session = self._load_session()
+        ai_control_center = self._load_ai_control_center()
+        session = self._load_session(ai_control_center=ai_control_center)
         repository = self._load_repository_profile()
         workspace = self._load_workspace_summary()
         reports = self._load_reports()
@@ -269,6 +275,7 @@ class EngineeringDashboardService:
             "runtime": runtime,
             "diagnostics": diagnostics,
             "capabilities": capabilities,
+            "ai_control_center": ai_control_center,
         }
         self._cached_payload = payload
         self._cache_expires_at = now + self.cache_ttl_seconds
@@ -305,6 +312,45 @@ class EngineeringDashboardService:
             ],
         )
 
+    def render_repository(
+        self,
+        payload: Optional[Dict[str, Any]] = None,
+        *,
+        question: str = "",
+        prompt_name: str = "",
+    ) -> str:
+        data = payload or self.build()
+        result = self.ask_repository(question=question, prompt_name=prompt_name) if (question or prompt_name) else {}
+        ai_control_center = data["ai_control_center"]
+        usage = ai_control_center["usage"]["total"]
+        response_section = "<p>Use <code>?q=Your%20question</code> on this page URL to ask repository-aware questions.</p>"
+        if result:
+            response_section = self._definition_list(
+                [
+                    ("Question", result.get("question", "")),
+                    ("Provider", result.get("provider", "")),
+                    ("Model", result.get("model", "")),
+                    ("Session", result.get("session_id", "")),
+                    ("Answer", result.get("answer", "")),
+                ]
+            )
+        return self._page(
+            "Repository",
+            data,
+            [
+                self._summary_grid(
+                    [
+                        {"label": "Ask AI Requests", "value": str(usage.get("requests", 0))},
+                        {"label": "Tokens", "value": str(usage.get("tokens", 0))},
+                        {"label": "Success Rate", "value": f"{usage.get('success_rate', 0.0):.2f}%"},
+                        {"label": "Estimated Cost", "value": f"{usage.get('estimated_cost', 0.0):.6f}"},
+                    ]
+                ),
+                self._section("Repository-aware Engineering Chat", response_section),
+                self._section("Prompt Library", self._prompt_library_table(ai_control_center["prompt_library"])),
+            ],
+        )
+
     def render_session(self, payload: Optional[Dict[str, Any]] = None) -> str:
         data = payload or self.build()
         session = data["session"]
@@ -315,6 +361,31 @@ class EngineeringDashboardService:
                 self._summary_grid(session["summary_cards"]),
                 self._section("Session History", self._session_history(session["session_history"])),
                 self._section("Recent Activity", self._activity_table(session["recent_activity"])),
+            ],
+        )
+
+    def render_ai_control_center(self, payload: Optional[Dict[str, Any]] = None) -> str:
+        data = payload or self.build()
+        control = data["ai_control_center"]
+        usage = control["usage"]["total"]
+        return self._page(
+            "AI Control Center",
+            data,
+            [
+                self._summary_grid(
+                    [
+                        {"label": "Providers", "value": str(len(control["providers"]))},
+                        {"label": "Connected Providers", "value": str(sum(1 for item in control["providers"] if item.get("connection")))},
+                        {"label": "Requests", "value": str(usage.get("requests", 0))},
+                        {"label": "Success Rate", "value": f"{usage.get('success_rate', 0.0):.2f}%"},
+                    ]
+                ),
+                self._section("Providers", self._provider_table(control["providers"])),
+                self._section("Model Manager", self._model_manager_panel(control["model_manager"])),
+                self._section("Connections", self._connection_table(control["connections"])),
+                self._section("Usage Monitoring", self._usage_panel(control["usage"])),
+                self._section("Recent AI Sessions", self._ai_sessions_table(control["recent_sessions"])),
+                self._section("AI Settings", self._metrics_table(control["settings"])),
             ],
         )
 
@@ -521,7 +592,7 @@ class EngineeringDashboardService:
             ],
         }
 
-    def _load_session(self) -> Dict[str, Any]:
+    def _load_session(self, ai_control_center: Optional[Mapping[str, Any]] = None) -> Dict[str, Any]:
         state = self._read_json(self.repository_root / ".ai" / "development_state" / "current_state.json") or {}
         snapshot = self._read_json(self.repository_root / ".ai" / "development_state" / "executive_snapshot.json") or {}
         events = self._read_json(self.repository_root / ".ai" / "development_state" / "events.json") or {}
@@ -531,7 +602,7 @@ class EngineeringDashboardService:
         repository_state = state.get("repository_state", {})
         execution_state = state.get("execution_state", {})
         current_context = snapshot.get("current_context", {})
-        ai_provider = self._detect_ai_provider()
+        ai_provider = self._detect_ai_provider(ai_control_center=ai_control_center)
         session_history = []
         sessions_dir = self.repository_root / ".ai" / "sessions"
         if sessions_dir.is_dir():
@@ -718,6 +789,12 @@ class EngineeringDashboardService:
             ],
         }
 
+    def _load_ai_control_center(self) -> Dict[str, Any]:
+        return self.ai_platform.control_center()
+
+    def ask_repository(self, question: str, prompt_name: str = "") -> Dict[str, Any]:
+        return self.ai_platform.ask_repository(question=question, prompt_name=prompt_name)
+
     def _load_capabilities(self, workspace: Mapping[str, Any], session: Mapping[str, Any]) -> Dict[str, Any]:
         statuses: Dict[str, str] = {}
         items: List[Dict[str, Any]] = []
@@ -808,8 +885,11 @@ class EngineeringDashboardService:
                 {"label": "Welcome", "value": f"Engineering Operating System · {session['current_project']}"},
                 {"label": "Current Engineering Session", "value": runtime.get("current_session", {}).get("identifier", "") or session["current_engineering_task"] or "n/a"},
                 {"label": "Current Project", "value": session["current_project"]},
+                {"label": "Current Repository", "value": session["current_repository"]},
+                {"label": "Current Branch", "value": session["current_branch"] or "n/a"},
+                {"label": "Current Engineering Task", "value": session["current_engineering_task"] or "n/a"},
                 {"label": "Repository Health", "value": str(repository["health_summary"].get("status", "unknown"))},
-                {"label": "Runtime Status", "value": runtime.get("state", session["current_runtime_status"])},
+                {"label": "Current Runtime Status", "value": runtime.get("state", session["current_runtime_status"])},
                 {"label": "Current Sprint", "value": session["current_sprint"] or "n/a"},
                 {"label": "Current Epic", "value": session["current_epic"] or "n/a"},
                 {"label": "Current Issue", "value": session["current_issue"] or "n/a"},
@@ -817,6 +897,8 @@ class EngineeringDashboardService:
                 {"label": "Recent Reports", "value": str(len(reports["items"]))},
                 {"label": "Recent Activity", "value": str(len(session["recent_activity"]))},
                 {"label": "Implementation Progress", "value": f"{workspace['summary'].get('overall_readiness', 0.0):.1f}%"},
+                {"label": "Repository Statistics", "value": f"files={repository['metrics'].get('total_files', 0)}, entries={repository['metrics'].get('entry_point_count', 0)}"},
+                {"label": "Latest Repository Inspection", "value": ", ".join(repository["tech_stack"][:3]) or "n/a"},
             ],
             "session_overview": [
                 ("Current Project", session["current_project"]),
@@ -865,13 +947,15 @@ class EngineeringDashboardService:
 
     def _navigation(self) -> List[Dict[str, str]]:
         return [
-            {"href": "/", "label": "Home"},
-            {"href": "/projects", "label": "Project Manager"},
+            {"href": "/", "label": "Dashboard"},
+            {"href": "/projects", "label": "Projects"},
+            {"href": "/repository", "label": "Repository"},
             {"href": "/session", "label": "Engineering Session"},
-            {"href": "/explorer", "label": "Engineering Explorer"},
-            {"href": "/runtime", "label": "Runtime"},
-            {"href": "/diagnostics", "label": "Diagnostics"},
+            {"href": "/ai-control-center", "label": "AI Control Center"},
+            {"href": "/knowledge", "label": "Knowledge"},
+            {"href": "/validation", "label": "Validation"},
             {"href": "/reports", "label": "Reports"},
+            {"href": "/settings", "label": "Settings"},
         ]
 
     def _resolve_related_paths(self, relative_paths: Iterable[str]) -> List[Path]:
@@ -920,17 +1004,24 @@ class EngineeringDashboardService:
             return None
         return json.loads(path.read_text(encoding="utf-8"))
 
-    def _detect_ai_provider(self) -> str:
-        providers = []
-        for env_name, label in [
-            ("ANTHROPIC_API_KEY", "Anthropic"),
-            ("OPENAI_API_KEY", "OpenAI"),
-            ("GEMINI_API_KEY", "Gemini"),
-            ("GOOGLE_API_KEY", "Google"),
-            ("MISTRAL_API_KEY", "Mistral"),
-        ]:
-            if os.environ.get(env_name):
-                providers.append(label)
+    def _detect_ai_provider(self, ai_control_center: Optional[Mapping[str, Any]] = None) -> str:
+        cached = (self._cached_payload or {}).get("ai_control_center", {})
+        source = ai_control_center or cached or self.ai_platform.control_center()
+        providers = [
+            item.get("name", "")
+            for item in source.get("providers", [])
+            if item.get("status") == "configured" or item.get("connection")
+        ]
+        if not providers:
+            for env_name, label in [
+                ("ANTHROPIC_API_KEY", "Anthropic"),
+                ("OPENAI_API_KEY", "OpenAI"),
+                ("GEMINI_API_KEY", "Gemini"),
+                ("GOOGLE_API_KEY", "Google"),
+                ("MISTRAL_API_KEY", "Mistral"),
+            ]:
+                if os.environ.get(env_name):
+                    providers.append(label)
         return ", ".join(providers) if providers else "Not configured"
 
     def _report_description(self, title: str, payload: Mapping[str, Any]) -> str:
@@ -1122,6 +1213,95 @@ class EngineeringDashboardService:
         if not rows:
             rows.append("<tr><td colspan=\"4\">No session history available.</td></tr>")
         return "<table><thead><tr><th>Session</th><th>Status</th><th>Repository</th><th>Completed Steps</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+
+    def _provider_table(self, providers: Iterable[Mapping[str, Any]]) -> str:
+        rows = []
+        for item in providers:
+            rows.append(
+                "<tr>"
+                f"<td>{escape(str(item.get('name', '')))}</td>"
+                f"<td>{escape(str(item.get('status', '')))}</td>"
+                f"<td>{'YES' if item.get('connection') else 'NO'}</td>"
+                f"<td>{escape(', '.join(item.get('models', [])) or 'None')}</td>"
+                f"<td>{escape(', '.join(item.get('capabilities', [])) or 'None')}</td>"
+                f"<td>{escape(str(item.get('latency', 0)))}</td>"
+                f"<td>{escape(str(item.get('health', 'unknown')))}</td>"
+                "</tr>"
+            )
+        if not rows:
+            rows.append("<tr><td colspan=\"7\">No providers available.</td></tr>")
+        return "<table><thead><tr><th>Provider</th><th>Status</th><th>Connected</th><th>Models</th><th>Capabilities</th><th>Latency (ms)</th><th>Health</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+
+    def _connection_table(self, connections: Iterable[Mapping[str, Any]]) -> str:
+        rows = []
+        for item in connections:
+            rows.append(
+                "<tr>"
+                f"<td>{escape(str(item.get('provider', '')))}</td>"
+                f"<td>{escape(str(item.get('health_status', 'unknown')))}</td>"
+                f"<td>{escape(str(item.get('last_success', '')))}</td>"
+                f"<td>{escape(str(item.get('last_failure', '')))}</td>"
+                f"<td>{escape(str(item.get('last_response_time', 0)))}</td>"
+                "</tr>"
+            )
+        if not rows:
+            rows.append("<tr><td colspan=\"5\">No connection data available.</td></tr>")
+        return "<table><thead><tr><th>Provider</th><th>Health</th><th>Last Success</th><th>Last Failure</th><th>Last Response Time (ms)</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+
+    def _model_manager_panel(self, model_manager: Mapping[str, Any]) -> str:
+        discovered = model_manager.get("discovered_models", {})
+        roles = model_manager.get("role_models", {})
+        discovered_rows = []
+        for provider, models in discovered.items():
+            discovered_rows.append((provider, ", ".join(models) or "None"))
+        role_rows = [(key, value or "n/a") for key, value in roles.items()]
+        return self._definition_list(discovered_rows + role_rows)
+
+    def _usage_panel(self, usage: Mapping[str, Any]) -> str:
+        total = usage.get("total", {})
+        return self._definition_list(
+            [
+                ("Requests", str(total.get("requests", 0))),
+                ("Tokens", str(total.get("tokens", 0))),
+                ("Estimated Cost", f"{total.get('estimated_cost', 0.0):.6f}"),
+                ("Average Latency (ms)", str(total.get("average_latency_ms", 0.0))),
+                ("Success Rate", f"{total.get('success_rate', 0.0):.2f}%"),
+                ("Errors", str(total.get("errors", 0))),
+            ]
+        )
+
+    def _ai_sessions_table(self, sessions: Iterable[Mapping[str, Any]]) -> str:
+        rows = []
+        for item in sessions:
+            rows.append(
+                "<tr>"
+                f"<td>{escape(str(item.get('id', '')))}</td>"
+                f"<td>{escape(str(item.get('project', '')))}</td>"
+                f"<td>{escape(str(item.get('repository', '')))}</td>"
+                f"<td>{escape(str(item.get('branch', '')))}</td>"
+                f"<td>{escape(str(item.get('selected_provider', '')))}</td>"
+                f"<td>{escape(str(item.get('selected_model', '')))}</td>"
+                f"<td>{escape(str(item.get('conversation_count', 0)))}</td>"
+                "</tr>"
+            )
+        if not rows:
+            rows.append("<tr><td colspan=\"7\">No AI sessions available.</td></tr>")
+        return "<table><thead><tr><th>Session</th><th>Project</th><th>Repository</th><th>Branch</th><th>Provider</th><th>Model</th><th>Messages</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+
+    def _prompt_library_table(self, prompt_library: Mapping[str, Iterable[Mapping[str, Any]]]) -> str:
+        rows = []
+        for category, items in prompt_library.items():
+            for item in items:
+                rows.append(
+                    "<tr>"
+                    f"<td>{escape(str(category))}</td>"
+                    f"<td>{escape(str(item.get('name', '')))}</td>"
+                    f"<td>{escape(str(item.get('prompt', '')))}</td>"
+                    "</tr>"
+                )
+        if not rows:
+            rows.append("<tr><td colspan=\"3\">No prompts registered.</td></tr>")
+        return "<table><thead><tr><th>Category</th><th>Name</th><th>Prompt</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
 
     def _definition_list(self, rows: Iterable[tuple[str, str]]) -> str:
         html = ["<dl>"]
