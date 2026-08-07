@@ -32,6 +32,9 @@ assert rt.dispatcher is not None, "dispatcher must be set"
 assert rt.job_queue is not None, "job_queue must be set"
 assert rt.metrics is not None, "metrics must be set"
 assert rt.reports is not None, "reports must be set"
+assert rt.runtime_state is not None, "runtime_state must be set"
+assert rt.diagnostics is not None, "diagnostics must be set"
+assert rt.dashboard_service is not None, "dashboard_service must be set"
 assert rt.http_server is not None, "http_server must be set"
 assert rt.github_webhook is not None, "github_webhook must be set"
 assert rt.telegram is not None, "telegram must be set"
@@ -57,6 +60,11 @@ for svc in ["health", "scheduler", "event_dispatcher", "event_loop", "job_queue"
 # --- Engines registered ---
 engines = rt.registry.list_engines()
 assert len(engines) >= 1, "Expected at least one engine registered"
+
+# --- Runtime status snapshot is persisted ---
+import pathlib
+status_path = pathlib.Path(rt.config.state_dir) / "runtime_status.json"
+assert status_path.exists(), f"Missing runtime status snapshot: {status_path}"
 
 # Clean up
 rt.stop()

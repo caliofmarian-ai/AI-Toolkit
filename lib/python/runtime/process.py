@@ -59,6 +59,10 @@ def main() -> int:
     except Exception as exc:
         logger.critical("Runtime: unrecoverable error: %s", exc, exc_info=True)
         try:
+            runtime.mark_failed(exc)
+        except Exception:
+            pass
+        try:
             runtime.stop()
         except Exception:
             pass

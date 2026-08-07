@@ -25,10 +25,13 @@ Startup order (canonical):
 
 import logging
 import os
+import time
 from typing import Optional
 
+from lib.python.dashboard.service import EngineeringDashboardService
 from lib.python.runtime.identity import RuntimeIdentity
 from lib.python.runtime.config import RuntimeConfig
+from lib.python.runtime.diagnostics import RuntimeDiagnosticsService
 from lib.python.runtime.secrets import SecretManager
 from lib.python.runtime.registry import RuntimeRegistry
 from lib.python.runtime.lifecycle import LifecycleManager, LifecyclePhase
@@ -45,6 +48,7 @@ from lib.python.runtime.reports import RuntimeReports
 from lib.python.runtime.interfaces.http_server import RuntimeHttpServer
 from lib.python.runtime.interfaces.github_webhook import GitHubWebhookHost
 from lib.python.runtime.interfaces.telegram_gateway import TelegramGateway
+from lib.python.runtime.state import RuntimePublicState, RuntimeStateService
 
 logger = logging.getLogger(__name__)
 
@@ -73,13 +77,22 @@ class RuntimeBootstrap:
         self.job_queue: Optional[JobQueueHost] = None
         self.metrics: Optional[RuntimeMetrics] = None
         self.reports: Optional[RuntimeReports] = None
+        self.runtime_state: Optional[RuntimeStateService] = None
+        self.diagnostics: Optional[RuntimeDiagnosticsService] = None
 
         # External interfaces
         self.http_server: Optional[RuntimeHttpServer] = None
         self.github_webhook: Optional[GitHubWebhookHost] = None
         self.telegram: Optional[TelegramGateway] = None
+        self.dashboard_service: Optional[EngineeringDashboardService] = None
+        self.repository_root = os.environ.get("AI_TOOLKIT_REPOSITORY_ROOT", os.getcwd())
+        self.workspace_root = os.environ.get(
+            "AI_TOOLKIT_WORKSPACE_ROOT",
+            str(os.path.dirname(self.repository_root)),
+        )
 
         self._bootstrapped = False
+        self._bootstrap_started_at = 0.0
 
     # ------------------------------------------------------------------ #
     # Main bootstrap sequence
@@ -90,6 +103,7 @@ class RuntimeBootstrap:
         Execute the complete startup sequence.
         Returns self for convenience.
         """
+        self._bootstrap_started_at = time.monotonic()
         # Step 1 — Logging (must be first so everything else can log)
         self._step_configure_logging()
 
@@ -97,6 +111,7 @@ class RuntimeBootstrap:
 
         # Step 2 — Initialize lifecycle manager early (tracks all phases)
         self.lifecycle = LifecycleManager()
+        self.runtime_state = RuntimeStateService()
 
         # Step 3 — Configuration
         self._step_load_configuration()
@@ -112,10 +127,12 @@ class RuntimeBootstrap:
 
         # Step 7 — Initialize core services
         self.lifecycle.transition(LifecyclePhase.INITIALIZATION)
+        self.runtime_state.transition(RuntimePublicState.INITIALIZING, "Initializing core runtime services.")
         self._step_initialize_services()
 
         # Step 8 — Register Runtime Engines
         self.lifecycle.transition(LifecyclePhase.ENGINE_REGISTRATION)
+        self.runtime_state.transition(RuntimePublicState.LOADING, "Loading runtime engines and services.")
         self._step_register_engines()
 
         # Step 9 — Register Runtime Services
@@ -134,18 +151,24 @@ class RuntimeBootstrap:
         # Step 13 — Initialize HTTP Server
         self._step_initialize_http_server()
 
-        # Step 14 — Initialize external interfaces
+        # Step 14 — Initialize dashboard
+        self._step_initialize_dashboard()
+
+        # Step 15 — Initialize external interfaces
         self._step_initialize_external_interfaces()
 
-        # Step 15 — Health verification
+        # Step 16 — Health verification
         self.lifecycle.transition(LifecyclePhase.HEALTH_VERIFICATION)
         self._step_verify_health()
 
-        # Step 16 — Enter READY state
+        # Step 17 — Enter READY state
         self.lifecycle.transition(LifecyclePhase.READY)
         self.health.mark_startup_complete()
         self.identity.lifecycle_phase = LifecyclePhase.READY.value
         self.metrics.set_gauge("lifecycle_phase", "READY")
+        self.runtime_state.transition(RuntimePublicState.READY, "Runtime bootstrap completed.")
+        self.diagnostics.set_startup_duration(time.monotonic() - self._bootstrap_started_at)
+        self._persist_runtime_snapshot()
 
         logger.info("Bootstrap: Runtime READY — %s", self.identity.runtime_id)
         self._bootstrapped = True
@@ -200,6 +223,18 @@ class RuntimeBootstrap:
         self.recovery = RecoveryService(max_attempts=self.config.max_recovery_attempts)
         self.metrics = RuntimeMetrics()
         self.reports = RuntimeReports(logs_dir=self.config.logs_dir)
+        self.diagnostics = RuntimeDiagnosticsService(
+            repository_root=self.repository_root,
+            workspace_root=self.workspace_root,
+            state_dir=self.config.state_dir,
+            logs_dir=self.config.logs_dir,
+            cli_commands=[
+                "bash bin/runtime-server",
+                "bin/ai dashboard serve",
+                "bin/ai inspect .",
+                "bin/ai engineering <audit|gap|plan|execute|validate|build> CORE-XXX",
+            ],
+        )
 
         # Wire recovery exhaustion handler
         self.recovery.on_exhausted(self._on_recovery_exhausted)
@@ -303,37 +338,52 @@ class RuntimeBootstrap:
             self.config.http_port,
         )
 
+    def _step_initialize_dashboard(self) -> None:
+        self.dashboard_service = EngineeringDashboardService(
+            repository_root=self.repository_root,
+            workspace_root=self.workspace_root,
+        )
+        dashboard_error = ""
+        initialized = False
+        try:
+            self.dashboard_service.build(refresh=True)
+            initialized = True
+        except Exception as exc:
+            dashboard_error = str(exc)
+            self.runtime_state.record_issue(
+                "Dashboard initialization failed.",
+                source="dashboard",
+                details=dashboard_error,
+            )
+            logger.exception("Bootstrap: dashboard initialization failed")
+        self.diagnostics.mark_dashboard_initialized(
+            initialized=initialized,
+            error=dashboard_error,
+        )
+        self.http_server.set_dashboard_service(self.dashboard_service)
+        logger.info("Bootstrap: dashboard initialized=%s", initialized)
+
     def _wire_http_handlers(self) -> None:
         """Wire Runtime services into the HTTP server handlers."""
         def health_handler() -> dict:
-            result = self.health.check_liveness()
-            return self.health.to_dict(result)
+            return self._build_runtime_snapshot()["health"]
 
         def ready_handler() -> dict:
-            result = self.health.check_readiness()
-            return self.health.to_dict(result)
+            return self._build_runtime_snapshot()["health"]
 
         def metrics_handler() -> dict:
             return self.metrics.snapshot()
 
+        def runtime_handler() -> dict:
+            return self._build_runtime_snapshot()["runtime"]
+
         def status_handler() -> dict:
-            report = self.reports.generate_status_report(
-                identity=self.identity,
-                lifecycle=self.lifecycle,
-                health=self.health,
-                metrics=self.metrics,
-                registry=self.registry,
-                supervisor=self.supervisor,
-                scheduler=self.scheduler,
-                job_queue=self.job_queue,
-                event_loop=self.event_loop,
-                event_dispatcher=self.dispatcher,
-            )
-            return report
+            return self._build_runtime_snapshot()
 
         self.http_server.set_health_handler(health_handler)
         self.http_server.set_ready_handler(ready_handler)
         self.http_server.set_metrics_handler(metrics_handler)
+        self.http_server.set_runtime_handler(runtime_handler)
         self.http_server.set_status_handler(status_handler)
 
     def _step_initialize_external_interfaces(self) -> None:
@@ -392,6 +442,7 @@ class RuntimeBootstrap:
             )
         else:
             logger.info("Bootstrap: health verified")
+        self._persist_runtime_snapshot()
 
     # ------------------------------------------------------------------ #
     # Start / Stop
@@ -412,6 +463,7 @@ class RuntimeBootstrap:
         self.http_server.start()
 
         self.metrics.increment("runtime.starts")
+        self._persist_runtime_snapshot()
         logger.info("Bootstrap: all services started — Runtime RUNNING")
 
     def stop(self) -> None:
@@ -420,6 +472,8 @@ class RuntimeBootstrap:
 
         self.lifecycle.transition(LifecyclePhase.SHUTDOWN)
         self.identity.lifecycle_phase = LifecyclePhase.SHUTDOWN.value
+        self.runtime_state.transition(RuntimePublicState.SHUTTING_DOWN, "Runtime shutdown in progress.")
+        self._persist_runtime_snapshot()
 
         # Stop in reverse order of start
         if self.http_server:
@@ -435,7 +489,20 @@ class RuntimeBootstrap:
         self._persist_shutdown_state()
 
         self.lifecycle.transition(LifecyclePhase.TERMINATION)
+        self._persist_runtime_snapshot()
         logger.info("Bootstrap: graceful shutdown complete")
+
+    def mark_failed(self, error: Exception) -> None:
+        if self.runtime_state is None:
+            return
+        self.runtime_state.transition(RuntimePublicState.FAILED, "Runtime failed.")
+        self.runtime_state.record_issue(
+            "Runtime failure detected.",
+            source="runtime",
+            details=str(error),
+        )
+        if self.diagnostics is not None:
+            self._persist_runtime_snapshot()
 
     # ------------------------------------------------------------------ #
     # Periodic observers / handlers
@@ -497,6 +564,11 @@ class RuntimeBootstrap:
     def _on_recovery_exhausted(self) -> None:
         logger.critical("Bootstrap: recovery exhausted — transitioning to MAINTENANCE")
         self.lifecycle.transition(LifecyclePhase.MAINTENANCE)
+        self.runtime_state.record_issue(
+            "Runtime recovery attempts were exhausted.",
+            severity="warning",
+            source="recovery",
+        )
         self.telegram.send_health_alert(
             "Runtime recovery exhausted. Manual intervention may be required."
         )
@@ -516,3 +588,20 @@ class RuntimeBootstrap:
             path.write_text(_json.dumps(shutdown_state, indent=2))
         except Exception as exc:
             logger.warning("Bootstrap: could not persist shutdown state: %s", exc)
+
+    def _build_runtime_snapshot(self) -> dict:
+        return self.diagnostics.build_snapshot(
+            config=self.config,
+            identity=self.identity,
+            lifecycle=self.lifecycle,
+            health=self.health,
+            registry=self.registry,
+            metrics=self.metrics,
+            supervisor=self.supervisor,
+            runtime_state=self.runtime_state,
+        )
+
+    def _persist_runtime_snapshot(self) -> None:
+        if self.diagnostics is None:
+            return
+        self.diagnostics.persist(self._build_runtime_snapshot())
