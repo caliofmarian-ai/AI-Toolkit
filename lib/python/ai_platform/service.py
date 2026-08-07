@@ -69,9 +69,10 @@ class AIPlatformService:
     def ask_repository(self, question: str, *, session_id: str = "", provider_id: str = "", model: str = "", prompt_name: str = "") -> Dict[str, Any]:
         settings = self.settings.load()
         prompt = self.prompt_library.resolve(prompt_name, fallback=question)
+        effective_question = question.strip() or prompt
         result = self.pipeline.run(prompt, settings, provider_id=provider_id, model=model)
         if session_id:
-            session = self.sessions.append_interaction(session_id, question, result["answer"], result["usage"])
+            session = self.sessions.append_interaction(session_id, effective_question, result["answer"], result["usage"])
         else:
             context = result["context"]
             session = self.sessions.create(
@@ -89,10 +90,10 @@ class AIPlatformService:
                     "selected_model": result["model"],
                 }
             )
-            session = self.sessions.append_interaction(session["id"], question, result["answer"], result["usage"])
+            session = self.sessions.append_interaction(session["id"], effective_question, result["answer"], result["usage"])
         return {
             "session_id": session["id"],
-            "question": question,
+            "question": effective_question,
             "answer": result["answer"],
             "provider": result["provider"],
             "model": result["model"],

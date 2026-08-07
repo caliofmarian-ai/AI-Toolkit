@@ -47,6 +47,7 @@ class StaticProviderAdapter:
         }
 
     def complete(self, question: str, context: Mapping[str, Any], model: str) -> Dict[str, Any]:
+        start = time.perf_counter()
         profile = context.get("repository_profile", {})
         tech_stack = ", ".join(profile.get("tech_stack", [])[:5]) or "unknown stack"
         health = profile.get("health_summary", {}).get("status", "unknown")
@@ -79,7 +80,7 @@ class StaticProviderAdapter:
                 "input_tokens": input_tokens,
                 "output_tokens": output_tokens,
                 "estimated_cost": round((input_tokens + output_tokens) / 1000 * self.descriptor.estimated_cost_per_1k_tokens, 6),
-                "latency_ms": 5,
+                "latency_ms": max(1, int((time.perf_counter() - start) * 1000)),
             },
         }
 

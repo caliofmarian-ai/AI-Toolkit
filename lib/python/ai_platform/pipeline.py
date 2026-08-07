@@ -31,11 +31,12 @@ class AIRequestPipeline:
         providers = self.registry.list_providers(settings)
         discovered = self.model_manager.discover_models(providers)
         roles = self.model_manager.resolve_roles(settings, discovered)
-        selected_provider = provider_id or settings.get("default_provider") or next(iter(discovered.keys()), "")
+        fallback_provider = sorted(discovered.keys())[0] if discovered else ""
+        selected_provider = provider_id or settings.get("default_provider") or fallback_provider
         selected_model = model or roles.get("engineering_model") or roles.get("default_model", "")
         adapter = self.registry.adapter(str(selected_provider))
         if adapter is None:
-            raise ValueError("no provider configured")
+            raise ValueError(f"no adapter found for provider: {selected_provider!r}")
 
         context = self.context_builder.build()
         completion = adapter.complete(question=question, context=context, model=selected_model)

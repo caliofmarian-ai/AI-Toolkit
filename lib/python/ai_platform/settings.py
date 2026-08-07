@@ -117,7 +117,7 @@ class AISettingsStore:
             return ""
         if len(stripped) <= 4:
             return "*" * len(stripped)
-        return f"{stripped[:2]}{'*' * (len(stripped) - 4)}{stripped[-2:]}"
+        return f"{'*' * (len(stripped) - 4)}{stripped[-4:]}"
 
     def _fingerprint(self, value: str) -> str:
         return hashlib.sha256(value.encode("utf-8")).hexdigest()

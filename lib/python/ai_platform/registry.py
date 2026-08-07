@@ -21,7 +21,9 @@ class ProviderRegistry:
         return sorted(self._adapters.keys())
 
     def test_connection(self, provider_id: str, provider_settings: Mapping[str, Any]) -> Dict[str, Any]:
-        adapter = self._adapters[provider_id]
+        adapter = self._adapters.get(provider_id)
+        if adapter is None:
+            raise ValueError(f"provider '{provider_id}' is not registered")
         result = adapter.test_connection(provider_settings)
         now = datetime.now(timezone.utc).isoformat()
         health = self._health.setdefault(provider_id, {})

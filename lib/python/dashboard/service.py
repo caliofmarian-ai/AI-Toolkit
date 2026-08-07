@@ -254,14 +254,14 @@ class EngineeringDashboardService:
         ):
             return self._cached_payload
 
-        session = self._load_session()
+        ai_control_center = self._load_ai_control_center()
+        session = self._load_session(ai_control_center=ai_control_center)
         repository = self._load_repository_profile()
         workspace = self._load_workspace_summary()
         reports = self._load_reports()
         runtime = self._load_runtime(session, workspace)
         diagnostics = self._load_diagnostics(runtime)
         capabilities = self._load_capabilities(workspace, session)
-        ai_control_center = self._load_ai_control_center()
 
         payload = {
             "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -592,7 +592,7 @@ class EngineeringDashboardService:
             ],
         }
 
-    def _load_session(self) -> Dict[str, Any]:
+    def _load_session(self, ai_control_center: Optional[Mapping[str, Any]] = None) -> Dict[str, Any]:
         state = self._read_json(self.repository_root / ".ai" / "development_state" / "current_state.json") or {}
         snapshot = self._read_json(self.repository_root / ".ai" / "development_state" / "executive_snapshot.json") or {}
         events = self._read_json(self.repository_root / ".ai" / "development_state" / "events.json") or {}
@@ -602,7 +602,7 @@ class EngineeringDashboardService:
         repository_state = state.get("repository_state", {})
         execution_state = state.get("execution_state", {})
         current_context = snapshot.get("current_context", {})
-        ai_provider = self._detect_ai_provider()
+        ai_provider = self._detect_ai_provider(ai_control_center=ai_control_center)
         session_history = []
         sessions_dir = self.repository_root / ".ai" / "sessions"
         if sessions_dir.is_dir():
@@ -793,7 +793,7 @@ class EngineeringDashboardService:
         return self.ai_platform.control_center()
 
     def ask_repository(self, question: str, prompt_name: str = "") -> Dict[str, Any]:
-        return self.ai_platform.ask_repository(question=question or prompt_name, prompt_name=prompt_name)
+        return self.ai_platform.ask_repository(question=question, prompt_name=prompt_name)
 
     def _load_capabilities(self, workspace: Mapping[str, Any], session: Mapping[str, Any]) -> Dict[str, Any]:
         statuses: Dict[str, str] = {}
@@ -1004,10 +1004,12 @@ class EngineeringDashboardService:
             return None
         return json.loads(path.read_text(encoding="utf-8"))
 
-    def _detect_ai_provider(self) -> str:
+    def _detect_ai_provider(self, ai_control_center: Optional[Mapping[str, Any]] = None) -> str:
+        cached = (self._cached_payload or {}).get("ai_control_center", {})
+        source = ai_control_center or cached or self.ai_platform.control_center()
         providers = [
             item.get("name", "")
-            for item in self.ai_platform.control_center().get("providers", [])
+            for item in source.get("providers", [])
             if item.get("status") == "configured" or item.get("connection")
         ]
         if not providers:
@@ -1299,7 +1301,7 @@ class EngineeringDashboardService:
                 )
         if not rows:
             rows.append("<tr><td colspan=\"3\">No prompts registered.</td></tr>")
-        return "<table><thead><tr><th>Category</th><th>Prompt</th><th>Description</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+        return "<table><thead><tr><th>Category</th><th>Name</th><th>Prompt</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
 
     def _definition_list(self, rows: Iterable[tuple[str, str]]) -> str:
         html = ["<dl>"]
