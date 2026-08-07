@@ -183,9 +183,10 @@ class GitContextProvider:
             if not path:
                 continue
             entries.append({"status": status, "path": path})
-            changed_files.append(path)
             if status.strip() == "??":
                 untracked_files.append(path)
+            else:
+                changed_files.append(path)
             if status[:1] not in {"", " ", "?"}:
                 staged_files.append(path)
         return {

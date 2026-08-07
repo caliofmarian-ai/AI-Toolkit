@@ -933,7 +933,7 @@ class EngineeringDashboardService:
                 return ContextSynchronizationEngine(
                     repository=str(self.repository_root),
                     workspace_root=str(self.workspace_root),
-                ).synchronize(refresh=False).get("engineering_context", {})
+                ).synchronize(refresh=refresh).get("engineering_context", {})
             except Exception:
                 return {}
         return self._read_json(path) or {}
