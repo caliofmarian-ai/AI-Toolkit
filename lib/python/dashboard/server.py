@@ -1,0 +1,144 @@
+from __future__ import annotations
+
+import json
+import threading
+import time
+import webbrowser
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from typing import Any, Dict, Optional
+from urllib.parse import urlparse
+
+from .service import EngineeringDashboardService
+
+
+class _DashboardRequestHandler(BaseHTTPRequestHandler):
+    _server_ref: "DashboardHttpServer" = None  # type: ignore[assignment]
+
+    def log_message(self, fmt, *args):
+        return
+
+    def do_GET(self) -> None:
+        parsed = urlparse(self.path)
+        path = parsed.path
+        server = self.__class__._server_ref
+        if path == "/health":
+            self._send_json({"ok": True, "service": "dashboard"})
+            return
+        if path == "/api/dashboard":
+            self._send_json(server.service.build(refresh="refresh=1" in parsed.query))
+            return
+        if path == "/api/capabilities":
+            payload = server.service.build(refresh="refresh=1" in parsed.query)
+            self._send_json(payload["capabilities"])
+            return
+        payload = server.service.build(refresh="refresh=1" in parsed.query)
+        if path == "/":
+            self._send_html(server.service.render_home(payload))
+            return
+        if path == "/projects":
+            self._send_html(server.service.render_projects(payload))
+            return
+        if path == "/session":
+            self._send_html(server.service.render_session(payload))
+            return
+        if path == "/explorer":
+            self._send_html(server.service.render_explorer(payload))
+            return
+        if path == "/reports":
+            self._send_html(server.service.render_reports(payload))
+            return
+        if path.startswith("/capabilities/"):
+            slug = path.rsplit("/", 1)[-1]
+            page = server.service.render_capability(slug, payload)
+            if page is None:
+                self._send_json({"error": "not found"}, status=404)
+                return
+            self._send_html(page)
+            return
+        self._send_json({"error": "not found"}, status=404)
+
+    def _send_html(self, html: str, status: int = 200) -> None:
+        body = html.encode("utf-8")
+        self.send_response(status)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def _send_json(self, payload: Dict[str, Any], status: int = 200) -> None:
+        body = json.dumps(payload, indent=2, ensure_ascii=False).encode("utf-8")
+        self.send_response(status)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+
+class DashboardHttpServer:
+    def __init__(
+        self,
+        host: str = "127.0.0.1",
+        port: int = 8081,
+        repository_root: str = ".",
+        workspace_root: Optional[str] = None,
+    ) -> None:
+        self.host = host
+        self.port = port
+        self.service = EngineeringDashboardService(
+            repository_root=repository_root,
+            workspace_root=workspace_root,
+        )
+        self._server: Optional[HTTPServer] = None
+        self._thread: Optional[threading.Thread] = None
+
+    @property
+    def url(self) -> str:
+        return f"http://{self.host}:{self.port}/"
+
+    def start(self) -> None:
+        self.service.build(refresh=True)
+        _DashboardRequestHandler._server_ref = self
+        self._server = HTTPServer((self.host, self.port), _DashboardRequestHandler)
+        self._thread = threading.Thread(
+            target=self._server.serve_forever,
+            daemon=True,
+            name="EngineeringDashboardHttpServer",
+        )
+        self._thread.start()
+
+    def serve_forever(self) -> None:
+        self.service.build(refresh=True)
+        _DashboardRequestHandler._server_ref = self
+        self._server = HTTPServer((self.host, self.port), _DashboardRequestHandler)
+        self._server.serve_forever()
+
+    def stop(self) -> None:
+        if self._server is not None:
+            self._server.shutdown()
+            self._server.server_close()
+        if self._thread is not None:
+            self._thread.join(timeout=5)
+
+
+def serve_dashboard(
+    host: str = "127.0.0.1",
+    port: int = 8081,
+    repository_root: str = ".",
+    workspace_root: Optional[str] = None,
+    open_browser: bool = False,
+) -> None:
+    server = DashboardHttpServer(
+        host=host,
+        port=port,
+        repository_root=repository_root,
+        workspace_root=workspace_root,
+    )
+    server.start()
+    print(f"AI-Toolkit Dashboard running at {server.url}")
+    if open_browser:
+        webbrowser.open(server.url)
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        server.stop()
