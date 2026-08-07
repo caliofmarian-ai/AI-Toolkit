@@ -1,6 +1,6 @@
 # 03 — Dependency Graph
 
-Version: 1.0.0-draft
+Version: 1.1.0-draft
 
 Status: Draft — Pending Human Review and Approval
 
@@ -52,7 +52,7 @@ flow is acyclic.
 
 ## 3. Extended Governance Dependency Graph
 
-**Architectural Conclusion:** Extending the Foundation Audit's dependency chain with
+**Governance Conclusion:** Extending the Foundation Audit's dependency chain with
 the remaining governance documents and connecting governance to the standards layer:
 
 ```
@@ -116,7 +116,7 @@ PROJECT_GLOSSARY (Cross-cutting — defines terminology for all layers)
 
 ## 4. Governance-to-Standards Dependency
 
-**Architectural Conclusion:** Based on `STANDARDIZATION_PROCESS.md` and `GOVERNANCE_MODEL.md`:
+**Governance Conclusion:** Based on `STANDARDIZATION_PROCESS.md` and `GOVERNANCE_MODEL.md`:
 
 ```
 Governance Layer (governance/)
@@ -166,7 +166,7 @@ and filename — the CDM models canonical document structure).
 - ADR-0002: PLATFORM_SEPARATION
 - ADR-0003: CSL_AS_INDEPENDENT_STANDARD
 
-**Architectural Conclusion:** ADRs are governance artifacts that document architectural
+**Governance Conclusion:** ADRs are governance artifacts that document architectural
 decisions. They depend on the governance workflow (Architecture Requirement → Audit → ADR)
 and feed into canonical standards and implementations.
 
@@ -179,7 +179,7 @@ Requirements (AR-0001 through AR-0012) covering CDM, CSL, knowledge graph, reaso
 model, execution model, audit model, maturity model, executable documents, YAML metadata,
 layered architecture, lexical/address index, and human-governed canonical language.
 
-**Architectural Conclusion:** Architecture Requirements are the formal inputs to the
+**Governance Conclusion:** Architecture Requirements are the formal inputs to the
 governance workflow. They precede ADRs and canonical standards in the dependency chain.
 
 ---

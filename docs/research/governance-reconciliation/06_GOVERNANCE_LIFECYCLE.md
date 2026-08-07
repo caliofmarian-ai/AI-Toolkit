@@ -1,6 +1,6 @@
 # 06 — Governance Lifecycle
 
-Version: 1.0.0-draft
+Version: 1.1.0-draft
 
 Status: Draft — Pending Human Review and Approval
 
@@ -35,7 +35,7 @@ that versioning is a canonical standard within the CDM family.
 > Every amendment shall include: motivation, impact analysis, migration strategy,
 > approval record, version history."
 
-**Architectural Conclusion:** Versioning affects governance in three ways:
+**Governance Conclusion:** Versioning affects governance in three ways:
 1. Every governance document carries a version number (all current documents show `Version: 1.0.0`)
 2. Amendments to governance documents require explicit version tracking per Article XVI
 3. Standards evolve through versioned releases following the Standardization Process
@@ -54,7 +54,7 @@ confirming that no governance document has been formally amended since initial a
 > Draft → Review → Approved → Implemented → Validated → Audited → Released →
 > Deprecated → Archived"
 
-**Architectural Conclusion:** Version transitions in governance are triggered by
+**Governance Conclusion:** Version transitions in governance are triggered by
 lifecycle state transitions. A version increment is expected when a document
 moves from Draft to Review, or when an Approved document is amended.
 
@@ -88,7 +88,7 @@ for every canonical artifact, including governance documents.
 - No "Supersedes" field
 - No "Derived from" field
 
-**Architectural Conclusion:** Provenance tracking is mandated by governance but
+**Governance Conclusion:** Provenance tracking is mandated by governance but
 not yet implemented in governance documents themselves. This is a governance gap.
 
 **Engineering Inference:** The CDM standard (specifically CDM-001 Metadata Model,
@@ -115,7 +115,7 @@ not yet adopted this metadata structure.
 **Verified Fact:** No governance document contains explicit forward or backward
 traceability links to Architecture Requirements, ADRs or other governance artifacts.
 
-**Architectural Conclusion:** Traceability is mandated but not currently implemented
+**Governance Conclusion:** Traceability is mandated but not currently implemented
 in the governance layer. The governance documents define the requirement but do not
 yet satisfy it.
 
@@ -130,7 +130,7 @@ yet satisfy it.
 > evolved. This standard governs every specification family including CDM, CSL, CANON
 > and future standards."
 
-**Architectural Conclusion:** CSS (Canonical Specification Standard) receives its
+**Governance Conclusion:** CSS (Canonical Specification Standard) receives its
 authority from the governance layer. CSS operationalizes the Standardization Process
 defined in `governance/STANDARDIZATION_PROCESS.md`. CSS is the bridge between
 governance intent and canonical standard authoring.
@@ -139,7 +139,7 @@ governance intent and canonical standard authoring.
 
 **Verified Fact:** `standards/cdm/CDM-007_GOVERNANCE_MODEL.md` exists.
 
-**Architectural Conclusion:** CDM has an explicit internal governance model (CDM-007)
+**Governance Conclusion:** CDM has an explicit internal governance model (CDM-007)
 that derives from the project's governance layer. CDM also defines the structural
 metadata (versioning, traceability, lifecycle) that governance documents are expected
 to use.
@@ -155,7 +155,7 @@ principles.
 **Repository Evidence** from `standards/csl/core/CSL_CONSTITUTION.md` and
 `standards/csl/core/CSL_MANIFESTO.md` (existence confirmed).
 
-**Architectural Conclusion:** CSL has its own constitution and manifesto, which
+**Governance Conclusion:** CSL has its own constitution and manifesto, which
 must conform to the project's `PROJECT_CONSTITUTION.md` (per Article I: "No canonical
 specification may contradict this document").
 
@@ -163,7 +163,7 @@ CSL governs the format of Canonical Knowledge stored in `knowledge/`.
 
 ### 5.4 Governance → Canonical Knowledge
 
-**Architectural Conclusion:** See `04_CANONICAL_KNOWLEDGE_POSITION.md` for full analysis.
+**Governance Conclusion:** See `04_CANONICAL_KNOWLEDGE_POSITION.md` for full analysis.
 Governance protects Canonical Knowledge through Constitution Article XIII. Knowledge
 evolves through governance-approved CSL standards.
 

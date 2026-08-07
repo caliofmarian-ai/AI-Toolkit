@@ -1,6 +1,6 @@
 # 01 — Governance Architecture
 
-Version: 1.0.0-draft
+Version: 1.1.0-draft
 
 Status: Draft — Pending Human Review and Approval
 
@@ -74,7 +74,7 @@ exclusively from repository evidence.
 
 ### 2.4 Synthesized Hierarchy
 
-**Architectural Conclusion:** Synthesizing the three consistent hierarchy definitions,
+**Governance Conclusion:** Synthesizing the three consistent hierarchy definitions,
 the official governance architecture is:
 
 ```
@@ -153,7 +153,7 @@ responsibility matrix (verbatim):
 **Verified Fact:** The Governance Foundation Audit explicitly states:
 > "No responsibility overlaps are expected."
 
-**Architectural Conclusion:** The 9 substantive governance documents each have a
+**Governance Conclusion:** The 9 substantive governance documents each have a
 clearly defined, non-overlapping responsibility as documented by the audit.
 
 ---
@@ -218,7 +218,7 @@ and `PROJECT_CONSTITUTION.md` (Article VII):
 > Approval → Roadmap Planning → Implementation → Validation → Audit → Release →
 > Continuous Review
 
-**Architectural Conclusion:** The governance workflow is consistently defined across
+**Governance Conclusion:** The governance workflow is consistently defined across
 three documents (GOVERNANCE_MODEL, PROJECT_CONSTITUTION, DECISION_PROCESS). The
 DECISION_PROCESS version is the most detailed. No contradiction exists between them.
 

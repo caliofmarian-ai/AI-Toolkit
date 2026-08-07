@@ -1,6 +1,6 @@
 # Governance Reconciliation Research Package
 
-Version: 1.0.0-draft
+Version: 1.1.0-draft
 
 Status: Draft — Pending Human Review and Approval
 
@@ -35,12 +35,19 @@ Only a human authority may approve Canonical Knowledge.
 Until human approval, every conclusion in this package is:
 — **Verified Fact** when derived directly from repository text
 — **Engineering Inference** when derived by reasoning from repository evidence
-— **Architectural Conclusion** when derived from synthesis of multiple documents
+— **Governance Conclusion** when derived from synthesis of multiple documents and the
+  conclusion concerns: authority, governance, responsibilities, document hierarchy,
+  approval, policy, or governance lifecycle
+— **Architectural Conclusion** when derived from synthesis of multiple documents and
+  the conclusion concerns: system structure, technical design, or architectural patterns
 — **Engineering Recommendation** when proposing future actions
 
 **Repository Evidence always has higher authority than inference.**
 
 **Inference always has lower authority than verified repository evidence.**
+
+**Governance Conclusion and Architectural Conclusion share the same evidence authority
+level. Their distinction is the subject matter of the conclusion, not its confidence.**
 
 ---
 

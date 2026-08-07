@@ -1,6 +1,6 @@
 # 02 — Document Authority
 
-Version: 1.0.0-draft
+Version: 1.1.0-draft
 
 Status: Draft — Pending Human Review and Approval
 
@@ -35,7 +35,7 @@ specifications are authoritative over source code:
 
 ## 3. Normative Documents
 
-**Architectural Conclusion:** Based on repository evidence, the following documents
+**Governance Conclusion:** Based on repository evidence, the following documents
 are Normative (they define rules, constraints or obligations that must be followed):
 
 | Document | Normative Scope | Evidence |
@@ -58,7 +58,7 @@ position, but are currently inoperative because they contain no content.
 
 ## 4. Informative Documents
 
-**Architectural Conclusion:** The following documents are Informative (they explain,
+**Governance Conclusion:** The following documents are Informative (they explain,
 motivate or describe, but do not impose rules):
 
 | Document | Informative Scope | Evidence |
@@ -76,7 +76,7 @@ classification when authoring PROJECT_GLOSSARY.md.
 
 ## 5. Planning Documents (Neither Normative nor Informative)
 
-**Architectural Conclusion:** The following documents are Planning Documents —
+**Governance Conclusion:** The following documents are Planning Documents —
 they define scope, objectives, trajectory and context. They are canonical artifacts
 but neither normative nor informative in the standard sense:
 
@@ -139,7 +139,7 @@ all other governance documents.
 
 ## 8. Document Derivation Relationships
 
-**Architectural Conclusion:** Based on content analysis, the following derivation
+**Governance Conclusion:** Based on content analysis, the following derivation
 relationships exist:
 
 `PROJECT_PHILOSOPHY.md` derives from `PROJECT_MANIFESTO.md`
@@ -172,7 +172,7 @@ relationships exist:
 **Engineering Inference:** None of the 23 governance documents contain explicit
 cross-reference links (hyperlinks or document IDs) to other governance documents.
 
-**Architectural Conclusion:** The dependency relationships are implied by content
+**Governance Conclusion:** The dependency relationships are implied by content
 and positional authority, not by formal cross-references. This absence of formal
 cross-referencing is itself a governance gap (see `08_GAPS_AND_MISSING_RELATIONSHIPS.md`).
 
@@ -186,6 +186,6 @@ another document's authority claim.
 **Verified Fact:** The `PROJECT_CONSTITUTION.md` is the only document that explicitly
 declares its own authority. No other governance document makes an explicit authority claim.
 
-**Architectural Conclusion:** The absence of explicit authority declarations in
+**Governance Conclusion:** The absence of explicit authority declarations in
 non-constitutional documents is consistent with the hierarchical model: lower-tier
 documents derive authority from the Constitution without needing to declare it.

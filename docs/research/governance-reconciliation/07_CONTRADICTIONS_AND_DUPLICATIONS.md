@@ -1,6 +1,6 @@
 # 07 — Contradictions and Duplications
 
-Version: 1.0.0-draft
+Version: 1.1.0-draft
 
 Status: Draft — Pending Human Review and Approval
 
@@ -35,7 +35,7 @@ what), not *authority* (what overrides what in case of conflict). PROJECT_IDENTI
 describes who AI-Toolkit is; PROJECT_CONSTITUTION defines the rules. One can inform
 the other without the other having higher authority.
 
-**Architectural Conclusion:** No true contradiction exists. The Governance Foundation
+**Governance Conclusion:** No true contradiction exists. The Governance Foundation
 Audit chain represents conceptual derivation; PROJECT_CONSTITUTION defines legal authority.
 The two chains describe different relationships.
 
@@ -61,7 +61,7 @@ design, and contribute. An automation system only executes, validates, and repor
 
 **Verified Fact:** This tension is not resolved by any governance document.
 
-**Architectural Conclusion:** This is a **genuine ambiguity** requiring human authority
+**Governance Conclusion:** This is a **genuine ambiguity** requiring human authority
 to resolve. The Manifesto defines an aspirational positioning. The Governance Model
 defines current operational roles. These need explicit reconciliation.
 
@@ -78,7 +78,7 @@ as an author designation (e.g., `AI_CTO_EXECUTION_REPORT.md`, `AI_CTO_SELF_EVALU
 cause confusion. If "AI CTO" is an AI system, it is performing architectural decisions
 that the same governance model restricts to human judgment.
 
-**Architectural Conclusion:** This is an **unresolved ambiguity** in the governance
+**Governance Conclusion:** This is an **unresolved ambiguity** in the governance
 model. The AI CTO role definition requires explicit human clarification.
 
 ---
@@ -216,7 +216,7 @@ for canonical standard authoring.
 **Analysis:** Is "READY" an informal audit assessment or a formal status transition?
 The audit declares readiness without changing document status to "Approved."
 
-**Architectural Conclusion:** The "READY" assessment in the audit is an **informative
+**Governance Conclusion:** The "READY" assessment in the audit is an **informative
 audit finding**, not a formal status promotion. The governance documents technically
 remain in Draft state. No document has been formally approved through the governance
 lifecycle.
