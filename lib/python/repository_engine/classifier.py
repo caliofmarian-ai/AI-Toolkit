@@ -23,7 +23,7 @@ _CATEGORY_TO_CLASS = {
     "Generated Artifact": "generated",
     "Temporary": "generated",
     "Assets": "generated",
-    "Deprecated": "generated",
+    "Deprecated": "unknown",
     "Infrastructure": "build",
     "Scripts": "build",
     "Bootstrap": "build",
@@ -35,7 +35,7 @@ class RepositoryFileClassifier:
     def __init__(self):
         self._classifier = ExecutableFileClassifier()
 
-    def classify(self, category: str) -> str:
+    def get_file_class(self, category: str) -> str:
         return _CATEGORY_TO_CLASS.get(category, "unknown")
 
     def classify_all(self, file_analyses: Dict, root) -> List[ClassifiedFile]:
@@ -49,7 +49,7 @@ class RepositoryFileClassifier:
             results.append(
                 ClassifiedFile(
                     path=item.path,
-                    file_class=self.classify(item.category),
+                    file_class=self.get_file_class(item.category),
                     category=item.category,
                     language=language,
                     is_executable=item.is_executable,

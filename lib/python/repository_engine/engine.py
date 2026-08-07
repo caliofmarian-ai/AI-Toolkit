@@ -76,23 +76,19 @@ class RepositoryEngine:
         classifier = RepositoryFileClassifier()
         classified_files = classifier.classify_all(file_analyses, self.root)
 
-        entry_points = sorted(
+        entry_points = {
+            path
+            for path, analysis in file_analyses.items()
+            if getattr(analysis, "entry_points", [])
+        }
+        entry_points.update(
             {
-                path
-                for path, analysis in file_analyses.items()
-                if getattr(analysis, "entry_points", [])
+                item.path
+                for item in classified_files
+                if item.category == "Runtime Entry Point"
             }
         )
-        entry_points.extend(
-            sorted(
-                {
-                    item.path
-                    for item in classified_files
-                    if item.category == "Runtime Entry Point"
-                }
-            )
-        )
-        entry_points = sorted(set(entry_points))
+        entry_points = sorted(entry_points)
 
         metrics = MetricsExtractor().extract(index, classified_files, entry_points)
         dependencies = DependencyDiscovery().discover(self.root, file_analyses)

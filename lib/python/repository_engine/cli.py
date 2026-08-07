@@ -1,5 +1,5 @@
 from dataclasses import asdict
-from datetime import datetime
+from datetime import datetime, timezone
 import json
 from pathlib import Path
 
@@ -12,7 +12,7 @@ def inspect(path="."):
     profile = RepositoryEngine(root).profile()
     report = ReportRenderer().render(profile)
 
-    stamp = datetime.utcnow().strftime("%Y%m%d")
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%d")
     output_dir = root / ".ai" / "reports"
     output_dir.mkdir(parents=True, exist_ok=True)
 

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import Any, Dict, List
 
 @dataclass
 class RepositoryItem:
@@ -78,4 +78,4 @@ class RepositoryProfile:
 
     dependencies: DependencyMap
 
-    health_summary: Dict[str, object]
+    health_summary: Dict[str, Any]
