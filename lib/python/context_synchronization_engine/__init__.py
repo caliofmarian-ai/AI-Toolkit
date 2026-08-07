@@ -14,11 +14,19 @@ from .engine import (
     SynchronizationReportGenerator,
     WorkspaceContextProvider,
 )
-from .models import SCHEMA_VERSION, SynchronizationFinding, SynchronizationReport
+from .models import (
+    SCHEMA_VERSION,
+    EngineeringContext,
+    EngineeringContextSection,
+    SynchronizationFinding,
+    SynchronizationReport,
+)
 from .persistence import ContextPersistence
 
 __all__ = [
     "SCHEMA_VERSION",
+    "EngineeringContext",
+    "EngineeringContextSection",
     "SynchronizationFinding",
     "SynchronizationReport",
     "ContextCache",

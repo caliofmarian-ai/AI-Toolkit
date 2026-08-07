@@ -28,6 +28,7 @@ import os
 import time
 from typing import Optional
 
+from lib.python.context_synchronization_engine import ContextSynchronizationEngine
 from lib.python.dashboard.service import EngineeringDashboardService
 from lib.python.runtime.identity import RuntimeIdentity
 from lib.python.runtime.config import RuntimeConfig
@@ -85,6 +86,7 @@ class RuntimeBootstrap:
         self.github_webhook: Optional[GitHubWebhookHost] = None
         self.telegram: Optional[TelegramGateway] = None
         self.dashboard_service: Optional[EngineeringDashboardService] = None
+        self.engineering_context: Optional[dict] = None
         self.repository_root = os.environ.get("AI_TOOLKIT_REPOSITORY_ROOT", os.getcwd())
         self.workspace_root = os.environ.get(
             "AI_TOOLKIT_WORKSPACE_ROOT",
@@ -153,17 +155,20 @@ class RuntimeBootstrap:
         # Step 13 — Initialize HTTP Server
         self._step_initialize_http_server()
 
-        # Step 14 — Initialize dashboard
+        # Step 14 — Reconstruct engineering context
+        self._step_reconstruct_engineering_context()
+
+        # Step 15 — Initialize dashboard
         self._step_initialize_dashboard()
 
-        # Step 15 — Initialize external interfaces
+        # Step 16 — Initialize external interfaces
         self._step_initialize_external_interfaces()
 
-        # Step 16 — Health verification
+        # Step 17 — Health verification
         self.lifecycle.transition(LifecyclePhase.HEALTH_VERIFICATION)
         self._step_verify_health()
 
-        # Step 17 — Enter READY state
+        # Step 18 — Enter READY state
         self.lifecycle.transition(LifecyclePhase.READY)
         self.health.mark_startup_complete()
         self.identity.lifecycle_phase = LifecyclePhase.READY.value
@@ -348,7 +353,7 @@ class RuntimeBootstrap:
         dashboard_error = ""
         initialized = False
         try:
-            self.dashboard_service.build(refresh=True)
+            self.dashboard_service.build(refresh=False)
             initialized = True
         except Exception as exc:
             dashboard_error = str(exc)
@@ -364,6 +369,37 @@ class RuntimeBootstrap:
         )
         self.http_server.set_dashboard_service(self.dashboard_service)
         logger.info("Bootstrap: dashboard initialized=%s", initialized)
+
+    def _step_reconstruct_engineering_context(self) -> None:
+        context_error = ""
+        initialized = False
+        summary = {}
+        try:
+            result = ContextSynchronizationEngine(
+                repository=self.repository_root,
+                workspace_root=self.workspace_root,
+            ).synchronize(refresh=False)
+            self.engineering_context = result.get("engineering_context", {})
+            summary = {
+                "decision_history_count": self.engineering_context.get("decision_history_count", 0),
+                "validation_summary": self.engineering_context.get("validation_summary", {}),
+                "generated_at": self.engineering_context.get("generated_at", ""),
+            }
+            initialized = True
+        except Exception as exc:
+            context_error = str(exc)
+            self.runtime_state.record_issue(
+                "Engineering context reconstruction failed.",
+                source="engineering_context",
+                details=context_error,
+            )
+            logger.exception("Bootstrap: engineering context reconstruction failed")
+        self.diagnostics.mark_engineering_context_initialized(
+            initialized=initialized,
+            error=context_error,
+            summary=summary,
+        )
+        logger.info("Bootstrap: engineering context initialized=%s", initialized)
 
     def _wire_http_handlers(self) -> None:
         """Wire Runtime services into the HTTP server handlers."""

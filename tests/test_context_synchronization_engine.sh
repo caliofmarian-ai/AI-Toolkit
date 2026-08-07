@@ -16,6 +16,8 @@ sys.path.insert(0, "lib")
 
 from python.context_synchronization_engine import (
     ContextCache,
+    EngineeringContext,
+    EngineeringContextSection,
     ContextPersistence,
     ContextResolver,
     ContextSynchronizationEngine,
@@ -184,6 +186,8 @@ class ContextSynchronizationTests(unittest.TestCase):
             ".ai/context/git_context.json",
             ".ai/context/github_context.json",
             ".ai/context/synchronization_report.json",
+            ".ai/context/engineering_context.json",
+            ".ai/context/decision_history.json",
             ".ai/context/AI_CTO_CONTEXT_REPORT.md",
             ".ai/executive/briefing.json",
         ):
@@ -193,6 +197,19 @@ class ContextSynchronizationTests(unittest.TestCase):
         self.assertEqual(briefing["current_branch"], "copilot/core-013-context-sync")
         self.assertEqual(briefing["current_recommendation"], "CORE-013")
         self.assertNotEqual(briefing["current_milestone"], "UNSPECIFIED")
+        engineering_context = json.loads((self.repo / ".ai" / "context" / "engineering_context.json").read_text(encoding="utf-8"))
+        self.assertEqual(engineering_context["repository_context"]["owner"], "Repository Engine")
+        self.assertEqual(engineering_context["decision_context"]["owner"], "Owner Decision Intelligence")
+        self.assertEqual(engineering_context["knowledge_context"]["owner"], "Knowledge Engine")
+        self.assertEqual(engineering_context["dashboard_context"]["owner"], "Engineering Dashboard Service")
+        self.assertIn("current_branch", engineering_context["repository_context"]["data"])
+        self.assertIn("changed_files", engineering_context["repository_context"]["data"])
+        self.assertIn("briefing", engineering_context["executive_context"]["data"])
+        self.assertIn("decision_history", engineering_context)
+        self.assertIn("semantic_knowledge", engineering_context["knowledge_context"]["data"])
+        history = json.loads((self.repo / ".ai" / "context" / "decision_history.json").read_text(encoding="utf-8"))
+        self.assertIn("decision_history", history)
+        self.assertTrue(isinstance(history["decision_history"], list))
 
     def test_synchronize_is_deterministic_for_identical_repo_state(self):
         engine = ContextSynchronizationEngine(repository=self.repo, workspace_root=self.workspace)
@@ -220,8 +237,9 @@ class ContextSynchronizationTests(unittest.TestCase):
     def test_cli_context_supports_repository_and_workspace_paths(self):
         output = subprocess.run(
             [
-                "bash",
-                str(REPO_ROOT / "bin" / "ai"),
+                "python3",
+                "-m",
+                "python.cli.main",
                 "context",
                 "--repository",
                 str(self.repo),
@@ -271,6 +289,8 @@ class PublicSurfaceTests(unittest.TestCase):
     def test_public_classes_importable(self):
         for value in (
             ContextCache,
+            EngineeringContext,
+            EngineeringContextSection,
             ContextPersistence,
             ContextResolver,
             ContextSynchronizationEngine,

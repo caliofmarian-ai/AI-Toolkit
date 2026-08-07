@@ -2,12 +2,19 @@ import json
 import re
 import subprocess
 from dataclasses import replace
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
 from python.development_state_engine import DevelopmentStateEngine
 
-from .models import SCHEMA_VERSION, SynchronizationFinding, SynchronizationReport
+from .models import (
+    SCHEMA_VERSION,
+    EngineeringContext,
+    EngineeringContextSection,
+    SynchronizationFinding,
+    SynchronizationReport,
+)
 from .persistence import ContextPersistence
 
 _EMPTY_SENTINELS = frozenset({"", "UNSPECIFIED", "None", "null", "N/A"})
@@ -98,6 +105,7 @@ class GitContextProvider:
         branch_core = self._extract_core(branch)
         branch_issue = self._extract_issue(branch, branch_core)
         branch_batch = self._extract_batch(branch)
+        git_status = self._git_status()
         return {
             "repository_root": str(self.root),
             "repository": self.root.name,
@@ -110,6 +118,10 @@ class GitContextProvider:
             "current_batch": branch_batch,
             "active_core": branch_core,
             "next_pr": branch if branch and branch not in {default_branch, "main", "master"} else "",
+            "changed_files": git_status["changed_files"],
+            "staged_files": git_status["staged_files"],
+            "untracked_files": git_status["untracked_files"],
+            "git_status": git_status["entries"],
             "timestamp": self._git("show", "-s", "--format=%cI", "HEAD") or "1970-01-01T00:00:00+00:00",
         }
 
@@ -156,6 +168,34 @@ class GitContextProvider:
         except Exception:
             return ""
 
+    def _git_status(self) -> Dict[str, Any]:
+        output = self._git("status", "--short")
+        changed_files: List[str] = []
+        staged_files: List[str] = []
+        untracked_files: List[str] = []
+        entries: List[Dict[str, str]] = []
+        for raw_line in output.splitlines():
+            line = raw_line.rstrip()
+            if not line:
+                continue
+            status = line[:2]
+            path = line[3:].strip()
+            if not path:
+                continue
+            entries.append({"status": status, "path": path})
+            if status.strip() == "??":
+                untracked_files.append(path)
+            else:
+                changed_files.append(path)
+            if status[:1] in {"A", "M", "D", "R", "C"}:
+                staged_files.append(path)
+        return {
+            "entries": entries,
+            "changed_files": _compact_list(changed_files),
+            "staged_files": _compact_list(staged_files),
+            "untracked_files": _compact_list(untracked_files),
+        }
+
 
 class GitHubContextProvider:
     def __init__(self, repository_root: str = "."):
@@ -198,6 +238,7 @@ class DevelopmentContextProvider:
         owner_actions = self._load_json(self.root / ".ai" / "executive" / "owner_actions.json")
         semantic = self._load_json(self.root / ".ai" / "semantic_knowledge.json")
         planning = self._load_json(self.root / ".ai" / "planning" / "planning.json")
+        events = self._load_json(self.root / ".ai" / "development_state" / "events.json")
         batches = self._load_batches()
         roadmap = self._load_roadmap()
         review_state = snapshot.get("state", {}).get("review_state", {})
@@ -216,6 +257,7 @@ class DevelopmentContextProvider:
             "executive": executive,
             "owner_actions": owner_actions,
             "semantic": semantic,
+            "events": events,
             "batches": batches,
             "roadmap": roadmap,
             "owner_decisions": _compact_list(owner_state.get("manual_decisions", ())),
@@ -739,7 +781,24 @@ class SynchronizationCoordinator:
             cache,
         )
         report = self._merge_reports(initial_report, report)
-        paths = self._persist(live_context, git_context, github_context, development_context, workspace_context, report)
+        engineering_context = self._build_engineering_context(
+            live_context,
+            git_context,
+            github_context,
+            development_context,
+            workspace_context,
+            downstream,
+            report,
+        )
+        paths = self._persist(
+            live_context,
+            git_context,
+            github_context,
+            development_context,
+            workspace_context,
+            report,
+            engineering_context,
+        )
         result = {
             "schema_version": SCHEMA_VERSION,
             "generated_at": live_context.get("generated_at", ""),
@@ -751,6 +810,7 @@ class SynchronizationCoordinator:
             "git_context": self._sorted_mapping(git_context),
             "github_context": self._sorted_mapping(github_context),
             "synchronization_report": report.to_dict(),
+            "engineering_context": engineering_context.to_dict(),
             "paths": paths,
             "updated_state_identifier": updated_state.identifier,
         }
@@ -840,6 +900,392 @@ class SynchronizationCoordinator:
             refresh_integrations=False,
         )
 
+    def _build_engineering_context(
+        self,
+        live_context: Mapping[str, Any],
+        git_context: Mapping[str, Any],
+        github_context: Mapping[str, Any],
+        development_context: Mapping[str, Any],
+        workspace_context: Mapping[str, Any],
+        downstream: Mapping[str, Any],
+        report: SynchronizationReport,
+    ) -> EngineeringContext:
+        generated_at = str(live_context.get("generated_at", "") or self._utcnow())
+        decision_history = self._build_decision_history(
+            live_context,
+            development_context,
+            report,
+        )
+        runtime_status = self._load_json(
+            self.root / ".ai" / "runtime" / "state" / "runtime_status.json"
+        )
+        executive = development_context.get("executive", {}) or self._load_json(
+            self.root / ".ai" / "executive" / "briefing.json"
+        )
+        semantic = development_context.get("semantic", {})
+        workspace_dashboard = workspace_context.get("dashboard", {})
+        repository_context = self._section(
+            name="RepositoryContext",
+            owner="Repository Engine",
+            loader="GitContextProvider + RepositoryEngine",
+            generated_at=generated_at,
+            artifacts=(
+                str(self.root),
+                str(self.root / ".ai" / "reports"),
+            ),
+            provenance={
+                "current_branch": live_context.get("sources", {}).get("current_branch", ""),
+                "current_commit": live_context.get("sources", {}).get("current_commit", ""),
+                "repository_health": "development_state",
+            },
+            traceability={
+                "current_issue": live_context.get("current_issue", ""),
+                "current_pull_request": live_context.get("current_pull_request", ""),
+                "current_batch": live_context.get("current_batch", ""),
+            },
+            validation={
+                "healthy": str(live_context.get("workspace_status", "unknown")).lower()
+                not in {"critical", "degraded", "unknown"},
+                "findings": len(report.findings),
+            },
+            data={
+                "repository": live_context.get("repository", ""),
+                "repository_root": str(self.root),
+                "current_branch": git_context.get("current_branch", ""),
+                "current_commit": git_context.get("current_commit", ""),
+                "current_tag": git_context.get("current_tag", ""),
+                "changed_files": git_context.get("changed_files", []),
+                "staged_files": git_context.get("staged_files", []),
+                "untracked_files": git_context.get("untracked_files", []),
+                "git_status": git_context.get("git_status", []),
+                "repository_health": live_context.get("workspace_status", "unknown"),
+            },
+        )
+        canonical_docs = self._existing_paths(
+            self.root / "docs" / "foundation-completion" / "CANONICAL_FOUNDATION_COMPLETION_REPORT.md",
+            self.root / "docs" / "audits" / "001 — Canonical Foundation Audit.md",
+            self.root / "docs" / "canonical" / "v5" / "CANON-076_AI_CTO_IMPLEMENTATION_ROADMAP_SPECIFICATION_v5.0.0.md",
+            self.root / "docs" / "canonical" / "v4" / "CANON-059_AI_CTO_MASTER_IMPLEMENTATION_ROADMAP_SPECIFICATION_v4.0.0.md",
+        )
+        canonical_context = self._section(
+            name="CanonicalContext",
+            owner="Canonical Intelligence Engine",
+            loader="DevelopmentContextProvider canonical + roadmap inventory",
+            generated_at=generated_at,
+            artifacts=tuple(canonical_docs),
+            provenance={
+                "current_roadmap": live_context.get("sources", {}).get("current_roadmap", ""),
+                "current_milestone": live_context.get("sources", {}).get("current_milestone", ""),
+            },
+            traceability={
+                "roadmap_path": live_context.get("metadata", {}).get("roadmap_path", ""),
+                "active_core": git_context.get("active_core", ""),
+            },
+            validation={
+                "healthy": bool(canonical_docs),
+                "missing_artifacts": [] if canonical_docs else ["canonical-foundation"],
+            },
+            data={
+                "canonical_foundation_complete": bool(canonical_docs),
+                "roadmap": development_context.get("roadmap", {}),
+                "active_milestone": live_context.get("current_milestone", ""),
+                "active_core": git_context.get("active_core", "") or live_context.get("next_core", ""),
+                "implementation_packages": self._implementation_packages(),
+                "governance_documents": self._directory_inventory(self.root / "governance"),
+            },
+        )
+        governance_context = self._section(
+            name="GovernanceContext",
+            owner="Governance Kernel",
+            loader="DevelopmentState + governance repository",
+            generated_at=generated_at,
+            artifacts=tuple(
+                self._existing_paths(
+                    self.root / "governance" / "PROJECT_ROADMAP.md",
+                    self.root / "lib" / "python" / "rule_engine" / "governance_kernel.py",
+                )
+            ),
+            provenance={
+                "owner_decisions": "development_state",
+                "pending_approvals": "development_state",
+            },
+            traceability={
+                "decision_history_path": str(self.root / ".ai" / "context" / "decision_history.json"),
+            },
+            validation={
+                "healthy": (self.root / "lib" / "python" / "rule_engine" / "governance_kernel.py").exists(),
+                "pending_approvals": len(live_context.get("pending_approvals", [])),
+            },
+            data={
+                "owner_approved": live_context.get("owner_decisions", []),
+                "pending_approvals": live_context.get("pending_approvals", []),
+                "governance_documents": self._directory_inventory(self.root / "governance"),
+                "governance_kernel": str(self.root / "lib" / "python" / "rule_engine" / "governance_kernel.py"),
+            },
+        )
+        runtime_context = self._section(
+            name="RuntimeContext",
+            owner="Runtime Bootstrap",
+            loader="RuntimeDiagnosticsService + ContextSynchronizationEngine",
+            generated_at=generated_at,
+            artifacts=tuple(
+                self._existing_paths(
+                    self.root / ".ai" / "runtime" / "state" / "runtime_status.json",
+                    self.root / ".ai" / "runtime" / "state" / "runtime_diagnostics.json",
+                )
+            ),
+            provenance={
+                "runtime_health": "runtime",
+                "runtime_metrics": "runtime",
+            },
+            traceability={
+                "current_session": (runtime_status.get("runtime", {}) or {}).get("current_session", {}),
+            },
+            validation={
+                "healthy": bool((runtime_status.get("health", {}) or {}).get("healthy", False)),
+                "ready": bool((runtime_status.get("health", {}) or {}).get("ready", False)),
+            },
+            data={
+                "runtime": runtime_status.get("runtime", {}),
+                "health": runtime_status.get("health", {}),
+                "metrics": runtime_status.get("diagnostics", {}).get("metrics", {}),
+                "recent_startup_log": runtime_status.get("diagnostics", {}).get("recent_startup_log", []),
+            },
+        )
+        implementation_context = self._section(
+            name="ImplementationContext",
+            owner="Development State Engine",
+            loader="Live context + development state + reports",
+            generated_at=generated_at,
+            artifacts=tuple(
+                self._existing_paths(
+                    self.root / ".ai" / "development_state" / "current_state.json",
+                    self.root / ".ai" / "development_state" / "executive_snapshot.json",
+                    self.root / ".ai" / "planning" / "planning.json",
+                )
+            ),
+            provenance=live_context.get("sources", {}),
+            traceability={
+                "current_issue": live_context.get("current_issue", ""),
+                "current_pull_request": live_context.get("current_pull_request", ""),
+                "current_batch": live_context.get("current_batch", ""),
+                "next_core": live_context.get("next_core", ""),
+            },
+            validation={
+                "healthy": len(report.findings) == 0,
+                "synchronization_findings": len(report.findings),
+            },
+            data={
+                "active_milestone": live_context.get("current_milestone", ""),
+                "active_core": git_context.get("active_core", "") or live_context.get("next_core", ""),
+                "active_batch": live_context.get("current_batch", ""),
+                "current_issue": live_context.get("current_issue", ""),
+                "current_pull_request": live_context.get("current_pull_request", ""),
+                "development_progress": live_context.get("development_progress", 0.0),
+                "validation_results": self._available_validation_results(),
+            },
+        )
+        dashboard_context = self._section(
+            name="DashboardContext",
+            owner="Engineering Dashboard Service",
+            loader="Workspace dashboard + runtime state",
+            generated_at=generated_at,
+            artifacts=tuple(
+                self._existing_paths(
+                    self.workspace_root / ".ai" / "workspace" / "dashboard.json",
+                    self.root / ".ai" / "runtime" / "state" / "runtime_status.json",
+                )
+            ),
+            provenance={
+                "workspace_status": live_context.get("sources", {}).get("workspace_status", ""),
+                "executive_status": live_context.get("sources", {}).get("executive_status", ""),
+            },
+            traceability={
+                "dashboard_pages": [
+                    "/",
+                    "/projects",
+                    "/session",
+                    "/repository",
+                    "/ai-control-center",
+                    "/explorer",
+                    "/reports",
+                    "/runtime",
+                    "/diagnostics",
+                ],
+            },
+            validation={
+                "healthy": bool(workspace_dashboard),
+                "synchronized_from_runtime": True,
+            },
+            data={
+                "workspace_summary": workspace_dashboard.get("workspace_summary", {}),
+                "suggested_next_repository": workspace_dashboard.get("suggested_next_repository", ""),
+                "representation": {
+                    "planned": 0,
+                    "in_progress": 1 if live_context.get("current_issue", "") else 0,
+                    "implemented": 1 if downstream.get("briefing_id", "") else 0,
+                    "validated": 1 if self._available_validation_results() else 0,
+                    "operational": 1 if (runtime_status.get("health", {}) or {}).get("healthy") else 0,
+                },
+            },
+        )
+        knowledge_context = self._section(
+            name="KnowledgeContext",
+            owner="Knowledge Engine",
+            loader="Semantic knowledge + repository knowledge directories",
+            generated_at=generated_at,
+            artifacts=tuple(
+                self._existing_paths(
+                    self.root / ".ai" / "semantic_knowledge.json",
+                    self.root / "knowledge",
+                    self.root / "generated",
+                )
+            ),
+            provenance={
+                "semantic_knowledge": "development_state",
+            },
+            traceability={
+                "dependency_graph": (semantic.get("analysis", {}) or {}).get("import_graph", {}),
+                "traceability_graph": live_context.get("sources", {}),
+            },
+            validation={
+                "healthy": bool(semantic),
+                "knowledge_repository_exists": (self.root / "knowledge").exists(),
+            },
+            data={
+                "knowledge_repository": str(self.root / "knowledge"),
+                "generated_repository": str(self.root / "generated"),
+                "semantic_knowledge": semantic,
+                "knowledge_graph": self._load_json(self.root / ".ai" / "knowledge" / "graph.json"),
+                "dependency_graph": (semantic.get("analysis", {}) or {}).get("import_graph", {}),
+                "traceability_graph": {
+                    "sources": live_context.get("sources", {}),
+                    "conflicts": report.conflicts or {},
+                },
+            },
+        )
+        decision_context = self._section(
+            name="DecisionContext",
+            owner="Owner Decision Intelligence",
+            loader="DevelopmentState events + Executive Briefing decisions",
+            generated_at=generated_at,
+            artifacts=tuple(
+                self._existing_paths(
+                    self.root / ".ai" / "development_state" / "events.json",
+                    self.root / ".ai" / "executive" / "briefing.json",
+                )
+            ),
+            provenance={
+                "recent_decisions": "development_state",
+                "pending_decisions": "executive_briefing",
+            },
+            traceability={
+                "decision_history_path": str(self.root / ".ai" / "context" / "decision_history.json"),
+                "decision_ids": [item.get("decision_id", "") for item in decision_history],
+            },
+            validation={
+                "healthy": bool(
+                    self._existing_paths(
+                        self.root / ".ai" / "development_state" / "events.json",
+                        self.root / ".ai" / "executive" / "briefing.json",
+                    )
+                ),
+                "decision_history_count": len(decision_history),
+            },
+            data={
+                "recent_decisions": decision_history[:5],
+                "decision_history_count": len(decision_history),
+                "owner_approved": live_context.get("owner_decisions", []),
+                "pending_decisions": executive.get("pending_decisions", []),
+            },
+        )
+        executive_context = self._section(
+            name="ExecutiveContext",
+            owner="Executive Briefing Engine",
+            loader="ExecutiveBriefingEngine persisted artifacts",
+            generated_at=generated_at,
+            artifacts=tuple(
+                self._existing_paths(
+                    self.root / "AI_CTO_EXECUTIVE_BRIEFING.md",
+                    self.root / ".ai" / "executive" / "briefing.json",
+                    self.root / ".ai" / "executive" / "risks.json",
+                    self.root / ".ai" / "executive" / "recommendations.json",
+                )
+            ),
+            provenance={
+                "executive_status": live_context.get("sources", {}).get("executive_status", ""),
+            },
+            traceability={
+                "briefing_id": downstream.get("briefing_id", ""),
+            },
+            validation={
+                "healthy": bool(executive),
+                "briefing_generated": bool(downstream.get("briefing_id", "")),
+            },
+            data={
+                "briefing": executive,
+                "briefing_paths": downstream.get("briefing_paths", {}),
+                "open_tasks": executive.get("owner_dashboard", {}).get("blocked_items", []),
+                "engineering_risks": executive.get("all_risks", []),
+                "recent_architectural_decisions": decision_history[:5],
+            },
+        )
+        project_context = self._section(
+            name="ProjectContext",
+            owner="Workspace Orchestrator",
+            loader="WorkspaceContextProvider + workspace dashboard",
+            generated_at=generated_at,
+            artifacts=tuple(
+                self._existing_paths(
+                    self.workspace_root / ".ai" / "workspace" / "workspace.json",
+                    self.workspace_root / ".ai" / "workspace" / "repositories.json",
+                    self.workspace_root / ".ai" / "workspace" / "dashboard.json",
+                )
+            ),
+            provenance={
+                "workspace": "workspace",
+                "repository": "workspace",
+            },
+            traceability={
+                "repository_root": str(self.root),
+                "workspace_root": str(self.workspace_root),
+            },
+            validation={
+                "healthy": bool(workspace_dashboard),
+                "repository_registered": bool(workspace_context.get("repository_context", {})),
+            },
+            data={
+                "workspace": workspace_context.get("workspace", ""),
+                "workspace_status": live_context.get("workspace_status", ""),
+                "repository_context": workspace_context.get("repository_context", {}),
+                "workspace_dashboard": workspace_dashboard,
+            },
+        )
+        return EngineeringContext(
+            generated_at=generated_at,
+            repository=str(live_context.get("repository", "")),
+            workspace=str(live_context.get("workspace", "")),
+            repository_context=repository_context,
+            canonical_context=canonical_context,
+            governance_context=governance_context,
+            runtime_context=runtime_context,
+            implementation_context=implementation_context,
+            dashboard_context=dashboard_context,
+            knowledge_context=knowledge_context,
+            decision_context=decision_context,
+            executive_context=executive_context,
+            project_context=project_context,
+            decision_history=tuple(decision_history),
+            validation_summary={
+                "synchronization_findings": len(report.findings),
+                "decision_history_count": len(decision_history),
+                "runtime_healthy": bool((runtime_status.get("health", {}) or {}).get("healthy", False)),
+                "knowledge_loaded": bool(semantic),
+                "dashboard_loaded": bool(workspace_dashboard),
+                "executive_briefing_loaded": bool(executive),
+            },
+        )
+
     def _persist(
         self,
         live_context: Mapping[str, Any],
@@ -848,6 +1294,7 @@ class SynchronizationCoordinator:
         development_context: Mapping[str, Any],
         workspace_context: Mapping[str, Any],
         report: SynchronizationReport,
+        engineering_context: EngineeringContext,
     ) -> Dict[str, str]:
         persistence = ContextPersistence(self.root)
         paths = {
@@ -863,10 +1310,163 @@ class SynchronizationCoordinator:
             "git_context": persistence.save_json("git_context.json", self._sorted_mapping(git_context)),
             "github_context": persistence.save_json("github_context.json", self._sorted_mapping(github_context)),
             "synchronization_report": persistence.save_json("synchronization_report.json", report.to_dict()),
+            "engineering_context": persistence.save_json("engineering_context.json", engineering_context.to_dict()),
+            "decision_history": persistence.save_json(
+                "decision_history.json",
+                {
+                    "schema_version": SCHEMA_VERSION,
+                    "generated_at": engineering_context.generated_at,
+                    "repository": engineering_context.repository,
+                    "workspace": engineering_context.workspace,
+                    "decision_history": list(engineering_context.decision_history),
+                },
+            ),
         }
         markdown = SynchronizationReportGenerator().generate(live_context, report)
         paths["markdown"] = persistence.save_text("AI_CTO_CONTEXT_REPORT.md", markdown)
         return paths
+
+    def _build_decision_history(
+        self,
+        live_context: Mapping[str, Any],
+        development_context: Mapping[str, Any],
+        report: SynchronizationReport,
+    ) -> List[Dict[str, Any]]:
+        history: List[Dict[str, Any]] = []
+        executive = development_context.get("executive", {})
+        events = (development_context.get("events", {}) or {}).get("events", [])
+        for event in events:
+            if str(event.get("event_type", "")).lower() != "decision":
+                continue
+            payload = event.get("payload", {}) or {}
+            details = payload.get("details", {}) or {}
+            history.append(
+                self._sorted_mapping(
+                    {
+                        "decision_id": payload.get("decision_id", ""),
+                        "timestamp": event.get("timestamp", ""),
+                        "authority": details.get("authority", "Owner"),
+                        "reason": payload.get("decision", ""),
+                        "supporting_evidence": _compact_list(
+                            details.get("supporting_evidence", [])
+                            or details.get("evidence", [])
+                            or [str(report.generated_at or live_context.get("generated_at", ""))]
+                        ),
+                        "affected_artifacts": _compact_list(
+                            details.get("affected_artifacts", [])
+                            or [
+                                str(self.root / ".ai" / "development_state" / "current_state.json"),
+                                str(self.root / ".ai" / "executive" / "briefing.json"),
+                            ]
+                        ),
+                        "implementation_impact": str(
+                            details.get("implementation_impact", "")
+                            or live_context.get("current_recommendation", "")
+                            or live_context.get("current_batch", "")
+                        ),
+                        "validation_status": str(details.get("validation_status", "pending")),
+                        "status": "approved",
+                        "source": "development_state",
+                    }
+                )
+            )
+        for pending in executive.get("pending_decisions", []):
+            history.append(
+                self._sorted_mapping(
+                    {
+                        "decision_id": pending.get("id", ""),
+                        "timestamp": live_context.get("generated_at", ""),
+                        "authority": "AI CTO Runtime",
+                        "reason": pending.get("title", ""),
+                        "supporting_evidence": _compact_list(
+                            [
+                                pending.get("context", ""),
+                                pending.get("impact", ""),
+                            ]
+                        ),
+                        "affected_artifacts": _compact_list(
+                            [
+                                str(self.root / ".ai" / "executive" / "briefing.json"),
+                                str(self.root / ".ai" / "context" / "engineering_context.json"),
+                            ]
+                        ),
+                        "implementation_impact": pending.get("impact", ""),
+                        "validation_status": "pending",
+                        "status": "pending",
+                        "source": "executive_briefing",
+                    }
+                )
+            )
+        history.sort(
+            key=lambda item: (
+                str(item.get("timestamp", "")),
+                str(item.get("decision_id", "")),
+            ),
+            reverse=True,
+        )
+        return history
+
+    def _section(
+        self,
+        *,
+        name: str,
+        owner: str,
+        loader: str,
+        generated_at: str,
+        artifacts: Sequence[str],
+        provenance: Mapping[str, Any],
+        traceability: Mapping[str, Any],
+        validation: Mapping[str, Any],
+        data: Mapping[str, Any],
+    ) -> EngineeringContextSection:
+        return EngineeringContextSection(
+            name=name,
+            owner=owner,
+            loader=loader,
+            generated_at=generated_at,
+            artifacts=tuple(_compact_list(artifacts)),
+            provenance=dict(self._sorted_mapping(provenance)),
+            traceability=dict(self._sorted_mapping(traceability)),
+            validation=dict(self._sorted_mapping(validation)),
+            data=dict(self._sorted_mapping(data)),
+        )
+
+    def _implementation_packages(self) -> List[str]:
+        root = self.root / "implementation-packages"
+        if not root.is_dir():
+            return []
+        return [
+            str(path)
+            for path in sorted(root.glob("**/*.md"))
+            if path.is_file()
+        ]
+
+    def _available_validation_results(self) -> List[str]:
+        reports_dir = self.root / ".ai" / "reports"
+        if not reports_dir.is_dir():
+            return []
+        return [str(path) for path in sorted(reports_dir.glob("validate-*.json"))]
+
+    def _directory_inventory(self, path: Path) -> List[str]:
+        if not path.exists():
+            return []
+        if path.is_file():
+            return [str(path)]
+        return [str(item) for item in sorted(path.glob("**/*")) if item.is_file()]
+
+    def _existing_paths(self, *paths: Path) -> List[str]:
+        return [str(path) for path in paths if path.exists()]
+
+    def _load_json(self, path: Path) -> Dict[str, Any]:
+        if not path.exists():
+            return {}
+        try:
+            return json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return {}
+
+    def _utcnow(self) -> str:
+        return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
     def _refresh_downstream(self, live_context: Mapping[str, Any], refresh: bool) -> Dict[str, Any]:
         from python.executive_briefing_engine import ExecutiveBriefingEngine

@@ -52,6 +52,9 @@ try:
 
     control_center = json.loads(urlopen(base + "/api/ai/control-center", timeout=5).read().decode("utf-8"))
     assert "providers" in control_center
+    dashboard_payload = json.loads(urlopen(base + "/api/dashboard", timeout=5).read().decode("utf-8"))
+    assert "engineering_context" in dashboard_payload
+    assert dashboard_payload["engineering_context"]["dashboard_context"]["owner"] == "Engineering Dashboard Service"
     ask = json.loads(urlopen(base + "/api/ai/ask?q=Explain%20architecture", timeout=5).read().decode("utf-8"))
     assert "answer" in ask
     print("runtime dashboard navigation PASS")

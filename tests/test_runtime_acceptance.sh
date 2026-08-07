@@ -55,6 +55,12 @@ check("AC-3: Runtime survives restart", rt2.lifecycle.is_running())
 result = rt2.health.check_readiness()
 check("AC-4: Runtime Health passes", result.ready, str(result.checks))
 
+# AC-4b: Engineering context reconstructed on startup
+context_path = os.path.join(".ai", "context", "engineering_context.json")
+decision_history_path = os.path.join(".ai", "context", "decision_history.json")
+check("AC-4b: Engineering context persisted", os.path.exists(context_path))
+check("AC-4c: Decision history persisted", os.path.exists(decision_history_path))
+
 # AC-5: Runtime Recovery passes
 from lib.python.runtime.recovery import RecoveryService
 rec = RecoveryService(max_attempts=3)
@@ -109,6 +115,7 @@ check("AC-11c: HTTP readiness endpoint works", ready["ready"])
 with urllib.request.urlopen(BASE + "/status", timeout=5) as r:
     status = _json.loads(r.read())
 check("AC-11d: HTTP status endpoint works", status["health"]["healthy"])
+check("AC-11d2: HTTP status includes engineering context", "engineering_context" in status["runtime"])
 
 with urllib.request.urlopen(BASE + "/api/v1/runtime", timeout=5) as r:
     runtime = _json.loads(r.read())
