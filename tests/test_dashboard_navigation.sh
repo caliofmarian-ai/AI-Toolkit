@@ -18,8 +18,11 @@ server.start()
 try:
     routes = {
         "/": "Engineering Operating System",
+        "/dashboard": "Engineering Operating System",
+        "/project-manager": "Project Manager",
         "/projects": "Project Manager",
         "/repository": "Repository",
+        "/engineering-session": "Engineering Session",
         "/session": "Engineering Session",
         "/ai-control-center": "AI Control Center",
         "/knowledge": "Engineering Explorer",

@@ -1,11 +1,11 @@
 {
   "schema_version": "1.0.0",
   "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
-  "captured_at": "2026-08-07T01:35:54Z",
+  "captured_at": "2026-08-07T03:47:58Z",
   "analysis": {
     "import_graph": {
-      "node_count": 356,
-      "edge_count": 1298,
+      "node_count": 368,
+      "edge_count": 1366,
       "circular_dependency_count": 0,
       "critical_modules": [
         "lib/python/workspace_index/__init__.py",
@@ -13,8 +13,8 @@
         "lib/python/canonical_entities/__init__.py",
         "lib/python/executive_briefing_engine/models.py",
         "lib/python/semantic_repository_intelligence/models.py",
-        "lib/python/workspace_orchestrator/models.py",
         "lib/python/repository_engine/engine.py",
+        "lib/python/workspace_orchestrator/models.py",
         "lib/python/engineering_engine/github_publish_engine.py",
         "lib/python/engineering_engine/github_project_planner.py",
         "lib/python/engineering_engine/semantic_entities.py"
@@ -33,18 +33,18 @@
       ]
     },
     "call_graph": {
-      "edge_count": 420,
+      "edge_count": 448,
       "entry_points": [
         "lib/python/agent_runtime/base.py::run",
         "lib/python/agent_runtime/runtime.py::execute",
         "lib/python/agents/ai_cto_scanner_agent.py::run",
         "lib/python/agents/development_agent.py::run",
         "lib/python/agents/repository_inspector_agent.py::run",
+        "lib/python/ai_platform/pipeline.py::run",
         "lib/python/autonomous_execution_engine/engine.py::execute",
         "lib/python/canonical_intelligence/engine.py::run",
         "lib/python/dashboard/server.py::start",
-        "lib/python/development_validator.py::__main__",
-        "lib/python/development_validator/main.py::__main__"
+        "lib/python/development_validator.py::__main__"
       ]
     },
     "architecture_graph": {
@@ -62,34 +62,34 @@
         "CLI",
         "Canonical Intelligence",
         "Compliance / Coverage / Drift",
-        "Core / Common"
+        "Configuration / Profiles"
       ],
       "risk_count": 5
     },
     "dependency_graph": {
       "external_dependency_count": 0,
-      "internal_module_count": 356
+      "internal_module_count": 368
     },
     "complexity": {
-      "total_files": 931,
-      "total_symbols": 2232,
-      "total_imports": 1302,
-      "total_functions": 1683,
-      "total_classes": 549,
-      "avg_imports_per_module": 1.4,
-      "avg_functions_per_file": 1.81,
+      "total_files": 942,
+      "total_symbols": 2350,
+      "total_imports": 1370,
+      "total_functions": 1787,
+      "total_classes": 563,
+      "avg_imports_per_module": 1.45,
+      "avg_functions_per_file": 1.9,
       "max_imports_in_module": 30,
       "max_functions_in_file": 54,
-      "cyclomatic_complexity_estimate": 2.25,
+      "cyclomatic_complexity_estimate": 2.26,
       "language_distribution": {
         "json": 67,
-        "markdown": 504,
-        "python": 356,
+        "markdown": 503,
+        "python": 368,
         "yaml": 4
       }
     },
     "recommendation_count": 10,
-    "injection_point_count": 251,
+    "injection_point_count": 257,
     "next_core": "CORE-009 — Development State Engine: Persist full development state for cross-session reasoning."
   }
 }

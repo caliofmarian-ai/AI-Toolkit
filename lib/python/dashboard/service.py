@@ -947,10 +947,10 @@ class EngineeringDashboardService:
 
     def _navigation(self) -> List[Dict[str, str]]:
         return [
-            {"href": "/", "label": "Dashboard"},
-            {"href": "/projects", "label": "Projects"},
+            {"href": "/dashboard", "label": "Dashboard"},
+            {"href": "/project-manager", "label": "Projects"},
             {"href": "/repository", "label": "Repository"},
-            {"href": "/session", "label": "Engineering Session"},
+            {"href": "/engineering-session", "label": "Engineering Session"},
             {"href": "/ai-control-center", "label": "AI Control Center"},
             {"href": "/knowledge", "label": "Knowledge"},
             {"href": "/validation", "label": "Validation"},
