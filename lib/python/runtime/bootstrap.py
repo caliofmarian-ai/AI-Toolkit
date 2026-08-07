@@ -353,7 +353,7 @@ class RuntimeBootstrap:
         dashboard_error = ""
         initialized = False
         try:
-            self.dashboard_service.build(refresh=True)
+            self.dashboard_service.build(refresh=False)
             initialized = True
         except Exception as exc:
             dashboard_error = str(exc)
