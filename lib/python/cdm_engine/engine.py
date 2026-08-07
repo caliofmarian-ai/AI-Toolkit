@@ -241,7 +241,7 @@ class CdmEngine:
         for line in lines:
             stripped = line.strip()
             # Stop parsing metadata after first empty line followed by section heading
-            if stripped.startswith("## ") or stripped.startswith("---\n"):
+            if stripped.startswith("## ") or stripped == "---":
                 in_header = False
             if not in_header and stripped.startswith("## "):
                 break

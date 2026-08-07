@@ -116,7 +116,6 @@ class CslEngine:
     """
 
     def __init__(self) -> None:
-        self._parser = CslParser()
         self._analyzer = SemanticAnalyzer()
         self._results: Dict[str, CslExecutionResult] = {}
 
@@ -144,11 +143,12 @@ class CslEngine:
             ))
             return result
 
-        # Step 2: Parse
+        # Step 2: Parse — a fresh parser instance per execution avoids state bleeding
+        parser = CslParser()
         try:
-            doc = self._parser.parse_text(text, source_name)
+            doc = parser.parse_text(text, source_name)
             result.ast = doc
-            result.diagnostics.extend(self._parser.diagnostics)
+            result.diagnostics.extend(parser.diagnostics)
         except Exception as exc:
             from python.canonical_parser import DiagnosticCategory
             from python.canonical_parser.diagnostics import Diagnostic as D

@@ -291,6 +291,9 @@ class KnowledgeMaterializationEngine:
         Convenience method: load all standards from a directory tree and materialize.
 
         Automatically uses CDM Engine and CSS Engine to load documents.
+        CDM Engine loads every markdown document; CSS Engine loads only files
+        within a ``css`` subdirectory to avoid duplicate materialization of
+        the same file under two different engines.
         """
         from python.cdm_engine import CdmEngine
         from python.css_engine import CSSEngine
@@ -303,13 +306,18 @@ class KnowledgeMaterializationEngine:
         css_records = []
 
         for md in sorted(root.rglob("*.md")):
-            try:
-                cdm_docs.append(cdm.load(str(md)))
-            except Exception:
-                pass
-            try:
-                css_records.append(css.load(str(md)))
-            except Exception:
-                pass
+            # Each file is loaded by exactly one engine to avoid duplicates.
+            # Files inside a 'css' directory are treated as CSS standards;
+            # all other markdown files are treated as CDM documents.
+            if "css" in md.parts or md.parent.name == "css":
+                try:
+                    css_records.append(css.load(str(md)))
+                except Exception:
+                    pass
+            else:
+                try:
+                    cdm_docs.append(cdm.load(str(md)))
+                except Exception:
+                    pass
 
         return self.materialize(cdm_docs, css_records)
