@@ -262,6 +262,11 @@ class RuntimeBootstrap:
             "validation": "python.validation_engine.engine:ValidationEngine",
             "repository": "python.repository_engine.engine:RepositoryEngine",
             "dependency": "python.dependency_engine.engine:DependencyEngine",
+            # Canonical Execution Stack
+            "css": "python.css_engine.engine:CSSEngine",
+            "cdm": "python.cdm_engine.engine:CdmEngine",
+            "csl": "python.csl_engine.engine:CslEngine",
+            "knowledge_materialization": "python.knowledge_materialization.engine:KnowledgeMaterializationEngine",
         }
 
         for name, module_path in engine_candidates.items():
