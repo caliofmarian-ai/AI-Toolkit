@@ -18,7 +18,7 @@ class _DashboardRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:
         parsed = urlparse(self.path)
         path = parsed.path
-        server = getattr(self.server, "_dashboard_server")
+        server = self.server._dashboard_server  # type: ignore[attr-defined]
         if path == "/health":
             self._send_json({"ok": True, "service": "dashboard"})
             return
@@ -95,8 +95,7 @@ class DashboardHttpServer:
 
     def start(self) -> None:
         self.service.build(refresh=True)
-        self._server = HTTPServer((self.host, self.port), self._handler_class())
-        self._server._dashboard_server = self  # type: ignore[attr-defined]
+        self._server = self._build_server()
         self._thread = threading.Thread(
             target=self._server.serve_forever,
             daemon=True,
@@ -106,8 +105,7 @@ class DashboardHttpServer:
 
     def serve_forever(self) -> None:
         self.service.build(refresh=True)
-        self._server = HTTPServer((self.host, self.port), self._handler_class())
-        self._server._dashboard_server = self  # type: ignore[attr-defined]
+        self._server = self._build_server()
         self._server.serve_forever()
 
     def stop(self) -> None:
@@ -123,6 +121,11 @@ class DashboardHttpServer:
             (_DashboardRequestHandler,),
             {},
         )
+
+    def _build_server(self) -> HTTPServer:
+        server = HTTPServer((self.host, self.port), self._handler_class())
+        server._dashboard_server = self  # type: ignore[attr-defined]
+        return server
 
 
 def serve_dashboard(

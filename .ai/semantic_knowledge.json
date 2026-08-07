@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0.0",
   "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
-  "captured_at": "2026-08-07T01:31:22Z",
+  "captured_at": "2026-08-07T01:35:54Z",
   "analysis": {
     "import_graph": {
       "node_count": 356,
@@ -72,9 +72,9 @@
     },
     "complexity": {
       "total_files": 931,
-      "total_symbols": 2231,
+      "total_symbols": 2232,
       "total_imports": 1302,
-      "total_functions": 1682,
+      "total_functions": 1683,
       "total_classes": 549,
       "avg_imports_per_module": 1.4,
       "avg_functions_per_file": 1.81,

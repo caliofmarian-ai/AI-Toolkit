@@ -321,7 +321,7 @@ class EngineeringDashboardService:
                 f"<td>{escape(capability['status'])}</td>"
                 f"<td>{capability['implementation_percentage']}%</td>"
                 f"<td>{escape(capability['target_epic'])}</td>"
-                f"<td>{escape(', '.join(capability['blocking_dependencies']) or 'None')}</td>"
+                f"<td>{escape(', '.join(capability.get('blocking_dependencies') or []) or 'None')}</td>"
                 "</tr>"
             )
         table = (
@@ -492,16 +492,17 @@ class EngineeringDashboardService:
         ai_provider = self._detect_ai_provider()
         session_history = []
         sessions_dir = self.repository_root / ".ai" / "sessions"
-        for path in sorted(sessions_dir.glob("*.json"), key=lambda item: item.stat().st_mtime, reverse=True):
-            payload = self._read_json(path) or {}
-            session_history.append(
-                {
-                    "identifier": payload.get("identifier", path.stem),
-                    "status": payload.get("status", "UNKNOWN"),
-                    "repository": payload.get("repository", "."),
-                    "completed_steps": payload.get("completed_steps", []),
-                }
-            )
+        if sessions_dir.is_dir():
+            for path in sorted(sessions_dir.glob("*.json"), key=lambda item: item.stat().st_mtime, reverse=True):
+                payload = self._read_json(path) or {}
+                session_history.append(
+                    {
+                        "identifier": payload.get("identifier", path.stem),
+                        "status": payload.get("status", "UNKNOWN"),
+                        "repository": payload.get("repository", "."),
+                        "completed_steps": payload.get("completed_steps", []),
+                    }
+                )
         recent_activity = []
         for event in list((events.get("events") or []))[-8:]:
             recent_activity.append(

@@ -37,5 +37,6 @@ with tempfile.TemporaryDirectory() as tmp:
 
     assert repositories == {"AI-Toolkit", "Trading-Signals-Platform", "DROPi"}, repositories
     assert payload["workspace"]["summary"]["total_repositories"] == 3
+    assert (current_repo / "AI_CTO_INTEGRATION_REPORT.md").exists()
     print("project manager PASS")
 PY
