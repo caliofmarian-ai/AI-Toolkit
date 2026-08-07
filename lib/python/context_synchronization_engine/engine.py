@@ -186,7 +186,7 @@ class GitContextProvider:
             changed_files.append(path)
             if status.strip() == "??":
                 untracked_files.append(path)
-            if status[:1].strip():
+            if status[:1] not in {"", " ", "?"}:
                 staged_files.append(path)
         return {
             "entries": entries,

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Dict, Mapping, Tuple
+from typing import Any, Dict, Mapping, Optional, Tuple
 
 SCHEMA_VERSION = "1.0.0"
 
@@ -105,10 +105,10 @@ class EngineeringContextSection:
     loader: str
     generated_at: str
     artifacts: Tuple[str, ...] = ()
-    provenance: Dict[str, Any] = None
-    traceability: Dict[str, Any] = None
-    validation: Dict[str, Any] = None
-    data: Dict[str, Any] = None
+    provenance: Optional[Dict[str, Any]] = None
+    traceability: Optional[Dict[str, Any]] = None
+    validation: Optional[Dict[str, Any]] = None
+    data: Optional[Dict[str, Any]] = None
     schema_version: str = SCHEMA_VERSION
 
     def to_dict(self) -> Dict[str, Any]:
@@ -157,7 +157,7 @@ class EngineeringContext:
     executive_context: EngineeringContextSection
     project_context: EngineeringContextSection
     decision_history: Tuple[Dict[str, Any], ...] = ()
-    validation_summary: Dict[str, Any] = None
+    validation_summary: Optional[Dict[str, Any]] = None
     schema_version: str = SCHEMA_VERSION
 
     def to_dict(self) -> Dict[str, Any]:

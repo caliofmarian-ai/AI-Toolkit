@@ -935,7 +935,7 @@ class EngineeringDashboardService:
                     workspace_root=str(self.workspace_root),
                 ).synchronize(refresh=False).get("engineering_context", {})
             except Exception:
-                return self._read_json(path) or {}
+                return {}
         return self._read_json(path) or {}
 
     def _home_payload(
