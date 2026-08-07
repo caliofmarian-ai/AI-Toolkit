@@ -608,6 +608,22 @@ Canonical intelligence, knowledge services, governance services.
 **Future evolution**  
 Adds contextual linking, impact awareness, and guided navigation between product state and governing references.
 
+**Canonical System Maturity (as of 2026-08-07)**  
+A forensic audit of the Canonical System has been completed and materialized as a permanent engineering artifact.
+
+| Component | Maturity |
+|---|---|
+| CSS core | Foundation-Ready |
+| CDM core | Foundation-Ready |
+| CDM peripheral (17 specs) | Placeholders |
+| CSL v1 | Normative (frozen) |
+| CSL v2 (47 specs) | Scaffolded — all empty |
+| Canonical validator | Not started |
+
+Full audit: `docs/audits/canonical-system/`  
+Engineering artifacts status: `docs/ENGINEERING_ARTIFACTS.md`  
+Next epic: `docs/planning/CANONICAL_SYSTEM_NEXT_EPIC.md`
+
 ---
 
 ## Standards
