@@ -109,8 +109,7 @@ class DashboardHttpServer:
 
     def stop(self) -> None:
         if self._server is not None:
-            if self._thread is not None:
-                self._server.shutdown()
+            self._server.shutdown()
             self._server.server_close()
         if self._thread is not None:
             self._thread.join(timeout=5)

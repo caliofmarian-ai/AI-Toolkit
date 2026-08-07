@@ -504,7 +504,7 @@ class EngineeringDashboardService:
                     }
                 )
         recent_activity = []
-        for event in list((events.get("events") or []))[-8:]:
+        for event in (events.get("events") or [])[-8:]:
             recent_activity.append(
                 {
                     "timestamp": event.get("timestamp", ""),
@@ -553,6 +553,7 @@ class EngineeringDashboardService:
             ("Self Improvement", self.repository_root / ".ai" / "self_improvement" / "improvements.json"),
             ("Workspace Dashboard", self.workspace_root / ".ai" / "workspace" / "dashboard.json"),
         ]
+        available_report_specs = [path for _, path in report_specs if path is not None]
         items = []
         for title, path in report_specs:
             if path is None or not path.exists():
@@ -571,7 +572,7 @@ class EngineeringDashboardService:
             "summary_cards": [
                 {"label": "Recent Reports", "value": str(len(items))},
                 {"label": "Latest Report", "value": items[0]["title"] if items else "None"},
-                {"label": "Report Coverage", "value": f"{len(items)}/{len(report_specs)}"},
+                {"label": "Report Coverage", "value": f"{len(items)}/{len(available_report_specs)}"},
             ],
         }
 
