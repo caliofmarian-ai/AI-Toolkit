@@ -760,7 +760,7 @@ class EngineeringDashboardService:
                 "checks": {
                     "runtime_alive": True,
                     "dashboard_initialized": bool(runtime_payload.get("dashboard_initialized", True)),
-                    "engineering_context_initialized": bool(runtime_payload.get("engineering_context", {})),
+                    "engineering_context_initialized": bool(runtime_payload.get("engineering_context")),
                     "repository_loaded": bool(runtime_payload.get("repository_detected", True)),
                     "session_initialized": bool(runtime_payload.get("current_session", {}).get("project")),
                 },
