@@ -494,13 +494,13 @@ class EngineeringDashboardService:
         sessions_dir = self.repository_root / ".ai" / "sessions"
         if sessions_dir.is_dir():
             for path in sorted(sessions_dir.glob("*.json"), key=lambda item: item.stat().st_mtime, reverse=True):
-                payload = self._read_json(path) or {}
+                session_payload = self._read_json(path) or {}
                 session_history.append(
                     {
-                        "identifier": payload.get("identifier", path.stem),
-                        "status": payload.get("status", "UNKNOWN"),
-                        "repository": payload.get("repository", "."),
-                        "completed_steps": payload.get("completed_steps", []),
+                        "identifier": session_payload.get("identifier", path.stem),
+                        "status": session_payload.get("status", "UNKNOWN"),
+                        "repository": session_payload.get("repository", "."),
+                        "completed_steps": session_payload.get("completed_steps", []),
                     }
                 )
         recent_activity = []
@@ -571,7 +571,7 @@ class EngineeringDashboardService:
             "summary_cards": [
                 {"label": "Recent Reports", "value": str(len(items))},
                 {"label": "Latest Report", "value": items[0]["title"] if items else "None"},
-                {"label": "Report Coverage", "value": f"{len(items)}/7"},
+                {"label": "Report Coverage", "value": f"{len(items)}/{len(report_specs)}"},
             ],
         }
 

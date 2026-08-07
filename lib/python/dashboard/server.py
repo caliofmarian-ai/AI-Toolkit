@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import threading
-import time
 import webbrowser
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from typing import Any, Dict, Optional
@@ -110,7 +109,8 @@ class DashboardHttpServer:
 
     def stop(self) -> None:
         if self._server is not None:
-            self._server.shutdown()
+            if self._thread is not None:
+                self._server.shutdown()
             self._server.server_close()
         if self._thread is not None:
             self._thread.join(timeout=5)
@@ -141,12 +141,12 @@ def serve_dashboard(
         repository_root=repository_root,
         workspace_root=workspace_root,
     )
-    server.start()
     print(f"AI-Toolkit Dashboard running at {server.url}")
     if open_browser:
         webbrowser.open(server.url)
     try:
-        while True:
-            time.sleep(1)
+        server.serve_forever()
     except KeyboardInterrupt:
+        pass
+    finally:
         server.stop()
