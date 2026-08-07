@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-cd /home/runner/work/AI-Toolkit/AI-Toolkit
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+cd "$SCRIPT_DIR/.."
 
 python3 - <<'PY'
 import json
@@ -24,14 +25,17 @@ runtime.start()
 base = "http://127.0.0.1:19121"
 try:
     deadline = time.time() + 20
+    healthy = False
     while time.time() < deadline:
         try:
             with urlopen(base + "/health", timeout=2) as response:
                 health = json.loads(response.read().decode("utf-8"))
             if health.get("healthy"):
+                healthy = True
                 break
         except Exception:  # noqa: BLE001
             time.sleep(0.5)
+    assert healthy, "runtime did not become healthy before route checks"
     routes = {
         "/": "Engineering Operating System",
         "/dashboard": "Engineering Operating System",
