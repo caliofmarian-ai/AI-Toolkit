@@ -237,8 +237,9 @@ class ContextSynchronizationTests(unittest.TestCase):
     def test_cli_context_supports_repository_and_workspace_paths(self):
         output = subprocess.run(
             [
-                "bash",
-                str(REPO_ROOT / "bin" / "ai"),
+                "python3",
+                "-m",
+                "python.cli.main",
                 "context",
                 "--repository",
                 str(self.repo),
