@@ -19,7 +19,12 @@ try:
     routes = {
         "/": "Engineering Operating System",
         "/projects": "Project Manager",
+        "/repository": "Repository",
         "/session": "Engineering Session",
+        "/ai-control-center": "AI Control Center",
+        "/knowledge": "Engineering Explorer",
+        "/validation": "Diagnostics",
+        "/settings": "Runtime",
         "/explorer": "Engineering Explorer",
         "/runtime": "Runtime",
         "/diagnostics": "Diagnostics",
@@ -33,8 +38,12 @@ try:
     assert '"navigation"' in api
     runtime_api = urlopen("http://127.0.0.1:8101/api/runtime").read().decode("utf-8")
     diagnostics_api = urlopen("http://127.0.0.1:8101/api/diagnostics").read().decode("utf-8")
+    control_center_api = urlopen("http://127.0.0.1:8101/api/ai/control-center").read().decode("utf-8")
+    ask_ai_api = urlopen("http://127.0.0.1:8101/api/ai/ask?q=Explain%20this%20architecture.").read().decode("utf-8")
     assert '"state"' in runtime_api
     assert '"recommendations"' in diagnostics_api
+    assert '"providers"' in control_center_api
+    assert '"answer"' in ask_ai_api
     print("dashboard navigation PASS")
 finally:
     server.stop()
