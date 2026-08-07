@@ -1,7 +1,7 @@
 {
   "current_context": {
     "current_batch": "BATCH-002",
-    "current_branch": "copilot/batch-002-runtime-integration-canonical-synchroniz",
+    "current_branch": "copilot/engineering-capability-audit",
     "current_canon_version": "1.0.0",
     "current_epic": "CORE-005",
     "current_executor": "runtime",
@@ -13,7 +13,7 @@
     "current_task": "CORE-005",
     "current_workspace": "/home/runner/work/AI-Toolkit"
   },
-  "generated_at": "2026-08-03T11:47:44+01:00",
+  "generated_at": "2026-08-08T01:16:38+03:00",
   "integrations": {
     "ai_cto_scanner": {
       "report_exists": true,
@@ -35,109 +35,110 @@
     "repository_intelligence": {
       "repository_root": "/home/runner/work/AI-Toolkit/AI-Toolkit",
       "statistics": {
-        "directories": 86,
-        "files": 498,
-        "items": 584
+        "directories": 193,
+        "files": 1147,
+        "items": 1340
       }
     },
     "semantic_repository_intelligence": {
       "analysis": {
         "architecture_graph": {
-          "edge_count": 49,
+          "edge_count": 64,
           "extension_points": [
             "Agent Runtime",
+            "CLI",
             "Canonical Intelligence",
             "Compliance / Coverage / Drift",
-            "Core / Common",
-            "Planning"
+            "Configuration / Profiles"
           ],
           "hotspots": [
             "lib/python/workspace_index/__init__.py",
             "lib/python/autonomous_planning_engine/models.py",
+            "lib/python/canonical_entities/__init__.py",
             "lib/python/executive_briefing_engine/models.py",
-            "lib/python/semantic_repository_intelligence/models.py",
-            "lib/python/workspace_orchestrator/models.py"
+            "lib/python/semantic_repository_intelligence/models.py"
           ],
           "node_count": 15,
           "risk_count": 5
         },
         "call_graph": {
-          "edge_count": 330,
+          "edge_count": 448,
           "entry_points": [
             "lib/python/agent_runtime/base.py::run",
             "lib/python/agent_runtime/runtime.py::execute",
             "lib/python/agents/ai_cto_scanner_agent.py::run",
             "lib/python/agents/development_agent.py::run",
             "lib/python/agents/repository_inspector_agent.py::run",
+            "lib/python/ai_platform/pipeline.py::run",
             "lib/python/autonomous_execution_engine/engine.py::execute",
             "lib/python/canonical_intelligence/engine.py::run",
-            "lib/python/development_validator.py::__main__",
-            "lib/python/development_validator/main.py::__main__",
-            "lib/python/development_validator/main.py::run"
+            "lib/python/dashboard/server.py::start",
+            "lib/python/development_validator.py::__main__"
           ]
         },
         "complexity": {
-          "avg_functions_per_file": 2.94,
-          "avg_imports_per_module": 1.9,
-          "cyclomatic_complexity_estimate": 2.34,
+          "avg_functions_per_file": 1.9,
+          "avg_imports_per_module": 1.45,
+          "cyclomatic_complexity_estimate": 2.26,
           "language_distribution": {
-            "json": 65,
-            "markdown": 107,
-            "python": 226
+            "json": 67,
+            "markdown": 503,
+            "python": 368,
+            "yaml": 4
           },
           "max_functions_in_file": 54,
-          "max_imports_in_module": 29,
-          "total_classes": 325,
-          "total_files": 398,
-          "total_functions": 1171,
-          "total_imports": 757,
-          "total_symbols": 1496
+          "max_imports_in_module": 30,
+          "total_classes": 563,
+          "total_files": 942,
+          "total_functions": 1787,
+          "total_imports": 1370,
+          "total_symbols": 2350
         },
         "dependency_graph": {
           "external_dependency_count": 0,
-          "internal_module_count": 226
+          "internal_module_count": 368
         },
         "import_graph": {
           "circular_dependency_count": 0,
           "critical_modules": [
             "lib/python/workspace_index/__init__.py",
             "lib/python/autonomous_planning_engine/models.py",
+            "lib/python/canonical_entities/__init__.py",
             "lib/python/executive_briefing_engine/models.py",
             "lib/python/semantic_repository_intelligence/models.py",
+            "lib/python/repository_engine/engine.py",
             "lib/python/workspace_orchestrator/models.py",
-            "lib/python/canonical_entities/__init__.py",
-            "lib/python/executable_repository_intelligence/models.py",
-            "lib/python/semantic_repository_intelligence/__init__.py",
-            "lib/python/agent_runtime/models.py",
-            "lib/python/repository_engine/engine.py"
+            "lib/python/engineering_engine/github_publish_engine.py",
+            "lib/python/engineering_engine/github_project_planner.py",
+            "lib/python/engineering_engine/semantic_entities.py"
           ],
-          "edge_count": 757,
-          "node_count": 226,
+          "edge_count": 1366,
+          "node_count": 368,
           "orphan_modules": [
             "lib/python/__init__.py",
             "lib/python/agent_runtime/__init__.py",
             "lib/python/agents/__init__.py",
             "lib/python/agents/repository_inspector_agent.py",
-            "lib/python/autonomous_planner/__init__.py",
-            "lib/python/autonomous_workflow_engine.py",
-            "lib/python/batch_generator/__init__.py",
-            "lib/python/canonical_audit/__init__.py",
-            "lib/python/cli/__init__.py",
-            "lib/python/cli/main.py"
+            "lib/python/audit_engine/__init__.py",
+            "lib/python/audit_engine/audit_diff.py",
+            "lib/python/audit_engine/audit_engine.py",
+            "lib/python/audit_engine/audit_history.py",
+            "lib/python/audit_engine/audit_registry.py",
+            "lib/python/audit_engine/audit_report.py"
           ]
         },
-        "injection_point_count": 100,
+        "injection_point_count": 257,
         "next_core": "CORE-009 — Development State Engine: Persist full development state for cross-session reasoning.",
         "recommendation_count": 10
       },
-      "captured_at": "2026-08-03T11:02:05Z",
+      "captured_at": "2026-08-07T03:47:58Z",
       "schema_version": "1.0.0"
     }
   },
   "integrity": {
     "schema_version": "1.0.0",
     "snapshot_history": [],
-    "state_sha256": "7897f56039999e33863b4cb70a5ab0c2c3d38ef4fcc760cae6cac940cae85288"
+    "state_sha256": "e737f00dd71b434b2e34e42185bb16a8cd73fbe6ebf3ec9eb4a8309eadb2d866"
   },
   "recent_events": [
     {
@@ -300,6 +301,33 @@
       },
       "sequence_number": 6,
       "timestamp": "2026-08-03T11:47:44+01:00"
+    },
+    {
+      "context": {
+        "current_batch": "BATCH-002",
+        "current_branch": "copilot/engineering-capability-audit",
+        "current_canon_version": "1.0.0",
+        "current_epic": "CORE-005",
+        "current_executor": "runtime",
+        "current_issue": "CORE-005",
+        "current_milestone": "PHASE 2 — CORE IMPLEMENTATION",
+        "current_pull_request": "",
+        "current_recommendation": "CORE-005",
+        "current_repository": "http://localhost:26831/caliofmarian-ai/AI-Toolkit.git",
+        "current_task": "CORE-005",
+        "current_workspace": "/home/runner/work/AI-Toolkit"
+      },
+      "event_type": "context_synchronized",
+      "fingerprint": "34d50a6ca09f5d40d92b9c8d6d8a5beaca17f569fe21745c6d49117efcb172d7",
+      "payload": {
+        "schema_version": "1.0.0",
+        "snapshot_id": "SNAP-000000",
+        "state_identifier": "DEV-3D2E242FA059",
+        "state_sha256": "e737f00dd71b434b2e34e42185bb16a8cd73fbe6ebf3ec9eb4a8309eadb2d866",
+        "synchronization": "core-013"
+      },
+      "sequence_number": 7,
+      "timestamp": "2026-08-08T01:16:38+03:00"
     }
   ],
   "schema_version": "1.0.0",
@@ -351,8 +379,8 @@
       "schema_version": "1.0.0"
     },
     "repository_state": {
-      "branch": "copilot/batch-002-runtime-integration-canonical-synchroniz",
-      "head_commit": "41225dc55cf0271da34f9e80223dfae5c03e6833",
+      "branch": "copilot/engineering-capability-audit",
+      "head_commit": "a124e3eca5d0439968b36815d31d71082f8bbaed",
       "identifier": "REPO-001",
       "latest_merge": "",
       "open_pull_requests": [],
@@ -374,7 +402,7 @@
     },
     "schema_version": "1.0.0",
     "snapshot_metadata": {
-      "created_at": "2026-08-03T11:47:44+01:00",
+      "created_at": "2026-08-08T01:16:38+03:00",
       "identifier": "SNAP-000000",
       "schema_version": "1.0.0",
       "sequence_number": 0,
