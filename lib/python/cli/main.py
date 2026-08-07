@@ -879,8 +879,8 @@ elif args.command == "dashboard":
 
     repository = getattr(args, "dashboard_repository", ".")
     workspace_root = getattr(args, "dashboard_workspace", None)
-    host = getattr(args, "host", "127.0.0.1")
-    port = getattr(args, "port", 8081)
+    host = getattr(args, "host", os.environ.get("HOST", "0.0.0.0" if os.environ.get("PORT") else "127.0.0.1"))
+    port = getattr(args, "port", int(os.environ.get("PORT", "8081")))
     open_browser = getattr(args, "dashboard_open_browser", False)
 
     serve_dashboard(

@@ -21,6 +21,8 @@ try:
         "/projects": "Project Manager",
         "/session": "Engineering Session",
         "/explorer": "Engineering Explorer",
+        "/runtime": "Runtime",
+        "/diagnostics": "Diagnostics",
         "/reports": "Reports",
         "/capabilities/dashboard": "Capability Detail",
     }
@@ -29,6 +31,10 @@ try:
         assert needle in body, f"{route} missing {needle!r}"
     api = urlopen("http://127.0.0.1:8101/api/dashboard").read().decode("utf-8")
     assert '"navigation"' in api
+    runtime_api = urlopen("http://127.0.0.1:8101/api/runtime").read().decode("utf-8")
+    diagnostics_api = urlopen("http://127.0.0.1:8101/api/diagnostics").read().decode("utf-8")
+    assert '"state"' in runtime_api
+    assert '"recommendations"' in diagnostics_api
     print("dashboard navigation PASS")
 finally:
     server.stop()

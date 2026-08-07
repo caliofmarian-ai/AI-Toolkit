@@ -11,20 +11,18 @@ class RuntimeApiRouter:
     def __init__(
         self,
         health: Callable[[], dict],
+        runtime: Callable[[], dict],
         status: Callable[[], dict],
         metrics: Callable[[], dict],
     ):
         self._health = health
+        self._runtime = runtime
         self._status = status
         self._metrics = metrics
         self.auth = ApiAuth()
 
     def runtime(self) -> dict:
-        return {
-            "runtime": "AI CTO Runtime",
-            "version": "4.0.0",
-            "status": "running",
-        }
+        return self._runtime()
 
     def health(self) -> dict:
         return self._health()

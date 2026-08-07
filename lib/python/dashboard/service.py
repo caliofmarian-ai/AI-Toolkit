@@ -39,7 +39,7 @@ class CapabilityDefinition:
     why_dependencies: str
     repository_usage: List[str]
     justification_documents: List[str]
-    target_epic: str = "EPIC-003"
+    target_epic: str = "EPIC-004"
 
 
 CAPABILITY_DEFINITIONS: List[CapabilityDefinition] = [
@@ -50,12 +50,12 @@ CAPABILITY_DEFINITIONS: List[CapabilityDefinition] = [
         description="Aggregates repository, workspace, reports, and engineering-session context into a single local application.",
         architecture="A stdlib HTTP server renders HTML pages from existing repository artifacts and engines without adding a frontend framework.",
         inputs=["repository state", "workspace state", "reports", "capability metadata"],
-        outputs=["home page", "project manager page", "engineering explorer pages", "JSON endpoints"],
+        outputs=["home page", "project manager page", "engineering explorer pages", "runtime pages", "JSON endpoints"],
         dependencies=["repository-engine", "engineering-session", "project-manager"],
         related_paths=["bin/ai", "lib/python/dashboard", "lib/python/cli/main.py"],
         related_tests=["tests/test_dashboard.sh", "tests/test_dashboard_navigation.sh"],
         cli_commands=["bin/ai dashboard serve"],
-        dashboard_pages=["/", "/projects", "/session", "/explorer", "/reports"],
+        dashboard_pages=["/", "/projects", "/session", "/explorer", "/reports", "/runtime", "/diagnostics"],
         future_roadmap="Expand from local HTML pages into richer live operational views fed by more engines.",
         known_limitations="The MVP is server-rendered and depends on locally available repository artifacts.",
         next_milestone="Interactive engineering actions from the dashboard.",
@@ -182,7 +182,7 @@ CAPABILITY_DEFINITIONS: List[CapabilityDefinition] = [
         related_paths=["lib/python/runtime", "lib/python/development_state_engine", ".ai/runtime", ".ai/execution"],
         related_tests=["tests/test_runtime_acceptance.sh", "tests/test_runtime_health.sh"],
         cli_commands=["bash bin/runtime-server"],
-        dashboard_pages=["/", "/session"],
+        dashboard_pages=["/", "/session", "/runtime", "/diagnostics"],
         future_roadmap="Integrate runtime controls, jobs, and live execution telemetry.",
         known_limitations="The dashboard shows persisted runtime context and not a live scheduler console.",
         next_milestone="Live runtime metrics and queue visualization.",
@@ -253,6 +253,8 @@ class EngineeringDashboardService:
         repository = self._load_repository_profile()
         workspace = self._load_workspace_summary()
         reports = self._load_reports()
+        runtime = self._load_runtime(session, workspace)
+        diagnostics = self._load_diagnostics(runtime)
         capabilities = self._load_capabilities(workspace, session)
 
         payload = {
@@ -260,10 +262,12 @@ class EngineeringDashboardService:
             "repository_root": str(self.repository_root),
             "workspace_root": str(self.workspace_root),
             "navigation": self._navigation(),
-            "home": self._home_payload(repository, workspace, session, reports),
+            "home": self._home_payload(repository, workspace, session, reports, runtime, diagnostics),
             "workspace": workspace,
             "session": session,
             "reports": reports,
+            "runtime": runtime,
+            "diagnostics": diagnostics,
             "capabilities": capabilities,
         }
         self._cached_payload = payload
@@ -278,6 +282,9 @@ class EngineeringDashboardService:
             data,
             [
                 self._summary_grid(home["summary_cards"]),
+                self._section("Engineering Session", self._definition_list(home["session_overview"])),
+                self._section("Runtime Status", self._definition_list(home["runtime_overview"])),
+                self._section("Product Status", self._definition_list(home["product_status"])),
                 self._section("Recent Activity", self._activity_table(home["recent_activity"])),
                 self._section("Recent Reports", self._report_table(home["recent_reports"])),
                 self._section("Repository Health", self._health_checks(home["repository_health"])),
@@ -345,6 +352,41 @@ class EngineeringDashboardService:
             [
                 self._summary_grid(data["reports"]["summary_cards"]),
                 self._section("Generated Reports", self._report_table(data["reports"]["items"])),
+            ],
+        )
+
+    def render_runtime(self, payload: Optional[Dict[str, Any]] = None) -> str:
+        data = payload or self.build()
+        runtime = data["runtime"]
+        return self._page(
+            "Runtime",
+            data,
+            [
+                self._summary_grid(runtime["summary_cards"]),
+                self._section("Runtime Overview", self._definition_list(runtime["overview"])),
+                self._section("Health Checks", self._health_matrix(runtime["health"])),
+                self._section("Loaded Services", self._bullet_list(runtime["loaded_services"])),
+                self._section("Loaded Engines", self._bullet_list(runtime["loaded_engines"])),
+                self._section("Registered CLI Commands", self._bullet_list(runtime["registered_cli_commands"])),
+                self._section("Registered Providers", self._bullet_list(runtime["registered_providers"])),
+            ],
+        )
+
+    def render_diagnostics(self, payload: Optional[Dict[str, Any]] = None) -> str:
+        data = payload or self.build()
+        diagnostics = data["diagnostics"]
+        return self._page(
+            "Diagnostics",
+            data,
+            [
+                self._summary_grid(diagnostics["summary_cards"]),
+                self._section("Runtime Issues", self._issue_table(diagnostics["issues"])),
+                self._section("Warnings", self._bullet_list(diagnostics["warnings"])),
+                self._section("Configuration", self._metrics_table(diagnostics["configuration"])),
+                self._section("Recent Startup Log", self._startup_log(diagnostics["recent_startup_log"])),
+                self._section("Health Checks", self._health_matrix(diagnostics["health_checks"])),
+                self._section("Recommendations", self._bullet_list(diagnostics["recommendations"])),
+                self._section("Future Improvements", self._bullet_list(diagnostics["future_improvements"])),
             ],
         )
 
@@ -576,6 +618,106 @@ class EngineeringDashboardService:
             ],
         }
 
+    def _load_runtime(self, session: Mapping[str, Any], workspace: Mapping[str, Any]) -> Dict[str, Any]:
+        persisted = self._read_json(self.repository_root / ".ai" / "runtime" / "state" / "runtime_status.json") or {}
+        runtime_payload = persisted.get("runtime", {})
+        health = persisted.get("health", {})
+        if not runtime_payload:
+            provider_value = self._detect_ai_provider()
+            runtime_payload = {
+                "state": "BOOT",
+                "uptime_seconds": 0.0,
+                "startup_duration_seconds": 0.0,
+                "port": int(os.environ.get("PORT", "8081")),
+                "environment": os.environ.get("RAILWAY_ENVIRONMENT", os.environ.get("ENVIRONMENT", "local")),
+                "loaded_services": ["dashboard"],
+                "loaded_engines": ["repository", "workspace"],
+                "registered_cli_commands": ["bin/ai dashboard serve"],
+                "registered_providers": provider_value.split(", ") if provider_value != "Not configured" else [],
+                "current_repository": str(self.repository_root),
+                "current_workspace": str(self.workspace_root),
+                "current_project": session.get("current_project", self.repository_root.name),
+                "current_session": {
+                    "project": session.get("current_project", self.repository_root.name),
+                    "repository": session.get("current_repository", self.repository_root.name),
+                    "branch": session.get("current_branch", ""),
+                    "task": session.get("current_engineering_task", ""),
+                    "identifier": session.get("session_history", [{}])[0].get("identifier", "") if session.get("session_history") else "",
+                    "status": session.get("session_history", [{}])[0].get("status", "") if session.get("session_history") else "",
+                },
+                "runtime_configuration": {
+                    "http_port": int(os.environ.get("PORT", "8081")),
+                    "environment": os.environ.get("ENVIRONMENT", "local"),
+                },
+                "dashboard_initialized": True,
+                "repository_detected": True,
+                "workspace_detected": True,
+            }
+        if not health:
+            health = {
+                "healthy": bool(runtime_payload.get("dashboard_initialized", True)),
+                "ready": runtime_payload.get("state") == "READY",
+                "checks": {
+                    "runtime_alive": True,
+                    "dashboard_initialized": bool(runtime_payload.get("dashboard_initialized", True)),
+                    "repository_loaded": bool(runtime_payload.get("repository_detected", True)),
+                    "session_initialized": bool(runtime_payload.get("current_session", {}).get("project")),
+                },
+            }
+        providers = runtime_payload.get("registered_providers") or []
+        summary_cards = [
+            {"label": "Runtime State", "value": runtime_payload.get("state", "unknown")},
+            {"label": "Uptime", "value": f"{runtime_payload.get('uptime_seconds', 0.0):.1f}s"},
+            {"label": "Port", "value": runtime_payload.get("port", "n/a")},
+            {"label": "Environment", "value": runtime_payload.get("environment", "unknown")},
+            {"label": "Health", "value": "HEALTHY" if health.get("healthy") else "UNHEALTHY"},
+            {"label": "Loaded Engines", "value": str(len(runtime_payload.get("loaded_engines", [])))},
+        ]
+        overview = [
+            ("Runtime State", runtime_payload.get("state", "unknown")),
+            ("Uptime", f"{runtime_payload.get('uptime_seconds', 0.0):.1f}s"),
+            ("Startup Duration", f"{runtime_payload.get('startup_duration_seconds', 0.0):.3f}s"),
+            ("Port", str(runtime_payload.get("port", "n/a"))),
+            ("Environment", runtime_payload.get("environment", "unknown")),
+            ("Loaded Services", ", ".join(runtime_payload.get("loaded_services", [])) or "None"),
+            ("Loaded Engines", ", ".join(runtime_payload.get("loaded_engines", [])) or "None"),
+            ("Registered Commands", ", ".join(runtime_payload.get("registered_cli_commands", [])) or "None"),
+            ("Registered Providers", ", ".join(providers) or "None"),
+            ("Current Repository", runtime_payload.get("current_repository", str(self.repository_root))),
+            ("Current Workspace", runtime_payload.get("current_workspace", str(self.workspace_root))),
+            ("Current Project", runtime_payload.get("current_project", self.repository_root.name)),
+            ("Current Session", runtime_payload.get("current_session", {}).get("identifier", "") or runtime_payload.get("current_session", {}).get("task", "") or "n/a"),
+        ]
+        return {
+            **runtime_payload,
+            "health": health,
+            "summary_cards": summary_cards,
+            "overview": overview,
+        }
+
+    def _load_diagnostics(self, runtime: Mapping[str, Any]) -> Dict[str, Any]:
+        persisted = self._read_json(self.repository_root / ".ai" / "runtime" / "state" / "runtime_diagnostics.json") or {}
+        diagnostics_payload = persisted.get("diagnostics", {})
+        if not diagnostics_payload:
+            diagnostics_payload = {
+                "issues": [],
+                "warnings": [] if runtime.get("health", {}).get("healthy") else ["Runtime health is degraded."],
+                "configuration": runtime.get("runtime_configuration", {}),
+                "recent_startup_log": [{"state": runtime.get("state", "unknown"), "message": "Dashboard-only runtime view.", "timestamp": self._iso_from_timestamp(time.time())}],
+                "health_checks": runtime.get("health", {}),
+                "recommendations": ["Start the runtime server to collect live diagnostics."],
+                "future_improvements": ["Add live runtime telemetry to this page."],
+            }
+        return {
+            **diagnostics_payload,
+            "summary_cards": [
+                {"label": "Issues", "value": str(len(diagnostics_payload.get("issues", [])))},
+                {"label": "Warnings", "value": str(len(diagnostics_payload.get("warnings", [])))},
+                {"label": "Health", "value": "HEALTHY" if runtime.get("health", {}).get("healthy") else "UNHEALTHY"},
+                {"label": "Recommendations", "value": str(len(diagnostics_payload.get("recommendations", [])))},
+            ],
+        }
+
     def _load_capabilities(self, workspace: Mapping[str, Any], session: Mapping[str, Any]) -> Dict[str, Any]:
         statuses: Dict[str, str] = {}
         items: List[Dict[str, Any]] = []
@@ -587,9 +729,9 @@ class EngineeringDashboardService:
             implementation_percentage = int(round(((file_ratio * 0.75) + (test_ratio * 0.25)) * 100))
             status = "Planned"
             if implementation_percentage >= 85:
-                status = "Available"
+                status = "Implemented"
             elif implementation_percentage > 0:
-                status = "In Development"
+                status = "In Progress"
             statuses[definition.slug] = status
             items.append(
                 {
@@ -632,20 +774,20 @@ class EngineeringDashboardService:
                 }
             )
         for item in items:
-            blocking = [dependency for dependency in item["dependencies"] if statuses.get(dependency) not in {None, "Available"}]
+            blocking = [dependency for dependency in item["dependencies"] if statuses.get(dependency) not in {None, "Implemented"}]
             item["blocking_dependencies"] = blocking
             if item["status"] == "Planned" and blocking:
                 item["status"] = "Blocked"
-        available = sum(1 for item in items if item["status"] == "Available")
-        in_development = sum(1 for item in items if item["status"] == "In Development")
+        implemented = sum(1 for item in items if item["status"] == "Implemented")
+        in_progress = sum(1 for item in items if item["status"] == "In Progress")
         planned = sum(1 for item in items if item["status"] == "Planned")
         blocked = sum(1 for item in items if item["status"] == "Blocked")
         return {
             "items": items,
             "summary_cards": [
                 {"label": "Capabilities", "value": str(len(items))},
-                {"label": "Available", "value": str(available)},
-                {"label": "In Development", "value": str(in_development)},
+                {"label": "Implemented", "value": str(implemented)},
+                {"label": "In Progress", "value": str(in_progress)},
                 {"label": "Planned", "value": str(planned)},
                 {"label": "Blocked", "value": str(blocked)},
             ],
@@ -657,22 +799,57 @@ class EngineeringDashboardService:
         workspace: Mapping[str, Any],
         session: Mapping[str, Any],
         reports: Mapping[str, Any],
+        runtime: Mapping[str, Any],
+        diagnostics: Mapping[str, Any],
     ) -> Dict[str, Any]:
         latest_inspection = repository["latest_inspection"]
         return {
             "summary_cards": [
+                {"label": "Welcome", "value": f"Engineering Operating System · {session['current_project']}"},
+                {"label": "Current Engineering Session", "value": runtime.get("current_session", {}).get("identifier", "") or session["current_engineering_task"] or "n/a"},
                 {"label": "Current Project", "value": session["current_project"]},
-                {"label": "Current Repository", "value": session["current_repository"]},
-                {"label": "Current Branch", "value": session["current_branch"]},
-                {"label": "Current Sprint", "value": session["current_sprint"]},
-                {"label": "Current Epic", "value": session["current_epic"]},
-                {"label": "Current Issue", "value": session["current_issue"] or "n/a"},
-                {"label": "Current Engineering Task", "value": session["current_engineering_task"]},
-                {"label": "Current AI Provider", "value": session["current_ai_provider"]},
-                {"label": "Current Runtime Status", "value": session["current_runtime_status"]},
                 {"label": "Repository Health", "value": str(repository["health_summary"].get("status", "unknown"))},
-                {"label": "Repository Statistics", "value": f"{repository['metrics'].get('total_files', 0)} files"},
-                {"label": "Latest Repository Inspection", "value": latest_inspection.get("name", repository["name"])},
+                {"label": "Runtime Status", "value": runtime.get("state", session["current_runtime_status"])},
+                {"label": "Current Sprint", "value": session["current_sprint"] or "n/a"},
+                {"label": "Current Epic", "value": session["current_epic"] or "n/a"},
+                {"label": "Current Issue", "value": session["current_issue"] or "n/a"},
+                {"label": "Current AI Provider", "value": session["current_ai_provider"]},
+                {"label": "Recent Reports", "value": str(len(reports["items"]))},
+                {"label": "Recent Activity", "value": str(len(session["recent_activity"]))},
+                {"label": "Implementation Progress", "value": f"{workspace['summary'].get('overall_readiness', 0.0):.1f}%"},
+            ],
+            "session_overview": [
+                ("Current Project", session["current_project"]),
+                ("Current Repository", session["current_repository"]),
+                ("Current Workspace", session["current_workspace"]),
+                ("Current Branch", session["current_branch"]),
+                ("Current Engineering Session", runtime.get("current_session", {}).get("identifier", "") or "n/a"),
+                ("Current Sprint", session["current_sprint"] or "n/a"),
+                ("Current Epic", session["current_epic"] or "n/a"),
+                ("Current Issue", session["current_issue"] or "n/a"),
+                ("Current AI Provider", session["current_ai_provider"]),
+                ("Next Recommended Action", (diagnostics.get("recommendations") or ["Review runtime diagnostics and continue implementation."])[0]),
+            ],
+            "runtime_overview": [
+                ("Runtime State", runtime.get("state", "unknown")),
+                ("Health", "HEALTHY" if runtime.get("health", {}).get("healthy") else "UNHEALTHY"),
+                ("Ready", "YES" if runtime.get("health", {}).get("ready") else "NO"),
+                ("Port", runtime.get("port", "n/a")),
+                ("Environment", runtime.get("environment", "unknown")),
+                ("Loaded Services", ", ".join(runtime.get("loaded_services", [])) or "None"),
+                ("Loaded Engines", ", ".join(runtime.get("loaded_engines", [])) or "None"),
+            ],
+            "product_status": [
+                ("Current Project", session["current_project"]),
+                ("Repository Health", str(repository["health_summary"].get("status", "unknown"))),
+                ("Runtime Status", runtime.get("state", session["current_runtime_status"])),
+                ("Current Sprint", session["current_sprint"] or "n/a"),
+                ("Current Epic", session["current_epic"] or "n/a"),
+                ("Current Issue", session["current_issue"] or "n/a"),
+                ("Current AI Provider", session["current_ai_provider"]),
+                ("Recent Reports", str(len(reports["items"]))),
+                ("Implementation Progress", f"{workspace['summary'].get('overall_readiness', 0.0):.1f}%"),
+                ("Next Recommended Action", (diagnostics.get("recommendations") or ["Review runtime diagnostics and continue implementation."])[0]),
             ],
             "recent_activity": session["recent_activity"],
             "recent_reports": reports["items"][:5],
@@ -692,6 +869,8 @@ class EngineeringDashboardService:
             {"href": "/projects", "label": "Project Manager"},
             {"href": "/session", "label": "Engineering Session"},
             {"href": "/explorer", "label": "Engineering Explorer"},
+            {"href": "/runtime", "label": "Runtime"},
+            {"href": "/diagnostics", "label": "Diagnostics"},
             {"href": "/reports", "label": "Reports"},
         ]
 
@@ -869,6 +1048,26 @@ class EngineeringDashboardService:
         summary = escape(str(health.get("summary", "")))
         return f"<p><strong>Status:</strong> {escape(str(health.get('status', 'unknown')))} · <strong>Score:</strong> {score}%</p><p>{summary}</p><table><thead><tr><th>Check</th><th>Result</th><th>Details</th></tr></thead><tbody>{''.join(rows)}</tbody></table>"
 
+    def _health_matrix(self, health: Mapping[str, Any]) -> str:
+        checks = health.get("checks", {})
+        rows = []
+        for name, ok in checks.items():
+            rows.append(
+                "<tr>"
+                f"<td>{escape(str(name))}</td>"
+                f"<td>{'PASS' if ok else 'FAIL'}</td>"
+                "</tr>"
+            )
+        if not rows:
+            rows.append("<tr><td colspan=\"2\">No health checks available.</td></tr>")
+        return (
+            f"<p><strong>Healthy:</strong> {'YES' if health.get('healthy') else 'NO'} · "
+            f"<strong>Ready:</strong> {'YES' if health.get('ready') else 'NO'}</p>"
+            "<table><thead><tr><th>Check</th><th>Result</th></tr></thead><tbody>"
+            + "".join(rows)
+            + "</tbody></table>"
+        )
+
     def _metrics_table(self, metrics: Mapping[str, Any]) -> str:
         rows = []
         for key, value in metrics.items():
@@ -930,6 +1129,42 @@ class EngineeringDashboardService:
             html.append(f"<dt>{escape(str(key))}</dt><dd>{escape(str(value))}</dd>")
         html.append("</dl>")
         return "".join(html)
+
+    def _bullet_list(self, items: Iterable[Any]) -> str:
+        values = list(items)
+        if not values:
+            return "<p>None.</p>"
+        return "<ul>" + "".join(f"<li>{escape(str(item))}</li>" for item in values) + "</ul>"
+
+    def _issue_table(self, items: Iterable[Mapping[str, Any]]) -> str:
+        rows = []
+        for item in items:
+            rows.append(
+                "<tr>"
+                f"<td>{escape(str(item.get('timestamp', '')))}</td>"
+                f"<td>{escape(str(item.get('severity', '')))}</td>"
+                f"<td>{escape(str(item.get('source', '')))}</td>"
+                f"<td>{escape(str(item.get('message', '')))}</td>"
+                f"<td>{escape(str(item.get('details', '')))}</td>"
+                "</tr>"
+            )
+        if not rows:
+            rows.append("<tr><td colspan=\"5\">No runtime issues detected.</td></tr>")
+        return "<table><thead><tr><th>Timestamp</th><th>Severity</th><th>Source</th><th>Message</th><th>Details</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+
+    def _startup_log(self, entries: Iterable[Mapping[str, Any]]) -> str:
+        rows = []
+        for entry in entries:
+            rows.append(
+                "<tr>"
+                f"<td>{escape(str(entry.get('timestamp', '')))}</td>"
+                f"<td>{escape(str(entry.get('state', '')))}</td>"
+                f"<td>{escape(str(entry.get('message', '')))}</td>"
+                "</tr>"
+            )
+        if not rows:
+            rows.append("<tr><td colspan=\"3\">No startup events recorded.</td></tr>")
+        return "<table><thead><tr><th>Timestamp</th><th>State</th><th>Message</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
 
     def _iso_from_timestamp(self, timestamp: float) -> str:
         return datetime.fromtimestamp(timestamp, tz=timezone.utc).isoformat()

@@ -28,6 +28,14 @@ class _DashboardRequestHandler(BaseHTTPRequestHandler):
             payload = server.service.build(refresh="refresh=1" in parsed.query)
             self._send_json(payload["capabilities"])
             return
+        if path == "/api/runtime":
+            payload = server.service.build(refresh="refresh=1" in parsed.query)
+            self._send_json(payload["runtime"])
+            return
+        if path == "/api/diagnostics":
+            payload = server.service.build(refresh="refresh=1" in parsed.query)
+            self._send_json(payload["diagnostics"])
+            return
         payload = server.service.build(refresh="refresh=1" in parsed.query)
         if path == "/":
             self._send_html(server.service.render_home(payload))
@@ -43,6 +51,12 @@ class _DashboardRequestHandler(BaseHTTPRequestHandler):
             return
         if path == "/reports":
             self._send_html(server.service.render_reports(payload))
+            return
+        if path == "/runtime":
+            self._send_html(server.service.render_runtime(payload))
+            return
+        if path == "/diagnostics":
+            self._send_html(server.service.render_diagnostics(payload))
             return
         if path.startswith("/capabilities/"):
             slug = path.rsplit("/", 1)[-1]
