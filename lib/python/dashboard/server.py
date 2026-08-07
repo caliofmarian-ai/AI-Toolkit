@@ -16,7 +16,7 @@ class _DashboardRequestHandler(BaseHTTPRequestHandler):
 
     def do_GET(self) -> None:
         parsed = urlparse(self.path)
-        path = parsed.path
+        path = self._normalize_path(parsed.path)
         query = parse_qs(parsed.query)
         server = self.server._dashboard_server  # type: ignore[attr-defined]
         if path == "/health":
@@ -97,6 +97,14 @@ class _DashboardRequestHandler(BaseHTTPRequestHandler):
             self._send_html(page)
             return
         self._send_json({"error": "not found"}, status=404)
+
+    def _normalize_path(self, path: str) -> str:
+        aliases = {
+            "/dashboard": "/",
+            "/project-manager": "/projects",
+            "/engineering-session": "/session",
+        }
+        return aliases.get(path, path)
 
     def _send_html(self, html: str, status: int = 200) -> None:
         body = html.encode("utf-8")

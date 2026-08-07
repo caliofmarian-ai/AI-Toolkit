@@ -61,11 +61,12 @@ class _RuntimeHandler(BaseHTTPRequestHandler):
         path = parsed.path
         query = parse_qs(parsed.query)
         srv = self.__class__._server_ref
+        normalized_dashboard_path = srv.normalize_dashboard_path(path)
         prefer_json = query.get("format", [""])[0] == "json" or "application/json" in self.headers.get("Accept", "")
-        if path == "/" and not prefer_json and srv.dashboard_service is not None:
+        if normalized_dashboard_path == "/" and not prefer_json and srv.dashboard_service is not None:
             self._send_html(srv.render_dashboard(path, query))
 
-        elif path == "/" and prefer_json:
+        elif normalized_dashboard_path == "/" and prefer_json:
             data = srv.api.status()
             self._send_json(data)
         elif path in ("/health", "/api/v1/health"):
@@ -91,13 +92,28 @@ class _RuntimeHandler(BaseHTTPRequestHandler):
             self._send_json(srv.api.metrics())
         elif path in ("/status", "/api/v1/status"):
             self._send_json(srv.api.status())
-        elif srv.dashboard_service is not None and path in (
+        elif srv.dashboard_service is not None and normalized_dashboard_path in (
+            "/",
             "/projects",
             "/session",
+            "/repository",
+            "/ai-control-center",
             "/explorer",
             "/reports",
+            "/runtime",
+            "/diagnostics",
         ):
             self._send_html(srv.render_dashboard(path, query))
+        elif srv.dashboard_service is not None and path == "/api/ai/control-center":
+            payload = srv.dashboard_payload(refresh="1" in query.get("refresh", []))
+            self._send_json(payload.get("ai_control_center", {}))
+        elif srv.dashboard_service is not None and path == "/api/ai/ask":
+            question = (query.get("q") or [""])[0].strip()
+            prompt_name = (query.get("prompt") or [""])[0].strip()
+            if not question and not prompt_name:
+                self._send_json({"error": "missing query"}, 400)
+                return
+            self._send_json(srv.dashboard_service.ask_repository(question=question, prompt_name=prompt_name))
         elif srv.dashboard_service is not None and path == "/api/dashboard":
             self._send_json(srv.dashboard_payload(refresh="1" in query.get("refresh", [])))
         elif srv.dashboard_service is not None and path == "/api/capabilities":
@@ -274,21 +290,39 @@ class RuntimeHttpServer:
             return None
         refresh = "1" in query.get("refresh", [])
         payload = self.dashboard_service.build(refresh=refresh)
-        if path == "/":
+        normalized_path = self.normalize_dashboard_path(path)
+        if normalized_path == "/":
             return self.dashboard_service.render_home(payload)
-        if path == "/projects":
+        if normalized_path == "/projects":
             return self.dashboard_service.render_projects(payload)
-        if path == "/session":
+        if normalized_path == "/session":
             return self.dashboard_service.render_session(payload)
-        if path == "/explorer":
+        if normalized_path == "/repository":
+            question = (query.get("q") or [""])[0].strip()
+            prompt_name = (query.get("prompt") or [""])[0].strip()
+            return self.dashboard_service.render_repository(payload, question=question, prompt_name=prompt_name)
+        if normalized_path == "/ai-control-center":
+            return self.dashboard_service.render_ai_control_center(payload)
+        if normalized_path == "/explorer":
             return self.dashboard_service.render_explorer(payload)
-        if path == "/reports":
+        if normalized_path == "/reports":
             return self.dashboard_service.render_reports(payload)
-        if path == "/runtime":
+        if normalized_path == "/runtime":
             return self.dashboard_service.render_runtime(payload)
-        if path == "/diagnostics":
+        if normalized_path == "/diagnostics":
             return self.dashboard_service.render_diagnostics(payload)
-        if path.startswith("/capabilities/"):
-            slug = path.rsplit("/", 1)[-1]
+        if normalized_path.startswith("/capabilities/"):
+            slug = normalized_path.rsplit("/", 1)[-1]
             return self.dashboard_service.render_capability(slug, payload)
         return None
+
+    def normalize_dashboard_path(self, path: str) -> str:
+        aliases = {
+            "/dashboard": "/",
+            "/project-manager": "/projects",
+            "/engineering-session": "/session",
+            "/knowledge": "/explorer",
+            "/validation": "/diagnostics",
+            "/settings": "/runtime",
+        }
+        return aliases.get(path, path)

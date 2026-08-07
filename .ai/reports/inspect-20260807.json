@@ -2,30 +2,44 @@
   "path": "/home/runner/work/AI-Toolkit/AI-Toolkit",
   "name": "AI-Toolkit",
   "metrics": {
-    "total_files": 1056,
-    "total_directories": 180,
+    "total_files": 1087,
+    "total_directories": 183,
     "language_distribution": {
-      "json": 67,
+      "json": 74,
       "markdown": 503,
-      "python": 353,
+      "python": 368,
       "yaml": 4
     },
     "file_class_distribution": {
-      "build": 76,
-      "config": 69,
+      "build": 78,
+      "config": 76,
       "doc": 516,
       "generated": 1,
-      "source": 284,
-      "test": 103,
+      "source": 297,
+      "test": 112,
       "unknown": 7
     },
-    "test_file_count": 103,
+    "test_file_count": 112,
     "documentation_file_count": 516,
-    "entry_point_count": 5,
-    "documentation_coverage_ratio": 0.48863636363636365,
-    "test_coverage_ratio": 0.09753787878787878
+    "entry_point_count": 6,
+    "documentation_coverage_ratio": 0.47470101195952163,
+    "test_coverage_ratio": 0.10303587856485741
   },
   "classified_files": [
+    {
+      "path": ".ai/ai_sessions/AI-SESSION-368EB75BCDE7.json",
+      "file_class": "config",
+      "category": "Configuration",
+      "language": "json",
+      "is_executable": false
+    },
+    {
+      "path": ".ai/ai_sessions/AI-SESSION-FEC25CA0CFF9.json",
+      "file_class": "config",
+      "category": "Configuration",
+      "language": "json",
+      "is_executable": false
+    },
     {
       "path": ".ai/batches/.gitkeep",
       "file_class": "unknown",
@@ -370,6 +384,20 @@
       "is_executable": false
     },
     {
+      "path": ".ai/runtime/logs/runtime_periodic_20260807_034758.json",
+      "file_class": "config",
+      "category": "Configuration",
+      "language": "json",
+      "is_executable": false
+    },
+    {
+      "path": ".ai/runtime/logs/runtime_periodic_20260807_034937.json",
+      "file_class": "config",
+      "category": "Configuration",
+      "language": "json",
+      "is_executable": false
+    },
+    {
       "path": ".ai/runtime/sessions/.gitkeep",
       "file_class": "unknown",
       "category": "Unknown",
@@ -381,6 +409,27 @@
       "file_class": "unknown",
       "category": "Unknown",
       "language": "unknown",
+      "is_executable": false
+    },
+    {
+      "path": ".ai/runtime/state/runtime_diagnostics.json",
+      "file_class": "config",
+      "category": "Configuration",
+      "language": "json",
+      "is_executable": false
+    },
+    {
+      "path": ".ai/runtime/state/runtime_status.json",
+      "file_class": "config",
+      "category": "Configuration",
+      "language": "json",
+      "is_executable": false
+    },
+    {
+      "path": ".ai/runtime/state/shutdown_state.json",
+      "file_class": "config",
+      "category": "Configuration",
+      "language": "json",
       "is_executable": false
     },
     {
@@ -2757,6 +2806,76 @@
       "is_executable": true
     },
     {
+      "path": "lib/python/ai_platform/__init__.py",
+      "file_class": "build",
+      "category": "Bootstrap",
+      "language": "python",
+      "is_executable": true
+    },
+    {
+      "path": "lib/python/ai_platform/adapters.py",
+      "file_class": "source",
+      "category": "Executable Code",
+      "language": "python",
+      "is_executable": true
+    },
+    {
+      "path": "lib/python/ai_platform/context_builder.py",
+      "file_class": "source",
+      "category": "Executable Code",
+      "language": "python",
+      "is_executable": true
+    },
+    {
+      "path": "lib/python/ai_platform/model_manager.py",
+      "file_class": "source",
+      "category": "Executable Code",
+      "language": "python",
+      "is_executable": true
+    },
+    {
+      "path": "lib/python/ai_platform/pipeline.py",
+      "file_class": "source",
+      "category": "Executable Code",
+      "language": "python",
+      "is_executable": true
+    },
+    {
+      "path": "lib/python/ai_platform/prompt_library.py",
+      "file_class": "source",
+      "category": "Executable Code",
+      "language": "python",
+      "is_executable": true
+    },
+    {
+      "path": "lib/python/ai_platform/registry.py",
+      "file_class": "source",
+      "category": "Executable Code",
+      "language": "python",
+      "is_executable": true
+    },
+    {
+      "path": "lib/python/ai_platform/service.py",
+      "file_class": "source",
+      "category": "Executable Code",
+      "language": "python",
+      "is_executable": true
+    },
+    {
+      "path": "lib/python/ai_platform/sessions.py",
+      "file_class": "source",
+      "category": "Executable Code",
+      "language": "python",
+      "is_executable": true
+    },
+    {
+      "path": "lib/python/ai_platform/settings.py",
+      "file_class": "source",
+      "category": "Executable Code",
+      "language": "python",
+      "is_executable": true
+    },
+    {
       "path": "lib/python/audit_engine/__init__.py",
       "file_class": "build",
       "category": "Bootstrap",
@@ -3234,6 +3353,27 @@
     },
     {
       "path": "lib/python/coverage_engine/engine.py",
+      "file_class": "source",
+      "category": "Executable Code",
+      "language": "python",
+      "is_executable": true
+    },
+    {
+      "path": "lib/python/dashboard/__init__.py",
+      "file_class": "build",
+      "category": "Bootstrap",
+      "language": "python",
+      "is_executable": true
+    },
+    {
+      "path": "lib/python/dashboard/server.py",
+      "file_class": "source",
+      "category": "Runtime Entry Point",
+      "language": "python",
+      "is_executable": true
+    },
+    {
+      "path": "lib/python/dashboard/service.py",
       "file_class": "source",
       "category": "Executable Code",
       "language": "python",
@@ -4479,6 +4619,13 @@
       "is_executable": true
     },
     {
+      "path": "lib/python/runtime/diagnostics.py",
+      "file_class": "source",
+      "category": "Executable Code",
+      "language": "python",
+      "is_executable": true
+    },
+    {
       "path": "lib/python/runtime/event_dispatcher.py",
       "file_class": "source",
       "category": "Executable Code",
@@ -4641,6 +4788,13 @@
     },
     {
       "path": "lib/python/runtime/shutdown.py",
+      "file_class": "source",
+      "category": "Executable Code",
+      "language": "python",
+      "is_executable": true
+    },
+    {
+      "path": "lib/python/runtime/state.py",
       "file_class": "source",
       "category": "Executable Code",
       "language": "python",
@@ -6670,6 +6824,13 @@
       "is_executable": false
     },
     {
+      "path": "tests/test_ai_platform.sh",
+      "file_class": "test",
+      "category": "Tests",
+      "language": "unknown",
+      "is_executable": false
+    },
+    {
       "path": "tests/test_autonomous_execution_engine.sh",
       "file_class": "test",
       "category": "Tests",
@@ -6810,6 +6971,27 @@
       "is_executable": false
     },
     {
+      "path": "tests/test_dashboard.sh",
+      "file_class": "test",
+      "category": "Tests",
+      "language": "unknown",
+      "is_executable": false
+    },
+    {
+      "path": "tests/test_dashboard_cli.sh",
+      "file_class": "test",
+      "category": "Tests",
+      "language": "unknown",
+      "is_executable": false
+    },
+    {
+      "path": "tests/test_dashboard_navigation.sh",
+      "file_class": "test",
+      "category": "Tests",
+      "language": "unknown",
+      "is_executable": false
+    },
+    {
       "path": "tests/test_decision_engine.sh",
       "file_class": "test",
       "category": "Tests",
@@ -6888,6 +7070,20 @@
     },
     {
       "path": "tests/test_drift_engine.sh",
+      "file_class": "test",
+      "category": "Tests",
+      "language": "unknown",
+      "is_executable": false
+    },
+    {
+      "path": "tests/test_engineering_explorer.sh",
+      "file_class": "test",
+      "category": "Tests",
+      "language": "unknown",
+      "is_executable": false
+    },
+    {
+      "path": "tests/test_engineering_session.sh",
       "file_class": "test",
       "category": "Tests",
       "language": "unknown",
@@ -7034,6 +7230,13 @@
       "is_executable": false
     },
     {
+      "path": "tests/test_project_manager.sh",
+      "file_class": "test",
+      "category": "Tests",
+      "language": "unknown",
+      "is_executable": false
+    },
+    {
       "path": "tests/test_python_packages.sh",
       "file_class": "test",
       "category": "Tests",
@@ -7104,6 +7307,13 @@
       "is_executable": false
     },
     {
+      "path": "tests/test_repository_integration_dashboard.sh",
+      "file_class": "test",
+      "category": "Tests",
+      "language": "unknown",
+      "is_executable": false
+    },
+    {
       "path": "tests/test_repository_inventory.sh",
       "file_class": "test",
       "category": "Tests",
@@ -7147,6 +7357,13 @@
     },
     {
       "path": "tests/test_runtime_bootstrap.sh",
+      "file_class": "test",
+      "category": "Tests",
+      "language": "unknown",
+      "is_executable": false
+    },
+    {
+      "path": "tests/test_runtime_dashboard_navigation.sh",
       "file_class": "test",
       "category": "Tests",
       "language": "unknown",
@@ -7429,6 +7646,7 @@
   ],
   "entry_points": [
     "lib/python/cli/main.py",
+    "lib/python/dashboard/server.py",
     "lib/python/development_validator.py",
     "lib/python/development_validator/main.py",
     "lib/python/foundation_audit/main.py",
@@ -7436,9 +7654,9 @@
   ],
   "dependencies": {
     "manifests": {},
-    "internal_import_edges": 1272,
-    "internal_import_nodes": 353,
-    "unresolved_imports": 689
+    "internal_import_edges": 1366,
+    "internal_import_nodes": 368,
+    "unresolved_imports": 752
   },
   "health_summary": {
     "status": "HEALTHY",
@@ -7448,12 +7666,12 @@
       {
         "name": "Repository has source files",
         "passed": true,
-        "message": "1056 files"
+        "message": "1087 files"
       },
       {
         "name": "Repository has tests",
         "passed": true,
-        "message": "103 test files"
+        "message": "112 test files"
       },
       {
         "name": "Repository has documentation",
@@ -7463,7 +7681,7 @@
       {
         "name": "Repository has entry points",
         "passed": true,
-        "message": "5 entry points"
+        "message": "6 entry points"
       },
       {
         "name": "Repository has dependency metadata",
