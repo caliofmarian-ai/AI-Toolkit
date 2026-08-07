@@ -120,7 +120,9 @@ class AISettingsStore:
         return f"{'*' * (len(stripped) - 4)}{stripped[-4:]}"
 
     def _fingerprint(self, value: str) -> str:
-        return hashlib.sha256(value.encode("utf-8")).hexdigest()
+        salt = str(self.root).encode("utf-8")
+        digest = hashlib.pbkdf2_hmac("sha256", value.encode("utf-8"), salt, 120_000)
+        return digest.hex()
 
 
 def masked_provider_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
