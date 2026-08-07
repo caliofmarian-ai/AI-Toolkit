@@ -1,0 +1,530 @@
+(*
+  CSL v2 — Canonical EBNF Grammar
+  Identifier: CSL-002-EBNF
+  Version:    2.0.0
+  Status:     Normative
+  Owner:      AI CTO
+  Depends:    CSL-001, CSL-002, CSL-013
+
+  This file is the normative executable grammar of the Canonical Specification
+  Language version 2.  Every conforming parser SHALL implement this grammar
+  exactly.  Deviations require an approved RFC and a version increment.
+
+  Notation
+  --------
+  ::=          production rule assignment
+  |            ordered alternative (first match wins)
+  [ X ]        X is optional (zero or one occurrence)
+  { X }        X is repeated zero or more times
+  ( X )        grouping
+  "..."        literal terminal (case-sensitive)
+  'A'..'Z'     character range (inclusive)
+  (* ... *)    non-normative comment
+  UPPER_CASE   token category defined in §1 Lexical Grammar
+*)
+
+(*══════════════════════════════════════════════════════════════════════════════
+  §1  LEXICAL GRAMMAR
+  Tokens are the atomic units produced by the lexer (CSL-013).
+  Whitespace and comments are consumed by the lexer and never appear in the
+  syntactic grammar unless explicitly referenced.
+══════════════════════════════════════════════════════════════════════════════*)
+
+(* §1.1  File encoding and line endings *)
+(* Every CSL v2 source file SHALL be encoded in UTF-8 without BOM.           *)
+(* Line endings SHALL be normalised to LF by the lexer before tokenisation.  *)
+(* Recommended file extension: .csl                                           *)
+
+(* §1.2  Whitespace — consumed and discarded by the lexer *)
+WHITESPACE     ::= ( " " | "\t" | "\r" | "\n" )+ ;
+
+(* §1.3  Line endings *)
+NEWLINE        ::= "\r\n" | "\n" ;
+
+(* §1.4  Comments — consumed and optionally preserved as trivia tokens *)
+LINE_COMMENT   ::= "#" { ANY_CHAR_EXCEPT_NEWLINE } NEWLINE ;
+BLOCK_COMMENT  ::= "(*" { ANY_CHAR } "*)" ;
+(* ANY_CHAR_EXCEPT_NEWLINE is any Unicode scalar value except U+000A / U+000D *)
+(* ANY_CHAR is any Unicode scalar value                                        *)
+
+(* §1.5  Identifiers *)
+IDENTIFIER     ::= LETTER { LETTER | DIGIT | "-" | "_" } ;
+LETTER         ::= "A".."Z" | "a".."z" ;
+DIGIT          ::= "0".."9" ;
+
+(* §1.6  Namespaced identifier — dot-separated qualified name *)
+QNAME          ::= IDENTIFIER { "." IDENTIFIER } ;
+
+(* §1.7  Literals *)
+STRING         ::= '"' { STRING_CHAR } '"' ;
+STRING_CHAR    ::= UNICODE_SCALAR_EXCEPT_DQUOTE_NEWLINE
+                 | "\\" ( '"' | "\\" | "n" | "r" | "t" | "u" HEX HEX HEX HEX ) ;
+HEX            ::= DIGIT | "A".."F" | "a".."f" ;
+
+INTEGER        ::= [ "-" ] DIGIT { DIGIT } ;
+DECIMAL        ::= [ "-" ] DIGIT { DIGIT } "." DIGIT { DIGIT } [ EXP ] ;
+EXP            ::= ( "e" | "E" ) [ "+" | "-" ] DIGIT { DIGIT } ;
+
+BOOLEAN        ::= "true" | "false" ;
+NULL_LITERAL   ::= "null" ;
+
+DATE           ::= DIGIT DIGIT DIGIT DIGIT "-" DIGIT DIGIT "-" DIGIT DIGIT ;
+TIMESTAMP      ::= DATE "T" DIGIT DIGIT ":" DIGIT DIGIT ":" DIGIT DIGIT
+                   [ "." DIGIT { DIGIT } ] [ "Z" | ( "+" | "-" ) DIGIT DIGIT ":" DIGIT DIGIT ] ;
+DURATION       ::= INTEGER ( "d" | "h" | "m" | "s" ) ;
+
+VERSION_LIT    ::= DIGIT { DIGIT } "." DIGIT { DIGIT } "." DIGIT { DIGIT }
+                   [ "-" IDENTIFIER { "." ( IDENTIFIER | DIGIT { DIGIT } ) } ]
+                   [ "+" IDENTIFIER { "." ( IDENTIFIER | DIGIT { DIGIT } ) } ] ;
+
+(* §1.8  Delimiters *)
+(* The following single-character tokens are used in the syntactic grammar:  *)
+(* "{" "}" "(" ")" "[" "]" ":" "," "." "@" "|" "?" "!" ";" "=" "=>"        *)
+
+(* §1.9  Indentation tokens (emitted by the lexer as INDENT / DEDENT)        *)
+(* One indentation level equals FOUR SPACES.  Tabs are a lexical error.       *)
+INDENT         ::= (* increase in indentation level *) ;
+DEDENT         ::= (* decrease in indentation level *) ;
+
+
+(*══════════════════════════════════════════════════════════════════════════════
+  §2  RESERVED KEYWORDS
+  Keywords SHALL NOT be used as user-defined identifiers.
+  See reserved_keywords.md for the authoritative taxonomy.
+══════════════════════════════════════════════════════════════════════════════*)
+
+(* §2.1  Module-level keywords *)
+KEYWORD_MODULE     ::= "module" ;
+KEYWORD_NAMESPACE  ::= "namespace" ;
+KEYWORD_IMPORT     ::= "import" ;
+KEYWORD_EXPORT     ::= "export" ;
+KEYWORD_AS         ::= "as" ;
+KEYWORD_FROM       ::= "from" ;
+KEYWORD_VERSION    ::= "version" ;
+KEYWORD_STATUS     ::= "status" ;
+KEYWORD_METADATA   ::= "metadata" ;
+
+(* §2.2  Declaration keywords *)
+KEYWORD_ENTITY     ::= "entity" ;
+KEYWORD_RELATIONSHIP ::= "relationship" ;
+KEYWORD_RULE       ::= "rule" ;
+KEYWORD_EVIDENCE   ::= "evidence" ;
+KEYWORD_CONSTRAINT ::= "constraint" ;
+KEYWORD_POLICY     ::= "policy" ;
+KEYWORD_TYPE       ::= "type" ;
+KEYWORD_ENUM       ::= "enum" ;
+KEYWORD_ALIAS      ::= "alias" ;
+
+(* §2.3  Typing and property keywords *)
+KEYWORD_EXTENDS    ::= "extends" ;
+KEYWORD_IMPLEMENTS ::= "implements" ;
+KEYWORD_REQUIRED   ::= "required" ;
+KEYWORD_OPTIONAL   ::= "optional" ;
+KEYWORD_READONLY   ::= "readonly" ;
+KEYWORD_UNIQUE     ::= "unique" ;
+
+(* §2.4  Relationship verbs *)
+KEYWORD_CONTAINS   ::= "contains" ;
+KEYWORD_DEPENDS_ON ::= "depends_on" ;
+KEYWORD_REFERENCES ::= "references" ;
+KEYWORD_REQUIRES   ::= "requires" ;
+KEYWORD_OWNS       ::= "owns" ;
+KEYWORD_APPROVES   ::= "approves" ;
+KEYWORD_TESTS      ::= "tests" ;
+KEYWORD_VALIDATES  ::= "validates" ;
+KEYWORD_GENERATES  ::= "generates" ;
+KEYWORD_DEPLOYS    ::= "deploys" ;
+KEYWORD_PUBLISHES  ::= "publishes" ;
+KEYWORD_CONSUMES   ::= "consumes" ;
+KEYWORD_SUPPORTS   ::= "supports" ;
+KEYWORD_BELONGS_TO ::= "belongs_to" ;
+KEYWORD_TRACES_TO  ::= "traces_to" ;
+KEYWORD_SUPERSEDES ::= "supersedes" ;
+
+(* §2.5  Rule and logic keywords *)
+KEYWORD_WHEN       ::= "when" ;
+KEYWORD_THEN       ::= "then" ;
+KEYWORD_OTHERWISE  ::= "otherwise" ;
+KEYWORD_AND        ::= "and" ;
+KEYWORD_OR         ::= "or" ;
+KEYWORD_NOT        ::= "not" ;
+KEYWORD_IS         ::= "is" ;
+KEYWORD_IN         ::= "in" ;
+KEYWORD_HAS        ::= "has" ;
+
+(* §2.6  Governance keywords *)
+KEYWORD_APPROVED   ::= "approved" ;
+KEYWORD_DRAFT      ::= "draft" ;
+KEYWORD_DEPRECATED ::= "deprecated" ;
+KEYWORD_EXPERIMENTAL ::= "experimental" ;
+KEYWORD_WITHDRAWN  ::= "withdrawn" ;
+
+(* §2.7  Visibility keywords *)
+KEYWORD_PUBLIC     ::= "public" ;
+KEYWORD_INTERNAL   ::= "internal" ;
+KEYWORD_PRIVATE    ::= "private" ;
+KEYWORD_PROTECTED  ::= "protected" ;
+KEYWORD_RESTRICTED ::= "restricted" ;
+
+(* §2.9  Rule action keywords *)
+KEYWORD_EMIT       ::= "emit" ;
+KEYWORD_ERROR      ::= "error" ;
+KEYWORD_WARNING    ::= "warning" ;
+KEYWORD_INFO       ::= "info" ;
+
+
+(*══════════════════════════════════════════════════════════════════════════════
+  §3  TOP-LEVEL SYNTACTIC GRAMMAR
+  The start symbol is module.
+══════════════════════════════════════════════════════════════════════════════*)
+
+(* §3.1  Module — top-level compilation unit *)
+module             ::= module_header { top_level_decl } EOF ;
+
+module_header      ::= KEYWORD_MODULE module_name NEWLINE
+                       { module_header_field } ;
+
+module_name        ::= QNAME ;
+
+module_header_field ::= version_field
+                      | status_field
+                      | namespace_field
+                      | metadata_block
+                      | import_decl
+                      | NEWLINE ;
+
+version_field      ::= KEYWORD_VERSION ":" VERSION_LIT NEWLINE ;
+status_field       ::= KEYWORD_STATUS  ":" governance_status NEWLINE ;
+namespace_field    ::= KEYWORD_NAMESPACE ":" QNAME NEWLINE ;
+
+governance_status  ::= KEYWORD_APPROVED
+                     | KEYWORD_DRAFT
+                     | KEYWORD_DEPRECATED
+                     | KEYWORD_EXPERIMENTAL
+                     | KEYWORD_WITHDRAWN ;
+
+(* §3.2  Import declaration *)
+import_decl        ::= KEYWORD_IMPORT import_path
+                       [ KEYWORD_AS IDENTIFIER ]
+                       [ KEYWORD_VERSION VERSION_LIT ]
+                       NEWLINE ;
+
+import_path        ::= STRING | QNAME ;
+
+
+(*══════════════════════════════════════════════════════════════════════════════
+  §4  TOP-LEVEL DECLARATIONS
+══════════════════════════════════════════════════════════════════════════════*)
+
+top_level_decl     ::= entity_decl
+                     | relationship_decl
+                     | rule_decl
+                     | evidence_decl
+                     | constraint_decl
+                     | policy_decl
+                     | type_decl
+                     | enum_decl
+                     | alias_decl
+                     | namespace_decl
+                     | export_decl
+                     | comment
+                     | NEWLINE ;
+
+(* §4.1  Namespace block *)
+namespace_decl     ::= KEYWORD_NAMESPACE IDENTIFIER NEWLINE
+                       INDENT { top_level_decl } DEDENT ;
+
+(* §4.2  Export declaration *)
+export_decl        ::= KEYWORD_EXPORT IDENTIFIER
+                       [ KEYWORD_AS IDENTIFIER ] NEWLINE ;
+
+
+(*══════════════════════════════════════════════════════════════════════════════
+  §5  ENTITY DECLARATION
+══════════════════════════════════════════════════════════════════════════════*)
+
+entity_decl        ::= entity_kind ":" NEWLINE
+                       INDENT entity_body DEDENT ;
+
+entity_kind        ::= "Project" | "Capability" | "Feature" | "Requirement"
+                     | "Decision" | "Risk" | "Issue" | "Epic" | "Milestone"
+                     | "Task" | "Component" | "Module" | "Service" | "API"
+                     | KEYWORD_ENTITY | "Generator" | "Validator" | "Compiler"
+                     | "Runtime" | "Knowledge" | "Reference" | "Approval"
+                     | "Deployment" | "Environment" | "Provider" | "Model"
+                     | "Prompt" | IDENTIFIER ;
+                     (* IDENTIFIER allows extension via governed vocabulary additions *)
+
+(*
+  Note: The entity identifier is declared via the 'Identifier:' field inside
+  entity_body (identifier_field).  There is no separate name token on the
+  entity declaration line; the opening line is simply entity_kind ":".
+*)
+
+entity_body        ::= { entity_field } ;
+
+entity_field       ::= identifier_field
+                     | name_field
+                     | version_field
+                     | status_field
+                     | visibility_field
+                     | description_field
+                     | classification_field
+                     | owner_field
+                     | tags_field
+                     | attribute_field
+                     | constraint_inline
+                     | relationship_inline
+                     | metadata_block
+                     | comment
+                     | NEWLINE ;
+
+identifier_field   ::= "Identifier" ":" IDENTIFIER NEWLINE ;
+name_field         ::= "Name" ":" STRING NEWLINE ;
+description_field  ::= "Description" ":" ( STRING | multiline_string ) NEWLINE ;
+classification_field ::= "Classification" ":" STRING NEWLINE ;
+owner_field        ::= "Owner" ":" ( STRING | IDENTIFIER ) NEWLINE ;
+tags_field         ::= "Tags" ":" list_value NEWLINE ;
+visibility_field   ::= "Visibility" ":" visibility_value NEWLINE ;
+
+visibility_value   ::= KEYWORD_PUBLIC | KEYWORD_INTERNAL | KEYWORD_PRIVATE
+                     | KEYWORD_PROTECTED | KEYWORD_RESTRICTED ;
+
+attribute_field    ::= IDENTIFIER ":" value NEWLINE
+                     | IDENTIFIER ":" NEWLINE INDENT value_list DEDENT ;
+
+constraint_inline  ::= KEYWORD_CONSTRAINT IDENTIFIER ":" constraint_body NEWLINE ;
+
+relationship_inline ::= "Relationship" ":" NEWLINE
+                        INDENT relationship_body DEDENT ;
+
+
+(*══════════════════════════════════════════════════════════════════════════════
+  §6  RELATIONSHIP DECLARATION
+══════════════════════════════════════════════════════════════════════════════*)
+
+relationship_decl  ::= "Relationship" ":" NEWLINE
+                       INDENT relationship_body DEDENT ;
+
+relationship_body  ::= source_ref relationship_verb target_ref NEWLINE
+                       { relationship_attribute } ;
+
+source_ref         ::= entity_ref ;
+target_ref         ::= entity_ref ;
+entity_ref         ::= QNAME [ "@" VERSION_LIT ] ;
+
+relationship_verb  ::= KEYWORD_IMPLEMENTS
+                     | KEYWORD_CONTAINS
+                     | KEYWORD_DEPENDS_ON
+                     | KEYWORD_EXTENDS
+                     | KEYWORD_REFERENCES
+                     | KEYWORD_REQUIRES
+                     | KEYWORD_OWNS
+                     | KEYWORD_APPROVES
+                     | KEYWORD_TESTS
+                     | KEYWORD_VALIDATES
+                     | KEYWORD_GENERATES
+                     | KEYWORD_DEPLOYS
+                     | KEYWORD_PUBLISHES
+                     | KEYWORD_CONSUMES
+                     | KEYWORD_SUPPORTS
+                     | KEYWORD_BELONGS_TO
+                     | KEYWORD_TRACES_TO
+                     | KEYWORD_SUPERSEDES ;
+
+relationship_attribute ::= IDENTIFIER ":" value NEWLINE ;
+
+
+(*══════════════════════════════════════════════════════════════════════════════
+  §7  RULE DECLARATION
+══════════════════════════════════════════════════════════════════════════════*)
+
+rule_decl          ::= KEYWORD_RULE IDENTIFIER NEWLINE
+                       INDENT rule_body DEDENT ;
+
+rule_body          ::= [ name_field ]
+                       [ status_field ]
+                       [ description_field ]
+                       when_clause
+                       then_clause
+                       [ otherwise_clause ]
+                       { rule_attribute } ;
+
+when_clause        ::= KEYWORD_WHEN ":" NEWLINE INDENT condition_expr DEDENT ;
+then_clause        ::= KEYWORD_THEN ":" NEWLINE INDENT action_list DEDENT ;
+otherwise_clause   ::= KEYWORD_OTHERWISE ":" NEWLINE INDENT action_list DEDENT ;
+
+condition_expr     ::= condition_term { ( KEYWORD_AND | KEYWORD_OR ) condition_term } ;
+condition_term     ::= [ KEYWORD_NOT ] condition_atom ;
+condition_atom     ::= entity_ref predicate
+                     | "(" condition_expr ")" ;
+
+predicate          ::= KEYWORD_IS governance_status
+                     | KEYWORD_HAS IDENTIFIER
+                     | KEYWORD_IN list_value
+                     | comparison_op value ;
+
+comparison_op      ::= "=" | "!=" | "<" | "<=" | ">" | ">=" ;
+
+action_list        ::= { action_stmt } ;
+action_stmt        ::= IDENTIFIER ":" value NEWLINE
+                     | KEYWORD_EMIT    STRING NEWLINE
+                     | KEYWORD_ERROR   STRING NEWLINE
+                     | KEYWORD_WARNING STRING NEWLINE
+                     | KEYWORD_INFO    STRING NEWLINE ;
+
+rule_attribute     ::= IDENTIFIER ":" value NEWLINE ;
+
+
+(*══════════════════════════════════════════════════════════════════════════════
+  §8  EVIDENCE DECLARATION
+══════════════════════════════════════════════════════════════════════════════*)
+
+evidence_decl      ::= KEYWORD_EVIDENCE IDENTIFIER NEWLINE
+                       INDENT evidence_body DEDENT ;
+
+evidence_body      ::= [ name_field ]
+                       [ status_field ]
+                       [ description_field ]
+                       evidence_type_field
+                       { evidence_attribute } ;
+
+evidence_type_field ::= "Type" ":" evidence_type_value NEWLINE ;
+evidence_type_value ::= "TestResult" | "ReviewRecord" | "ApprovalRecord"
+                      | "AuditLog" | "Measurement" | "Certification"
+                      | IDENTIFIER ;
+
+evidence_attribute  ::= IDENTIFIER ":" value NEWLINE ;
+
+
+(*══════════════════════════════════════════════════════════════════════════════
+  §9  CONSTRAINT DECLARATION
+══════════════════════════════════════════════════════════════════════════════*)
+
+constraint_decl    ::= KEYWORD_CONSTRAINT IDENTIFIER NEWLINE
+                       INDENT constraint_body_block DEDENT ;
+
+constraint_body    ::= condition_expr ;
+constraint_body_block ::= [ name_field ]
+                          [ description_field ]
+                          [ status_field ]
+                          "Expression" ":" NEWLINE INDENT condition_expr DEDENT
+                          { constraint_attribute } ;
+
+constraint_attribute ::= IDENTIFIER ":" value NEWLINE ;
+
+
+(*══════════════════════════════════════════════════════════════════════════════
+  §10  POLICY DECLARATION
+══════════════════════════════════════════════════════════════════════════════*)
+
+policy_decl        ::= KEYWORD_POLICY IDENTIFIER NEWLINE
+                       INDENT policy_body DEDENT ;
+
+policy_body        ::= [ name_field ]
+                       [ status_field ]
+                       [ description_field ]
+                       { policy_rule_ref }
+                       { policy_attribute } ;
+
+policy_rule_ref    ::= KEYWORD_RULE ":" entity_ref NEWLINE ;
+policy_attribute   ::= IDENTIFIER ":" value NEWLINE ;
+
+
+(*══════════════════════════════════════════════════════════════════════════════
+  §11  TYPE DECLARATIONS
+══════════════════════════════════════════════════════════════════════════════*)
+
+type_decl          ::= KEYWORD_TYPE IDENTIFIER [ KEYWORD_EXTENDS entity_ref ] NEWLINE
+                       INDENT type_body DEDENT ;
+
+type_body          ::= { type_field } ;
+
+type_field         ::= IDENTIFIER ":" type_annotation NEWLINE
+                     | KEYWORD_REQUIRED IDENTIFIER ":" type_annotation NEWLINE
+                     | KEYWORD_OPTIONAL IDENTIFIER ":" type_annotation NEWLINE
+                     | KEYWORD_READONLY IDENTIFIER ":" type_annotation NEWLINE
+                     | KEYWORD_UNIQUE IDENTIFIER ":" type_annotation NEWLINE
+                     | comment
+                     | NEWLINE ;
+
+type_annotation    ::= scalar_type
+                     | composite_type
+                     | reference_type
+                     | IDENTIFIER ;         (* user-defined type name *)
+
+scalar_type        ::= "String" | "Integer" | "Decimal" | "Boolean"
+                     | "Date" | "Timestamp" | "Duration" | "Version"
+                     | "Null" | "Any" ;
+
+composite_type     ::= "List" "[" type_annotation "]"
+                     | "Set"  "[" type_annotation "]"
+                     | "Map"  "[" scalar_type "," type_annotation "]"
+                     | "Optional" "[" type_annotation "]" ;
+
+reference_type     ::= "Ref" "[" QNAME "]" ;
+
+enum_decl          ::= KEYWORD_ENUM IDENTIFIER NEWLINE
+                       INDENT { IDENTIFIER NEWLINE } DEDENT ;
+
+alias_decl         ::= KEYWORD_ALIAS IDENTIFIER "=" type_annotation NEWLINE ;
+
+
+(*══════════════════════════════════════════════════════════════════════════════
+  §12  METADATA BLOCK
+══════════════════════════════════════════════════════════════════════════════*)
+
+metadata_block     ::= KEYWORD_METADATA NEWLINE
+                       INDENT { metadata_field } DEDENT ;
+
+metadata_field     ::= IDENTIFIER ":" value NEWLINE
+                     | comment
+                     | NEWLINE ;
+
+
+(*══════════════════════════════════════════════════════════════════════════════
+  §13  VALUE EXPRESSIONS
+══════════════════════════════════════════════════════════════════════════════*)
+
+value              ::= STRING
+                     | INTEGER
+                     | DECIMAL
+                     | BOOLEAN
+                     | DATE
+                     | TIMESTAMP
+                     | DURATION
+                     | VERSION_LIT
+                     | NULL_LITERAL
+                     | QNAME
+                     | list_value
+                     | map_value
+                     | multiline_string ;
+
+value_list         ::= { "-" value NEWLINE } ;
+
+list_value         ::= "[" [ value { "," value } ] "]" ;
+
+map_value          ::= "{" [ map_entry { "," map_entry } ] "}" ;
+map_entry          ::= STRING ":" value ;
+
+multiline_string   ::= "|" NEWLINE INDENT { STRING_LINE } DEDENT ;
+STRING_LINE        ::= (* any UTF-8 text line *) NEWLINE ;
+
+
+(*══════════════════════════════════════════════════════════════════════════════
+  §14  COMMENTS AND WHITESPACE
+══════════════════════════════════════════════════════════════════════════════*)
+
+comment            ::= LINE_COMMENT | BLOCK_COMMENT ;
+
+
+(*══════════════════════════════════════════════════════════════════════════════
+  §15  END-OF-FILE SENTINEL
+══════════════════════════════════════════════════════════════════════════════*)
+
+EOF                ::= (* end of input stream *) ;
+
+
+(*──────────────────────────────────────────────────────────────────────────────
+  End of csl_v2.ebnf — CSL v2 Canonical EBNF Grammar  (CSL-002-EBNF  v2.0.0)
+──────────────────────────────────────────────────────────────────────────────*)
