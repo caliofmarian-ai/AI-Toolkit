@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping, Optional
 
 from python.ai_platform import AIPlatformService
+from python.context_synchronization_engine import ContextSynchronizationEngine
 from python.context_synchronization_engine.engine import GitContextProvider
 from python.repository_engine.engine import RepositoryEngine
 from python.repository_engine.serializer import RepositoryProfileSerializer
@@ -254,14 +255,23 @@ class EngineeringDashboardService:
         ):
             return self._cached_payload
 
+        engineering_context = self._load_engineering_context(refresh=refresh)
         ai_control_center = self._load_ai_control_center()
-        session = self._load_session(ai_control_center=ai_control_center)
+        session = self._load_session(
+            engineering_context=engineering_context,
+            ai_control_center=ai_control_center,
+        )
         repository = self._load_repository_profile()
         workspace = self._load_workspace_summary()
-        reports = self._load_reports()
-        runtime = self._load_runtime(session, workspace)
+        reports = self._load_reports(engineering_context=engineering_context)
+        runtime = self._load_runtime(session, workspace, engineering_context=engineering_context)
         diagnostics = self._load_diagnostics(runtime)
-        capabilities = self._load_capabilities(workspace, session)
+        capabilities = self._load_capabilities(
+            workspace,
+            session,
+            runtime,
+            engineering_context=engineering_context,
+        )
 
         payload = {
             "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -276,6 +286,7 @@ class EngineeringDashboardService:
             "diagnostics": diagnostics,
             "capabilities": capabilities,
             "ai_control_center": ai_control_center,
+            "engineering_context": engineering_context,
         }
         self._cached_payload = payload
         self._cache_expires_at = now + self.cache_ttl_seconds
@@ -592,7 +603,12 @@ class EngineeringDashboardService:
             ],
         }
 
-    def _load_session(self, ai_control_center: Optional[Mapping[str, Any]] = None) -> Dict[str, Any]:
+    def _load_session(
+        self,
+        *,
+        engineering_context: Optional[Mapping[str, Any]] = None,
+        ai_control_center: Optional[Mapping[str, Any]] = None,
+    ) -> Dict[str, Any]:
         state = self._read_json(self.repository_root / ".ai" / "development_state" / "current_state.json") or {}
         snapshot = self._read_json(self.repository_root / ".ai" / "development_state" / "executive_snapshot.json") or {}
         events = self._read_json(self.repository_root / ".ai" / "development_state" / "events.json") or {}
@@ -602,6 +618,8 @@ class EngineeringDashboardService:
         repository_state = state.get("repository_state", {})
         execution_state = state.get("execution_state", {})
         current_context = snapshot.get("current_context", {})
+        live_context = (engineering_context or {}).get("implementation_context", {}).get("traceability", {})
+        project_data = (engineering_context or {}).get("project_context", {}).get("data", {})
         ai_provider = self._detect_ai_provider(ai_control_center=ai_control_center)
         session_history = []
         sessions_dir = self.repository_root / ".ai" / "sessions"
@@ -629,13 +647,13 @@ class EngineeringDashboardService:
                 }
             )
         return {
-            "current_project": workspace_state.get("active_project", self.repository_root.name),
+            "current_project": project_data.get("repository_context", {}).get("name", "") or workspace_state.get("active_project", self.repository_root.name),
             "current_repository": repository_state.get("repository", self.repository_root.name),
             "current_branch": repository_state.get("branch", git_context.get("current_branch", "")),
             "current_workspace": workspace_state.get("active_workspace", str(self.workspace_root)),
             "current_sprint": planning_state.get("current_sprint", current_context.get("current_epic", "")),
-            "current_epic": current_context.get("current_epic", workspace_state.get("current_objective", "")),
-            "current_issue": current_context.get("current_issue", ""),
+            "current_epic": live_context.get("current_epic", "") or current_context.get("current_epic", workspace_state.get("current_objective", "")),
+            "current_issue": live_context.get("current_issue", "") or current_context.get("current_issue", ""),
             "current_engineering_task": workspace_state.get("current_task", current_context.get("current_task", "")),
             "current_runtime": execution_state.get("current_executor", "runtime"),
             "current_runtime_status": repository_state.get("repository_health", "unknown"),
@@ -648,15 +666,15 @@ class EngineeringDashboardService:
                 {"label": "Current Branch", "value": repository_state.get("branch", git_context.get("current_branch", ""))},
                 {"label": "Current Workspace", "value": workspace_state.get("active_workspace", str(self.workspace_root))},
                 {"label": "Current Sprint", "value": planning_state.get("current_sprint", "n/a")},
-                {"label": "Current Epic", "value": current_context.get("current_epic", "n/a")},
-                {"label": "Current Issue", "value": current_context.get("current_issue", "n/a")},
+                {"label": "Current Epic", "value": live_context.get("current_epic", "") or current_context.get("current_epic", "n/a")},
+                {"label": "Current Issue", "value": live_context.get("current_issue", "") or current_context.get("current_issue", "n/a")},
                 {"label": "Current Engineering Task", "value": workspace_state.get("current_task", "n/a")},
                 {"label": "Current Runtime", "value": execution_state.get("current_executor", "runtime")},
                 {"label": "Current AI Provider", "value": ai_provider},
             ],
         }
 
-    def _load_reports(self) -> Dict[str, Any]:
+    def _load_reports(self, *, engineering_context: Optional[Mapping[str, Any]] = None) -> Dict[str, Any]:
         report_specs = [
             ("Repository Inspection", self._latest_json_path(self.repository_root / ".ai" / "reports", "inspect-*.json")),
             ("Executive Briefing", self.repository_root / ".ai" / "executive" / "briefing.json"),
@@ -665,6 +683,8 @@ class EngineeringDashboardService:
             ("Self Evaluation", self.repository_root / ".ai" / "self_evaluation" / "evaluation.json"),
             ("Self Improvement", self.repository_root / ".ai" / "self_improvement" / "improvements.json"),
             ("Workspace Dashboard", self.workspace_root / ".ai" / "workspace" / "dashboard.json"),
+            ("Engineering Context", self.repository_root / ".ai" / "context" / "engineering_context.json"),
+            ("Decision History", self.repository_root / ".ai" / "context" / "decision_history.json"),
         ]
         available_report_specs = [path for _, path in report_specs if path is not None]
         items = []
@@ -689,7 +709,13 @@ class EngineeringDashboardService:
             ],
         }
 
-    def _load_runtime(self, session: Mapping[str, Any], workspace: Mapping[str, Any]) -> Dict[str, Any]:
+    def _load_runtime(
+        self,
+        session: Mapping[str, Any],
+        workspace: Mapping[str, Any],
+        *,
+        engineering_context: Optional[Mapping[str, Any]] = None,
+    ) -> Dict[str, Any]:
         persisted = self._read_json(self.repository_root / ".ai" / "runtime" / "state" / "runtime_status.json") or {}
         runtime_payload = persisted.get("runtime", {})
         health = persisted.get("health", {})
@@ -724,6 +750,9 @@ class EngineeringDashboardService:
                 "repository_detected": True,
                 "workspace_detected": True,
             }
+        runtime_payload["engineering_context"] = engineering_context or self._read_json(
+            self.repository_root / ".ai" / "context" / "engineering_context.json"
+        ) or {}
         if not health:
             health = {
                 "healthy": bool(runtime_payload.get("dashboard_initialized", True)),
@@ -731,6 +760,7 @@ class EngineeringDashboardService:
                 "checks": {
                     "runtime_alive": True,
                     "dashboard_initialized": bool(runtime_payload.get("dashboard_initialized", True)),
+                    "engineering_context_initialized": bool(runtime_payload.get("engineering_context", {})),
                     "repository_loaded": bool(runtime_payload.get("repository_detected", True)),
                     "session_initialized": bool(runtime_payload.get("current_session", {}).get("project")),
                 },
@@ -758,6 +788,7 @@ class EngineeringDashboardService:
             ("Current Workspace", runtime_payload.get("current_workspace", str(self.workspace_root))),
             ("Current Project", runtime_payload.get("current_project", self.repository_root.name)),
             ("Current Session", runtime_payload.get("current_session", {}).get("identifier", "") or runtime_payload.get("current_session", {}).get("task", "") or "n/a"),
+            ("Engineering Context", "LOADED" if runtime_payload.get("engineering_context") else "MISSING"),
         ]
         return {
             **runtime_payload,
@@ -795,9 +826,18 @@ class EngineeringDashboardService:
     def ask_repository(self, question: str, prompt_name: str = "") -> Dict[str, Any]:
         return self.ai_platform.ask_repository(question=question, prompt_name=prompt_name)
 
-    def _load_capabilities(self, workspace: Mapping[str, Any], session: Mapping[str, Any]) -> Dict[str, Any]:
+    def _load_capabilities(
+        self,
+        workspace: Mapping[str, Any],
+        session: Mapping[str, Any],
+        runtime: Mapping[str, Any],
+        *,
+        engineering_context: Optional[Mapping[str, Any]] = None,
+    ) -> Dict[str, Any]:
         statuses: Dict[str, str] = {}
         items: List[Dict[str, Any]] = []
+        runtime_healthy = bool((runtime.get("health", {}) or {}).get("healthy"))
+        engineering_context_loaded = bool(engineering_context)
         for definition in CAPABILITY_DEFINITIONS:
             resolved_paths = self._resolve_related_paths(definition.related_paths)
             resolved_tests = self._resolve_related_paths(definition.related_tests)
@@ -809,6 +849,14 @@ class EngineeringDashboardService:
                 status = "Implemented"
             elif implementation_percentage > 0:
                 status = "In Progress"
+            if status == "Implemented" and resolved_tests:
+                status = "Validated"
+            if (
+                definition.slug in {"dashboard", "runtime", "engineering-session", "project-manager"}
+                and engineering_context_loaded
+                and runtime_healthy
+            ):
+                status = "Operational"
             statuses[definition.slug] = status
             items.append(
                 {
@@ -851,7 +899,11 @@ class EngineeringDashboardService:
                 }
             )
         for item in items:
-            blocking = [dependency for dependency in item["dependencies"] if statuses.get(dependency) not in {None, "Implemented"}]
+            blocking = [
+                dependency
+                for dependency in item["dependencies"]
+                if statuses.get(dependency) not in {None, "Implemented", "Validated", "Operational"}
+            ]
             item["blocking_dependencies"] = blocking
             if item["status"] == "Planned" and blocking:
                 item["status"] = "Blocked"
@@ -859,6 +911,8 @@ class EngineeringDashboardService:
         in_progress = sum(1 for item in items if item["status"] == "In Progress")
         planned = sum(1 for item in items if item["status"] == "Planned")
         blocked = sum(1 for item in items if item["status"] == "Blocked")
+        validated = sum(1 for item in items if item["status"] == "Validated")
+        operational = sum(1 for item in items if item["status"] == "Operational")
         return {
             "items": items,
             "summary_cards": [
@@ -867,8 +921,22 @@ class EngineeringDashboardService:
                 {"label": "In Progress", "value": str(in_progress)},
                 {"label": "Planned", "value": str(planned)},
                 {"label": "Blocked", "value": str(blocked)},
+                {"label": "Validated", "value": str(validated)},
+                {"label": "Operational", "value": str(operational)},
             ],
         }
+
+    def _load_engineering_context(self, *, refresh: bool = False) -> Dict[str, Any]:
+        path = self.repository_root / ".ai" / "context" / "engineering_context.json"
+        if not path.exists():
+            try:
+                return ContextSynchronizationEngine(
+                    repository=str(self.repository_root),
+                    workspace_root=str(self.workspace_root),
+                ).synchronize(refresh=False).get("engineering_context", {})
+            except Exception:
+                return self._read_json(path) or {}
+        return self._read_json(path) or {}
 
     def _home_payload(
         self,

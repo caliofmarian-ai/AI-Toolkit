@@ -35,6 +35,7 @@ assert rt.reports is not None, "reports must be set"
 assert rt.runtime_state is not None, "runtime_state must be set"
 assert rt.diagnostics is not None, "diagnostics must be set"
 assert rt.dashboard_service is not None, "dashboard_service must be set"
+assert rt.engineering_context is not None, "engineering_context must be set"
 assert rt.http_server is not None, "http_server must be set"
 assert rt.github_webhook is not None, "github_webhook must be set"
 assert rt.telegram is not None, "telegram must be set"
@@ -65,6 +66,14 @@ assert len(engines) >= 1, "Expected at least one engine registered"
 import pathlib
 status_path = pathlib.Path(rt.config.state_dir) / "runtime_status.json"
 assert status_path.exists(), f"Missing runtime status snapshot: {status_path}"
+context_path = pathlib.Path(".ai/context/engineering_context.json")
+decision_history_path = pathlib.Path(".ai/context/decision_history.json")
+assert context_path.exists(), f"Missing engineering context snapshot: {context_path}"
+assert decision_history_path.exists(), f"Missing decision history snapshot: {decision_history_path}"
+import json
+status_payload = json.loads(status_path.read_text(encoding="utf-8"))
+assert status_payload["runtime"]["engineering_context_initialized"] is True
+assert status_payload["runtime"]["engineering_context"]["repository_context"]["owner"] == "Repository Engine"
 
 # Clean up
 rt.stop()

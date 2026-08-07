@@ -8,6 +8,19 @@ def _to_tuple(values) -> Tuple[str, ...]:
     return tuple(str(v) for v in values or ())
 
 
+def _normalize_mapping(value: Any) -> Any:
+    if isinstance(value, Mapping):
+        return {
+            str(key): _normalize_mapping(item)
+            for key, item in sorted(value.items(), key=lambda pair: str(pair[0]))
+        }
+    if isinstance(value, tuple):
+        return [_normalize_mapping(item) for item in value]
+    if isinstance(value, list):
+        return [_normalize_mapping(item) for item in value]
+    return value
+
+
 @dataclass(frozen=True)
 class SynchronizationFinding:
     category: str
@@ -80,6 +93,136 @@ class SynchronizationReport:
             findings=tuple(
                 SynchronizationFinding.from_dict(item)
                 for item in data.get("findings", ())
+            ),
+            schema_version=str(data.get("schema_version", SCHEMA_VERSION)),
+        )
+
+
+@dataclass(frozen=True)
+class EngineeringContextSection:
+    name: str
+    owner: str
+    loader: str
+    generated_at: str
+    artifacts: Tuple[str, ...] = ()
+    provenance: Dict[str, Any] = None
+    traceability: Dict[str, Any] = None
+    validation: Dict[str, Any] = None
+    data: Dict[str, Any] = None
+    schema_version: str = SCHEMA_VERSION
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "schema_version": self.schema_version,
+            "name": self.name,
+            "owner": self.owner,
+            "loader": self.loader,
+            "generated_at": self.generated_at,
+            "artifacts": list(self.artifacts),
+            "provenance": _normalize_mapping(self.provenance or {}),
+            "traceability": _normalize_mapping(self.traceability or {}),
+            "validation": _normalize_mapping(self.validation or {}),
+            "data": _normalize_mapping(self.data or {}),
+        }
+
+    @classmethod
+    def from_dict(cls, data: Mapping[str, Any]) -> "EngineeringContextSection":
+        return cls(
+            name=str(data.get("name", "")),
+            owner=str(data.get("owner", "")),
+            loader=str(data.get("loader", "")),
+            generated_at=str(data.get("generated_at", "")),
+            artifacts=_to_tuple(data.get("artifacts", ())),
+            provenance=dict(_normalize_mapping(data.get("provenance", {}))),
+            traceability=dict(_normalize_mapping(data.get("traceability", {}))),
+            validation=dict(_normalize_mapping(data.get("validation", {}))),
+            data=dict(_normalize_mapping(data.get("data", {}))),
+            schema_version=str(data.get("schema_version", SCHEMA_VERSION)),
+        )
+
+
+@dataclass(frozen=True)
+class EngineeringContext:
+    generated_at: str
+    repository: str
+    workspace: str
+    repository_context: EngineeringContextSection
+    canonical_context: EngineeringContextSection
+    governance_context: EngineeringContextSection
+    runtime_context: EngineeringContextSection
+    implementation_context: EngineeringContextSection
+    dashboard_context: EngineeringContextSection
+    knowledge_context: EngineeringContextSection
+    decision_context: EngineeringContextSection
+    executive_context: EngineeringContextSection
+    project_context: EngineeringContextSection
+    decision_history: Tuple[Dict[str, Any], ...] = ()
+    validation_summary: Dict[str, Any] = None
+    schema_version: str = SCHEMA_VERSION
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "schema_version": self.schema_version,
+            "generated_at": self.generated_at,
+            "repository": self.repository,
+            "workspace": self.workspace,
+            "repository_context": self.repository_context.to_dict(),
+            "canonical_context": self.canonical_context.to_dict(),
+            "governance_context": self.governance_context.to_dict(),
+            "runtime_context": self.runtime_context.to_dict(),
+            "implementation_context": self.implementation_context.to_dict(),
+            "dashboard_context": self.dashboard_context.to_dict(),
+            "knowledge_context": self.knowledge_context.to_dict(),
+            "decision_context": self.decision_context.to_dict(),
+            "executive_context": self.executive_context.to_dict(),
+            "project_context": self.project_context.to_dict(),
+            "decision_history_count": len(self.decision_history),
+            "decision_history": [_normalize_mapping(item) for item in self.decision_history],
+            "validation_summary": _normalize_mapping(self.validation_summary or {}),
+        }
+
+    @classmethod
+    def from_dict(cls, data: Mapping[str, Any]) -> "EngineeringContext":
+        return cls(
+            generated_at=str(data.get("generated_at", "")),
+            repository=str(data.get("repository", "")),
+            workspace=str(data.get("workspace", "")),
+            repository_context=EngineeringContextSection.from_dict(
+                data.get("repository_context", {})
+            ),
+            canonical_context=EngineeringContextSection.from_dict(
+                data.get("canonical_context", {})
+            ),
+            governance_context=EngineeringContextSection.from_dict(
+                data.get("governance_context", {})
+            ),
+            runtime_context=EngineeringContextSection.from_dict(
+                data.get("runtime_context", {})
+            ),
+            implementation_context=EngineeringContextSection.from_dict(
+                data.get("implementation_context", {})
+            ),
+            dashboard_context=EngineeringContextSection.from_dict(
+                data.get("dashboard_context", {})
+            ),
+            knowledge_context=EngineeringContextSection.from_dict(
+                data.get("knowledge_context", {})
+            ),
+            decision_context=EngineeringContextSection.from_dict(
+                data.get("decision_context", {})
+            ),
+            executive_context=EngineeringContextSection.from_dict(
+                data.get("executive_context", {})
+            ),
+            project_context=EngineeringContextSection.from_dict(
+                data.get("project_context", {})
+            ),
+            decision_history=tuple(
+                dict(_normalize_mapping(item))
+                for item in data.get("decision_history", ())
+            ),
+            validation_summary=dict(
+                _normalize_mapping(data.get("validation_summary", {}))
             ),
             schema_version=str(data.get("schema_version", SCHEMA_VERSION)),
         )

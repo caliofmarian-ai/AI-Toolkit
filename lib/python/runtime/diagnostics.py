@@ -31,11 +31,25 @@ class RuntimeDiagnosticsService:
         self.cli_commands = list(cli_commands)
         self._dashboard_initialized = False
         self._dashboard_error = ""
+        self._engineering_context_initialized = False
+        self._engineering_context_error = ""
+        self._engineering_context_summary: Dict[str, Any] = {}
         self._startup_duration_seconds = 0.0
 
     def mark_dashboard_initialized(self, *, initialized: bool, error: str = "") -> None:
         self._dashboard_initialized = initialized
         self._dashboard_error = error
+
+    def mark_engineering_context_initialized(
+        self,
+        *,
+        initialized: bool,
+        error: str = "",
+        summary: Optional[Mapping[str, Any]] = None,
+    ) -> None:
+        self._engineering_context_initialized = initialized
+        self._engineering_context_error = error
+        self._engineering_context_summary = dict(summary or {})
 
     def set_startup_duration(self, seconds: float) -> None:
         self._startup_duration_seconds = max(seconds, 0.0)
@@ -67,6 +81,7 @@ class RuntimeDiagnosticsService:
             "host": config.http_host,
             "environment": config.environment,
             "dashboard_initialized": self._dashboard_initialized,
+            "engineering_context_initialized": self._engineering_context_initialized,
             "loaded_services": registry.list_services(),
             "loaded_engines": registry.list_engines(),
             "registered_cli_commands": list(self.cli_commands),
@@ -80,6 +95,7 @@ class RuntimeDiagnosticsService:
             "repository_detected": self.repository_root.exists(),
             "workspace_detected": self.workspace_root.exists(),
             "loaded_modules": self._loaded_modules(),
+            "engineering_context": self._engineering_context(),
         }
         diagnostics_payload = {
             "issues": runtime_state.issues(),
@@ -95,6 +111,9 @@ class RuntimeDiagnosticsService:
             "future_improvements": self._future_improvements(runtime_payload),
             "dashboard_initialized": self._dashboard_initialized,
             "dashboard_error": self._dashboard_error,
+            "engineering_context_initialized": self._engineering_context_initialized,
+            "engineering_context_error": self._engineering_context_error,
+            "engineering_context_summary": dict(self._engineering_context_summary),
             "supervisor": supervisor.summary(),
             "metrics": metrics.snapshot(),
             "lifecycle": lifecycle.to_dict(),
@@ -137,12 +156,23 @@ class RuntimeDiagnosticsService:
         checks = {
             "runtime_alive": True,
             "dashboard_initialized": self._dashboard_initialized,
+            "engineering_context_initialized": self._engineering_context_initialized,
             "repository_loaded": self.repository_root.exists(),
             "session_initialized": bool(self._active_session()),
             "workspace_detected": self.workspace_root.exists(),
         }
         if self._dashboard_error:
             checks["dashboard_initialized"] = False
+        if self._engineering_context_error:
+            checks["engineering_context_initialized"] = False
+        context_payload = self._engineering_context()
+        checks["decision_history_loaded"] = bool(
+            context_payload.get("decision_context")
+            or (self.repository_root / ".ai" / "context" / "decision_history.json").exists()
+        )
+        checks["executive_briefing_loaded"] = bool(
+            context_payload.get("executive_context", {}).get("validation", {}).get("briefing_generated", False)
+        )
         healthy = all(checks.values())
         ready = healthy and readiness.get("ready", False) and runtime_state.current_state == RuntimePublicState.READY
         return {
@@ -206,6 +236,8 @@ class RuntimeDiagnosticsService:
             warnings.append("No runtime engines are registered.")
         if not runtime_payload.get("dashboard_initialized"):
             warnings.append("Dashboard bootstrap is incomplete.")
+        if not runtime_payload.get("engineering_context_initialized"):
+            warnings.append("Engineering context bootstrap is incomplete.")
         return warnings
 
     def _recommendations(self, runtime_payload: Mapping[str, Any]) -> List[str]:
@@ -214,6 +246,8 @@ class RuntimeDiagnosticsService:
             recommendations.append("Resolve failing runtime checks before deploying.")
         if not runtime_payload.get("registered_providers"):
             recommendations.append("Configure at least one AI provider for engineering workflows.")
+        if not runtime_payload.get("engineering_context_initialized"):
+            recommendations.append("Rebuild the engineering context before relying on runtime decisions.")
         recommendations.append("Keep the runtime entry point on the dashboard-backed server surface.")
         return recommendations
 
@@ -228,3 +262,9 @@ class RuntimeDiagnosticsService:
         if not path.exists():
             return None
         return json.loads(path.read_text(encoding="utf-8"))
+
+    def _engineering_context(self) -> Dict[str, Any]:
+        payload = self._read_json(self.repository_root / ".ai" / "context" / "engineering_context.json") or {}
+        if payload:
+            return payload
+        return dict(self._engineering_context_summary)
