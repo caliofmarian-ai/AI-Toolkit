@@ -128,7 +128,7 @@ class WorkspaceScanner:
         scan_data: Dict[str, Any] = {}
         scan_error: Optional[str] = None
         try:
-            engine = AICTOScannerEngine(repository=str(root_path))
+            engine = AICTOScannerEngine(repository=str(root_path), output_dir=str(root_path))
             scan_data = engine.scan()
         except Exception as exc:  # noqa: BLE001
             scan_error = str(exc)

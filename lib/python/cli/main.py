@@ -455,6 +455,49 @@ improve_parser.add_argument(
     help="Show only roadmap update recommendations",
 )
 
+dashboard_parser = sub.add_parser(
+    "dashboard",
+    help="Serve the Engineering Operating System dashboard",
+)
+dashboard_parser.add_argument(
+    "dashboard_action",
+    nargs="?",
+    default="serve",
+    choices=["serve"],
+    help="Dashboard action to execute (default: serve)",
+)
+dashboard_parser.add_argument(
+    "--host",
+    default="127.0.0.1",
+    help="HTTP host to bind (default: 127.0.0.1)",
+)
+dashboard_parser.add_argument(
+    "--port",
+    type=int,
+    default=8081,
+    help="HTTP port to bind (default: 8081)",
+)
+dashboard_parser.add_argument(
+    "--repository",
+    default=".",
+    metavar="PATH",
+    dest="dashboard_repository",
+    help="Path to the repository (default: current directory)",
+)
+dashboard_parser.add_argument(
+    "--workspace",
+    default=None,
+    metavar="PATH",
+    dest="dashboard_workspace",
+    help="Path to the workspace root (default: parent of repository)",
+)
+dashboard_parser.add_argument(
+    "--open-browser",
+    action="store_true",
+    dest="dashboard_open_browser",
+    help="Open the dashboard URL in the default browser",
+)
+
 args = parser.parse_args()
 
 if args.command == "inventory":
@@ -829,6 +872,24 @@ elif args.command == "improve":
             print(f"  Summary: {d.get('summary', '')}")
         if paths.get("markdown"):
             print(f"  Report:          {paths['markdown']}")
+
+elif args.command == "dashboard":
+
+    from python.dashboard import serve_dashboard
+
+    repository = getattr(args, "dashboard_repository", ".")
+    workspace_root = getattr(args, "dashboard_workspace", None)
+    host = getattr(args, "host", "127.0.0.1")
+    port = getattr(args, "port", 8081)
+    open_browser = getattr(args, "dashboard_open_browser", False)
+
+    serve_dashboard(
+        host=host,
+        port=port,
+        repository_root=repository,
+        workspace_root=workspace_root,
+        open_browser=open_browser,
+    )
 
 else:
 

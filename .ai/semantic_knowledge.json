@@ -1,39 +1,39 @@
 {
   "schema_version": "1.0.0",
-  "repository": "/storage/emulated/0/AI-Projects/AI-Toolkit",
-  "captured_at": "2026-08-03T13:10:01Z",
+  "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
+  "captured_at": "2026-08-07T01:35:54Z",
   "analysis": {
     "import_graph": {
-      "node_count": 250,
-      "edge_count": 875,
+      "node_count": 356,
+      "edge_count": 1298,
       "circular_dependency_count": 0,
       "critical_modules": [
         "lib/python/workspace_index/__init__.py",
         "lib/python/autonomous_planning_engine/models.py",
+        "lib/python/canonical_entities/__init__.py",
         "lib/python/executive_briefing_engine/models.py",
         "lib/python/semantic_repository_intelligence/models.py",
         "lib/python/workspace_orchestrator/models.py",
-        "lib/python/canonical_entities/__init__.py",
-        "lib/python/executable_repository_intelligence/models.py",
-        "lib/python/semantic_repository_intelligence/__init__.py",
-        "lib/python/agent_runtime/models.py",
-        "lib/python/repository_engine/engine.py"
+        "lib/python/repository_engine/engine.py",
+        "lib/python/engineering_engine/github_publish_engine.py",
+        "lib/python/engineering_engine/github_project_planner.py",
+        "lib/python/engineering_engine/semantic_entities.py"
       ],
       "orphan_modules": [
         "lib/python/__init__.py",
         "lib/python/agent_runtime/__init__.py",
         "lib/python/agents/__init__.py",
         "lib/python/agents/repository_inspector_agent.py",
-        "lib/python/autonomous_planner/__init__.py",
-        "lib/python/autonomous_workflow_engine.py",
-        "lib/python/batch_generator/__init__.py",
-        "lib/python/canonical_audit/__init__.py",
-        "lib/python/cli/__init__.py",
-        "lib/python/cli/main.py"
+        "lib/python/audit_engine/__init__.py",
+        "lib/python/audit_engine/audit_diff.py",
+        "lib/python/audit_engine/audit_engine.py",
+        "lib/python/audit_engine/audit_history.py",
+        "lib/python/audit_engine/audit_registry.py",
+        "lib/python/audit_engine/audit_report.py"
       ]
     },
     "call_graph": {
-      "edge_count": 339,
+      "edge_count": 420,
       "entry_points": [
         "lib/python/agent_runtime/base.py::run",
         "lib/python/agent_runtime/runtime.py::execute",
@@ -42,53 +42,54 @@
         "lib/python/agents/repository_inspector_agent.py::run",
         "lib/python/autonomous_execution_engine/engine.py::execute",
         "lib/python/canonical_intelligence/engine.py::run",
+        "lib/python/dashboard/server.py::start",
         "lib/python/development_validator.py::__main__",
-        "lib/python/development_validator/main.py::__main__",
-        "lib/python/development_validator/main.py::run"
+        "lib/python/development_validator/main.py::__main__"
       ]
     },
     "architecture_graph": {
       "node_count": 15,
-      "edge_count": 50,
+      "edge_count": 64,
       "hotspots": [
         "lib/python/workspace_index/__init__.py",
         "lib/python/autonomous_planning_engine/models.py",
+        "lib/python/canonical_entities/__init__.py",
         "lib/python/executive_briefing_engine/models.py",
-        "lib/python/semantic_repository_intelligence/models.py",
-        "lib/python/workspace_orchestrator/models.py"
+        "lib/python/semantic_repository_intelligence/models.py"
       ],
       "extension_points": [
         "Agent Runtime",
+        "CLI",
         "Canonical Intelligence",
         "Compliance / Coverage / Drift",
-        "Core / Common",
-        "Planning"
+        "Core / Common"
       ],
       "risk_count": 5
     },
     "dependency_graph": {
       "external_dependency_count": 0,
-      "internal_module_count": 250
+      "internal_module_count": 356
     },
     "complexity": {
-      "total_files": 459,
-      "total_symbols": 1698,
-      "total_imports": 878,
-      "total_functions": 1342,
-      "total_classes": 356,
-      "avg_imports_per_module": 1.91,
-      "avg_functions_per_file": 2.92,
-      "max_imports_in_module": 29,
+      "total_files": 931,
+      "total_symbols": 2232,
+      "total_imports": 1302,
+      "total_functions": 1683,
+      "total_classes": 549,
+      "avg_imports_per_module": 1.4,
+      "avg_functions_per_file": 1.81,
+      "max_imports_in_module": 30,
       "max_functions_in_file": 54,
-      "cyclomatic_complexity_estimate": 2.29,
+      "cyclomatic_complexity_estimate": 2.25,
       "language_distribution": {
-        "json": 90,
-        "markdown": 119,
-        "python": 250
+        "json": 67,
+        "markdown": 504,
+        "python": 356,
+        "yaml": 4
       }
     },
     "recommendation_count": 10,
-    "injection_point_count": 147,
+    "injection_point_count": 251,
     "next_core": "CORE-009 — Development State Engine: Persist full development state for cross-session reasoning."
   }
 }
