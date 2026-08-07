@@ -342,8 +342,8 @@ class EngineeringDashboardService:
                     [
                         {"label": "Ask AI Requests", "value": str(usage.get("requests", 0))},
                         {"label": "Tokens", "value": str(usage.get("tokens", 0))},
-                        {"label": "Success Rate", "value": f\"{usage.get('success_rate', 0.0):.2f}%\"},
-                        {"label": "Estimated Cost", "value": f\"{usage.get('estimated_cost', 0.0):.6f}\"},
+                        {"label": "Success Rate", "value": f"{usage.get('success_rate', 0.0):.2f}%"},
+                        {"label": "Estimated Cost", "value": f"{usage.get('estimated_cost', 0.0):.6f}"},
                     ]
                 ),
                 self._section("Repository-aware Engineering Chat", response_section),
@@ -377,7 +377,7 @@ class EngineeringDashboardService:
                         {"label": "Providers", "value": str(len(control["providers"]))},
                         {"label": "Connected Providers", "value": str(sum(1 for item in control["providers"] if item.get("connection")))},
                         {"label": "Requests", "value": str(usage.get("requests", 0))},
-                        {"label": "Success Rate", "value": f\"{usage.get('success_rate', 0.0):.2f}%\"},
+                        {"label": "Success Rate", "value": f"{usage.get('success_rate', 0.0):.2f}%"},
                     ]
                 ),
                 self._section("Providers", self._provider_table(control["providers"])),
@@ -885,8 +885,11 @@ class EngineeringDashboardService:
                 {"label": "Welcome", "value": f"Engineering Operating System · {session['current_project']}"},
                 {"label": "Current Engineering Session", "value": runtime.get("current_session", {}).get("identifier", "") or session["current_engineering_task"] or "n/a"},
                 {"label": "Current Project", "value": session["current_project"]},
+                {"label": "Current Repository", "value": session["current_repository"]},
+                {"label": "Current Branch", "value": session["current_branch"] or "n/a"},
+                {"label": "Current Engineering Task", "value": session["current_engineering_task"] or "n/a"},
                 {"label": "Repository Health", "value": str(repository["health_summary"].get("status", "unknown"))},
-                {"label": "Runtime Status", "value": runtime.get("state", session["current_runtime_status"])},
+                {"label": "Current Runtime Status", "value": runtime.get("state", session["current_runtime_status"])},
                 {"label": "Current Sprint", "value": session["current_sprint"] or "n/a"},
                 {"label": "Current Epic", "value": session["current_epic"] or "n/a"},
                 {"label": "Current Issue", "value": session["current_issue"] or "n/a"},
@@ -894,6 +897,8 @@ class EngineeringDashboardService:
                 {"label": "Recent Reports", "value": str(len(reports["items"]))},
                 {"label": "Recent Activity", "value": str(len(session["recent_activity"]))},
                 {"label": "Implementation Progress", "value": f"{workspace['summary'].get('overall_readiness', 0.0):.1f}%"},
+                {"label": "Repository Statistics", "value": f"files={repository['metrics'].get('total_files', 0)}, entries={repository['metrics'].get('entry_point_count', 0)}"},
+                {"label": "Latest Repository Inspection", "value": ", ".join(repository["tech_stack"][:3]) or "n/a"},
             ],
             "session_overview": [
                 ("Current Project", session["current_project"]),
@@ -1256,9 +1261,9 @@ class EngineeringDashboardService:
             [
                 ("Requests", str(total.get("requests", 0))),
                 ("Tokens", str(total.get("tokens", 0))),
-                ("Estimated Cost", f\"{total.get('estimated_cost', 0.0):.6f}\"), 
+                ("Estimated Cost", f"{total.get('estimated_cost', 0.0):.6f}"),
                 ("Average Latency (ms)", str(total.get("average_latency_ms", 0.0))),
-                ("Success Rate", f\"{total.get('success_rate', 0.0):.2f}%\"), 
+                ("Success Rate", f"{total.get('success_rate', 0.0):.2f}%"),
                 ("Errors", str(total.get("errors", 0))),
             ]
         )
