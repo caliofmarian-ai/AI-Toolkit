@@ -166,6 +166,12 @@ KEYWORD_PRIVATE    ::= "private" ;
 KEYWORD_PROTECTED  ::= "protected" ;
 KEYWORD_RESTRICTED ::= "restricted" ;
 
+(* §2.9  Rule action keywords *)
+KEYWORD_EMIT       ::= "emit" ;
+KEYWORD_ERROR      ::= "error" ;
+KEYWORD_WARNING    ::= "warning" ;
+KEYWORD_INFO       ::= "info" ;
+
 
 (*══════════════════════════════════════════════════════════════════════════════
   §3  TOP-LEVEL SYNTACTIC GRAMMAR
@@ -237,7 +243,7 @@ export_decl        ::= KEYWORD_EXPORT IDENTIFIER
   §5  ENTITY DECLARATION
 ══════════════════════════════════════════════════════════════════════════════*)
 
-entity_decl        ::= entity_kind entity_name NEWLINE
+entity_decl        ::= entity_kind ":" NEWLINE
                        INDENT entity_body DEDENT ;
 
 entity_kind        ::= "Project" | "Capability" | "Feature" | "Requirement"
@@ -249,7 +255,11 @@ entity_kind        ::= "Project" | "Capability" | "Feature" | "Requirement"
                      | "Prompt" | IDENTIFIER ;
                      (* IDENTIFIER allows extension via governed vocabulary additions *)
 
-entity_name        ::= IDENTIFIER ;
+(*
+  Note: The entity identifier is declared via the 'Identifier:' field inside
+  entity_body (identifier_field).  There is no separate name token on the
+  entity declaration line; the opening line is simply entity_kind ":".
+*)
 
 entity_body        ::= { entity_field } ;
 
@@ -358,10 +368,10 @@ comparison_op      ::= "=" | "!=" | "<" | "<=" | ">" | ">=" ;
 
 action_list        ::= { action_stmt } ;
 action_stmt        ::= IDENTIFIER ":" value NEWLINE
-                     | "emit" STRING NEWLINE
-                     | "error" STRING NEWLINE
-                     | "warning" STRING NEWLINE
-                     | "info" STRING NEWLINE ;
+                     | KEYWORD_EMIT    STRING NEWLINE
+                     | KEYWORD_ERROR   STRING NEWLINE
+                     | KEYWORD_WARNING STRING NEWLINE
+                     | KEYWORD_INFO    STRING NEWLINE ;
 
 rule_attribute     ::= IDENTIFIER ":" value NEWLINE ;
 

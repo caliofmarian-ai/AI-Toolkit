@@ -155,7 +155,16 @@ in the AST.
 | `protected`  | Accessible to direct dependants                    |
 | `restricted` | Accessibility governed by explicit policy rules    |
 
-### 2.9 Built-In Type Keywords
+### 2.9 Rule Action Keywords
+
+| Keyword   | Role                                               |
+|-----------|----------------------------------------------------|
+| `emit`    | Emit an informational message from a rule action   |
+| `error`   | Emit a compilation error from a rule action        |
+| `warning` | Emit a warning from a rule action                  |
+| `info`    | Emit an informational diagnostic from a rule action|
+
+### 2.10 Built-In Type Keywords
 
 | Keyword     | Type                               |
 |-------------|------------------------------------|

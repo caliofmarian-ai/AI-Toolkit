@@ -11,7 +11,7 @@ Depends: csl_v2.ebnf, CSL-020_CONFORMANCE_TEST_SUITE_SPECIFICATION, CSL-021_ERRO
 ## 1. Purpose
 
 This document is the canonical grammar test suite for CSL v2.  Every conforming
-CSL v2 parser implementation MUST pass all tests in §2 (Valid) and §3 (Invalid).
+CSL v2 parser implementation MUST pass all tests in §3 (Valid) and §4 (Invalid).
 Tests in §4 (Ambiguous) define the required disambiguation behaviour.
 
 ---

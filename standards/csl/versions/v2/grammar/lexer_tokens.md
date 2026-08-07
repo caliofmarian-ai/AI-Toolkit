@@ -157,7 +157,7 @@ Rules:
 | NEQ   | `!=`   | comparison                     |
 | LT    | `<`    | comparison                     |
 | LTE   | `<=`   | comparison                     |
-| GT    | `>``   | comparison                     |
+| GT    | `>`    | comparison                     |
 | GTE   | `>=`   | comparison                     |
 | ARROW | `=>`   | future: lambda / mapping       |
 | AT    | `@`    | version pinning in entity refs |
