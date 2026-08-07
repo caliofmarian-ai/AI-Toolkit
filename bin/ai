@@ -8,49 +8,67 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "lib"))
 
-from lib.python.cli.engineering import (
-    engineering_audit,
-    engineering_gap,
-    engineering_plan,
-    engineering_execute,
-    engineering_validate,
-    engineering_build,
-)
-from lib.python.repository_engine.cli import inspect as inspect_repository
+# ---------------------------------------------------------------------------
+# Command handlers
+# ---------------------------------------------------------------------------
 
-args = sys.argv[1:]
-
-if len(args) >= 1 and args[0] == "inspect":
-    target = args[1] if len(args) >= 2 else "."
+def _cmd_inspect(args):
+    from lib.python.repository_engine.cli import inspect as inspect_repository
+    target = args[0] if args else "."
     result = inspect_repository(target)
     print(json.dumps(result, indent=2))
-    raise SystemExit(0)
 
-if len(args) != 3 or args[0] != "engineering":
+
+def _cmd_engineering(args):
+    from lib.python.cli.engineering import (
+        engineering_audit,
+        engineering_gap,
+        engineering_plan,
+        engineering_execute,
+        engineering_validate,
+        engineering_build,
+    )
+    _sub = {
+        "audit":    engineering_audit,
+        "gap":      engineering_gap,
+        "plan":     engineering_plan,
+        "execute":  engineering_execute,
+        "validate": engineering_validate,
+        "build":    engineering_build,
+    }
+    if len(args) != 2 or args[0] not in _sub:
+        print("Usage: ai engineering <audit|gap|plan|execute|validate|build> CORE-XXX")
+        raise SystemExit(1)
+    _sub[args[0]](args[1])
+
+
+# ---------------------------------------------------------------------------
+# Registry – add new top-level commands here
+# ---------------------------------------------------------------------------
+
+_COMMANDS = {
+    "inspect":     _cmd_inspect,
+    "engineering": _cmd_engineering,
+}
+
+
+def _usage():
     print("Usage:")
     print("  ai inspect [PATH]")
-    print("  ai engineering audit CORE-XXX")
-    print("  ai engineering gap CORE-XXX")
-    print("  ai engineering plan CORE-XXX")
-    print("  ai engineering execute CORE-XXX")
-    print("  ai engineering validate CORE-XXX")
-    print("  ai engineering build CORE-XXX")
-    raise SystemExit(1)
+    print("  ai engineering <audit|gap|plan|execute|validate|build> CORE-XXX")
 
-command = args[1]
-core = args[2]
 
-if command == "audit":
-    engineering_audit(core)
-elif command == "gap":
-    engineering_gap(core)
-elif command == "plan":
-    engineering_plan(core)
-elif command == "execute":
-    engineering_execute(core)
-elif command == "validate":
-    engineering_validate(core)
-elif command == "build":
-    engineering_build(core)
-else:
-    raise SystemExit(f"Unknown command: {command}")
+# ---------------------------------------------------------------------------
+# Entry point
+# ---------------------------------------------------------------------------
+
+def main():
+    args = sys.argv[1:]
+    if not args or args[0] not in _COMMANDS:
+        _usage()
+        raise SystemExit(1)
+    _COMMANDS[args[0]](args[1:])
+
+
+if __name__ == "__main__":
+    main()

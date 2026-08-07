@@ -1,4 +1,17 @@
-class ReportRenderer:
+from abc import ABC, abstractmethod
+
+
+class BaseRenderer(ABC):
+    """Minimal rendering contract for RepositoryProfile renderers."""
+
+    @abstractmethod
+    def render(self, profile) -> str:
+        ...
+
+
+class MarkdownRenderer(BaseRenderer):
+    """Renders a RepositoryProfile as a Markdown inspection report."""
+
 
     def render(self, profile) -> str:
         metrics = profile.metrics
@@ -89,3 +102,6 @@ class ReportRenderer:
             lines.append(f"- **{status}** {check['name']}: {check['message']}")
 
         return "\n".join(lines) + "\n"
+
+# Backward-compatible alias
+ReportRenderer = MarkdownRenderer

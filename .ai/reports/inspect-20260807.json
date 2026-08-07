@@ -2,28 +2,28 @@
   "path": "/home/runner/work/AI-Toolkit/AI-Toolkit",
   "name": "AI-Toolkit",
   "metrics": {
-    "total_files": 1053,
-    "total_directories": 179,
+    "total_files": 1056,
+    "total_directories": 180,
     "language_distribution": {
-      "json": 66,
-      "markdown": 502,
-      "python": 352,
+      "json": 67,
+      "markdown": 503,
+      "python": 353,
       "yaml": 4
     },
     "file_class_distribution": {
       "build": 76,
       "config": 69,
-      "doc": 514,
+      "doc": 516,
       "generated": 1,
-      "source": 283,
+      "source": 284,
       "test": 103,
       "unknown": 7
     },
     "test_file_count": 103,
-    "documentation_file_count": 514,
+    "documentation_file_count": 516,
     "entry_point_count": 5,
-    "documentation_coverage_ratio": 0.4881291547958215,
-    "test_coverage_ratio": 0.09781576448243115
+    "documentation_coverage_ratio": 0.48863636363636365,
+    "test_coverage_ratio": 0.09753787878787878
   },
   "classified_files": [
     {
@@ -339,6 +339,20 @@
       "file_class": "config",
       "category": "Configuration",
       "language": "json",
+      "is_executable": false
+    },
+    {
+      "path": ".ai/reports/inspect-20260807.json",
+      "file_class": "doc",
+      "category": "Reports",
+      "language": "json",
+      "is_executable": false
+    },
+    {
+      "path": ".ai/reports/inspect-20260807.md",
+      "file_class": "doc",
+      "category": "Reports",
+      "language": "markdown",
       "is_executable": false
     },
     {
@@ -4325,6 +4339,13 @@
       "is_executable": true
     },
     {
+      "path": "lib/python/repository_engine/serializer.py",
+      "file_class": "source",
+      "category": "Executable Code",
+      "language": "python",
+      "is_executable": true
+    },
+    {
       "path": "lib/python/repository_hygiene_audit.py",
       "file_class": "source",
       "category": "Executable Code",
@@ -7415,9 +7436,9 @@
   ],
   "dependencies": {
     "manifests": {},
-    "internal_import_edges": 1270,
-    "internal_import_nodes": 352,
-    "unresolved_imports": 688
+    "internal_import_edges": 1272,
+    "internal_import_nodes": 353,
+    "unresolved_imports": 689
   },
   "health_summary": {
     "status": "HEALTHY",
@@ -7427,7 +7448,7 @@
       {
         "name": "Repository has source files",
         "passed": true,
-        "message": "1053 files"
+        "message": "1056 files"
       },
       {
         "name": "Repository has tests",
@@ -7437,7 +7458,7 @@
       {
         "name": "Repository has documentation",
         "passed": true,
-        "message": "514 documentation files"
+        "message": "516 documentation files"
       },
       {
         "name": "Repository has entry points",

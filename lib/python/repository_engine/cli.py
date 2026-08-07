@@ -1,16 +1,15 @@
-from dataclasses import asdict
 from datetime import datetime, timezone
-import json
 from pathlib import Path
 
 from .engine import RepositoryEngine
-from .report import ReportRenderer
+from .report import MarkdownRenderer
+from .serializer import RepositoryProfileSerializer
 
 
 def inspect(path="."):
     root = Path(path).resolve()
     profile = RepositoryEngine(root).profile()
-    report = ReportRenderer().render(profile)
+    report = MarkdownRenderer().render(profile)
 
     stamp = datetime.now(timezone.utc).strftime("%Y%m%d")
     output_dir = root / ".ai" / "reports"
@@ -20,7 +19,7 @@ def inspect(path="."):
     report_path.write_text(report, encoding="utf-8")
 
     profile_path = output_dir / f"inspect-{stamp}.json"
-    profile_path.write_text(json.dumps(asdict(profile), indent=2), encoding="utf-8")
+    profile_path.write_text(RepositoryProfileSerializer.to_json(profile), encoding="utf-8")
 
     return {
         "repository": profile.name,
