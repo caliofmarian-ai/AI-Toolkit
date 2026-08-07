@@ -46,8 +46,8 @@
     "schema_version": "1.0.0"
   },
   "repository_state": {
-    "branch": "copilot/batch-002-runtime-integration-canonical-synchroniz",
-    "head_commit": "41225dc55cf0271da34f9e80223dfae5c03e6833",
+    "branch": "copilot/engineering-capability-audit",
+    "head_commit": "a124e3eca5d0439968b36815d31d71082f8bbaed",
     "identifier": "REPO-001",
     "latest_merge": "",
     "open_pull_requests": [],
@@ -69,7 +69,7 @@
   },
   "schema_version": "1.0.0",
   "snapshot_metadata": {
-    "created_at": "2026-08-03T11:47:44+01:00",
+    "created_at": "2026-08-08T01:16:38+03:00",
     "identifier": "SNAP-000000",
     "schema_version": "1.0.0",
     "sequence_number": 0,

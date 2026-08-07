@@ -1,46 +1,25 @@
 {
-  "briefing_id": "BRIEF-2433609BC9C4",
-  "generated_at": "2026-08-03T11:02:35Z",
+  "briefing_id": "BRIEF-EA2B32738490",
+  "generated_at": "2026-08-07T22:38:39Z",
   "priorities": [
-    {
-      "category": "canonical_health",
-      "classification": "critical",
-      "id": "PRI-001",
-      "rationale": "10 drift findings exceed the critical threshold of 5. Immediate resolution required.",
-      "title": "Resolve 10 canonical drift findings"
-    },
-    {
-      "category": "canonical_health",
-      "classification": "critical",
-      "id": "PRI-002",
-      "rationale": "Coverage of 0.8% is critically below the 50% floor.",
-      "title": "Raise canonical coverage from 0.8% to ≥80%"
-    },
     {
       "category": "batch_execution",
       "classification": "high",
-      "id": "PRI-003",
+      "id": "PRI-001",
       "rationale": "The current batch is the active unit of work.",
       "title": "Complete current batch: BATCH-002"
     },
     {
       "category": "issue_tracking",
       "classification": "high",
-      "id": "PRI-004",
+      "id": "PRI-002",
       "rationale": "The current issue is the active development focus.",
       "title": "Resolve current issue: CORE-005"
     },
     {
-      "category": "canonical_execution",
-      "classification": "medium",
-      "id": "PRI-005",
-      "rationale": "5 canonical batches are ready for execution.",
-      "title": "Execute 5 pending canonical batch(es)"
-    },
-    {
       "category": "milestone",
       "classification": "medium",
-      "id": "PRI-006",
+      "id": "PRI-003",
       "rationale": "Active milestone requires steady progress.",
       "title": "Advance milestone: PHASE 2 — CORE IMPLEMENTATION"
     }
