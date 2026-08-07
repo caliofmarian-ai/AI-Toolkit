@@ -93,6 +93,8 @@ class RuntimeBootstrap:
 
         self._bootstrapped = False
         self._bootstrap_started_at = 0.0
+        self._snapshot_cache = None
+        self._snapshot_cache_created_at = 0.0
 
     # ------------------------------------------------------------------ #
     # Main bootstrap sequence
@@ -369,7 +371,13 @@ class RuntimeBootstrap:
             return self._build_runtime_snapshot()["health"]
 
         def ready_handler() -> dict:
-            return self._build_runtime_snapshot()["health"]
+            health_summary = self._build_runtime_snapshot()["health"]
+            return {
+                "ready": health_summary.get("ready", False),
+                "healthy": health_summary.get("healthy", False),
+                "state": health_summary.get("state", "unknown"),
+                "checks": health_summary.get("checks", {}),
+            }
 
         def metrics_handler() -> dict:
             return self.metrics.snapshot()
@@ -463,6 +471,7 @@ class RuntimeBootstrap:
         self.http_server.start()
 
         self.metrics.increment("runtime.starts")
+        self._invalidate_runtime_snapshot()
         self._persist_runtime_snapshot()
         logger.info("Bootstrap: all services started — Runtime RUNNING")
 
@@ -473,6 +482,7 @@ class RuntimeBootstrap:
         self.lifecycle.transition(LifecyclePhase.SHUTDOWN)
         self.identity.lifecycle_phase = LifecyclePhase.SHUTDOWN.value
         self.runtime_state.transition(RuntimePublicState.SHUTTING_DOWN, "Runtime shutdown in progress.")
+        self._invalidate_runtime_snapshot()
         self._persist_runtime_snapshot()
 
         # Stop in reverse order of start
@@ -502,6 +512,7 @@ class RuntimeBootstrap:
             details=str(error),
         )
         if self.diagnostics is not None:
+            self._invalidate_runtime_snapshot()
             self._persist_runtime_snapshot()
 
     # ------------------------------------------------------------------ #
@@ -590,7 +601,10 @@ class RuntimeBootstrap:
             logger.warning("Bootstrap: could not persist shutdown state: %s", exc)
 
     def _build_runtime_snapshot(self) -> dict:
-        return self.diagnostics.build_snapshot(
+        now = time.monotonic()
+        if self._snapshot_cache is not None and (now - self._snapshot_cache_created_at) < 1.0:
+            return self._snapshot_cache
+        self._snapshot_cache = self.diagnostics.build_snapshot(
             config=self.config,
             identity=self.identity,
             lifecycle=self.lifecycle,
@@ -600,8 +614,14 @@ class RuntimeBootstrap:
             supervisor=self.supervisor,
             runtime_state=self.runtime_state,
         )
+        self._snapshot_cache_created_at = now
+        return self._snapshot_cache
 
     def _persist_runtime_snapshot(self) -> None:
         if self.diagnostics is None:
             return
         self.diagnostics.persist(self._build_runtime_snapshot())
+
+    def _invalidate_runtime_snapshot(self) -> None:
+        self._snapshot_cache = None
+        self._snapshot_cache_created_at = 0.0

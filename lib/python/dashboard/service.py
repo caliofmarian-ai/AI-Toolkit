@@ -623,6 +623,7 @@ class EngineeringDashboardService:
         runtime_payload = persisted.get("runtime", {})
         health = persisted.get("health", {})
         if not runtime_payload:
+            provider_value = self._detect_ai_provider()
             runtime_payload = {
                 "state": "READY" if (self.repository_root / ".git").exists() else "BOOT",
                 "uptime_seconds": 0.0,
@@ -632,7 +633,7 @@ class EngineeringDashboardService:
                 "loaded_services": ["dashboard"],
                 "loaded_engines": ["repository", "workspace"],
                 "registered_cli_commands": ["bin/ai dashboard serve"],
-                "registered_providers": self._detect_ai_provider().split(", ") if self._detect_ai_provider() != "Not configured" else [],
+                "registered_providers": provider_value.split(", ") if provider_value != "Not configured" else [],
                 "current_repository": str(self.repository_root),
                 "current_workspace": str(self.workspace_root),
                 "current_project": session.get("current_project", self.repository_root.name),
