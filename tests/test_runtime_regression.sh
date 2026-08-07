@@ -6,12 +6,8 @@ set -e
 echo "=== REGRESSION: CLI still works ==="
 
 echo
-echo "--- inventory ---"
-bash bin/ai inventory | python3 -c "import sys,json; d=json.load(sys.stdin); print('inventory: OK')"
-
-echo
-echo "--- validate ---"
-bash bin/ai validate | python3 -c "import sys,json; json.load(sys.stdin); print('validate: OK')"
+echo "--- inspect ---"
+python3 bin/ai inspect . | python3 -c "import sys,json; d=json.load(sys.stdin); print('inspect: OK')"
 
 echo
 echo "--- Runtime package imports correctly ---"
