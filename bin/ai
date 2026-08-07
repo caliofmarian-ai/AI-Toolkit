@@ -2,6 +2,7 @@
 
 from pathlib import Path
 import sys
+import json
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -14,11 +15,19 @@ from lib.python.cli.engineering import (
     engineering_validate,
     engineering_build,
 )
+from lib.python.repository_engine.cli import inspect as inspect_repository
 
 args = sys.argv[1:]
 
+if len(args) >= 1 and args[0] == "inspect":
+    target = args[1] if len(args) >= 2 else "."
+    result = inspect_repository(target)
+    print(json.dumps(result, indent=2))
+    raise SystemExit(0)
+
 if len(args) != 3 or args[0] != "engineering":
     print("Usage:")
+    print("  ai inspect [PATH]")
     print("  ai engineering audit CORE-XXX")
     print("  ai engineering gap CORE-XXX")
     print("  ai engineering plan CORE-XXX")
