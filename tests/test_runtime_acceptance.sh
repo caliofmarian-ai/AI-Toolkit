@@ -118,7 +118,7 @@ rt2.stop()
 check("AC-11f: Graceful shutdown completes", rt2.lifecycle.is_shutdown())
 
 # AC-12: Health endpoint operational
-# Already tested above (AC-11a)
+# Already tested above (AC-11b)
 check("AC-12: Health endpoint operational", h.get("healthy") is True)
 
 # AC-13: Readiness endpoint operational

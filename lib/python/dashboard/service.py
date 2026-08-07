@@ -625,7 +625,7 @@ class EngineeringDashboardService:
         if not runtime_payload:
             provider_value = self._detect_ai_provider()
             runtime_payload = {
-                "state": "READY" if (self.repository_root / ".git").exists() else "BOOT",
+                "state": "BOOT",
                 "uptime_seconds": 0.0,
                 "startup_duration_seconds": 0.0,
                 "port": int(os.environ.get("PORT", "8081")),
