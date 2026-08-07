@@ -187,7 +187,7 @@ class GitContextProvider:
                 untracked_files.append(path)
             else:
                 changed_files.append(path)
-            if status[:1] not in {"", " ", "?"}:
+            if status[:1] in {"A", "M", "D", "R", "C"}:
                 staged_files.append(path)
         return {
             "entries": entries,
@@ -1184,7 +1184,12 @@ class SynchronizationCoordinator:
                 "decision_ids": [item.get("decision_id", "") for item in decision_history],
             },
             validation={
-                "healthy": len(decision_history) > 0,
+                "healthy": bool(
+                    self._existing_paths(
+                        self.root / ".ai" / "development_state" / "events.json",
+                        self.root / ".ai" / "executive" / "briefing.json",
+                    )
+                ),
                 "decision_history_count": len(decision_history),
             },
             data={

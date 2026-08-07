@@ -166,10 +166,7 @@ class RuntimeDiagnosticsService:
         if self._engineering_context_error:
             checks["engineering_context_initialized"] = False
         context_payload = self._engineering_context()
-        checks["decision_history_loaded"] = bool(
-            context_payload.get("decision_context")
-            or (self.repository_root / ".ai" / "context" / "decision_history.json").exists()
-        )
+        checks["decision_history_loaded"] = bool(context_payload.get("decision_context"))
         checks["executive_briefing_loaded"] = bool(
             context_payload.get("executive_context", {}).get("validation", {}).get("briefing_generated", False)
         )

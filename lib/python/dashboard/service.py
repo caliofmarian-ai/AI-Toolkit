@@ -852,7 +852,8 @@ class EngineeringDashboardService:
             if status == "Implemented" and resolved_tests:
                 status = "Validated"
             if (
-                definition.slug in {"dashboard", "runtime", "engineering-session", "project-manager"}
+                status in {"Implemented", "Validated"}
+                and definition.slug in {"dashboard", "runtime", "engineering-session", "project-manager"}
                 and engineering_context_loaded
                 and runtime_healthy
             ):
@@ -928,7 +929,7 @@ class EngineeringDashboardService:
 
     def _load_engineering_context(self, *, refresh: bool = False) -> Dict[str, Any]:
         path = self.repository_root / ".ai" / "context" / "engineering_context.json"
-        if not path.exists():
+        if refresh or not path.exists():
             try:
                 return ContextSynchronizationEngine(
                     repository=str(self.repository_root),
