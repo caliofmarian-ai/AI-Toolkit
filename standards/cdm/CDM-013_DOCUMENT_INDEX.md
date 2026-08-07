@@ -16,6 +16,46 @@ Owner: AI CTO
 
 ---
 
-> Placeholder
+# 1. Purpose
 
-This specification will be authored according to the Canonical Document Model authoring process.
+This specification defines the normative document index requirements for Canonical Document Model conformance.
+
+---
+
+# 2. Scope
+
+Applies to canonical standards, governance artifacts, architecture artifacts, implementation packages, generated artifacts, and validation evidence governed by AI-Toolkit canonical controls.
+
+---
+
+# 3. Normative Requirements
+
+1. Index SHALL maintain canonical lookup keys for identifiers and namespaces.
+2. Index refresh SHALL occur after each governed artifact change.
+3. Index entry SHALL include checksum and last validation status.
+4. Stale or dangling index entries SHALL fail integrity checks.
+5. Index SHALL support fast dependency and traceability traversal.
+
+---
+
+# 4. Integration Contract
+
+This specification SHALL integrate with CSS authoring rules, CDM dependency/traceability/versioning standards, CSL machine-readable models, repository validation tooling, and governed runtime evidence capture.
+
+---
+
+# 5. Validation and Evidence
+
+Conformance checks SHALL emit deterministic results and include artifact identifiers, rule identifiers, defect severity, and governance status. Validation evidence SHALL be stored as canonical records.
+
+---
+
+# 6. Governance
+
+Human Authority is final for approval, exception handling, deprecation, and enforcement decisions.
+
+---
+
+# 7. Completion Criteria
+
+This specification is complete when all requirements are enforceable, cross-references resolve, and no placeholder or undefined semantics remain.
