@@ -12,15 +12,13 @@ from .service import EngineeringDashboardService
 
 
 class _DashboardRequestHandler(BaseHTTPRequestHandler):
-    _server_ref: "DashboardHttpServer" = None  # type: ignore[assignment]
-
     def log_message(self, fmt, *args):
         return
 
     def do_GET(self) -> None:
         parsed = urlparse(self.path)
         path = parsed.path
-        server = self.__class__._server_ref
+        server = getattr(self.server, "_dashboard_server")
         if path == "/health":
             self._send_json({"ok": True, "service": "dashboard"})
             return
@@ -97,8 +95,8 @@ class DashboardHttpServer:
 
     def start(self) -> None:
         self.service.build(refresh=True)
-        _DashboardRequestHandler._server_ref = self
-        self._server = HTTPServer((self.host, self.port), _DashboardRequestHandler)
+        self._server = HTTPServer((self.host, self.port), self._handler_class())
+        self._server._dashboard_server = self  # type: ignore[attr-defined]
         self._thread = threading.Thread(
             target=self._server.serve_forever,
             daemon=True,
@@ -108,8 +106,8 @@ class DashboardHttpServer:
 
     def serve_forever(self) -> None:
         self.service.build(refresh=True)
-        _DashboardRequestHandler._server_ref = self
-        self._server = HTTPServer((self.host, self.port), _DashboardRequestHandler)
+        self._server = HTTPServer((self.host, self.port), self._handler_class())
+        self._server._dashboard_server = self  # type: ignore[attr-defined]
         self._server.serve_forever()
 
     def stop(self) -> None:
@@ -118,6 +116,13 @@ class DashboardHttpServer:
             self._server.server_close()
         if self._thread is not None:
             self._thread.join(timeout=5)
+
+    def _handler_class(self):
+        return type(
+            "EngineeringDashboardHandler",
+            (_DashboardRequestHandler,),
+            {},
+        )
 
 
 def serve_dashboard(
