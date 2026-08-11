@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | Repository | `/home/runner/work/AI-Toolkit/AI-Toolkit` |
-| Generated | 2026-08-07 22:38 UTC |
+| Generated | 2026-08-11 20:43 UTC |
 | Scanner | CORE-008A AI CTO Integration Scanner |
 | Overall AI CTO Readiness | **99 / 100** |
 
@@ -53,7 +53,7 @@ Key files and locations where AI CTO can integrate with the repository.
 ### Telegram
 
 - `AI_CTO_INTEGRATION_REPORT.md`
-- `architecture/requirements/backlog/AR-0011_CANONICAL_LEXICAL_AND_ADDRESS_INDEX.md`
+- `ENGINEERING_CAPABILITY_MATRIX.md`
 - `development/BATCH-002_SELF_KNOWLEDGE_SYSTEM_v1.0.md`
 - `docs/DASHBOARD_IMPLEMENTATION_ROADMAP.md`
 - `docs/canonical/CANON-024_TELEGRAM_CONTROL_PLANE_SPECIFICATION_v1.0.0.md`
@@ -68,20 +68,20 @@ Key files and locations where AI CTO can integrate with the repository.
 - `AI_CTO_EXECUTION_REPORT.md`
 - `AI_CTO_INTEGRATION_REPORT.md`
 - `AI_CTO_SELF_IMPROVEMENT.md`
+- `ENGINEERING_CAPABILITY_MATRIX.md`
 - `README.md`
 - `docs/canonical/CANON-023_OWNER_INTELLIGENCE_SPECIFICATION_v1.0.0.md`
-- `docs/canonical/CANON-038_OWNER_DECISION_INTELLIGENCE_SPECIFICATION_v1.0.0.md`
 
 ### Runtime
 
 - `.copilot/tasks/BATCH-003_RAILWAY_BUILD_BOOTSTRAP.md`
 - `AI_CTO_EXECUTION_MODEL.md`
 - `AI_CTO_INTEGRATION_REPORT.md`
+- `ENGINEERING_CAPABILITY_MATRIX.md`
 - `README.md`
 - `RELEASE_NOTES.md`
 - `docs/audits/copilot-review/Process completed with exit code 134.md`
 - `docs/canonical/v3/CANON-046_AI_CTO_SCHEDULER_SPECIFICATION_v3.0.0.md`
-- `implementation-packages/CORE-022/runtime-api-gap-analysis.md`
 
 ### State
 
@@ -207,7 +207,7 @@ Recommended locations where AI CTO instrumentation should be injected.
 | Bootstrap | 100% | `path:bootstrap` |
 | Runtime | 100% | `path:runtime` |
 | Schedulers | 100% | `path:scheduler` |
-| Workers | 100% | `\bworker\b` |
+| Workers | 100% | `Worker\b` |
 | Service Initialization | 100% | `ServiceRegistry` |
 
 ### State
@@ -507,7 +507,7 @@ Architectural observations produced by semantic analysis.
 
 | Metric | Value |
 | --- | ---: |
-| Total files analysed | 1007 |
+| Total files analysed | 1008 |
 | Total symbols (classes + functions) | 2446 |
 | Total import statements | 1408 |
 | Total functions | 1865 |
@@ -522,7 +522,7 @@ Architectural observations produced by semantic analysis.
 
 | Language | Files |
 | --- | ---: |
-| markdown | 560 |
+| markdown | 561 |
 | python | 376 |
 | json | 67 |
 | yaml | 4 |

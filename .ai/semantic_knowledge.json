@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0.0",
   "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
-  "captured_at": "2026-08-07T22:38:51Z",
+  "captured_at": "2026-08-11T20:43:07Z",
   "analysis": {
     "import_graph": {
       "node_count": 376,
@@ -71,7 +71,7 @@
       "internal_module_count": 376
     },
     "complexity": {
-      "total_files": 1007,
+      "total_files": 1008,
       "total_symbols": 2446,
       "total_imports": 1408,
       "total_functions": 1865,
@@ -83,7 +83,7 @@
       "cyclomatic_complexity_estimate": 2.27,
       "language_distribution": {
         "json": 67,
-        "markdown": 560,
+        "markdown": 561,
         "python": 376,
         "yaml": 4
       }
