@@ -7,22 +7,25 @@ from pathlib import Path
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT))
-sys.path.insert(0, str(ROOT / "lib"))
+
+LIB = ROOT / "lib"
+
+if str(LIB) not in sys.path:
+    sys.path.insert(0, str(LIB))
 
 # ---------------------------------------------------------------------------
 # Command handlers
 # ---------------------------------------------------------------------------
 
 def _cmd_inspect(args):
-    from lib.python.repository_engine.cli import inspect as inspect_repository
+    from python.repository_engine.cli import inspect as inspect_repository
     target = args[0] if args else "."
     result = inspect_repository(target)
     print(json.dumps(result, indent=2))
 
 
 def _cmd_engineering(args):
-    from lib.python.cli.engineering import (
+    from python.cli.engineering import (
         engineering_audit,
         engineering_gap,
         engineering_plan,
@@ -55,7 +58,7 @@ def _cmd_dashboard(args):
     parsed = parser.parse_args(args)
 
     if parsed.action == "serve":
-        from lib.python.dashboard import serve_dashboard
+        from python.dashboard import serve_dashboard
 
         serve_dashboard(
             host=parsed.host,
