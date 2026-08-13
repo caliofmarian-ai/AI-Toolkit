@@ -30,3 +30,12 @@ __all__ = [
     "InMemoryExperienceRepository",
     "ExperienceService",
 ]
+
+from .protection import (
+    ExperienceProtection,
+    ExperienceProtectionError,
+    InvalidProtectionIdentityError,
+    ProtectedExperienceMutationError,
+    ProtectionState,
+    UnauthorizedExperienceOperationError,
+)
