@@ -39,3 +39,17 @@ from .protection import (
     ProtectionState,
     UnauthorizedExperienceOperationError,
 )
+
+from .persistence import (
+    ExperiencePersistenceError,
+    ExperienceRecoveryError,
+    ExperienceSerializationError,
+    recover_experience,
+    serialize_experience,
+)
+
+from .persistent_repository import (
+    ExperienceStoreCorruptionError,
+    JsonFileExperienceRepository,
+    PersistentExperienceRepositoryError,
+)
