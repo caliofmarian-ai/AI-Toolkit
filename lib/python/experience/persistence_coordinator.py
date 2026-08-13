@@ -2,15 +2,21 @@
 
 Experience and Protection remain independent organs.
 
+The Durable Coordination Journal is also a distinct organ.
+
 The coordinator does not become Experience.
 The coordinator does not become Protection.
+The coordinator does not become the Durable Coordination Journal.
 The coordinator does not grant authority.
 
 Its responsibility is to make the physiological relationship between
-their persistence operations explicit and inspectable.
+their persistence operations explicit, inspectable, and durably
+observable across process death.
 
 Persistence != authority.
 Storage != Experience.
+Journal != Experience.
+Journal != Protection.
 """
 
 from __future__ import annotations
@@ -19,6 +25,10 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Callable
 
+from .coordination_journal import (
+    DurableCoordinationStage,
+    JsonFileCoordinationJournal,
+)
 from .identity import ExperienceId
 from .model import Experience
 from .persistent_repository import JsonFileExperienceRepository
@@ -73,19 +83,23 @@ StageObserver = Callable[[CoordinationState], None]
 
 
 class ExperiencePersistenceCoordinator:
-    """Coordinates persistence without collapsing organ boundaries.
+    """Coordinates Experience, Protection, and durable coordination evidence.
 
-    The repositories remain responsible for their own durable bodies.
+    Experience and Protection repositories remain responsible for their
+    own durable bodies.
 
-    This first implementation makes the physiological write order and
-    failure boundary explicit.  Durable journal persistence is NOT yet
-    claimed by this class.
+    The Durable Coordination Journal remains responsible for durable
+    evidence of the physiological coordination operation.
+
+    The coordinator bridges physiological events between these distinct
+    organs without collapsing their identities or responsibilities.
     """
 
     def __init__(
         self,
         experience_repository: JsonFileExperienceRepository,
         protection_repository: JsonFileProtectionRepository,
+        coordination_journal: JsonFileCoordinationJournal | None = None,
     ) -> None:
         if not isinstance(
             experience_repository,
@@ -105,8 +119,21 @@ class ExperiencePersistenceCoordinator:
                 "JsonFileProtectionRepository"
             )
 
+        if (
+            coordination_journal is not None
+            and not isinstance(
+                coordination_journal,
+                JsonFileCoordinationJournal,
+            )
+        ):
+            raise TypeError(
+                "coordination_journal must be "
+                "JsonFileCoordinationJournal or None"
+            )
+
         self._experience_repository = experience_repository
         self._protection_repository = protection_repository
+        self._coordination_journal = coordination_journal
 
     def persist(
         self,
@@ -115,16 +142,27 @@ class ExperiencePersistenceCoordinator:
         *,
         observe_stage: StageObserver | None = None,
     ) -> CoordinatedExperience:
-        """Persist the two organs through one explicit physiological path.
+        """Persist distinct organs through one explicit physiological path.
 
         Protection is conserved before Experience so protected material
         is never intentionally persisted first as an unprotected
         Experience.
 
-        This method does NOT claim crash atomicity.
+        When a Durable Coordination Journal is supplied, each completed
+        physiological boundary is durably recorded.
+
+        This method makes interruption state durable. It does not by
+        itself claim automatic crash reconciliation.
         """
 
         self._require_matching_identity(experience, protection)
+
+        durable_record = None
+
+        if self._coordination_journal is not None:
+            durable_record = self._coordination_journal.begin(
+                experience.experience_id
+            )
 
         self._observe(
             CoordinationState(
@@ -136,6 +174,12 @@ class ExperiencePersistenceCoordinator:
 
         self._persist_protection(protection)
 
+        if durable_record is not None:
+            durable_record = self._coordination_journal.advance(
+                durable_record.coordination_operation_id,
+                DurableCoordinationStage.PROTECTION_WRITTEN,
+            )
+
         self._observe(
             CoordinationState(
                 experience_id=experience.experience_id,
@@ -146,6 +190,12 @@ class ExperiencePersistenceCoordinator:
 
         self._persist_experience(experience)
 
+        if durable_record is not None:
+            durable_record = self._coordination_journal.advance(
+                durable_record.coordination_operation_id,
+                DurableCoordinationStage.EXPERIENCE_WRITTEN,
+            )
+
         self._observe(
             CoordinationState(
                 experience_id=experience.experience_id,
@@ -155,6 +205,12 @@ class ExperiencePersistenceCoordinator:
         )
 
         pair = self.recover(experience.experience_id)
+
+        if durable_record is not None:
+            self._coordination_journal.advance(
+                durable_record.coordination_operation_id,
+                DurableCoordinationStage.COMPLETE,
+            )
 
         self._observe(
             CoordinationState(
@@ -208,6 +264,79 @@ class ExperiencePersistenceCoordinator:
             experience=experience,
             protection=protection,
         )
+
+    def reconcile_incomplete(
+        self,
+    ) -> tuple[CoordinatedExperience, ...]:
+        """Reconcile incomplete durable operations from surviving evidence.
+
+        Reconciliation never fabricates a missing Experience or
+        Protection body.
+
+        Only operations whose Experience and Protection organs both
+        survive may be completed automatically.
+
+        Operations with missing organs remain durably incomplete.
+        """
+
+        if self._coordination_journal is None:
+            raise PersistenceCoordinationStateError(
+                "durable coordination journal is required "
+                "for crash reconciliation"
+            )
+
+        reconciled: list[CoordinatedExperience] = []
+
+        for record in self._coordination_journal.incomplete_records():
+            experience_id = record.experience_id
+
+            experience_exists = self._experience_repository.contains(
+                experience_id
+            )
+            protection_exists = self._protection_repository.contains(
+                experience_id
+            )
+
+            if not experience_exists or not protection_exists:
+                continue
+
+            pair = self.recover(experience_id)
+
+            current = record
+
+            if current.stage is DurableCoordinationStage.PREPARING:
+                current = self._coordination_journal.advance(
+                    current.coordination_operation_id,
+                    DurableCoordinationStage.PROTECTION_WRITTEN,
+                )
+
+            if (
+                current.stage
+                is DurableCoordinationStage.PROTECTION_WRITTEN
+            ):
+                current = self._coordination_journal.advance(
+                    current.coordination_operation_id,
+                    DurableCoordinationStage.EXPERIENCE_WRITTEN,
+                )
+
+            if (
+                current.stage
+                is DurableCoordinationStage.EXPERIENCE_WRITTEN
+            ):
+                current = self._coordination_journal.advance(
+                    current.coordination_operation_id,
+                    DurableCoordinationStage.COMPLETE,
+                )
+
+            if current.stage is not DurableCoordinationStage.COMPLETE:
+                raise PersistenceCoordinationStateError(
+                    "durable coordination operation did not "
+                    "reach COMPLETE"
+                )
+
+            reconciled.append(pair)
+
+        return tuple(reconciled)
 
     def _persist_protection(
         self,
