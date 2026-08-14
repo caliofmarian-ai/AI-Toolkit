@@ -335,6 +335,98 @@ class TransformationLifecycle:
             ),
         )
 
+    def list_transformations(self) -> tuple[Transformation, ...]:
+        """
+        Recover all locally persisted Transformations in stable identity order.
+
+        A malformed artifact matching the TR-NNNNNN identity family is
+        surfaced as an error rather than silently omitted.
+        """
+
+        if not self.root.exists():
+            return ()
+
+        identities: list[str] = []
+
+        for path in self.root.glob("TR-*.md"):
+            match = re.fullmatch(r"TR-(\d{6})\.md", path.name)
+
+            if match:
+                identities.append(f"TR-{match.group(1)}")
+
+        identities.sort()
+
+        return tuple(
+            self.get(identifier)
+            for identifier in identities
+        )
+
+    def children(
+        self,
+        identifier: str,
+    ) -> tuple[Transformation, ...]:
+        """
+        Return locally persisted direct descendants of identifier.
+
+        The parent identity itself may refer to a Transformation whose
+        artifact is external or no longer locally available. This preserves
+        the established Transformation reference contract.
+        """
+
+        _validate_identifier(identifier)
+
+        return tuple(
+            transformation
+            for transformation in self.list_transformations()
+            if transformation.parent_transformation == identifier
+        )
+
+    def lineage(
+        self,
+        identifier: str,
+    ) -> tuple[Transformation, ...]:
+        """
+        Reconstruct locally demonstrable ancestry from ancestor to current.
+
+        Parent references are allowed to exist without a local parent
+        artifact. However, lineage reconstruction cannot invent the missing
+        ancestor: traversal fails explicitly when required evidence is absent.
+
+        Cycles are rejected explicitly.
+        """
+
+        current = self.get(identifier)
+        reverse_chain: list[Transformation] = []
+        visited: set[str] = set()
+
+        while True:
+            if current.identifier in visited:
+                raise TransformationError(
+                    "Transformation lineage contains a cycle"
+                )
+
+            visited.add(current.identifier)
+            reverse_chain.append(current)
+
+            parent = current.parent_transformation
+
+            if parent is None:
+                break
+
+            parent_path = self._artifact_path(parent)
+
+            if not parent_path.is_file():
+                raise TransformationError(
+                    "Transformation lineage is incomplete; "
+                    f"parent artifact is not locally available: {parent}"
+                )
+
+            current = self.get(parent)
+
+        reverse_chain.reverse()
+
+        return tuple(reverse_chain)
+
     def begin(
         self,
         need: str,

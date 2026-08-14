@@ -319,3 +319,226 @@ def test_recovered_transformation_can_continue_lifecycle(tmp_path):
     final = second_restart.get(completed.identifier)
 
     assert final == completed
+
+
+def test_list_transformations_recovers_local_history_in_identity_order(tmp_path):
+    lifecycle = TransformationLifecycle(tmp_path)
+
+    first = lifecycle.complete(
+        lifecycle.begin("First")
+    )
+
+    second = lifecycle.complete(
+        lifecycle.begin(
+            "Second",
+            parent_transformation=first.identifier,
+        )
+    )
+
+    restarted = TransformationLifecycle(tmp_path)
+
+    assert tuple(
+        transformation.identifier
+        for transformation in restarted.list_transformations()
+    ) == (
+        first.identifier,
+        second.identifier,
+    )
+
+
+def test_children_exposes_locally_known_direct_descendants(tmp_path):
+    lifecycle = TransformationLifecycle(tmp_path)
+
+    root = lifecycle.complete(
+        lifecycle.begin("Root")
+    )
+
+    first_child = lifecycle.complete(
+        lifecycle.begin(
+            "First child",
+            parent_transformation=root.identifier,
+        )
+    )
+
+    second_child = lifecycle.begin(
+        "Second child",
+        parent_transformation=root.identifier,
+    )
+
+    unrelated = lifecycle.begin("Unrelated root")
+
+    children = lifecycle.children(root.identifier)
+
+    assert tuple(
+        item.identifier for item in children
+    ) == (
+        first_child.identifier,
+        second_child.identifier,
+    )
+
+    assert unrelated.identifier not in {
+        item.identifier for item in children
+    }
+
+
+def test_children_can_query_valid_external_parent_identity(tmp_path):
+    lifecycle = TransformationLifecycle(tmp_path)
+
+    child = lifecycle.begin(
+        "Child of externally represented Transformation",
+        parent_transformation="TR-000042",
+    )
+
+    assert lifecycle.children("TR-000042") == (child,)
+
+
+def test_lineage_reconstructs_locally_demonstrable_ancestry(tmp_path):
+    lifecycle = TransformationLifecycle(tmp_path)
+
+    first = lifecycle.complete(
+        lifecycle.begin("Need one")
+    )
+
+    second = lifecycle.complete(
+        lifecycle.begin(
+            "Need two",
+            parent_transformation=first.identifier,
+        )
+    )
+
+    third = lifecycle.begin(
+        "Need three",
+        parent_transformation=second.identifier,
+    )
+
+    restarted = TransformationLifecycle(tmp_path)
+
+    lineage = restarted.lineage(third.identifier)
+
+    assert tuple(
+        item.identifier for item in lineage
+    ) == (
+        first.identifier,
+        second.identifier,
+        third.identifier,
+    )
+
+    assert tuple(
+        item.need for item in lineage
+    ) == (
+        "Need one",
+        "Need two",
+        "Need three",
+    )
+
+
+def test_root_lineage_contains_only_root(tmp_path):
+    lifecycle = TransformationLifecycle(tmp_path)
+
+    root = lifecycle.begin("Independent root")
+
+    assert lifecycle.lineage(root.identifier) == (root,)
+
+
+def test_external_or_missing_parent_is_preserved_but_not_invented_in_lineage(
+    tmp_path,
+):
+    lifecycle = TransformationLifecycle(tmp_path)
+
+    child = lifecycle.begin(
+        "Continue externally known history",
+        parent_transformation="TR-000042",
+    )
+
+    assert child.parent_transformation == "TR-000042"
+
+    with pytest.raises(
+        TransformationError,
+        match="lineage is incomplete",
+    ):
+        lifecycle.lineage(child.identifier)
+
+
+def test_parent_removed_after_persistence_makes_lineage_explicitly_incomplete(
+    tmp_path,
+):
+    lifecycle = TransformationLifecycle(tmp_path)
+
+    parent = lifecycle.complete(
+        lifecycle.begin("Parent")
+    )
+
+    child = lifecycle.begin(
+        "Child",
+        parent_transformation=parent.identifier,
+    )
+
+    (tmp_path / f"{parent.identifier}.md").unlink()
+
+    with pytest.raises(
+        TransformationError,
+        match="lineage is incomplete",
+    ):
+        lifecycle.lineage(child.identifier)
+
+
+def test_lineage_cycle_is_rejected(tmp_path):
+    lifecycle = TransformationLifecycle(tmp_path)
+
+    first = lifecycle.complete(
+        lifecycle.begin("First")
+    )
+
+    second = lifecycle.begin(
+        "Second",
+        parent_transformation=first.identifier,
+    )
+
+    first_path = tmp_path / f"{first.identifier}.md"
+    text = first_path.read_text(encoding="utf-8")
+
+    first_path.write_text(
+        text.replace(
+            "Parent Transformation: NONE",
+            f"Parent Transformation: {second.identifier}",
+            1,
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(
+        TransformationError,
+        match="cycle",
+    ):
+        lifecycle.lineage(second.identifier)
+
+
+def test_malformed_local_history_is_not_silently_skipped(tmp_path):
+    lifecycle = TransformationLifecycle(tmp_path)
+
+    lifecycle.begin("Valid Transformation")
+
+    (tmp_path / "TR-000002.md").write_text(
+        "# malformed",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(TransformationError):
+        lifecycle.list_transformations()
+
+
+def test_increment_003_preserves_external_parent_contract_after_restart(
+    tmp_path,
+):
+    lifecycle = TransformationLifecycle(tmp_path)
+
+    original = lifecycle.begin(
+        "Preserve established contract",
+        parent_transformation="TR-000042",
+    )
+
+    restarted = TransformationLifecycle(tmp_path)
+    recovered = restarted.get(original.identifier)
+
+    assert recovered == original
+    assert recovered.parent_transformation == "TR-000042"
