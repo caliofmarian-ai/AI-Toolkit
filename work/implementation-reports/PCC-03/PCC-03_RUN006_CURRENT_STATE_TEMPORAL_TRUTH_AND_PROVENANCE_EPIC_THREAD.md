@@ -366,9 +366,15 @@ Git authority before mutation:
 
 `ef6341f1601bb277abae7326aa2e45ab78b01e59`
 
-Final commit:
+Implementation commit:
 
-PENDING UNTIL CONSERVATION
+`0d36de2fa67aa294aa68a2586b6c634e77c98a1e`
+
+Epic Thread finalization:
+
+The implementation commit above contains the executable RUN 006 mutation.
+This report is finalized immediately afterward so the conserved record contains
+the actual implementation commit identity.
 
 ---
 
