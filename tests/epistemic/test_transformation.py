@@ -181,3 +181,141 @@ def test_empty_need_is_rejected(tmp_path):
 
     with pytest.raises(TransformationError):
         lifecycle.begin("   ")
+
+
+def test_running_transformation_survives_lifecycle_restart(tmp_path):
+    first_lifecycle = TransformationLifecycle(tmp_path)
+
+    original = first_lifecycle.begin(
+        "Preserve Transformation across restart",
+        research="Canon inspected.",
+        hypothesis="Persisted evidence can reconstruct Transformation.",
+        owner_decision="Owner authorized PCC-02.",
+    )
+
+    restarted_lifecycle = TransformationLifecycle(tmp_path)
+    recovered = restarted_lifecycle.get(original.identifier)
+
+    assert recovered == original
+    assert recovered.status == "RUNNING"
+    assert recovered.ended_at is None
+
+
+def test_completed_transformation_survives_lifecycle_restart(tmp_path):
+    first_lifecycle = TransformationLifecycle(tmp_path)
+
+    running = first_lifecycle.begin(
+        "Recover completed Transformation",
+        parent_transformation="TR-000042",
+        research="Repository inspected.",
+        hypothesis="Recovery preserves all epistemic dimensions.",
+        owner_decision="Owner authorized implementation.",
+    )
+
+    completed = first_lifecycle.complete(
+        running,
+        implementation="Existing organ extended.",
+        execution="Behavioral examination executed.",
+        artifacts_effects="Persistent recovery became operational.",
+        evidence="Tests demonstrate restart recovery.",
+        verification="Recovered value equals persisted value.",
+        knowledge="Transformation can survive process restart.",
+        evolution="Continuity advanced.",
+        next_transformation="Continue PCC-02 maturation.",
+    )
+
+    restarted_lifecycle = TransformationLifecycle(tmp_path)
+    recovered = restarted_lifecycle.get(completed.identifier)
+
+    assert recovered == completed
+    assert recovered.parent_transformation == "TR-000042"
+    assert recovered.ended_at == completed.ended_at
+    assert recovered.dimensions == completed.dimensions
+
+
+def test_recovery_uses_stable_identity_not_filename_inference(tmp_path):
+    lifecycle = TransformationLifecycle(tmp_path)
+
+    transformation = lifecycle.begin("Protect stable identity")
+
+    original_path = tmp_path / f"{transformation.identifier}.md"
+    text = original_path.read_text(encoding="utf-8")
+
+    original_path.write_text(
+        text.replace(
+            f"Transformation ID: {transformation.identifier}",
+            "Transformation ID: TR-999999",
+            1,
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(
+        TransformationError,
+        match="identity does not match",
+    ):
+        lifecycle.get(transformation.identifier)
+
+
+def test_missing_transformation_is_explicit(tmp_path):
+    lifecycle = TransformationLifecycle(tmp_path)
+
+    with pytest.raises(
+        TransformationError,
+        match="does not exist",
+    ):
+        lifecycle.get("TR-000404")
+
+
+def test_malformed_persisted_transformation_is_not_silently_invented(tmp_path):
+    path = tmp_path / "TR-000001.md"
+    path.write_text(
+        """# Transformation Evidence
+
+## Identity
+
+Transformation ID: TR-000001
+Parent Transformation: NONE
+Started: 2026-08-14T00:00:00+00:00
+Ended: NOT ENDED
+Status: RUNNING
+
+## Need
+
+Known need.
+""",
+        encoding="utf-8",
+    )
+
+    lifecycle = TransformationLifecycle(tmp_path)
+
+    with pytest.raises(
+        TransformationError,
+        match="missing section",
+    ):
+        lifecycle.get("TR-000001")
+
+
+def test_recovered_transformation_can_continue_lifecycle(tmp_path):
+    first_lifecycle = TransformationLifecycle(tmp_path)
+
+    running = first_lifecycle.begin(
+        "Resume work after restart"
+    )
+
+    restarted_lifecycle = TransformationLifecycle(tmp_path)
+    recovered = restarted_lifecycle.get(running.identifier)
+
+    completed = restarted_lifecycle.complete(
+        recovered,
+        execution="Execution resumed after restart.",
+        verification="Lifecycle continuation verified.",
+    )
+
+    assert completed.status == "COMPLETED"
+    assert completed.execution == "Execution resumed after restart."
+
+    second_restart = TransformationLifecycle(tmp_path)
+    final = second_restart.get(completed.identifier)
+
+    assert final == completed

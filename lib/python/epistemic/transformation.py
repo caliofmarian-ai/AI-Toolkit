@@ -193,6 +193,148 @@ class TransformationLifecycle:
             encoding="utf-8",
         )
 
+    @staticmethod
+    def _parse_artifact(text: str) -> dict[str, str]:
+        """
+        Recover semantic sections from a Transformation evidence artifact.
+
+        The Markdown representation remains the persisted representation;
+        recovery does not introduce a parallel persistence format.
+        """
+
+        sections: dict[str, list[str]] = {}
+        current: str | None = None
+
+        for raw_line in text.splitlines():
+            if raw_line.startswith("## "):
+                current = raw_line[3:].strip()
+                sections[current] = []
+                continue
+
+            if current is not None:
+                sections[current].append(raw_line)
+
+        def body(name: str) -> str:
+            if name not in sections:
+                raise TransformationError(
+                    f"Transformation artifact missing section: {name}"
+                )
+
+            value = "\n".join(sections[name]).strip()
+
+            if not value:
+                raise TransformationError(
+                    f"Transformation artifact has empty section: {name}"
+                )
+
+            return value
+
+        identity_lines = [
+            line.strip()
+            for line in sections.get("Identity", [])
+            if line.strip()
+        ]
+
+        identity: dict[str, str] = {}
+
+        for line in identity_lines:
+            if ": " not in line:
+                raise TransformationError(
+                    "Malformed Transformation identity metadata"
+                )
+
+            key, value = line.split(": ", 1)
+            identity[key] = value
+
+        required_identity = {
+            "Transformation ID",
+            "Parent Transformation",
+            "Started",
+            "Ended",
+            "Status",
+        }
+
+        if not required_identity.issubset(identity):
+            missing = sorted(required_identity - set(identity))
+            raise TransformationError(
+                "Transformation identity metadata missing: "
+                + ", ".join(missing)
+            )
+
+        result = {
+            "identifier": identity["Transformation ID"],
+            "parent_transformation": identity["Parent Transformation"],
+            "started_at": identity["Started"],
+            "ended_at": identity["Ended"],
+            "status": identity["Status"],
+            "need": body("Need"),
+            "research": body("Research"),
+            "hypothesis": body("Hypothesis"),
+            "owner_decision": body("Owner Decision"),
+            "implementation": body("Implementation"),
+            "execution": body("Execution"),
+            "artifacts_effects": body("Artifacts / Effects"),
+            "evidence": body("Evidence"),
+            "verification": body("Verification"),
+            "knowledge": body("Knowledge"),
+            "evolution": body("Evolution"),
+            "next_transformation": body("Next Transformation"),
+        }
+
+        return result
+
+    def get(self, identifier: str) -> Transformation:
+        """
+        Recover a persisted Transformation by stable identity.
+
+        Recovery reconstructs the immutable epistemic value from its
+        persisted human-readable evidence representation.
+        """
+
+        path = self._artifact_path(identifier)
+
+        if not path.is_file():
+            raise TransformationError(
+                f"Transformation does not exist: {identifier}"
+            )
+
+        data = self._parse_artifact(
+            path.read_text(encoding="utf-8")
+        )
+
+        if data["identifier"] != identifier:
+            raise TransformationError(
+                "Transformation artifact identity does not match "
+                "requested identity"
+            )
+
+        parent = data["parent_transformation"]
+        ended = data["ended_at"]
+
+        return Transformation(
+            identifier=data["identifier"],
+            need=data["need"],
+            started_at=data["started_at"],
+            status=data["status"],
+            research=data["research"],
+            hypothesis=data["hypothesis"],
+            owner_decision=data["owner_decision"],
+            implementation=data["implementation"],
+            execution=data["execution"],
+            artifacts_effects=data["artifacts_effects"],
+            evidence=data["evidence"],
+            verification=data["verification"],
+            knowledge=data["knowledge"],
+            evolution=data["evolution"],
+            next_transformation=data["next_transformation"],
+            parent_transformation=(
+                None if parent == "NONE" else parent
+            ),
+            ended_at=(
+                None if ended == "NOT ENDED" else ended
+            ),
+        )
+
     def begin(
         self,
         need: str,
