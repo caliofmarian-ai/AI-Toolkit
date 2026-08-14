@@ -32,8 +32,19 @@ class ExperienceRecoveryError(ExperiencePersistenceError):
     """Raised when persisted Experience data cannot be recovered safely."""
 
 
+CURRENT_SCHEMA_VERSION = 1
+
+_LEGACY_FIELDS = frozenset(
+    {
+        "experience_id",
+        "created_at",
+        "state",
+    }
+)
+
 _REQUIRED_FIELDS = frozenset(
     {
+        "schema_version",
         "experience_id",
         "created_at",
         "state",
@@ -50,14 +61,22 @@ def serialize_experience(experience: Experience) -> dict[str, str]:
         )
 
     return {
+        "schema_version": CURRENT_SCHEMA_VERSION,
         "experience_id": str(experience.experience_id),
         "created_at": experience.created_at.isoformat(),
         "state": experience.state.value,
     }
 
 
-def recover_experience(data: Mapping[str, Any]) -> Experience:
-    """Recover one existing Experience without regenerating identity."""
+def migrate_experience_representation(
+    data: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Normalize a supported persisted Experience representation.
+
+    The original unversioned representation is schema version 0.
+    Migration adds only persistence metadata. It must not generate,
+    replace, or reinterpret Experience identity.
+    """
 
     if not isinstance(data, Mapping):
         raise ExperienceRecoveryError(
@@ -65,6 +84,11 @@ def recover_experience(data: Mapping[str, Any]) -> Experience:
         )
 
     fields = frozenset(data.keys())
+
+    if fields == _LEGACY_FIELDS:
+        migrated = dict(data)
+        migrated["schema_version"] = CURRENT_SCHEMA_VERSION
+        return migrated
 
     if fields != _REQUIRED_FIELDS:
         missing = sorted(_REQUIRED_FIELDS - fields)
@@ -75,9 +99,33 @@ def recover_experience(data: Mapping[str, Any]) -> Experience:
             f"missing={missing}, unexpected={unexpected}"
         )
 
-    experience_id_raw = data["experience_id"]
-    created_at_raw = data["created_at"]
-    state_raw = data["state"]
+    schema_version = data["schema_version"]
+
+    if (
+        isinstance(schema_version, bool)
+        or not isinstance(schema_version, int)
+    ):
+        raise ExperienceRecoveryError(
+            "persisted schema_version must be an integer"
+        )
+
+    if schema_version != CURRENT_SCHEMA_VERSION:
+        raise ExperienceRecoveryError(
+            "unsupported persisted Experience schema_version: "
+            f"{schema_version}"
+        )
+
+    return dict(data)
+
+
+def recover_experience(data: Mapping[str, Any]) -> Experience:
+    """Recover one existing Experience without regenerating identity."""
+
+    migrated = migrate_experience_representation(data)
+
+    experience_id_raw = migrated["experience_id"]
+    created_at_raw = migrated["created_at"]
+    state_raw = migrated["state"]
 
     if not isinstance(experience_id_raw, str):
         raise ExperienceRecoveryError(

@@ -19,6 +19,7 @@ def test_experience_serialization_contains_only_core_fields():
     data = serialize_experience(experience)
 
     assert set(data) == {
+        "schema_version",
         "experience_id",
         "created_at",
         "state",

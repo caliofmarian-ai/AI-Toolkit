@@ -181,6 +181,7 @@ def test_core_experience_serialization_remains_independent(tmp_path):
     representation = serialize_experience(experience)
 
     assert set(representation) == {
+        "schema_version",
         "experience_id",
         "created_at",
         "state",
