@@ -910,15 +910,25 @@ without requiring humans to decode opaque identifiers.
 
 ---
 
-## Research Status
+## Canonical Status
 
-The Identity and Relations model records the current accepted direction of
-the Epistemic Continuity research.
+The Identity and Relations model is an authoritative component of the
+Epistemic Continuity Canon.
 
-The identifier schemes, relation vocabulary, resolution mechanisms, CSL
-syntax, link generation, storage contracts, and canonical governance rules
-remain subject to further research and reconciliation before
-canonicalization.
+Its governing principles for persistent identity, explicit relations,
+traceability, verifiability, human-readable semantic meaning, and the
+prohibition against inventing existence or relationship through inference
+govern implementation.
+
+Identifier schemes, relation vocabulary, resolution mechanisms, CSL syntax,
+link generation, storage contracts, and governance mechanisms may continue
+to evolve through research and implementation.
+
+Such evolution does not make this canonical model provisional and must not
+silently replace, contradict, or downgrade Canon.
+
+Any change to governing canonical meaning requires explicit Human Authority
+and traceable canonical evolution.
 
 ---
 
