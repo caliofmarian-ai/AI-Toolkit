@@ -1230,3 +1230,23 @@ echo "=========================================================="
 - CANON: NOT CLAIMED BY THIS RUN
 
 - PRODUCTION-READY: NOT CLAIMED BY THIS RUN
+
+## Git Conservation Result
+
+- Baseline: `9c9ffe4c30a81fb65bc5601c6cd3d666ea348e51`
+- Behavioral evidence commit: `f79dc18cf6e1a4f0c290e0f118262dd19cadf14a`
+- Behavioral evidence synchronized to origin/main: PASS
+
+## Conservation Terminal Output
+
+The complete conservation output is generated during this operation.
+
+Its final successful state is recorded below.
+
+## Final Epistemic Conclusion
+
+**Session Binding after Persistent Experience recovery is DEMONSTRATED + CONSERVED.**
+
+This conclusion is based on preserved successful execution evidence and the conserved behavioral artifact.
+
+No whole-PCC-01 CANON or PRODUCTION-READY declaration is made by RUN 043A.
