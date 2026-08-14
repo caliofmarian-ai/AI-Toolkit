@@ -1207,3 +1207,283 @@ def test_knowledge_promotion_does_not_create_memory_or_current_state():
     assert not hasattr(knowledge, "current_state")
     assert not hasattr(knowledge, "living_project_image")
     assert not hasattr(knowledge, "memory")
+
+
+# ---------------------------------------------------------------------------
+# PCC-03 RUN 005
+# Persistent Knowledge Identity + Bidirectional Knowledge Provenance
+# ---------------------------------------------------------------------------
+
+def _pcc03_run005_complete_provenance():
+    provenance = Provenance()
+
+    source = provenance.add_source(
+        "Repository source",
+        kind="REPOSITORY",
+        reference="lib/python/epistemic/provenance.py",
+    )
+
+    observation = provenance.observe(
+        source,
+        "Observed executable behavior",
+        "Explicit provenance anatomy exists.",
+    )
+
+    evidence = provenance.preserve_evidence(
+        observation,
+        "Behavioral evidence",
+        "tests/epistemic/test_provenance.py",
+    )
+
+    claim = provenance.make_claim(
+        "Provenance claim",
+        "The organism preserves explicit provenance.",
+    )
+
+    provenance.relate_evidence(
+        evidence,
+        claim,
+        "SUPPORTS",
+    )
+
+    verification = provenance.verify(
+        claim,
+        "Claim verified",
+        state="VERIFIED",
+        basis=evidence.identifier,
+    )
+
+    knowledge = provenance.promote_knowledge(
+        verification,
+        "Established provenance continuity",
+        "Explicit provenance remains navigable through Knowledge.",
+        authority="Human Authority",
+    )
+
+    return (
+        provenance,
+        source,
+        observation,
+        evidence,
+        claim,
+        verification,
+        knowledge,
+    )
+
+
+def test_run005_provenance_owns_promoted_knowledge():
+    (
+        provenance,
+        _,
+        _,
+        _,
+        _,
+        verification,
+        knowledge,
+    ) = _pcc03_run005_complete_provenance()
+
+    assert knowledge.identifier == "KN-000001"
+
+    assert provenance.knowledge_for_verification(
+        verification
+    ) == (knowledge,)
+
+    assert (
+        provenance.verification_for_knowledge(knowledge)
+        == verification
+    )
+
+
+def test_run005_knowledge_has_bidirectional_provenance_to_source():
+    (
+        provenance,
+        source,
+        observation,
+        evidence,
+        claim,
+        verification,
+        knowledge,
+    ) = _pcc03_run005_complete_provenance()
+
+    backward = provenance.provenance_to_source_from_knowledge(
+        knowledge
+    )
+
+    assert backward == (
+        knowledge,
+        verification,
+        claim,
+        (evidence,),
+        (observation,),
+        (source,),
+    )
+
+    forward = provenance.provenance_from_source_to_knowledge(source)
+
+    assert forward == (
+        source,
+        (observation,),
+        (evidence,),
+        (claim,),
+        (verification,),
+        (knowledge,),
+    )
+
+
+def test_run005_knowledge_persists_and_recovers(tmp_path):
+    (
+        provenance,
+        source,
+        _,
+        _,
+        _,
+        verification,
+        knowledge,
+    ) = _pcc03_run005_complete_provenance()
+
+    artifact = provenance.save(tmp_path)
+
+    text = artifact.read_text(encoding="utf-8")
+
+    assert "### Knowledge" in text
+    assert "KN-000001 — Established provenance continuity" in text
+
+    recovered = Provenance.load(tmp_path)
+
+    recovered_source = recovered._sources[source.identifier]
+    recovered_verification = recovered._verifications[
+        verification.identifier
+    ]
+    recovered_knowledge = recovered._knowledge[
+        knowledge.identifier
+    ]
+
+    assert recovered_knowledge == knowledge
+
+    assert recovered.knowledge_for_verification(
+        recovered_verification
+    ) == (recovered_knowledge,)
+
+    assert recovered.verification_for_knowledge(
+        recovered_knowledge
+    ) == recovered_verification
+
+    forward = recovered.provenance_from_source_to_knowledge(
+        recovered_source
+    )
+
+    assert forward[-1] == (recovered_knowledge,)
+
+
+def test_run005_identity_continues_after_recovery(tmp_path):
+    (
+        provenance,
+        _,
+        _,
+        _,
+        claim,
+        _,
+        knowledge,
+    ) = _pcc03_run005_complete_provenance()
+
+    provenance.save(tmp_path)
+    recovered = Provenance.load(tmp_path)
+
+    second_verification = recovered.verify(
+        recovered._claims[claim.identifier],
+        "Second verification",
+        state="VERIFIED",
+        basis="Explicit second verification.",
+    )
+
+    second_knowledge = recovered.promote_knowledge(
+        second_verification,
+        "Second established knowledge",
+        "Knowledge identity continues after restart.",
+        authority="Human Authority",
+    )
+
+    assert knowledge.identifier == "KN-000001"
+    assert second_knowledge.identifier == "KN-000002"
+
+
+def test_run005_rejects_unregistered_verification():
+    provenance = Provenance()
+
+    foreign = Verification(
+        identifier="VER-999999",
+        title="Foreign verification",
+        claim="CLM-999999",
+        state="VERIFIED",
+        basis="UNKNOWN",
+    )
+
+    with pytest.raises(ProvenanceError):
+        provenance.promote_knowledge(
+            foreign,
+            "Invalid knowledge",
+            "Must not be registered.",
+            authority="Human Authority",
+        )
+
+
+def test_run005_rejects_foreign_knowledge_navigation():
+    provenance = Provenance()
+
+    foreign = Knowledge(
+        identifier="KN-999999",
+        title="Foreign knowledge",
+        statement="Not registered.",
+        verification_identifier="VER-999999",
+        authority="Human Authority",
+    )
+
+    with pytest.raises(ProvenanceError):
+        provenance.verification_for_knowledge(foreign)
+
+
+def test_run005_rejects_dangling_persisted_knowledge(tmp_path):
+    (
+        provenance,
+        _,
+        _,
+        _,
+        _,
+        _,
+        _,
+    ) = _pcc03_run005_complete_provenance()
+
+    artifact = provenance.save(tmp_path)
+
+    text = artifact.read_text(encoding="utf-8")
+
+    text = text.replace(
+        '"verification_identifier": "VER-000001"',
+        '"verification_identifier": "VER-999999"',
+        1,
+    )
+
+    artifact.write_text(text, encoding="utf-8")
+
+    with pytest.raises(
+        ProvenanceError,
+        match="Knowledge references missing Verification",
+    ):
+        Provenance.load(tmp_path)
+
+
+def test_run005_does_not_claim_current_state_or_living_project_image():
+    (
+        provenance,
+        _,
+        _,
+        _,
+        _,
+        _,
+        knowledge,
+    ) = _pcc03_run005_complete_provenance()
+
+    assert not hasattr(provenance, "_current_state")
+    assert not hasattr(provenance, "_living_project_image")
+    assert not hasattr(knowledge, "current_state")
+    assert not hasattr(knowledge, "living_project_image")

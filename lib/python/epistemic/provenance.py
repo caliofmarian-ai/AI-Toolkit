@@ -194,6 +194,102 @@ class Verification:
         return f"{self.identifier} — {self.title}"
 
 
+
+# ---------------------------------------------------------------------------
+# PCC-03 — Verified Knowledge
+# ---------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class Knowledge:
+    """
+    A governed epistemic understanding promoted from an explicit Verification.
+
+    Knowledge is not raw Evidence and is not merely a Verification result.
+    It is an explicit epistemic promotion whose provenance remains navigable
+    back through the Verification and the already-preserved provenance chain.
+
+    This value does not represent Memory, Current State, or Living Project
+    Image and does not replace any existing Knowledge Engine.
+    """
+
+    identifier: str
+    title: str
+    statement: str
+    verification_identifier: str
+    authority: str
+    status: str = "ESTABLISHED"
+
+
+class KnowledgePromotionError(ProvenanceError):
+    """Raised when a Verification cannot responsibly become Knowledge."""
+
+
+def _knowledge_identifier(number: int) -> str:
+    return f"KN-{number:06d}"
+
+
+def _require_knowledge_text(name: str, value: str) -> str:
+    if not isinstance(value, str) or not value.strip():
+        raise KnowledgePromotionError(
+            f"{name} must contain explicit epistemic information"
+        )
+    return value.strip()
+
+
+def promote_verified_knowledge(
+    verification: Verification,
+    *,
+    identifier: str,
+    title: str,
+    statement: str,
+    authority: str,
+) -> Knowledge:
+    """
+    Explicitly promote a Verification into Knowledge.
+
+    Promotion is never inferred merely because Evidence or Verification exists.
+    The caller must supply the semantic statement and responsible authority.
+
+    Existing provenance remains authoritative for the history leading to the
+    Verification.  This function does not copy Source, Observation, Evidence,
+    Claim, or Verification content into another persistence authority.
+    """
+
+    if not isinstance(verification, Verification):
+        raise KnowledgePromotionError(
+            "Knowledge promotion requires an explicit Verification"
+        )
+
+    identifier = _require_knowledge_text("identifier", identifier)
+
+    if not identifier.startswith("KN-"):
+        raise KnowledgePromotionError(
+            "Knowledge identifier must use the KN-* identity family"
+        )
+
+    title = _require_knowledge_text("title", title)
+    statement = _require_knowledge_text("statement", statement)
+    authority = _require_knowledge_text("authority", authority)
+
+    verification_identifier = getattr(
+        verification,
+        "identifier",
+        None,
+    )
+
+    if not verification_identifier:
+        raise KnowledgePromotionError(
+            "Verification must have a stable epistemic identity"
+        )
+
+    return Knowledge(
+        identifier=identifier,
+        title=title,
+        statement=statement,
+        verification_identifier=verification_identifier,
+        authority=authority,
+    )
+
 class Provenance:
     """
     In-memory executable provenance anatomy.
@@ -211,6 +307,7 @@ class Provenance:
         self._evidence: dict[str, Evidence] = {}
         self._claims: dict[str, Claim] = {}
         self._verifications: dict[str, Verification] = {}
+        self._knowledge: dict[str, Knowledge] = {}
         self._evidence_relations: list[EvidenceRelation] = []
 
     @staticmethod
@@ -381,6 +478,102 @@ class Provenance:
 
         self._verifications[identifier] = verification
         return verification
+
+    def promote_knowledge(
+        self,
+        verification: Verification,
+        title: str,
+        statement: str,
+        *,
+        authority: str,
+    ) -> Knowledge:
+        """
+        Explicitly promote a registered Verification into persistent Knowledge.
+
+        Promotion remains governed and non-automatic. The existing RUN 004
+        promotion boundary validates epistemic content; this method gives the
+        resulting Knowledge a stable identity inside this Provenance organ.
+        """
+        self._require_registered_verification(verification)
+
+        identifier = self._next_identifier(
+            "KN",
+            self._knowledge,
+        )
+
+        knowledge = promote_verified_knowledge(
+            verification,
+            identifier=identifier,
+            title=title,
+            statement=statement,
+            authority=authority,
+        )
+
+        self._knowledge[identifier] = knowledge
+        return knowledge
+
+    def knowledge_for_verification(
+        self,
+        verification: Verification,
+    ) -> tuple[Knowledge, ...]:
+        """Navigate forward from Verification to explicit Knowledge."""
+        self._require_registered_verification(verification)
+
+        return tuple(
+            knowledge
+            for knowledge in self._knowledge.values()
+            if (
+                knowledge.verification_identifier
+                == verification.identifier
+            )
+        )
+
+    def verification_for_knowledge(
+        self,
+        knowledge: Knowledge,
+    ) -> Verification:
+        """Navigate backward from Knowledge to its explicit Verification."""
+        self._require_registered_knowledge(knowledge)
+
+        return self._verifications[
+            knowledge.verification_identifier
+        ]
+
+    def provenance_to_source_from_knowledge(
+        self,
+        knowledge: Knowledge,
+    ) -> tuple[
+        Knowledge,
+        Verification,
+        Claim,
+        tuple[Evidence, ...],
+        tuple[Observation, ...],
+        tuple[Source, ...],
+    ]:
+        """
+        Explain established Knowledge backward to explicit origin.
+
+        No relation is inferred. The Knowledge points to its Verification and
+        the inherited PCC-03 provenance anatomy supplies the remaining path.
+        """
+        verification = self.verification_for_knowledge(knowledge)
+
+        (
+            verification,
+            claim,
+            evidence,
+            observations,
+            sources,
+        ) = self.provenance_to_source(verification)
+
+        return (
+            knowledge,
+            verification,
+            claim,
+            evidence,
+            observations,
+            sources,
+        )
 
     def source_for_observation(
         self,
@@ -555,8 +748,9 @@ class Provenance:
         """
         Traverse established PCC-03 anatomy forward from origin.
 
-        The traversal stops at Verification because Knowledge and Current State
-        are later PCC-03 integration boundaries.
+        This public traversal preserves the RUN 003 contract and stops at
+        Verification. Knowledge uses a distinct RUN 005 traversal so inherited
+        callers are not silently changed.
         """
         self._require_registered_source(source)
 
@@ -586,6 +780,47 @@ class Provenance:
             tuple(evidence),
             tuple(claims),
             tuple(verifications),
+        )
+
+    def provenance_from_source_to_knowledge(
+        self,
+        source: Source,
+    ) -> tuple[
+        Source,
+        tuple[Observation, ...],
+        tuple[Evidence, ...],
+        tuple[Claim, ...],
+        tuple[Verification, ...],
+        tuple[Knowledge, ...],
+    ]:
+        """
+        Traverse explicit PCC-03 provenance from Source through Knowledge.
+
+        This is a RUN 005 extension. The inherited provenance_from_source()
+        contract remains unchanged.
+        """
+        (
+            source,
+            observations,
+            evidence,
+            claims,
+            verifications,
+        ) = self.provenance_from_source(source)
+
+        knowledge: list[Knowledge] = []
+
+        for verification in verifications:
+            for item in self.knowledge_for_verification(verification):
+                if item not in knowledge:
+                    knowledge.append(item)
+
+        return (
+            source,
+            observations,
+            evidence,
+            claims,
+            verifications,
+            tuple(knowledge),
         )
 
     def supporting_evidence(
@@ -675,6 +910,19 @@ class Provenance:
                 }
                 for item in self._verifications.values()
             ],
+            "knowledge": [
+                {
+                    "identifier": item.identifier,
+                    "title": item.title,
+                    "statement": item.statement,
+                    "verification_identifier": (
+                        item.verification_identifier
+                    ),
+                    "authority": item.authority,
+                    "status": item.status,
+                }
+                for item in self._knowledge.values()
+            ],
             "evidence_relations": [
                 {
                     "evidence": item.evidence,
@@ -740,6 +988,16 @@ class Provenance:
             lines.extend(
                 f"- {item.display_identity}"
                 for item in self._verifications.values()
+            )
+        else:
+            lines.append("NONE")
+
+        lines.extend(["", "### Knowledge", ""])
+
+        if self._knowledge:
+            lines.extend(
+                f"- {item.identifier} — {item.title}"
+                for item in self._knowledge.values()
             )
         else:
             lines.append("NONE")
@@ -816,6 +1074,7 @@ class Provenance:
             "evidence",
             "claims",
             "verifications",
+            "knowledge",
             "evidence_relations",
         }
 
@@ -899,6 +1158,24 @@ class Provenance:
                     item.identifier,
                 )
 
+            for data in payload["knowledge"]:
+                item = Knowledge(**data)
+
+                if (
+                    item.verification_identifier
+                    not in provenance._verifications
+                ):
+                    raise ProvenanceError(
+                        "Knowledge references missing Verification: "
+                        f"{item.verification_identifier}"
+                    )
+
+                register(
+                    provenance._knowledge,
+                    item,
+                    item.identifier,
+                )
+
             for data in payload["evidence_relations"]:
                 relation = EvidenceRelation(**data)
 
@@ -970,98 +1247,11 @@ class Provenance:
                 f"Unknown Claim: {claim.identifier}"
             )
 
-
-# ---------------------------------------------------------------------------
-# PCC-03 — Verified Knowledge
-# ---------------------------------------------------------------------------
-
-@dataclass(frozen=True)
-class Knowledge:
-    """
-    A governed epistemic understanding promoted from an explicit Verification.
-
-    Knowledge is not raw Evidence and is not merely a Verification result.
-    It is an explicit epistemic promotion whose provenance remains navigable
-    back through the Verification and the already-preserved provenance chain.
-
-    This value does not represent Memory, Current State, or Living Project
-    Image and does not replace any existing Knowledge Engine.
-    """
-
-    identifier: str
-    title: str
-    statement: str
-    verification_identifier: str
-    authority: str
-    status: str = "ESTABLISHED"
-
-
-class KnowledgePromotionError(ProvenanceError):
-    """Raised when a Verification cannot responsibly become Knowledge."""
-
-
-def _knowledge_identifier(number: int) -> str:
-    return f"KN-{number:06d}"
-
-
-def _require_knowledge_text(name: str, value: str) -> str:
-    if not isinstance(value, str) or not value.strip():
-        raise KnowledgePromotionError(
-            f"{name} must contain explicit epistemic information"
-        )
-    return value.strip()
-
-
-def promote_verified_knowledge(
-    verification: Verification,
-    *,
-    identifier: str,
-    title: str,
-    statement: str,
-    authority: str,
-) -> Knowledge:
-    """
-    Explicitly promote a Verification into Knowledge.
-
-    Promotion is never inferred merely because Evidence or Verification exists.
-    The caller must supply the semantic statement and responsible authority.
-
-    Existing provenance remains authoritative for the history leading to the
-    Verification.  This function does not copy Source, Observation, Evidence,
-    Claim, or Verification content into another persistence authority.
-    """
-
-    if not isinstance(verification, Verification):
-        raise KnowledgePromotionError(
-            "Knowledge promotion requires an explicit Verification"
-        )
-
-    identifier = _require_knowledge_text("identifier", identifier)
-
-    if not identifier.startswith("KN-"):
-        raise KnowledgePromotionError(
-            "Knowledge identifier must use the KN-* identity family"
-        )
-
-    title = _require_knowledge_text("title", title)
-    statement = _require_knowledge_text("statement", statement)
-    authority = _require_knowledge_text("authority", authority)
-
-    verification_identifier = getattr(
-        verification,
-        "identifier",
-        None,
-    )
-
-    if not verification_identifier:
-        raise KnowledgePromotionError(
-            "Verification must have a stable epistemic identity"
-        )
-
-    return Knowledge(
-        identifier=identifier,
-        title=title,
-        statement=statement,
-        verification_identifier=verification_identifier,
-        authority=authority,
-    )
+    def _require_registered_knowledge(
+        self,
+        knowledge: Knowledge,
+    ) -> None:
+        if self._knowledge.get(knowledge.identifier) != knowledge:
+            raise ProvenanceError(
+                f"Unknown Knowledge: {knowledge.identifier}"
+            )
