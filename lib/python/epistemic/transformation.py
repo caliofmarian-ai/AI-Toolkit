@@ -594,6 +594,95 @@ class TransformationLifecycle:
 
         return tuple(reverse_chain)
 
+    def resolve_reference(
+        self,
+        reference: EpistemicReference,
+    ) -> Path | None:
+        """
+        Resolve a repository-relative manifestation when one exists locally.
+
+        Identity remains independent of location. A missing or non-file
+        reference is represented explicitly as unresolved rather than being
+        invented or treated as proof of non-existence.
+        """
+
+        if not isinstance(reference, EpistemicReference):
+            raise TransformationError(
+                "reference must be an EpistemicReference"
+            )
+
+        raw = reference.target_reference
+
+        # Git identities, URLs, database keys, and other non-filesystem
+        # manifestations remain explicit references but are not falsely
+        # resolved as local files.
+        if (
+            "://" in raw
+            or raw.startswith("git:")
+            or raw.startswith("urn:")
+        ):
+            return None
+
+        candidate = Path(raw)
+
+        if candidate.is_absolute():
+            return candidate if candidate.is_file() else None
+
+        candidate = Path.cwd() / candidate
+
+        return candidate if candidate.is_file() else None
+
+    def inspect(
+        self,
+        identifier: str,
+    ) -> dict[str, object]:
+        """
+        Reconstruct one Transformation as a human-auditable epistemic view.
+
+        The view is derived from persisted Transformation truth. It does not
+        become a second persistence authority.
+        """
+
+        transformation = self.get(identifier)
+
+        lineage_state: tuple[Transformation, ...] | None
+        lineage_error: str | None
+
+        try:
+            lineage_state = self.lineage(identifier)
+            lineage_error = None
+        except TransformationError as exc:
+            lineage_state = None
+            lineage_error = str(exc)
+
+        relation_views: list[dict[str, object]] = []
+
+        for reference in transformation.relations:
+            resolved = self.resolve_reference(reference)
+
+            relation_views.append(
+                {
+                    "relation": reference.relation,
+                    "target_identity": reference.target_identity,
+                    "target_title": reference.target_title,
+                    "human_identity": reference.human_identity,
+                    "reference": reference.target_reference,
+                    "resolved_path": resolved,
+                    "resolved": resolved is not None,
+                }
+            )
+
+        return {
+            "transformation": transformation,
+            "human_identity": transformation.human_identity,
+            "dimensions": transformation.dimensions,
+            "relations": tuple(relation_views),
+            "lineage": lineage_state,
+            "lineage_error": lineage_error,
+            "children": self.children(identifier),
+            "artifact": self._artifact_path(identifier),
+        }
+
     def relate(
         self,
         transformation: Transformation,

@@ -919,3 +919,277 @@ def test_completion_preserves_structural_relations(tmp_path):
 
     assert recovered == completed
     assert recovered.relations == related.relations
+
+
+def test_resolve_reference_navigates_existing_repository_relative_file(
+    tmp_path,
+    monkeypatch,
+):
+    monkeypatch.chdir(tmp_path)
+
+    artifact = tmp_path / "work" / "evidence.md"
+    artifact.parent.mkdir(parents=True)
+    artifact.write_text("proof", encoding="utf-8")
+
+    lifecycle = TransformationLifecycle(tmp_path / "transformations")
+
+    transformation = lifecycle.begin(
+        "Navigate from Transformation to evidence"
+    )
+
+    transformation = lifecycle.relate(
+        transformation,
+        relation="SUPPORTED BY",
+        target_identity="EV-000001",
+        target_title="Execution proof",
+        target_reference="work/evidence.md",
+    )
+
+    resolved = lifecycle.resolve_reference(
+        transformation.relations[0]
+    )
+
+    assert resolved == artifact
+    assert resolved.read_text(encoding="utf-8") == "proof"
+
+
+def test_missing_reference_is_explicitly_unresolved_not_invented(
+    tmp_path,
+    monkeypatch,
+):
+    monkeypatch.chdir(tmp_path)
+
+    lifecycle = TransformationLifecycle(tmp_path / "transformations")
+
+    transformation = lifecycle.begin(
+        "Represent unavailable manifestation honestly"
+    )
+
+    transformation = lifecycle.relate(
+        transformation,
+        relation="SUPPORTED BY",
+        target_identity="EV-000002",
+        target_title="Unavailable evidence",
+        target_reference="work/missing.md",
+    )
+
+    assert lifecycle.resolve_reference(
+        transformation.relations[0]
+    ) is None
+
+
+def test_non_filesystem_reference_is_preserved_but_not_falsely_resolved(
+    tmp_path,
+):
+    lifecycle = TransformationLifecycle(tmp_path)
+
+    transformation = lifecycle.begin(
+        "Preserve Git manifestation"
+    )
+
+    transformation = lifecycle.relate(
+        transformation,
+        relation="MATERIALIZED BY",
+        target_identity="COMMIT-abc123",
+        target_title="Repository materialization",
+        target_reference="git:abc123",
+    )
+
+    reference = transformation.relations[0]
+
+    assert reference.target_reference == "git:abc123"
+    assert lifecycle.resolve_reference(reference) is None
+
+
+def test_inspect_reconstructs_complete_transformation_view(
+    tmp_path,
+    monkeypatch,
+):
+    monkeypatch.chdir(tmp_path)
+
+    evidence = tmp_path / "evidence" / "verification.md"
+    evidence.parent.mkdir()
+    evidence.write_text("verified", encoding="utf-8")
+
+    root = tmp_path / "transformations"
+    lifecycle = TransformationLifecycle(root)
+
+    parent = lifecycle.complete(
+        lifecycle.begin("Recognize original need")
+    )
+
+    child = lifecycle.begin(
+        "Implement navigable epistemic reality",
+        parent_transformation=parent.identifier,
+        research="Structure Map examined.",
+        hypothesis="Explicit references permit deterministic navigation.",
+        owner_decision="Owner authorized implementation.",
+    )
+
+    child = lifecycle.relate(
+        child,
+        relation="SUPPORTED BY",
+        target_identity="EV-000003",
+        target_title="Verification artifact",
+        target_reference="evidence/verification.md",
+    )
+
+    view = lifecycle.inspect(child.identifier)
+
+    assert view["transformation"] == child
+    assert view["human_identity"] == child.human_identity
+    assert view["dimensions"] == child.dimensions
+    assert view["artifact"] == root / f"{child.identifier}.md"
+
+    assert tuple(
+        item.identifier for item in view["lineage"]
+    ) == (
+        parent.identifier,
+        child.identifier,
+    )
+
+    assert view["lineage_error"] is None
+
+    relation = view["relations"][0]
+
+    assert relation["relation"] == "SUPPORTED BY"
+    assert relation["human_identity"] == (
+        "EV-000003 — Verification artifact"
+    )
+    assert relation["reference"] == "evidence/verification.md"
+    assert relation["resolved"] is True
+    assert relation["resolved_path"] == evidence
+
+
+def test_inspect_exposes_incomplete_lineage_without_inventing_ancestry(
+    tmp_path,
+):
+    lifecycle = TransformationLifecycle(tmp_path)
+
+    child = lifecycle.begin(
+        "Continue externally known history",
+        parent_transformation="TR-000042",
+    )
+
+    view = lifecycle.inspect(child.identifier)
+
+    assert view["lineage"] is None
+    assert view["lineage_error"] is not None
+    assert "lineage is incomplete" in view["lineage_error"]
+
+
+def test_inspection_is_derived_and_does_not_create_second_persistence_format(
+    tmp_path,
+):
+    lifecycle = TransformationLifecycle(tmp_path)
+
+    transformation = lifecycle.begin(
+        "Keep inspection subordinate to persisted truth"
+    )
+
+    before = sorted(path.name for path in tmp_path.iterdir())
+
+    first = lifecycle.inspect(transformation.identifier)
+    second = lifecycle.inspect(transformation.identifier)
+
+    after = sorted(path.name for path in tmp_path.iterdir())
+
+    assert first == second
+    assert before == after
+    assert after == [f"{transformation.identifier}.md"]
+
+
+def test_inspection_preserves_exact_twelve_dimension_contract(tmp_path):
+    lifecycle = TransformationLifecycle(tmp_path)
+
+    transformation = lifecycle.begin(
+        "Inspect complete Transformation anatomy"
+    )
+
+    view = lifecycle.inspect(transformation.identifier)
+
+    assert len(view["dimensions"]) == 12
+
+    assert tuple(
+        name for name, _ in view["dimensions"]
+    ) == (
+        "Need",
+        "Research",
+        "Hypothesis",
+        "Owner Decision",
+        "Implementation",
+        "Execution",
+        "Artifacts / Effects",
+        "Evidence",
+        "Verification",
+        "Knowledge",
+        "Evolution",
+        "Next Transformation",
+    )
+
+
+def test_inspection_exposes_children_as_forward_evolution(
+    tmp_path,
+):
+    lifecycle = TransformationLifecycle(tmp_path)
+
+    root = lifecycle.complete(
+        lifecycle.begin("Original transformation")
+    )
+
+    first_child = lifecycle.begin(
+        "First continuation",
+        parent_transformation=root.identifier,
+    )
+
+    second_child = lifecycle.begin(
+        "Second continuation",
+        parent_transformation=root.identifier,
+    )
+
+    view = lifecycle.inspect(root.identifier)
+
+    assert tuple(
+        child.identifier
+        for child in view["children"]
+    ) == (
+        first_child.identifier,
+        second_child.identifier,
+    )
+
+
+def test_restart_preserves_same_inspectable_epistemic_reality(
+    tmp_path,
+    monkeypatch,
+):
+    monkeypatch.chdir(tmp_path)
+
+    source = tmp_path / "source.md"
+    source.write_text("source reality", encoding="utf-8")
+
+    root = tmp_path / "transformations"
+
+    lifecycle = TransformationLifecycle(root)
+
+    transformation = lifecycle.begin(
+        "Survive restart as navigable reality"
+    )
+
+    transformation = lifecycle.relate(
+        transformation,
+        relation="DERIVED FROM",
+        target_identity="SOURCE-001",
+        target_title="Original source",
+        target_reference="source.md",
+    )
+
+    before = lifecycle.inspect(transformation.identifier)
+
+    restarted = TransformationLifecycle(root)
+    after = restarted.inspect(transformation.identifier)
+
+    assert after["transformation"] == before["transformation"]
+    assert after["human_identity"] == before["human_identity"]
+    assert after["dimensions"] == before["dimensions"]
+    assert after["relations"] == before["relations"]
+    assert after["artifact"] == before["artifact"]
