@@ -647,3 +647,275 @@ def test_lineage_exposes_human_identity_after_restart(tmp_path):
         f"{parent.identifier} — Recognize original need",
         f"{child.identifier} — Evolve original need",
     )
+
+
+def test_epistemic_relation_maps_identity_meaning_and_reference(tmp_path):
+    lifecycle = TransformationLifecycle(tmp_path)
+
+    transformation = lifecycle.begin(
+        "Preserve provenance without copying artifacts"
+    )
+
+    related = lifecycle.relate(
+        transformation,
+        relation="SUPPORTED BY",
+        target_identity="EVIDENCE-LOCAL-001",
+        target_title="Behavioral verification report",
+        target_reference="work/reports/verification.md",
+    )
+
+    assert len(related.relations) == 1
+
+    reference = related.relations[0]
+
+    assert reference.relation == "SUPPORTED BY"
+    assert reference.target_identity == "EVIDENCE-LOCAL-001"
+    assert reference.target_title == "Behavioral verification report"
+    assert reference.target_reference == "work/reports/verification.md"
+    assert reference.human_identity == (
+        "EVIDENCE-LOCAL-001 — Behavioral verification report"
+    )
+
+
+def test_relations_are_structural_not_a_thirteenth_dimension(tmp_path):
+    lifecycle = TransformationLifecycle(tmp_path)
+
+    transformation = lifecycle.begin(
+        "Keep epistemic anatomy stable"
+    )
+
+    related = lifecycle.relate(
+        transformation,
+        relation="DERIVED FROM",
+        target_identity="CANON-001",
+        target_title="Canonical governing artifact",
+        target_reference="canon/example.md",
+    )
+
+    assert len(related.dimensions) == 12
+    assert tuple(name for name, _ in related.dimensions) == (
+        "Need",
+        "Research",
+        "Hypothesis",
+        "Owner Decision",
+        "Implementation",
+        "Execution",
+        "Artifacts / Effects",
+        "Evidence",
+        "Verification",
+        "Knowledge",
+        "Evolution",
+        "Next Transformation",
+    )
+
+
+def test_relation_survives_restart(tmp_path):
+    lifecycle = TransformationLifecycle(tmp_path)
+
+    transformation = lifecycle.begin(
+        "Recover explicit provenance"
+    )
+
+    related = lifecycle.relate(
+        transformation,
+        relation="WITNESSED BY",
+        target_identity="REPORT-001",
+        target_title="Execution witness",
+        target_reference="work/report.md",
+    )
+
+    restarted = TransformationLifecycle(tmp_path)
+    recovered = restarted.get(related.identifier)
+
+    assert recovered == related
+    assert recovered.relations == related.relations
+
+
+def test_persisted_relation_is_human_readable_and_resolvable(tmp_path):
+    lifecycle = TransformationLifecycle(tmp_path)
+
+    transformation = lifecycle.begin(
+        "Expose relation to human inspection"
+    )
+
+    related = lifecycle.relate(
+        transformation,
+        relation="AUTHORIZED BY",
+        target_identity="OWNER-DECISION-001",
+        target_title="Human authorization",
+        target_reference="work/decision.md",
+    )
+
+    artifact = (
+        tmp_path / f"{related.identifier}.md"
+    ).read_text(encoding="utf-8")
+
+    assert "## Epistemic Relations" in artifact
+    assert "- Relation: AUTHORIZED BY" in artifact
+    assert (
+        "Target: OWNER-DECISION-001 — Human authorization"
+        in artifact
+    )
+    assert "Reference: work/decision.md" in artifact
+
+
+def test_multiple_relation_types_do_not_require_parallel_organs(tmp_path):
+    lifecycle = TransformationLifecycle(tmp_path)
+
+    transformation = lifecycle.begin(
+        "Map existing epistemic neighborhood"
+    )
+
+    transformation = lifecycle.relate(
+        transformation,
+        relation="DERIVED FROM",
+        target_identity="CANON-001",
+        target_title="Governing Canon",
+        target_reference="canon/governing.md",
+    )
+
+    transformation = lifecycle.relate(
+        transformation,
+        relation="SUPPORTED BY",
+        target_identity="REPORT-001",
+        target_title="Verification evidence",
+        target_reference="work/report.md",
+    )
+
+    transformation = lifecycle.relate(
+        transformation,
+        relation="MATERIALIZED BY",
+        target_identity="COMMIT-abc123",
+        target_title="Repository materialization",
+        target_reference="git:abc123",
+    )
+
+    assert tuple(
+        relation.relation
+        for relation in transformation.relations
+    ) == (
+        "DERIVED FROM",
+        "SUPPORTED BY",
+        "MATERIALIZED BY",
+    )
+
+
+def test_duplicate_relation_is_idempotent(tmp_path):
+    lifecycle = TransformationLifecycle(tmp_path)
+
+    transformation = lifecycle.begin(
+        "Avoid duplicate epistemic edges"
+    )
+
+    first = lifecycle.relate(
+        transformation,
+        relation="SUPPORTED BY",
+        target_identity="REPORT-001",
+        target_title="One report",
+        target_reference="work/report.md",
+    )
+
+    second = lifecycle.relate(
+        first,
+        relation="SUPPORTED BY",
+        target_identity="REPORT-001",
+        target_title="One report",
+        target_reference="work/report.md",
+    )
+
+    assert second == first
+    assert len(second.relations) == 1
+
+
+def test_relation_requires_human_semantic_identity(tmp_path):
+    lifecycle = TransformationLifecycle(tmp_path)
+
+    transformation = lifecycle.begin(
+        "Reject naked relation identity"
+    )
+
+    with pytest.raises(TransformationError):
+        lifecycle.relate(
+            transformation,
+            relation="SUPPORTED BY",
+            target_identity="REPORT-001",
+            target_title="   ",
+            target_reference="work/report.md",
+        )
+
+
+def test_relation_requires_resolvable_reference_text(tmp_path):
+    lifecycle = TransformationLifecycle(tmp_path)
+
+    transformation = lifecycle.begin(
+        "Reject reference without location"
+    )
+
+    with pytest.raises(TransformationError):
+        lifecycle.relate(
+            transformation,
+            relation="SUPPORTED BY",
+            target_identity="REPORT-001",
+            target_title="Evidence report",
+            target_reference="   ",
+        )
+
+
+def test_relate_rejects_stale_transformation_value(tmp_path):
+    lifecycle = TransformationLifecycle(tmp_path)
+
+    original = lifecycle.begin(
+        "Protect current persisted epistemic state"
+    )
+
+    matured = lifecycle.relate(
+        original,
+        relation="DERIVED FROM",
+        target_identity="CANON-001",
+        target_title="Canon",
+        target_reference="canon/example.md",
+    )
+
+    assert matured != original
+
+    with pytest.raises(
+        TransformationError,
+        match="does not match persisted state",
+    ):
+        lifecycle.relate(
+            original,
+            relation="SUPPORTED BY",
+            target_identity="REPORT-001",
+            target_title="Report",
+            target_reference="work/report.md",
+        )
+
+
+def test_completion_preserves_structural_relations(tmp_path):
+    lifecycle = TransformationLifecycle(tmp_path)
+
+    running = lifecycle.begin(
+        "Carry provenance through completion"
+    )
+
+    related = lifecycle.relate(
+        running,
+        relation="DERIVED FROM",
+        target_identity="CANON-001",
+        target_title="Governing Canon",
+        target_reference="canon/governing.md",
+    )
+
+    completed = lifecycle.complete(
+        related,
+        execution="Executed.",
+        verification="Verified.",
+    )
+
+    assert completed.relations == related.relations
+
+    restarted = TransformationLifecycle(tmp_path)
+    recovered = restarted.get(completed.identifier)
+
+    assert recovered == completed
+    assert recovered.relations == related.relations

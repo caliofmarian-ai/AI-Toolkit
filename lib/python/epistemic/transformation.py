@@ -53,6 +53,48 @@ def _validate_identifier(identifier: str) -> str:
 
 
 @dataclass(frozen=True)
+class EpistemicReference:
+    """
+    One explicit relation from a Transformation to another epistemic artifact.
+
+    The reference maps identity, meaning, relation, and resolvable location.
+    It does not copy the target artifact and does not claim that the target
+    belongs to an organ that has not yet been implemented.
+    """
+
+    relation: str
+    target_identity: str
+    target_title: str
+    target_reference: str
+
+    def __post_init__(self) -> None:
+        object.__setattr__(
+            self,
+            "relation",
+            _require_text("relation", self.relation),
+        )
+        object.__setattr__(
+            self,
+            "target_identity",
+            _require_text("target_identity", self.target_identity),
+        )
+        object.__setattr__(
+            self,
+            "target_title",
+            _require_text("target_title", self.target_title),
+        )
+        object.__setattr__(
+            self,
+            "target_reference",
+            _require_text("target_reference", self.target_reference),
+        )
+
+    @property
+    def human_identity(self) -> str:
+        return f"{self.target_identity} — {self.target_title}"
+
+
+@dataclass(frozen=True)
 class Transformation:
     """
     One meaningful unit of project evolution.
@@ -95,6 +137,7 @@ class Transformation:
 
     parent_transformation: str | None = None
     ended_at: str | None = None
+    relations: tuple[EpistemicReference, ...] = ()
 
     def __post_init__(self) -> None:
         _validate_identifier(self.identifier)
@@ -104,6 +147,19 @@ class Transformation:
 
         if self.parent_transformation is not None:
             _validate_identifier(self.parent_transformation)
+
+        if not isinstance(self.relations, tuple):
+            raise TransformationError(
+                "relations must be an immutable tuple"
+            )
+
+        if not all(
+            isinstance(reference, EpistemicReference)
+            for reference in self.relations
+        ):
+            raise TransformationError(
+                "relations must contain EpistemicReference values"
+            )
 
     @property
     def semantic_title(self) -> str:
@@ -191,7 +247,23 @@ class TransformationLifecycle:
             f"Ended: {transformation.ended_at or 'NOT ENDED'}",
             f"Status: {transformation.status}",
             "",
+            "## Epistemic Relations",
+            "",
         ]
+
+        if transformation.relations:
+            for reference in transformation.relations:
+                lines.extend(
+                    [
+                        f"- Relation: {reference.relation}",
+                        f"  Target: {reference.human_identity}",
+                        f"  Reference: {reference.target_reference}",
+                    ]
+                )
+        else:
+            lines.append("NONE")
+
+        lines.append("")
 
         for title, value in transformation.dimensions:
             lines.extend(
@@ -281,6 +353,79 @@ class TransformationLifecycle:
                 + ", ".join(missing)
             )
 
+        relation_lines = [
+            line.rstrip()
+            for line in sections.get("Epistemic Relations", [])
+            if line.strip()
+        ]
+
+        relations: list[EpistemicReference] = []
+
+        if relation_lines and relation_lines != ["NONE"]:
+            current_relation: dict[str, str] = {}
+
+            for line in relation_lines:
+                stripped = line.strip()
+
+                if stripped.startswith("- Relation: "):
+                    if current_relation:
+                        raise TransformationError(
+                            "Malformed epistemic relation block"
+                        )
+
+                    current_relation["relation"] = stripped[
+                        len("- Relation: "):
+                    ]
+
+                elif stripped.startswith("Target: "):
+                    target = stripped[len("Target: "):]
+
+                    if " — " not in target:
+                        raise TransformationError(
+                            "Epistemic relation Target must contain "
+                            "identity and semantic title"
+                        )
+
+                    target_identity, target_title = target.split(
+                        " — ",
+                        1,
+                    )
+
+                    current_relation["target_identity"] = target_identity
+                    current_relation["target_title"] = target_title
+
+                elif stripped.startswith("Reference: "):
+                    current_relation["target_reference"] = stripped[
+                        len("Reference: "):
+                    ]
+
+                    required = {
+                        "relation",
+                        "target_identity",
+                        "target_title",
+                        "target_reference",
+                    }
+
+                    if not required.issubset(current_relation):
+                        raise TransformationError(
+                            "Incomplete epistemic relation block"
+                        )
+
+                    relations.append(
+                        EpistemicReference(**current_relation)
+                    )
+                    current_relation = {}
+
+                else:
+                    raise TransformationError(
+                        "Malformed epistemic relation metadata"
+                    )
+
+            if current_relation:
+                raise TransformationError(
+                    "Incomplete epistemic relation block"
+                )
+
         result = {
             "identifier": identity["Transformation ID"],
             "parent_transformation": identity["Parent Transformation"],
@@ -299,6 +444,7 @@ class TransformationLifecycle:
             "knowledge": body("Knowledge"),
             "evolution": body("Evolution"),
             "next_transformation": body("Next Transformation"),
+            "relations": tuple(relations),
         }
 
         return result
@@ -353,6 +499,7 @@ class TransformationLifecycle:
             ended_at=(
                 None if ended == "NOT ENDED" else ended
             ),
+            relations=data["relations"],
         )
 
     def list_transformations(self) -> tuple[Transformation, ...]:
@@ -446,6 +593,47 @@ class TransformationLifecycle:
         reverse_chain.reverse()
 
         return tuple(reverse_chain)
+
+    def relate(
+        self,
+        transformation: Transformation,
+        *,
+        relation: str,
+        target_identity: str,
+        target_title: str,
+        target_reference: str,
+    ) -> Transformation:
+        """
+        Add one explicit epistemic relation without copying the target.
+
+        The Transformation remains immutable; a matured value is persisted
+        using the same stable TR identity.
+        """
+
+        persisted = self.get(transformation.identifier)
+
+        if persisted != transformation:
+            raise TransformationError(
+                "Transformation does not match persisted state"
+            )
+
+        reference = EpistemicReference(
+            relation=relation,
+            target_identity=target_identity,
+            target_title=target_title,
+            target_reference=target_reference,
+        )
+
+        if reference in transformation.relations:
+            return transformation
+
+        matured = replace(
+            transformation,
+            relations=transformation.relations + (reference,),
+        )
+
+        self._write(matured)
+        return matured
 
     def begin(
         self,
