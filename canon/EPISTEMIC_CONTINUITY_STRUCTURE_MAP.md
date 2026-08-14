@@ -840,23 +840,23 @@ A human-readable Epic Thread may appear conceptually as:
 
 `Prevent Context Loss [NEED-0031]`
 
-↓  
+↓
 
 `Adopt Persistent Experience [DECISION-0019]`
 
-↓  
+↓
 
 `Define Persistent Experience [TR-0040]`
 
-↓  
+↓
 
 `Capture Execution Context [TR-0041]`
 
-↓  
+↓
 
 `Preserve Terminal Experience [TR-0042]`
 
-↓  
+↓
 
 `Persistent Execution Enabled [STATE-0011]`
 
@@ -6209,7 +6209,7 @@ This leads to the human learning problem of CSL.
 
 The language must not merely be parseable.
 
-It must become cognitively learnable. 
+It must become cognitively learnable.
 
 ## 0.8.47 — CSL Must Teach the Human How to Read It
 
@@ -10569,3 +10569,52 @@ Only after these questions are answered should final syntax be designed.
 This leads directly to:
 
 # 0.9 — CSL Cognitive Grammar
+
+## PCC-03 — Provenance + Lineage — Canonical Admission
+
+**Canonical status:** CANON
+
+By explicit Human Authority, PCC-03 — Provenance + Lineage is admitted into
+Canon after successful implementation and production-readiness examination.
+
+The canonical executable epistemic continuity established by PCC-03 is:
+
+**Source ↔ Observation ↔ Evidence ↔ Claim ↔ Verification ↔ Knowledge ↔ Current State**
+
+PCC-03 canonically establishes that:
+
+- provenance has stable epistemic identity;
+- observations remain connected to their sources;
+- evidence remains connected to observations;
+- claims remain connected to explicit evidence;
+- verification remains connected to claims;
+- Knowledge promotion is explicit and governed rather than automatic;
+- Knowledge retains persistent identity and reconstructable provenance;
+- Current State represents demonstrable present truth without destroying
+  historical Knowledge;
+- provenance is navigable both forward and backward;
+- persistence and reconstruction preserve epistemic identity and relations;
+- contradictory evidence remains visible;
+- unknown or dangling reality must remain explicit rather than invented;
+- Human Authority remains distinguishable from technical evidence;
+- PCC-03 does not create a parallel Memory organ;
+- PCC-03 does not create a parallel Transformation organ;
+- PCC-03 does not itself claim to implement the complete CSL / Living Project
+  Image.
+
+The contemporary canonical meaning of **CSL** remains:
+
+**CSL / Living Project Image — current demonstrable truth.**
+
+Historical repository infrastructure that used CSL to mean a specification
+language based on `*.csl`, EngineeringCompiler, parser/compiler machinery, or
+UEM remains genealogically distinct and does not redefine this canonical
+meaning.
+
+PCC-03 implementation mechanisms may evolve, but future evolution must preserve
+these canonical semantic and epistemic invariants unless Human Authority
+explicitly changes the Canon.
+
+**Human Authority:** explicit
+**Production-readiness basis:** PCC-03 RUN 007
+**Canonical admission:** accepted
