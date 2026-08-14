@@ -1052,3 +1052,158 @@ def test_invalid_navigation_role_is_rejected():
             claim,
             role="INFERRED",
         )
+
+
+# ---------------------------------------------------------------------------
+# PCC-03 RUN 004 — Verified Knowledge Promotion
+# ---------------------------------------------------------------------------
+
+from dataclasses import FrozenInstanceError
+
+from lib.python.epistemic.provenance import (
+    Evidence,
+    Knowledge,
+    KnowledgePromotionError,
+    Verification,
+    promote_verified_knowledge,
+)
+
+
+def _pcc03_run004_verification():
+    """
+    Construct the exact inherited Verification anatomy.
+
+    RUN 004 does not infer constructor fields dynamically. The inherited
+    PCC-03 Verification contract is explicit and was audited before repair.
+    """
+    return Verification(
+        identifier="VER-900001",
+        title="RUN 004 examination verification",
+        claim="CLM-900001",
+        state="VERIFIED",
+        basis="EV-900001",
+    )
+
+
+def test_verified_knowledge_requires_explicit_verification():
+    with pytest.raises(KnowledgePromotionError):
+        promote_verified_knowledge(
+            object(),
+            identifier="KN-000001",
+            title="Established behavior",
+            statement="The behavior is established.",
+            authority="Human Authority",
+        )
+
+
+def test_verified_knowledge_requires_explicit_authority():
+    verification = _pcc03_run004_verification()
+
+    with pytest.raises(KnowledgePromotionError):
+        promote_verified_knowledge(
+            verification,
+            identifier="KN-000001",
+            title="Established behavior",
+            statement="The behavior is established.",
+            authority="   ",
+        )
+
+
+def test_verified_knowledge_requires_explicit_semantic_statement():
+    verification = _pcc03_run004_verification()
+
+    with pytest.raises(KnowledgePromotionError):
+        promote_verified_knowledge(
+            verification,
+            identifier="KN-000001",
+            title="Established behavior",
+            statement="   ",
+            authority="Human Authority",
+        )
+
+
+def test_verified_knowledge_uses_distinct_epistemic_identity():
+    verification = _pcc03_run004_verification()
+
+    knowledge = promote_verified_knowledge(
+        verification,
+        identifier="KN-000001",
+        title="Verified provenance continuity",
+        statement=(
+            "Explicit provenance remains navigable after verification."
+        ),
+        authority="Human Authority",
+    )
+
+    assert knowledge.identifier == "KN-000001"
+    assert knowledge.identifier != verification.identifier
+    assert knowledge.verification_identifier == verification.identifier
+
+
+def test_verified_knowledge_preserves_human_readable_semantics():
+    verification = _pcc03_run004_verification()
+
+    knowledge = promote_verified_knowledge(
+        verification,
+        identifier="KN-000002",
+        title="Verified provenance continuity",
+        statement=(
+            "Explicit provenance remains navigable after verification."
+        ),
+        authority="Human Authority",
+    )
+
+    assert knowledge.title == "Verified provenance continuity"
+    assert (
+        knowledge.statement
+        == "Explicit provenance remains navigable after verification."
+    )
+    assert knowledge.authority == "Human Authority"
+    assert knowledge.status == "ESTABLISHED"
+
+
+def test_verified_knowledge_is_immutable():
+    verification = _pcc03_run004_verification()
+
+    knowledge = promote_verified_knowledge(
+        verification,
+        identifier="KN-000003",
+        title="Immutable established knowledge",
+        statement="Established knowledge cannot silently rewrite history.",
+        authority="Human Authority",
+    )
+
+    with pytest.raises(FrozenInstanceError):
+        knowledge.statement = "Rewrite history"
+
+
+def test_knowledge_is_not_evidence_or_verification():
+    verification = _pcc03_run004_verification()
+
+    knowledge = promote_verified_knowledge(
+        verification,
+        identifier="KN-000004",
+        title="Distinct epistemic level",
+        statement="Knowledge remains distinct from its supporting records.",
+        authority="Human Authority",
+    )
+
+    assert isinstance(knowledge, Knowledge)
+    assert not isinstance(knowledge, Evidence)
+    assert not isinstance(knowledge, Verification)
+
+
+def test_knowledge_promotion_does_not_create_memory_or_current_state():
+    verification = _pcc03_run004_verification()
+
+    knowledge = promote_verified_knowledge(
+        verification,
+        identifier="KN-000005",
+        title="Bounded promotion",
+        statement="RUN 004 stops at Knowledge.",
+        authority="Human Authority",
+    )
+
+    assert not hasattr(knowledge, "current_state")
+    assert not hasattr(knowledge, "living_project_image")
+    assert not hasattr(knowledge, "memory")

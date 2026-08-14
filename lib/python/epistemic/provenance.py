@@ -969,3 +969,99 @@ class Provenance:
             raise ProvenanceError(
                 f"Unknown Claim: {claim.identifier}"
             )
+
+
+# ---------------------------------------------------------------------------
+# PCC-03 — Verified Knowledge
+# ---------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class Knowledge:
+    """
+    A governed epistemic understanding promoted from an explicit Verification.
+
+    Knowledge is not raw Evidence and is not merely a Verification result.
+    It is an explicit epistemic promotion whose provenance remains navigable
+    back through the Verification and the already-preserved provenance chain.
+
+    This value does not represent Memory, Current State, or Living Project
+    Image and does not replace any existing Knowledge Engine.
+    """
+
+    identifier: str
+    title: str
+    statement: str
+    verification_identifier: str
+    authority: str
+    status: str = "ESTABLISHED"
+
+
+class KnowledgePromotionError(ProvenanceError):
+    """Raised when a Verification cannot responsibly become Knowledge."""
+
+
+def _knowledge_identifier(number: int) -> str:
+    return f"KN-{number:06d}"
+
+
+def _require_knowledge_text(name: str, value: str) -> str:
+    if not isinstance(value, str) or not value.strip():
+        raise KnowledgePromotionError(
+            f"{name} must contain explicit epistemic information"
+        )
+    return value.strip()
+
+
+def promote_verified_knowledge(
+    verification: Verification,
+    *,
+    identifier: str,
+    title: str,
+    statement: str,
+    authority: str,
+) -> Knowledge:
+    """
+    Explicitly promote a Verification into Knowledge.
+
+    Promotion is never inferred merely because Evidence or Verification exists.
+    The caller must supply the semantic statement and responsible authority.
+
+    Existing provenance remains authoritative for the history leading to the
+    Verification.  This function does not copy Source, Observation, Evidence,
+    Claim, or Verification content into another persistence authority.
+    """
+
+    if not isinstance(verification, Verification):
+        raise KnowledgePromotionError(
+            "Knowledge promotion requires an explicit Verification"
+        )
+
+    identifier = _require_knowledge_text("identifier", identifier)
+
+    if not identifier.startswith("KN-"):
+        raise KnowledgePromotionError(
+            "Knowledge identifier must use the KN-* identity family"
+        )
+
+    title = _require_knowledge_text("title", title)
+    statement = _require_knowledge_text("statement", statement)
+    authority = _require_knowledge_text("authority", authority)
+
+    verification_identifier = getattr(
+        verification,
+        "identifier",
+        None,
+    )
+
+    if not verification_identifier:
+        raise KnowledgePromotionError(
+            "Verification must have a stable epistemic identity"
+        )
+
+    return Knowledge(
+        identifier=identifier,
+        title=title,
+        statement=statement,
+        verification_identifier=verification_identifier,
+        authority=authority,
+    )
