@@ -1,104 +1,49 @@
-# Epistemic Continuity Structure Map — Canonical Manifest
-
-## Canonical Identity
+# EPISTEMIC CONTINUITY STRUCTURE MAP — CANONICAL MANIFEST
 
 **Canonical Artifact:** `canon/EPISTEMIC_CONTINUITY_STRUCTURE_MAP.md`
 
-**Canonical Name:** Epistemic Continuity Structure Map
-
 **Canonical Status:** CANON
 
-**Human Authority:** Owner
+**Canonical Authority:** Human Authority — Owner
 
-**Admission Decision:** ADMIT
+## Human Decision
 
----
+The Owner explicitly admits the Epistemic Continuity Structure Map as Canon
+and explicitly authorizes reconciliation of stale internal wording that
+described the already-admitted artifact as research-only, working-model-only,
+or not-yet-canonical.
 
-## Human Canonical Admission
+## Governing Meaning
 
-Human Authority explicitly ordered the Epistemic Continuity Structure Map to be admitted into Canon.
+The Epistemic Continuity Structure Map is an authoritative governing
+representation of the AI-Toolkit Epistemic Organism.
 
-The preserved research artifact:
+Its canonical principles govern implementation.
 
-`work/research/EPISTEMIC_CONTINUITY_STRUCTURE_MAP.md`
+Research may discover candidate evolution. Research does not silently modify,
+downgrade, contradict, supersede, or replace Canon.
 
-is admitted without rewriting its body.
+Canonical evolution requires explicit Human Authority and traceable
+conservation.
 
-Its canonical materialization is:
+## Reconciliation
 
-`canon/EPISTEMIC_CONTINUITY_STRUCTURE_MAP.md`
+Previous SHA-256:
 
----
+`0914014127227f832e04f463173c6c9a5432e6a83dea7547d9c43e8dcd2e23eb`
 
-## Integrity
+Current SHA-256:
 
-**Source Size:** 229375 bytes
+`0d4c4e737f99d6535e751ba167ff79af88d9c355b9b86a6f03db60ab76b48215`
 
-**Source SHA-256:** `0914014127227f832e04f463173c6c9a5432e6a83dea7547d9c43e8dcd2e23eb`
+Current size:
 
-**Canon SHA-256:** `0914014127227f832e04f463173c6c9a5432e6a83dea7547d9c43e8dcd2e23eb`
+`229403 bytes`
 
-**SOURCE == CANON:** PASS — BYTE IDENTICAL
+Reconciliation scope:
 
-The canonical artifact is an exact byte-for-byte materialization of the accepted source.
-
-No normalization, rewriting, summarization, semantic correction, or content regeneration was performed.
-
----
-
-## Canonical Meaning
-
-The Epistemic Continuity Structure Map governs the architecture and conceptual relationships of epistemic continuity within AI-Toolkit according to its documented scope.
-
-Its internal historical status markers remain preserved because the canonical artifact is byte-identical to the accepted source.
-
-The authoritative current admission state is established by this manifest:
-
-**CANON**
-
----
-
-## Relationship to Existing Canon
-
-CEP-000 remains:
-
-**CANON — UNCHANGED**
-
-PCC-01 remains:
-
-**IMPLEMENTED + PRODUCTION-READY + CANON — UNCHANGED**
-
-Admission of this Structure Map does not automatically declare every capability described inside it implemented or Production-Ready.
-
-Capability implementation state and canonical architectural authority remain distinct.
-
----
-
-## Human Authority Boundary
-
-Canon does not self-declare.
-
-This admission exists because Human Authority explicitly ordered the document admitted into Canon.
-
----
-
-## Mutation Boundary
-
-Added:
-
-- `canon/EPISTEMIC_CONTINUITY_STRUCTURE_MAP.md`
-- `canon/EPISTEMIC_CONTINUITY_STRUCTURE_MAP_CANONICAL_MANIFEST.md`
-
-Existing source modified:
-
-**NO**
-
-Existing Canon modified:
-
-**NO**
+Canonical-status representation only.
 
 Software modified:
 
-**NO**
-
-# END OF CANONICAL MANIFEST
+NO.

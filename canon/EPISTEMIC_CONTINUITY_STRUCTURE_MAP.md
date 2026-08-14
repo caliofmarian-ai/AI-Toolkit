@@ -2,9 +2,9 @@
 
 Version: 0.1.0
 
-Status: Research Working Model
+Status: CANON
 
-Classification: Epistemic Continuity Research Reference
+Classification: Canonical Epistemic Continuity Structure Map
 
 ## Purpose
 
@@ -15,8 +15,9 @@ AI-Toolkit Epistemic Organism.
 Its purpose is to allow a human or AI encountering the repository for the
 first time to understand what each structure represents and why it exists.
 
-This document is a research working model. It does not yet constitute a
-canonical standard.
+This document is an authoritative Canonical Structure Map of the
+AI-Toolkit Epistemic Organism. Its canonical authority derives from
+explicit Human Authority.
 
 ---
 
@@ -429,11 +430,10 @@ and for accepting, rejecting, or correcting the resulting interpretation.
 
 ## Research Status
 
-This Transformation Completeness Model records the current accepted direction
-of the Epistemic Continuity research.
-
-It is preserved as a Research Working Model and is not yet a canonical
-standard.
+This Transformation Completeness Model is part of the authoritative
+Epistemic Continuity Canon. Its twelve-question completeness model and
+Unknown-State Rule govern Transformation implementation unless explicitly
+evolved through Human Authority.
 
 ---
 
@@ -441,7 +441,7 @@ standard.
 
 Version: 0.1.0
 
-Status: Research Working Model
+Status: CANON
 
 Classification: Epistemic Continuity — Identity and Relations
 
@@ -460,7 +460,7 @@ The objective is to ensure that the project remains simultaneously:
 - capable of producing compact derived representations for AI;
 - resistant to context loss.
 
-These principles are research findings and are not yet canonical standards.
+These principles are authoritative components of the Epistemic Continuity Canon.
 
 ---
 
@@ -926,7 +926,7 @@ canonicalization.
 
 Version: 0.1.0
 
-Status: Research Working Model
+Status: CANON
 
 Classification: Epistemic Continuity — Provenance
 
@@ -956,7 +956,7 @@ The organism must be capable of answering:
 - What Transformation produced the current state?
 - Can a human travel back to the original evidence?
 
-These principles are research findings and are not yet canonical standards.
+These principles are authoritative components of the Epistemic Continuity Canon.
 
 ---
 
@@ -1601,7 +1601,7 @@ Thus:
 
 Version: 0.1.0
 
-Status: Research Working Model
+Status: CANON
 
 Classification: Epistemic Continuity — Memory
 
@@ -1847,7 +1847,7 @@ It represents a condensed image of the best-supported
 
 # 0.7 — Epistemic Continuity Chain
 
-Status: Research Working Model
+Status: CANON
 
 Classification: Epistemic Continuity Research
 
@@ -4269,7 +4269,7 @@ This leads directly to:
 
 # 0.8 — Living Project Image Physiology
 
-Status: Research Working Model
+Status: CANON
 
 Classification: Living Project Image and CSL Research
 
