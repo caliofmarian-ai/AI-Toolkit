@@ -382,17 +382,221 @@ class Provenance:
         self._verifications[identifier] = verification
         return verification
 
+    def source_for_observation(
+        self,
+        observation: Observation,
+    ) -> Source:
+        """Navigate backward from Observation to its explicit Source."""
+        self._require_registered_observation(observation)
+        return self._sources[observation.source]
+
+    def observations_from_source(
+        self,
+        source: Source,
+    ) -> tuple[Observation, ...]:
+        """Navigate forward from Source to explicit Observations."""
+        self._require_registered_source(source)
+
+        return tuple(
+            observation
+            for observation in self._observations.values()
+            if observation.source == source.identifier
+        )
+
+    def observation_for_evidence(
+        self,
+        evidence: Evidence,
+    ) -> Observation:
+        """Navigate backward from Evidence to its explicit Observation."""
+        self._require_registered_evidence(evidence)
+        return self._observations[evidence.observation]
+
+    def evidence_from_observation(
+        self,
+        observation: Observation,
+    ) -> tuple[Evidence, ...]:
+        """Navigate forward from Observation to preserved Evidence."""
+        self._require_registered_observation(observation)
+
+        return tuple(
+            evidence
+            for evidence in self._evidence.values()
+            if evidence.observation == observation.identifier
+        )
+
+    def claims_for_evidence(
+        self,
+        evidence: Evidence,
+        *,
+        role: EvidenceRole | None = None,
+    ) -> tuple[Claim, ...]:
+        """
+        Navigate forward from Evidence to explicitly related Claims.
+
+        No relation is inferred from naming, proximity, source, or timing.
+        """
+        self._require_registered_evidence(evidence)
+
+        if role is not None and role not in (
+            "SUPPORTS",
+            "CONTRADICTS",
+            "NEUTRAL",
+        ):
+            raise ProvenanceError(
+                f"Unknown Evidence role: {role}"
+            )
+
+        return tuple(
+            self._claims[relation.claim]
+            for relation in self._evidence_relations
+            if relation.evidence == evidence.identifier
+            and (role is None or relation.role == role)
+        )
+
+    def evidence_for_claim(
+        self,
+        claim: Claim,
+        *,
+        role: EvidenceRole | None = None,
+    ) -> tuple[Evidence, ...]:
+        """
+        Navigate backward from Claim to explicitly related Evidence.
+
+        Supporting, contradicting, and neutral Evidence remain distinguishable.
+        """
+        self._require_registered_claim(claim)
+
+        if role is not None and role not in (
+            "SUPPORTS",
+            "CONTRADICTS",
+            "NEUTRAL",
+        ):
+            raise ProvenanceError(
+                f"Unknown Evidence role: {role}"
+            )
+
+        return tuple(
+            self._evidence[relation.evidence]
+            for relation in self._evidence_relations
+            if relation.claim == claim.identifier
+            and (role is None or relation.role == role)
+        )
+
+    def verifications_for_claim(
+        self,
+        claim: Claim,
+    ) -> tuple[Verification, ...]:
+        """Navigate forward from Claim to its explicit Verifications."""
+        self._require_registered_claim(claim)
+
+        return tuple(
+            verification
+            for verification in self._verifications.values()
+            if verification.claim == claim.identifier
+        )
+
+    def claim_for_verification(
+        self,
+        verification: Verification,
+    ) -> Claim:
+        """Navigate backward from Verification to its explicit Claim."""
+        self._require_registered_verification(verification)
+        return self._claims[verification.claim]
+
+    def provenance_to_source(
+        self,
+        verification: Verification,
+    ) -> tuple[
+        Verification,
+        Claim,
+        tuple[Evidence, ...],
+        tuple[Observation, ...],
+        tuple[Source, ...],
+    ]:
+        """
+        Traverse established PCC-03 anatomy backward toward origin.
+
+        Only explicit persisted relations are followed.
+        Knowledge and Current State remain outside this increment.
+        """
+        claim = self.claim_for_verification(verification)
+        evidence = self.evidence_for_claim(claim)
+
+        observations = tuple(
+            self.observation_for_evidence(item)
+            for item in evidence
+        )
+
+        sources: list[Source] = []
+
+        for observation in observations:
+            source = self.source_for_observation(observation)
+            if source not in sources:
+                sources.append(source)
+
+        return (
+            verification,
+            claim,
+            evidence,
+            observations,
+            tuple(sources),
+        )
+
+    def provenance_from_source(
+        self,
+        source: Source,
+    ) -> tuple[
+        Source,
+        tuple[Observation, ...],
+        tuple[Evidence, ...],
+        tuple[Claim, ...],
+        tuple[Verification, ...],
+    ]:
+        """
+        Traverse established PCC-03 anatomy forward from origin.
+
+        The traversal stops at Verification because Knowledge and Current State
+        are later PCC-03 integration boundaries.
+        """
+        self._require_registered_source(source)
+
+        observations = self.observations_from_source(source)
+
+        evidence: list[Evidence] = []
+        for observation in observations:
+            for item in self.evidence_from_observation(observation):
+                if item not in evidence:
+                    evidence.append(item)
+
+        claims: list[Claim] = []
+        for item in evidence:
+            for claim in self.claims_for_evidence(item):
+                if claim not in claims:
+                    claims.append(claim)
+
+        verifications: list[Verification] = []
+        for claim in claims:
+            for verification in self.verifications_for_claim(claim):
+                if verification not in verifications:
+                    verifications.append(verification)
+
+        return (
+            source,
+            observations,
+            tuple(evidence),
+            tuple(claims),
+            tuple(verifications),
+        )
+
     def supporting_evidence(
         self,
         claim: Claim,
     ) -> tuple[Evidence, ...]:
         self._require_registered_claim(claim)
 
-        return tuple(
-            self._evidence[relation.evidence]
-            for relation in self._evidence_relations
-            if relation.claim == claim.identifier
-            and relation.role == "SUPPORTS"
+        return self.evidence_for_claim(
+            claim,
+            role="SUPPORTS",
         )
 
     def contradicting_evidence(
@@ -401,11 +605,9 @@ class Provenance:
     ) -> tuple[Evidence, ...]:
         self._require_registered_claim(claim)
 
-        return tuple(
-            self._evidence[relation.evidence]
-            for relation in self._evidence_relations
-            if relation.claim == claim.identifier
-            and relation.role == "CONTRADICTS"
+        return self.evidence_for_claim(
+            claim,
+            role="CONTRADICTS",
         )
 
     def save(self, root: Path) -> Path:
@@ -748,6 +950,18 @@ class Provenance:
         if self._evidence.get(evidence.identifier) != evidence:
             raise ProvenanceError(
                 f"Unknown Evidence: {evidence.identifier}"
+            )
+
+    def _require_registered_verification(
+        self,
+        verification: Verification,
+    ) -> None:
+        if (
+            self._verifications.get(verification.identifier)
+            != verification
+        ):
+            raise ProvenanceError(
+                "Verification is not registered in this Provenance"
             )
 
     def _require_registered_claim(self, claim: Claim) -> None:

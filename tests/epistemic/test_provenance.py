@@ -713,3 +713,342 @@ def test_dangling_persisted_observation_is_rejected(tmp_path):
 
     with pytest.raises(ProvenanceError):
         Provenance.load(tmp_path)
+
+
+def _build_bidirectional_provenance():
+    provenance = Provenance()
+
+    source = provenance.add_source(
+        "Repository and runtime inspection",
+        kind="RUNTIME",
+        reference="runtime:inspection",
+        transformation="TR-000042",
+    )
+
+    success_observation = provenance.observe(
+        source,
+        "Successful execution",
+        "The requested execution completed.",
+        interpretation="Observed execution supports operational behavior.",
+    )
+
+    failure_observation = provenance.observe(
+        source,
+        "Contradicting execution",
+        "A second execution failed.",
+        interpretation="Observed failure contradicts universal success.",
+    )
+
+    supporting = provenance.preserve_evidence(
+        success_observation,
+        "Successful execution evidence",
+        "runtime:success",
+        domain="TECHNICAL",
+    )
+
+    contradicting = provenance.preserve_evidence(
+        failure_observation,
+        "Failure evidence",
+        "runtime:failure",
+        domain="TECHNICAL",
+    )
+
+    claim = provenance.make_claim(
+        "Execution always succeeds",
+        "Every execution succeeds.",
+        transformation="TR-000042",
+    )
+
+    provenance.relate_evidence(
+        supporting,
+        claim,
+        "SUPPORTS",
+    )
+
+    provenance.relate_evidence(
+        contradicting,
+        claim,
+        "CONTRADICTS",
+    )
+
+    verification = provenance.verify(
+        claim,
+        "Execution verification",
+        state=NOT_VERIFIED,
+        basis=contradicting.identifier,
+    )
+
+    return (
+        provenance,
+        source,
+        success_observation,
+        failure_observation,
+        supporting,
+        contradicting,
+        claim,
+        verification,
+    )
+
+
+def test_bidirectional_navigation_preserves_each_explicit_edge():
+    (
+        provenance,
+        source,
+        success_observation,
+        failure_observation,
+        supporting,
+        contradicting,
+        claim,
+        verification,
+    ) = _build_bidirectional_provenance()
+
+    assert provenance.source_for_observation(
+        success_observation
+    ) == source
+
+    assert provenance.observations_from_source(source) == (
+        success_observation,
+        failure_observation,
+    )
+
+    assert provenance.observation_for_evidence(
+        supporting
+    ) == success_observation
+
+    assert provenance.evidence_from_observation(
+        failure_observation
+    ) == (contradicting,)
+
+    assert provenance.claims_for_evidence(
+        supporting
+    ) == (claim,)
+
+    assert provenance.evidence_for_claim(claim) == (
+        supporting,
+        contradicting,
+    )
+
+    assert provenance.verifications_for_claim(claim) == (
+        verification,
+    )
+
+    assert provenance.claim_for_verification(
+        verification
+    ) == claim
+
+
+def test_claim_navigation_keeps_contradiction_visible():
+    (
+        provenance,
+        _source,
+        _success_observation,
+        _failure_observation,
+        supporting,
+        contradicting,
+        claim,
+        _verification,
+    ) = _build_bidirectional_provenance()
+
+    assert provenance.evidence_for_claim(
+        claim,
+        role="SUPPORTS",
+    ) == (supporting,)
+
+    assert provenance.evidence_for_claim(
+        claim,
+        role="CONTRADICTS",
+    ) == (contradicting,)
+
+    assert provenance.supporting_evidence(
+        claim
+    ) == (supporting,)
+
+    assert provenance.contradicting_evidence(
+        claim
+    ) == (contradicting,)
+
+
+def test_evidence_navigation_does_not_infer_unrecorded_claim_relation():
+    provenance = Provenance()
+
+    source = provenance.add_source(
+        "Repository",
+        kind="REPOSITORY",
+        reference="git:HEAD",
+    )
+
+    observation = provenance.observe(
+        source,
+        "Observed file",
+        "A file exists.",
+    )
+
+    evidence = provenance.preserve_evidence(
+        observation,
+        "File evidence",
+        "git:file",
+    )
+
+    provenance.make_claim(
+        "Similar words",
+        "A claim exists with semantically similar wording.",
+    )
+
+    assert provenance.claims_for_evidence(evidence) == ()
+
+
+def test_backward_provenance_traverses_verification_to_source():
+    (
+        provenance,
+        source,
+        success_observation,
+        failure_observation,
+        supporting,
+        contradicting,
+        claim,
+        verification,
+    ) = _build_bidirectional_provenance()
+
+    assert provenance.provenance_to_source(
+        verification
+    ) == (
+        verification,
+        claim,
+        (supporting, contradicting),
+        (success_observation, failure_observation),
+        (source,),
+    )
+
+
+def test_forward_provenance_traverses_source_to_verification():
+    (
+        provenance,
+        source,
+        success_observation,
+        failure_observation,
+        supporting,
+        contradicting,
+        claim,
+        verification,
+    ) = _build_bidirectional_provenance()
+
+    assert provenance.provenance_from_source(
+        source
+    ) == (
+        source,
+        (success_observation, failure_observation),
+        (supporting, contradicting),
+        (claim,),
+        (verification,),
+    )
+
+
+def test_bidirectional_navigation_survives_persistence_restart(
+    tmp_path,
+):
+    (
+        provenance,
+        source,
+        _success_observation,
+        _failure_observation,
+        _supporting,
+        _contradicting,
+        _claim,
+        verification,
+    ) = _build_bidirectional_provenance()
+
+    provenance.save(tmp_path)
+
+    recovered = Provenance.load(tmp_path)
+
+    recovered_source = recovered._sources[source.identifier]
+    recovered_verification = recovered._verifications[
+        verification.identifier
+    ]
+
+    forward = recovered.provenance_from_source(
+        recovered_source
+    )
+
+    backward = recovered.provenance_to_source(
+        recovered_verification
+    )
+
+    assert forward[0].identifier == source.identifier
+    assert forward[-1][0].identifier == verification.identifier
+
+    assert backward[0].identifier == verification.identifier
+    assert backward[-1][0].identifier == source.identifier
+
+
+def test_navigation_rejects_foreign_entities():
+    first = Provenance()
+    second = Provenance()
+
+    source = first.add_source(
+        "First source",
+        kind="OTHER",
+        reference="first",
+    )
+
+    observation = first.observe(
+        source,
+        "First observation",
+        "Observed.",
+    )
+
+    evidence = first.preserve_evidence(
+        observation,
+        "First evidence",
+        "first:evidence",
+    )
+
+    claim = first.make_claim(
+        "First claim",
+        "Claim.",
+    )
+
+    first.relate_evidence(
+        evidence,
+        claim,
+        "SUPPORTS",
+    )
+
+    verification = first.verify(
+        claim,
+        "First verification",
+    )
+
+    import pytest
+
+    with pytest.raises(ProvenanceError):
+        second.observations_from_source(source)
+
+    with pytest.raises(ProvenanceError):
+        second.evidence_from_observation(observation)
+
+    with pytest.raises(ProvenanceError):
+        second.claims_for_evidence(evidence)
+
+    with pytest.raises(ProvenanceError):
+        second.verifications_for_claim(claim)
+
+    with pytest.raises(ProvenanceError):
+        second.claim_for_verification(verification)
+
+
+def test_invalid_navigation_role_is_rejected():
+    provenance = Provenance()
+
+    claim = provenance.make_claim(
+        "Claim",
+        "Statement.",
+    )
+
+    import pytest
+
+    with pytest.raises(ProvenanceError):
+        provenance.evidence_for_claim(
+            claim,
+            role="INFERRED",
+        )
