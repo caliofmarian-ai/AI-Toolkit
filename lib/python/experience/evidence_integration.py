@@ -23,6 +23,7 @@ from typing import Any, Mapping
 from lib.python.evidence_engine.engine import EvidenceEngine
 
 from .identity import ExperienceId
+from .privacy import redact_private_data
 
 
 class ExperienceEvidenceIntegrationError(Exception):
@@ -100,9 +101,10 @@ class ExperienceEvidenceIntegrator:
             )
 
         evidence = self._evidence_engine.find(keyword.strip())
+        privacy_safe_evidence = redact_private_data(evidence)
 
         return ExperienceEvidenceReference(
             experience_id=experience_id,
             keyword=keyword.strip(),
-            evidence=evidence,
+            evidence=privacy_safe_evidence,
         )
