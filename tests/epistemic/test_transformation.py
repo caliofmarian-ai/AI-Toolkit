@@ -542,3 +542,108 @@ def test_increment_003_preserves_external_parent_contract_after_restart(
 
     assert recovered == original
     assert recovered.parent_transformation == "TR-000042"
+
+
+def test_semantic_title_reuses_existing_need(tmp_path):
+    transformation = TransformationLifecycle(tmp_path).begin(
+        "Prevent epistemic context loss"
+    )
+
+    assert transformation.semantic_title == (
+        "Prevent epistemic context loss"
+    )
+
+    assert transformation.semantic_title == transformation.need
+
+
+def test_human_identity_combines_stable_id_and_semantic_meaning(tmp_path):
+    transformation = TransformationLifecycle(tmp_path).begin(
+        "Preserve understandable history"
+    )
+
+    assert transformation.human_identity == (
+        f"{transformation.identifier} — "
+        "Preserve understandable history"
+    )
+
+
+def test_human_identity_survives_restart(tmp_path):
+    lifecycle = TransformationLifecycle(tmp_path)
+
+    original = lifecycle.begin(
+        "Preserve semantic identity across restart"
+    )
+
+    restarted = TransformationLifecycle(tmp_path)
+    recovered = restarted.get(original.identifier)
+
+    assert recovered == original
+    assert recovered.semantic_title == original.semantic_title
+    assert recovered.human_identity == original.human_identity
+
+
+def test_persisted_identity_contains_id_and_semantic_meaning(tmp_path):
+    lifecycle = TransformationLifecycle(tmp_path)
+
+    transformation = lifecycle.begin(
+        "Make Transformation understandable to humans"
+    )
+
+    artifact = (
+        tmp_path / f"{transformation.identifier}.md"
+    ).read_text(encoding="utf-8")
+
+    expected = (
+        "Transformation: "
+        f"{transformation.identifier} — "
+        "Make Transformation understandable to humans"
+    )
+
+    assert expected in artifact
+
+
+def test_dimensions_contract_remains_exactly_twelve_tuple_pairs(tmp_path):
+    transformation = TransformationLifecycle(tmp_path).begin(
+        "Preserve twelve-dimensional anatomy"
+    )
+
+    assert isinstance(transformation.dimensions, tuple)
+    assert len(transformation.dimensions) == 12
+
+    assert tuple(
+        name for name, _ in transformation.dimensions
+    ) == (
+        "Need",
+        "Research",
+        "Hypothesis",
+        "Owner Decision",
+        "Implementation",
+        "Execution",
+        "Artifacts / Effects",
+        "Evidence",
+        "Verification",
+        "Knowledge",
+        "Evolution",
+        "Next Transformation",
+    )
+
+
+def test_lineage_exposes_human_identity_after_restart(tmp_path):
+    lifecycle = TransformationLifecycle(tmp_path)
+
+    parent = lifecycle.complete(
+        lifecycle.begin("Recognize original need")
+    )
+
+    child = lifecycle.begin(
+        "Evolve original need",
+        parent_transformation=parent.identifier,
+    )
+
+    restarted = TransformationLifecycle(tmp_path)
+    lineage = restarted.lineage(child.identifier)
+
+    assert tuple(item.human_identity for item in lineage) == (
+        f"{parent.identifier} — Recognize original need",
+        f"{child.identifier} — Evolve original need",
+    )

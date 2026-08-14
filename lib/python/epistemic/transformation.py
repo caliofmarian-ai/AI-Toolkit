@@ -106,6 +106,25 @@ class Transformation:
             _validate_identifier(self.parent_transformation)
 
     @property
+    def semantic_title(self) -> str:
+        """
+        Return the human-readable semantic identity of the Transformation.
+
+        Need already states what this Transformation is about. Reusing it
+        avoids introducing a second mutable source of semantic truth.
+        """
+
+        return self.need
+
+    @property
+    def human_identity(self) -> str:
+        """
+        Combine stable machine identity with human-readable meaning.
+        """
+
+        return f"{self.identifier} — {self.semantic_title}"
+
+    @property
     def dimensions(self) -> tuple[tuple[str, str], ...]:
         """Return the twelve PCC-02 dimensions in epistemic order."""
 
@@ -165,6 +184,7 @@ class TransformationLifecycle:
             "## Identity",
             "",
             f"Transformation ID: {transformation.identifier}",
+            f"Transformation: {transformation.human_identity}",
             f"Parent Transformation: "
             f"{transformation.parent_transformation or 'NONE'}",
             f"Started: {transformation.started_at}",
