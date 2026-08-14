@@ -191,7 +191,7 @@ Its previous state, replacement, Evidence, reason, and Human Authority must rema
 
 # ARTICLE 4 — EVIDENCE
 
-**Human Decision Status: PROPOSED**
+**Human Decision Status: ACCEPTED**
 
 No epistemically significant conclusion should be stronger than the Evidence supporting it.
 
@@ -230,7 +230,7 @@ Evidence must remain distinguishable from the conclusion derived from it.
 
 # ARTICLE 5 — UNCERTAINTY
 
-**Human Decision Status: PROPOSED**
+**Human Decision Status: ACCEPTED**
 
 Not knowing is a legitimate epistemic state.
 
@@ -259,7 +259,7 @@ The organism must prefer an explicit unknown over an invented answer.
 
 # ARTICLE 6 — PROVENANCE
 
-**Human Decision Status: PROPOSED**
+**Human Decision Status: ACCEPTED**
 
 Every epistemically significant entity should, to the extent that information exists, be able to answer:
 
@@ -287,7 +287,7 @@ Provenance is part of epistemic integrity.
 
 # ARTICLE 7 — EXPERIENCE AND MEMORY
 
-**Human Decision Status: PROPOSED**
+**Human Decision Status: ACCEPTED**
 
 Experience and Memory are distinct functions of the epistemic organism.
 
@@ -320,7 +320,7 @@ Connection does not imply identity.
 
 # ARTICLE 8 — IDENTITY
 
-**Human Decision Status: PROPOSED**
+**Human Decision Status: ACCEPTED**
 
 Every epistemically significant entity must be capable of possessing stable identity when stable identity is required by its nature.
 
@@ -348,7 +348,7 @@ Identity exists to preserve continuity and distinguish one epistemic entity from
 
 # ARTICLE 9 — SEPARATION OF EPISTEMIC ORGANS
 
-**Human Decision Status: PROPOSED**
+**Human Decision Status: ACCEPTED**
 
 Fundamental epistemic functions must not be collapsed into one another merely for implementation convenience.
 
@@ -382,7 +382,7 @@ Software architecture must preserve epistemically meaningful distinctions.
 
 # ARTICLE 10 — JUDGMENT
 
-**Human Decision Status: PROPOSED**
+**Human Decision Status: ACCEPTED**
 
 The organism may form judgments from available information.
 
@@ -412,7 +412,7 @@ It is not automatic Canonical Authority.
 
 # ARTICLE 11 — CONTRADICTION AND CONFLICT
 
-**Human Decision Status: PROPOSED**
+**Human Decision Status: ACCEPTED**
 
 The organism must not artificially eliminate contradictions merely to appear coherent.
 
@@ -437,7 +437,7 @@ The organism must not silently choose whichever representation is most convenien
 
 # ARTICLE 12 — FALSIFIABILITY AND CORRECTION
 
-**Human Decision Status: PROPOSED**
+**Human Decision Status: ACCEPTED**
 
 Any epistemic representation that can legitimately be tested must be capable of being challenged by new Evidence.
 
@@ -460,7 +460,7 @@ The organism must be capable of learning from correction without rewriting the p
 
 # ARTICLE 13 — EPISTEMIC TRANSPARENCY
 
-**Human Decision Status: PROPOSED**
+**Human Decision Status: ACCEPTED**
 
 No hidden epistemic authority is permitted.
 
@@ -482,7 +482,7 @@ Authority must remain identifiable.
 
 # ARTICLE 14 — MINIMUM ASSUMPTION
 
-**Human Decision Status: PROPOSED**
+**Human Decision Status: ACCEPTED**
 
 When information is missing, the organism must minimize assumptions.
 
@@ -502,7 +502,7 @@ The organism must prefer:
 
 # ARTICLE 15 — CANON AND RESEARCH
 
-**Human Decision Status: PROPOSED**
+**Human Decision Status: ACCEPTED**
 
 Research is not automatically Canon.
 
@@ -542,7 +542,7 @@ Canonical admission requires a separate legitimate process.
 
 # ARTICLE 16 — CANON AND SOFTWARE
 
-**Human Decision Status: PROPOSED**
+**Human Decision Status: ACCEPTED**
 
 Canon governs software.
 
@@ -568,7 +568,7 @@ Implementation must either:
 
 # ARTICLE 17 — CANONICAL SEMANTIC LANGUAGE
 
-**Human Decision Status: PROPOSED**
+**Human Decision Status: ACCEPTED**
 
 Canonical Semantic Language, CSL, is the formal language through which Canon becomes sufficiently explicit and precise for derivation, verification, communication, and implementation.
 
@@ -592,7 +592,7 @@ with verification returning Evidence toward continued correction.
 
 # ARTICLE 18 — ADMISSION INTO CANON
 
-**Human Decision Status: PROPOSED**
+**Human Decision Status: ACCEPTED**
 
 No:
 
@@ -642,7 +642,7 @@ No AI may independently complete the transition into CANON.
 
 # ARTICLE 19 — CANONICAL STATES
 
-**Human Decision Status: PROPOSED**
+**Human Decision Status: ACCEPTED**
 
 Canonical material must possess explicit governance state.
 
@@ -686,7 +686,7 @@ No AI may independently transition material into the CANON state.
 
 # ARTICLE 20 — MODIFICATION OF CANON
 
-**Human Decision Status: PROPOSED**
+**Human Decision Status: ACCEPTED**
 
 Canon must be stable enough to govern the organism but capable of correction when Reality and Evidence require evolution.
 
@@ -709,7 +709,7 @@ A canonical correction is an evolution of authority, not deletion of history.
 
 # ARTICLE 21 — PROTECTION OF CANON
 
-**Human Decision Status: PROPOSED**
+**Human Decision Status: ACCEPTED**
 
 Canonical material must be structurally distinguishable from:
 
@@ -737,7 +737,7 @@ Unauthorized processes must not silently alter Canon.
 
 # ARTICLE 22 — THE ORGANISM MAY NOT SELF-LEGITIMIZE
 
-**Human Decision Status: PROPOSED**
+**Human Decision Status: ACCEPTED**
 
 The organism may not create authority circularly.
 
@@ -761,7 +761,7 @@ No component may expand its own authority merely by asserting that expansion.
 
 # ARTICLE 23 — CONSERVATION OF EVIDENCE
 
-**Human Decision Status: PROPOSED**
+**Human Decision Status: ACCEPTED**
 
 For epistemically significant changes, the organism must preserve sufficient Evidence to reconstruct:
 
@@ -788,7 +788,7 @@ The organism must distinguish between:
 
 # ARTICLE 24 — AUDITABILITY
 
-**Human Decision Status: PROPOSED**
+**Human Decision Status: ACCEPTED**
 
 Every epistemically significant organ must be capable of examination against relevant Canon.
 
@@ -818,7 +818,7 @@ Audit conclusions must remain traceable to their Evidence and authority.
 
 # ARTICLE 25 — EVOLUTION OF THE ORGANISM
 
-**Human Decision Status: PROPOSED**
+**Human Decision Status: ACCEPTED**
 
 AI-Toolkit is an evolving epistemic organism.
 
@@ -847,7 +847,7 @@ The organism must evolve without abandoning constitutional integrity.
 
 # ARTICLE 26 — EPISTEMIC HOMEOSTASIS
 
-**Human Decision Status: PROPOSED**
+**Human Decision Status: ACCEPTED**
 
 The organism must be capable of detecting degradation of its own epistemic integrity.
 
@@ -874,7 +874,7 @@ Homeostasis must expose pathology rather than conceal it.
 
 # ARTICLE 27 — CONTINUITY OF THE ORGANISM
 
-**Human Decision Status: PROPOSED**
+**Human Decision Status: ACCEPTED**
 
 The epistemic organism is not identical to a single:
 
@@ -902,7 +902,7 @@ Continuity belongs to the governed organism and its legitimate epistemic structu
 
 # ARTICLE 28 — HUMAN RIGHT TO EXPLANATION AND CONTROL
 
-**Human Decision Status: PROPOSED**
+**Human Decision Status: ACCEPTED**
 
 Human Authority must be able, where relevant and technically possible, to ask the organism:
 
@@ -947,7 +947,7 @@ Explanation must not be fabricated when the underlying reasoning or Evidence is 
 
 # ARTICLE 29 — LIMITS OF AUTOMATED AUTHORITY
 
-**Human Decision Status: PROPOSED**
+**Human Decision Status: ACCEPTED**
 
 Automation is permitted within previously authorized boundaries.
 
@@ -973,7 +973,7 @@ It does not silently become governed authority.
 
 # ARTICLE 30 — THE FUNDAMENTAL EPISTEMIC CYCLE
 
-**Human Decision Status: PROPOSED**
+**Human Decision Status: ACCEPTED**
 
 All organs, languages, processes, and implementations of AI-Toolkit must be interpreted consistently with the following fundamental order:
 
