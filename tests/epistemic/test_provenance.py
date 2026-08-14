@@ -1487,3 +1487,348 @@ def test_run005_does_not_claim_current_state_or_living_project_image():
     assert not hasattr(provenance, "_living_project_image")
     assert not hasattr(knowledge, "current_state")
     assert not hasattr(knowledge, "living_project_image")
+
+
+# ---------------------------------------------------------------------------
+# PCC-03 RUN 006
+# Current State + Temporal Truth + Provenance
+# ---------------------------------------------------------------------------
+
+from lib.python.epistemic.provenance import CurrentState
+
+
+def _pcc03_run006_current_state():
+    (
+        provenance,
+        source,
+        observation,
+        evidence,
+        claim,
+        verification,
+        knowledge,
+    ) = _pcc03_run005_complete_provenance()
+
+    current_state = provenance.establish_current_state(
+        knowledge,
+        "Current provenance capability",
+        "The organism currently preserves Knowledge provenance.",
+        authority="Human Authority",
+    )
+
+    return (
+        provenance,
+        source,
+        observation,
+        evidence,
+        claim,
+        verification,
+        knowledge,
+        current_state,
+    )
+
+
+def test_run006_current_state_has_distinct_identity():
+    (
+        _,
+        _,
+        _,
+        _,
+        _,
+        _,
+        knowledge,
+        current_state,
+    ) = _pcc03_run006_current_state()
+
+    assert isinstance(current_state, CurrentState)
+    assert current_state.identifier == "CS-000001"
+    assert current_state.identifier != knowledge.identifier
+    assert current_state.knowledge_identifier == knowledge.identifier
+    assert current_state.temporal_status == "CURRENT"
+
+
+def test_run006_requires_registered_knowledge():
+    provenance = Provenance()
+
+    foreign = Knowledge(
+        identifier="KN-999999",
+        title="Foreign Knowledge",
+        statement="Not registered locally.",
+        verification_identifier="VER-999999",
+        authority="Human Authority",
+    )
+
+    with pytest.raises(ProvenanceError):
+        provenance.establish_current_state(
+            foreign,
+            "Invalid Current State",
+            "Must not be established.",
+            authority="Human Authority",
+        )
+
+
+def test_run006_requires_explicit_authority():
+    (
+        provenance,
+        _,
+        _,
+        _,
+        _,
+        _,
+        knowledge,
+    ) = _pcc03_run005_complete_provenance()
+
+    with pytest.raises(ProvenanceError):
+        provenance.establish_current_state(
+            knowledge,
+            "Current State",
+            "Explicit state.",
+            authority="   ",
+        )
+
+
+def test_run006_knowledge_and_current_state_remain_distinct():
+    (
+        _,
+        _,
+        _,
+        _,
+        _,
+        _,
+        knowledge,
+        current_state,
+    ) = _pcc03_run006_current_state()
+
+    assert knowledge.status == "ESTABLISHED"
+    assert current_state.temporal_status == "CURRENT"
+    assert knowledge.statement != current_state.statement
+
+
+def test_run006_new_current_state_does_not_rewrite_history():
+    (
+        provenance,
+        _,
+        _,
+        _,
+        _,
+        _,
+        knowledge,
+        first_state,
+    ) = _pcc03_run006_current_state()
+
+    original_knowledge = knowledge.statement
+
+    second_state = provenance.establish_current_state(
+        knowledge,
+        "Later present condition",
+        "The present condition has changed.",
+        authority="Human Authority",
+    )
+
+    assert knowledge.statement == original_knowledge
+    assert first_state.identifier == "CS-000001"
+    assert second_state.identifier == "CS-000002"
+
+    assert provenance.current_states_for_knowledge(
+        knowledge
+    ) == (
+        first_state,
+        second_state,
+    )
+
+
+def test_run006_backward_provenance_reaches_source():
+    (
+        provenance,
+        source,
+        observation,
+        evidence,
+        claim,
+        verification,
+        knowledge,
+        current_state,
+    ) = _pcc03_run006_current_state()
+
+    assert provenance.provenance_to_source_from_current_state(
+        current_state
+    ) == (
+        current_state,
+        knowledge,
+        verification,
+        claim,
+        (evidence,),
+        (observation,),
+        (source,),
+    )
+
+
+def test_run006_forward_provenance_reaches_current_state():
+    (
+        provenance,
+        source,
+        observation,
+        evidence,
+        claim,
+        verification,
+        knowledge,
+        current_state,
+    ) = _pcc03_run006_current_state()
+
+    assert provenance.provenance_from_source_to_current_state(
+        source
+    ) == (
+        source,
+        (observation,),
+        (evidence,),
+        (claim,),
+        (verification,),
+        (knowledge,),
+        (current_state,),
+    )
+
+
+def test_run006_persists_and_recovers(tmp_path):
+    (
+        provenance,
+        source,
+        _,
+        _,
+        _,
+        _,
+        knowledge,
+        current_state,
+    ) = _pcc03_run006_current_state()
+
+    artifact = provenance.save(tmp_path)
+
+    text = artifact.read_text(encoding="utf-8")
+
+    assert "### Current State" in text
+    assert "CS-000001 — Current provenance capability" in text
+
+    recovered = Provenance.load(tmp_path)
+
+    recovered_source = recovered._sources[source.identifier]
+    recovered_knowledge = recovered._knowledge[
+        knowledge.identifier
+    ]
+    recovered_state = recovered._current_states[
+        current_state.identifier
+    ]
+
+    assert recovered_state == current_state
+
+    assert recovered.current_states_for_knowledge(
+        recovered_knowledge
+    ) == (recovered_state,)
+
+    assert recovered.knowledge_for_current_state(
+        recovered_state
+    ) == recovered_knowledge
+
+    assert recovered.provenance_from_source_to_current_state(
+        recovered_source
+    )[-1] == (recovered_state,)
+
+
+def test_run006_identity_continues_after_restart(tmp_path):
+    (
+        provenance,
+        _,
+        _,
+        _,
+        _,
+        _,
+        knowledge,
+        current_state,
+    ) = _pcc03_run006_current_state()
+
+    provenance.save(tmp_path)
+
+    recovered = Provenance.load(tmp_path)
+
+    recovered_knowledge = recovered._knowledge[
+        knowledge.identifier
+    ]
+
+    next_state = recovered.establish_current_state(
+        recovered_knowledge,
+        "Next present condition",
+        "A later present-state statement.",
+        authority="Human Authority",
+    )
+
+    assert current_state.identifier == "CS-000001"
+    assert next_state.identifier == "CS-000002"
+
+
+def test_run006_rejects_dangling_current_state(tmp_path):
+    (
+        provenance,
+        _,
+        _,
+        _,
+        _,
+        _,
+        _,
+        _,
+    ) = _pcc03_run006_current_state()
+
+    artifact = provenance.save(tmp_path)
+
+    text = artifact.read_text(encoding="utf-8")
+
+    text = text.replace(
+        '"knowledge_identifier": "KN-000001"',
+        '"knowledge_identifier": "KN-999999"',
+        1,
+    )
+
+    artifact.write_text(text, encoding="utf-8")
+
+    with pytest.raises(
+        ProvenanceError,
+        match="Current State references missing Knowledge",
+    ):
+        Provenance.load(tmp_path)
+
+
+def test_run006_preserves_prior_public_traversal_contracts():
+    (
+        provenance,
+        source,
+        _,
+        _,
+        _,
+        _,
+        _,
+        _,
+    ) = _pcc03_run006_current_state()
+
+    run003 = provenance.provenance_from_source(source)
+    run005 = provenance.provenance_from_source_to_knowledge(source)
+    run006 = provenance.provenance_from_source_to_current_state(source)
+
+    assert len(run003) == 5
+    assert len(run005) == 6
+    assert len(run006) == 7
+
+
+def test_run006_does_not_create_memory_or_living_project_image():
+    (
+        provenance,
+        _,
+        _,
+        _,
+        _,
+        _,
+        _,
+        current_state,
+    ) = _pcc03_run006_current_state()
+
+    assert not hasattr(provenance, "_memory")
+    assert not hasattr(provenance, "_semantic_memory")
+    assert not hasattr(provenance, "_episodic_memory")
+    assert not hasattr(provenance, "_living_project_image")
+
+    assert not hasattr(current_state, "memory")
+    assert not hasattr(current_state, "living_project_image")

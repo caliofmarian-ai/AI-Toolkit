@@ -290,6 +290,37 @@ def promote_verified_knowledge(
         authority=authority,
     )
 
+
+# ---------------------------------------------------------------------------
+# PCC-03 — Current State
+# ---------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class CurrentState:
+    """
+    Explicit best-supported statement of a present condition.
+
+    Current State is derived from established Knowledge while remaining
+    epistemically distinct from historical Knowledge.
+
+    Historical Knowledge is preserved even when the demonstrable present
+    condition later changes.
+
+    Current State is not, by itself, the complete CSL / Living Project Image.
+    """
+
+    identifier: str
+    title: str
+    statement: str
+    knowledge_identifier: str
+    authority: str
+    temporal_status: str = "CURRENT"
+
+    @property
+    def display_identity(self) -> str:
+        return f"{self.identifier} — {self.title}"
+
+
 class Provenance:
     """
     In-memory executable provenance anatomy.
@@ -308,6 +339,7 @@ class Provenance:
         self._claims: dict[str, Claim] = {}
         self._verifications: dict[str, Verification] = {}
         self._knowledge: dict[str, Knowledge] = {}
+        self._current_states: dict[str, CurrentState] = {}
         self._evidence_relations: list[EvidenceRelation] = []
 
     @staticmethod
@@ -573,6 +605,157 @@ class Provenance:
             evidence,
             observations,
             sources,
+        )
+
+    def establish_current_state(
+        self,
+        knowledge: Knowledge,
+        title: str,
+        statement: str,
+        *,
+        authority: str,
+        temporal_status: str = "CURRENT",
+    ) -> CurrentState:
+        """
+        Establish an explicit present-state statement from registered Knowledge.
+
+        Promotion is explicit rather than automatic. Historical Knowledge is
+        never rewritten by this operation.
+        """
+        self._require_registered_knowledge(knowledge)
+
+        title = _require_text("title", title)
+        statement = _require_text("statement", statement)
+        authority = _require_text("authority", authority)
+        temporal_status = _require_text(
+            "temporal_status",
+            temporal_status,
+        )
+
+        identifier = self._next_identifier(
+            "CS",
+            self._current_states,
+        )
+
+        current_state = CurrentState(
+            identifier=identifier,
+            title=title,
+            statement=statement,
+            knowledge_identifier=knowledge.identifier,
+            authority=authority,
+            temporal_status=temporal_status,
+        )
+
+        self._current_states[identifier] = current_state
+        return current_state
+
+    def current_states_for_knowledge(
+        self,
+        knowledge: Knowledge,
+    ) -> tuple[CurrentState, ...]:
+        """Navigate from established Knowledge to explicit Current State."""
+        self._require_registered_knowledge(knowledge)
+
+        return tuple(
+            state
+            for state in self._current_states.values()
+            if state.knowledge_identifier == knowledge.identifier
+        )
+
+    def knowledge_for_current_state(
+        self,
+        current_state: CurrentState,
+    ) -> Knowledge:
+        """Navigate from Current State back to established Knowledge."""
+        self._require_registered_current_state(current_state)
+
+        return self._knowledge[
+            current_state.knowledge_identifier
+        ]
+
+    def provenance_to_source_from_current_state(
+        self,
+        current_state: CurrentState,
+    ) -> tuple[
+        CurrentState,
+        Knowledge,
+        Verification,
+        Claim,
+        tuple[Evidence, ...],
+        tuple[Observation, ...],
+        tuple[Source, ...],
+    ]:
+        """
+        Explain Current State backward through its explicit provenance.
+        """
+        knowledge = self.knowledge_for_current_state(
+            current_state
+        )
+
+        (
+            knowledge,
+            verification,
+            claim,
+            evidence,
+            observations,
+            sources,
+        ) = self.provenance_to_source_from_knowledge(
+            knowledge
+        )
+
+        return (
+            current_state,
+            knowledge,
+            verification,
+            claim,
+            evidence,
+            observations,
+            sources,
+        )
+
+    def provenance_from_source_to_current_state(
+        self,
+        source: Source,
+    ) -> tuple[
+        Source,
+        tuple[Observation, ...],
+        tuple[Evidence, ...],
+        tuple[Claim, ...],
+        tuple[Verification, ...],
+        tuple[Knowledge, ...],
+        tuple[CurrentState, ...],
+    ]:
+        """
+        Traverse explicit provenance from Source through Current State.
+
+        Earlier public traversal contracts remain unchanged.
+        """
+        (
+            source,
+            observations,
+            evidence,
+            claims,
+            verifications,
+            knowledge,
+        ) = self.provenance_from_source_to_knowledge(
+            source
+        )
+
+        current_states: list[CurrentState] = []
+
+        for item in knowledge:
+            for state in self.current_states_for_knowledge(item):
+                if state not in current_states:
+                    current_states.append(state)
+
+        return (
+            source,
+            observations,
+            evidence,
+            claims,
+            verifications,
+            knowledge,
+            tuple(current_states),
         )
 
     def source_for_observation(
@@ -923,6 +1106,19 @@ class Provenance:
                 }
                 for item in self._knowledge.values()
             ],
+            "current_states": [
+                {
+                    "identifier": item.identifier,
+                    "title": item.title,
+                    "statement": item.statement,
+                    "knowledge_identifier": (
+                        item.knowledge_identifier
+                    ),
+                    "authority": item.authority,
+                    "temporal_status": item.temporal_status,
+                }
+                for item in self._current_states.values()
+            ],
             "evidence_relations": [
                 {
                     "evidence": item.evidence,
@@ -1002,6 +1198,16 @@ class Provenance:
         else:
             lines.append("NONE")
 
+        lines.extend(["", "### Current State", ""])
+
+        if self._current_states:
+            lines.extend(
+                f"- {item.display_identity}"
+                for item in self._current_states.values()
+            )
+        else:
+            lines.append("NONE")
+
         lines.extend(
             [
                 "",
@@ -1075,6 +1281,7 @@ class Provenance:
             "claims",
             "verifications",
             "knowledge",
+            "current_states",
             "evidence_relations",
         }
 
@@ -1176,6 +1383,24 @@ class Provenance:
                     item.identifier,
                 )
 
+            for data in payload["current_states"]:
+                item = CurrentState(**data)
+
+                if (
+                    item.knowledge_identifier
+                    not in provenance._knowledge
+                ):
+                    raise ProvenanceError(
+                        "Current State references missing Knowledge: "
+                        f"{item.knowledge_identifier}"
+                    )
+
+                register(
+                    provenance._current_states,
+                    item,
+                    item.identifier,
+                )
+
             for data in payload["evidence_relations"]:
                 relation = EvidenceRelation(**data)
 
@@ -1254,4 +1479,16 @@ class Provenance:
         if self._knowledge.get(knowledge.identifier) != knowledge:
             raise ProvenanceError(
                 f"Unknown Knowledge: {knowledge.identifier}"
+            )
+
+    def _require_registered_current_state(
+        self,
+        current_state: CurrentState,
+    ) -> None:
+        if (
+            self._current_states.get(current_state.identifier)
+            != current_state
+        ):
+            raise ProvenanceError(
+                f"Unknown Current State: {current_state.identifier}"
             )
