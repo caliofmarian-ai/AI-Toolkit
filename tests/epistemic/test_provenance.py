@@ -420,3 +420,296 @@ def test_human_readable_identity_is_available_for_all_primary_entities():
         verification.display_identity
         == "VER-000001 — Execution verification"
     )
+
+
+def test_provenance_survives_restart_through_single_markdown_manifestation(
+    tmp_path,
+):
+    provenance = Provenance()
+
+    source = provenance.add_source(
+        "Repository inspection",
+        kind="REPOSITORY",
+        reference="git:HEAD",
+        transformation="TR-000042",
+    )
+
+    observation = provenance.observe(
+        source,
+        "Repository state",
+        "Expected implementation exists.",
+        interpretation="Implementation appears structurally present.",
+    )
+
+    supporting = provenance.preserve_evidence(
+        observation,
+        "Repository evidence",
+        "git:file:implementation.py",
+        domain="TECHNICAL",
+    )
+
+    contradiction_observation = provenance.observe(
+        source,
+        "Runtime absence",
+        "No runtime execution evidence was inspected.",
+    )
+
+    contradicting = provenance.preserve_evidence(
+        contradiction_observation,
+        "Missing runtime evidence",
+        "runtime:UNKNOWN",
+        domain="OBSERVATIONAL",
+    )
+
+    claim = provenance.make_claim(
+        "Implementation is operational",
+        "The implementation works in its operating environment.",
+        transformation="TR-000042",
+    )
+
+    provenance.relate_evidence(
+        supporting,
+        claim,
+        "SUPPORTS",
+    )
+
+    provenance.relate_evidence(
+        contradicting,
+        claim,
+        "CONTRADICTS",
+    )
+
+    provenance.verify(
+        claim,
+        "Operational verification",
+        state=NOT_VERIFIED,
+        basis=UNKNOWN,
+    )
+
+    artifact = provenance.save(tmp_path)
+
+    assert artifact == tmp_path / "PROVENANCE.md"
+    assert artifact.is_file()
+
+    recovered = Provenance.load(tmp_path)
+
+    assert recovered._sources == provenance._sources
+    assert recovered._observations == provenance._observations
+    assert recovered._evidence == provenance._evidence
+    assert recovered._claims == provenance._claims
+    assert recovered._verifications == provenance._verifications
+    assert (
+        recovered._evidence_relations
+        == provenance._evidence_relations
+    )
+
+
+def test_persisted_manifestation_is_human_readable(tmp_path):
+    provenance = Provenance()
+
+    source = provenance.add_source(
+        "Owner authorization",
+        kind="HUMAN",
+        reference="conversation:owner",
+    )
+
+    observation = provenance.observe(
+        source,
+        "Authorization",
+        "Owner authorized implementation.",
+    )
+
+    evidence = provenance.preserve_evidence(
+        observation,
+        "Authorization evidence",
+        "conversation:owner",
+        domain="AUTHORITY",
+    )
+
+    claim = provenance.make_claim(
+        "Implementation authorized",
+        "The Owner authorized implementation.",
+    )
+
+    provenance.relate_evidence(
+        evidence,
+        claim,
+        "SUPPORTS",
+    )
+
+    provenance.verify(
+        claim,
+        "Authorization verification",
+        state="VERIFIED",
+        basis=evidence.identifier,
+    )
+
+    artifact = provenance.save(tmp_path)
+    text = artifact.read_text(encoding="utf-8")
+
+    assert "# Epistemic Provenance" in text
+    assert "SRC-000001 — Owner authorization" in text
+    assert "OBS-000001 — Authorization" in text
+    assert "EV-000001 — Authorization evidence" in text
+    assert "CLM-000001 — Implementation authorized" in text
+    assert "VER-000001 — Authorization verification" in text
+
+
+def test_recovery_preserves_unknown_without_inventing_state(tmp_path):
+    provenance = Provenance()
+
+    claim = provenance.make_claim(
+        "Unknown runtime condition",
+        "Runtime behavior has not yet been established.",
+    )
+
+    provenance.verify(
+        claim,
+        "Runtime verification",
+    )
+
+    provenance.save(tmp_path)
+
+    recovered = Provenance.load(tmp_path)
+
+    verification = recovered._verifications["VER-000001"]
+
+    assert verification.state == NOT_VERIFIED
+    assert verification.basis == UNKNOWN
+
+
+def test_recovery_preserves_supporting_and_contradicting_evidence(
+    tmp_path,
+):
+    provenance = Provenance()
+
+    source = provenance.add_source(
+        "Runtime",
+        kind="RUNTIME",
+        reference="runtime",
+    )
+
+    first_observation = provenance.observe(
+        source,
+        "Success",
+        "Case A succeeded.",
+    )
+
+    second_observation = provenance.observe(
+        source,
+        "Failure",
+        "Case B failed.",
+    )
+
+    supporting = provenance.preserve_evidence(
+        first_observation,
+        "Success evidence",
+        "runtime:A",
+    )
+
+    contradicting = provenance.preserve_evidence(
+        second_observation,
+        "Failure evidence",
+        "runtime:B",
+    )
+
+    claim = provenance.make_claim(
+        "Universal success",
+        "Every case succeeds.",
+    )
+
+    provenance.relate_evidence(
+        supporting,
+        claim,
+        "SUPPORTS",
+    )
+
+    provenance.relate_evidence(
+        contradicting,
+        claim,
+        "CONTRADICTS",
+    )
+
+    provenance.save(tmp_path)
+
+    recovered = Provenance.load(tmp_path)
+    recovered_claim = recovered._claims[claim.identifier]
+
+    assert tuple(
+        item.identifier
+        for item in recovered.supporting_evidence(recovered_claim)
+    ) == (supporting.identifier,)
+
+    assert tuple(
+        item.identifier
+        for item in recovered.contradicting_evidence(recovered_claim)
+    ) == (contradicting.identifier,)
+
+
+def test_next_identity_continues_after_recovery(tmp_path):
+    provenance = Provenance()
+
+    provenance.add_source(
+        "First",
+        kind="OTHER",
+        reference="first",
+    )
+
+    provenance.save(tmp_path)
+
+    recovered = Provenance.load(tmp_path)
+
+    second = recovered.add_source(
+        "Second",
+        kind="OTHER",
+        reference="second",
+    )
+
+    assert second.identifier == "SRC-000002"
+
+
+def test_missing_persisted_provenance_is_explicit(tmp_path):
+    with pytest.raises(ProvenanceError):
+        Provenance.load(tmp_path)
+
+
+def test_corrupt_persisted_provenance_is_rejected(tmp_path):
+    (tmp_path / "PROVENANCE.md").write_text(
+        "# Epistemic Provenance\n\n```json\n{broken\n```\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ProvenanceError):
+        Provenance.load(tmp_path)
+
+
+def test_dangling_persisted_observation_is_rejected(tmp_path):
+    import json
+
+    payload = {
+        "sources": [],
+        "observations": [
+            {
+                "identifier": "OBS-000001",
+                "title": "Dangling",
+                "source": "SRC-999999",
+                "observed": "Impossible ancestry.",
+                "interpretation": UNKNOWN,
+            }
+        ],
+        "evidence": [],
+        "claims": [],
+        "verifications": [],
+        "evidence_relations": [],
+    }
+
+    (tmp_path / "PROVENANCE.md").write_text(
+        "# Epistemic Provenance\n\n"
+        "```json\n"
+        + json.dumps(payload)
+        + "\n```\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ProvenanceError):
+        Provenance.load(tmp_path)

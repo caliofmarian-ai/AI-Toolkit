@@ -36,7 +36,9 @@ The implementation preserves explicit epistemic boundaries:
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Literal
+import json
 
 
 UNKNOWN = "UNKNOWN"
@@ -405,6 +407,324 @@ class Provenance:
             if relation.claim == claim.identifier
             and relation.role == "CONTRADICTS"
         )
+
+    def save(self, root: Path) -> Path:
+        """
+        Persist this Provenance anatomy as one human-inspectable Markdown
+        manifestation.
+
+        Markdown is the persisted authority for this increment. The embedded
+        JSON block is serialization inside that same manifestation and is not
+        a second persistence authority.
+        """
+
+        root = Path(root)
+        root.mkdir(parents=True, exist_ok=True)
+
+        path = root / "PROVENANCE.md"
+
+        payload = {
+            "sources": [
+                {
+                    "identifier": item.identifier,
+                    "title": item.title,
+                    "kind": item.kind,
+                    "reference": item.reference,
+                    "transformation": item.transformation,
+                }
+                for item in self._sources.values()
+            ],
+            "observations": [
+                {
+                    "identifier": item.identifier,
+                    "title": item.title,
+                    "source": item.source,
+                    "observed": item.observed,
+                    "interpretation": item.interpretation,
+                }
+                for item in self._observations.values()
+            ],
+            "evidence": [
+                {
+                    "identifier": item.identifier,
+                    "title": item.title,
+                    "observation": item.observation,
+                    "reference": item.reference,
+                    "domain": item.domain,
+                }
+                for item in self._evidence.values()
+            ],
+            "claims": [
+                {
+                    "identifier": item.identifier,
+                    "title": item.title,
+                    "statement": item.statement,
+                    "transformation": item.transformation,
+                }
+                for item in self._claims.values()
+            ],
+            "verifications": [
+                {
+                    "identifier": item.identifier,
+                    "title": item.title,
+                    "claim": item.claim,
+                    "state": item.state,
+                    "basis": item.basis,
+                }
+                for item in self._verifications.values()
+            ],
+            "evidence_relations": [
+                {
+                    "evidence": item.evidence,
+                    "claim": item.claim,
+                    "role": item.role,
+                }
+                for item in self._evidence_relations
+            ],
+        }
+
+        lines = [
+            "# Epistemic Provenance",
+            "",
+            "Status: PERSISTED",
+            "",
+            "## Human-Readable Inventory",
+            "",
+            "### Sources",
+            "",
+        ]
+
+        if self._sources:
+            lines.extend(
+                f"- {item.display_identity}"
+                for item in self._sources.values()
+            )
+        else:
+            lines.append("NONE")
+
+        lines.extend(["", "### Observations", ""])
+
+        if self._observations:
+            lines.extend(
+                f"- {item.display_identity}"
+                for item in self._observations.values()
+            )
+        else:
+            lines.append("NONE")
+
+        lines.extend(["", "### Evidence", ""])
+
+        if self._evidence:
+            lines.extend(
+                f"- {item.display_identity}"
+                for item in self._evidence.values()
+            )
+        else:
+            lines.append("NONE")
+
+        lines.extend(["", "### Claims", ""])
+
+        if self._claims:
+            lines.extend(
+                f"- {item.display_identity}"
+                for item in self._claims.values()
+            )
+        else:
+            lines.append("NONE")
+
+        lines.extend(["", "### Verifications", ""])
+
+        if self._verifications:
+            lines.extend(
+                f"- {item.display_identity}"
+                for item in self._verifications.values()
+            )
+        else:
+            lines.append("NONE")
+
+        lines.extend(
+            [
+                "",
+                "## Machine-Recoverable Representation",
+                "",
+                "```json",
+                json.dumps(
+                    payload,
+                    ensure_ascii=False,
+                    indent=2,
+                    sort_keys=True,
+                ),
+                "```",
+                "",
+            ]
+        )
+
+        path.write_text(
+            "\n".join(lines),
+            encoding="utf-8",
+        )
+
+        return path
+
+    @classmethod
+    def load(cls, root: Path) -> "Provenance":
+        """
+        Recover persisted Provenance without inventing missing information.
+
+        Malformed, incomplete, duplicate, or dangling persisted relations are
+        surfaced explicitly as ProvenanceError.
+        """
+
+        path = Path(root) / "PROVENANCE.md"
+
+        if not path.is_file():
+            raise ProvenanceError(
+                f"Persisted Provenance does not exist: {path}"
+            )
+
+        text = path.read_text(encoding="utf-8")
+
+        opening = "```json\n"
+        closing = "\n```"
+
+        if opening not in text:
+            raise ProvenanceError(
+                "Persisted Provenance missing machine-recoverable block"
+            )
+
+        payload_text = text.split(opening, 1)[1]
+
+        if closing not in payload_text:
+            raise ProvenanceError(
+                "Persisted Provenance has unterminated representation"
+            )
+
+        payload_text = payload_text.split(closing, 1)[0]
+
+        try:
+            payload = json.loads(payload_text)
+        except json.JSONDecodeError as exc:
+            raise ProvenanceError(
+                "Persisted Provenance representation is malformed"
+            ) from exc
+
+        required = {
+            "sources",
+            "observations",
+            "evidence",
+            "claims",
+            "verifications",
+            "evidence_relations",
+        }
+
+        if set(payload) != required:
+            raise ProvenanceError(
+                "Persisted Provenance schema is incomplete or unknown"
+            )
+
+        provenance = cls()
+
+        def register(
+            collection: dict[str, object],
+            item: object,
+            identifier: str,
+        ) -> None:
+            if identifier in collection:
+                raise ProvenanceError(
+                    f"Duplicate persisted identity: {identifier}"
+                )
+            collection[identifier] = item
+
+        try:
+            for data in payload["sources"]:
+                item = Source(**data)
+                register(
+                    provenance._sources,
+                    item,
+                    item.identifier,
+                )
+
+            for data in payload["observations"]:
+                item = Observation(**data)
+
+                if item.source not in provenance._sources:
+                    raise ProvenanceError(
+                        "Observation references missing Source: "
+                        f"{item.source}"
+                    )
+
+                register(
+                    provenance._observations,
+                    item,
+                    item.identifier,
+                )
+
+            for data in payload["evidence"]:
+                item = Evidence(**data)
+
+                if item.observation not in provenance._observations:
+                    raise ProvenanceError(
+                        "Evidence references missing Observation: "
+                        f"{item.observation}"
+                    )
+
+                register(
+                    provenance._evidence,
+                    item,
+                    item.identifier,
+                )
+
+            for data in payload["claims"]:
+                item = Claim(**data)
+                register(
+                    provenance._claims,
+                    item,
+                    item.identifier,
+                )
+
+            for data in payload["verifications"]:
+                item = Verification(**data)
+
+                if item.claim not in provenance._claims:
+                    raise ProvenanceError(
+                        "Verification references missing Claim: "
+                        f"{item.claim}"
+                    )
+
+                register(
+                    provenance._verifications,
+                    item,
+                    item.identifier,
+                )
+
+            for data in payload["evidence_relations"]:
+                relation = EvidenceRelation(**data)
+
+                if relation.evidence not in provenance._evidence:
+                    raise ProvenanceError(
+                        "EvidenceRelation references missing Evidence: "
+                        f"{relation.evidence}"
+                    )
+
+                if relation.claim not in provenance._claims:
+                    raise ProvenanceError(
+                        "EvidenceRelation references missing Claim: "
+                        f"{relation.claim}"
+                    )
+
+                if relation in provenance._evidence_relations:
+                    raise ProvenanceError(
+                        "Duplicate persisted EvidenceRelation"
+                    )
+
+                provenance._evidence_relations.append(relation)
+
+        except TypeError as exc:
+            raise ProvenanceError(
+                "Persisted Provenance entity is malformed"
+            ) from exc
+
+        return provenance
 
     def _require_registered_source(self, source: Source) -> None:
         if self._sources.get(source.identifier) != source:
