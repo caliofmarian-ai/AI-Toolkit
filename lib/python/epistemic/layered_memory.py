@@ -635,3 +635,135 @@ class LayeredMemoryRepository:
                 raise LayeredMemoryRelationshipError(
                     "persisted Memory cannot reach structural surface"
                 )
+
+# ---------------------------------------------------------------------------
+# PCC-05 — Bidirectional Travel Through Layered Memory
+# Technical execution: RUN 003
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class LayeredMemoryTraversal:
+    """One living position while travelling through Layered Memory.
+
+    The traversal remembers the exact structural route actually travelled.
+
+    It does not choose relevance, summarize Memory, perform Progressive
+    Recall, create CSL, or assign epistemic authority.
+
+    ``trail`` begins at the position where this traversal entered Memory
+    and ends at the current position.
+    """
+
+    layered_memory: LayeredMemory
+    trail: tuple[LayeredMemoryNodeId, ...]
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.layered_memory, LayeredMemory):
+            raise LayeredMemoryNavigationError(
+                "Traversal requires real LayeredMemory."
+            )
+
+        if not self.trail:
+            raise LayeredMemoryNavigationError(
+                "Traversal requires an entry position."
+            )
+
+        for node_id in self.trail:
+            self.layered_memory.get(node_id)
+
+        for parent_id, child_id in zip(
+            self.trail,
+            self.trail[1:],
+        ):
+            parent = self.layered_memory.get(parent_id)
+
+            if child_id not in parent.child_ids:
+                raise LayeredMemoryNavigationError(
+                    "Traversal trail must follow real child relationships."
+                )
+
+    @classmethod
+    def enter(
+        cls,
+        layered_memory: LayeredMemory,
+        node_id: LayeredMemoryNodeId,
+    ) -> "LayeredMemoryTraversal":
+        """Enter Layered Memory at one existing position."""
+
+        layered_memory.get(node_id)
+        return cls(layered_memory, (node_id,))
+
+    @property
+    def current(self) -> LayeredMemoryNode:
+        """Return the Memory position currently inhabited."""
+
+        return self.layered_memory.get(self.trail[-1])
+
+    @property
+    def entry(self) -> LayeredMemoryNode:
+        """Return the position where this traversal entered Memory."""
+
+        return self.layered_memory.get(self.trail[0])
+
+    @property
+    def travelled_path(self) -> LayeredMemoryPath:
+        """Expose the exact structural route travelled so far."""
+
+        return LayeredMemoryPath(self.trail)
+
+    def deeper_options(self) -> tuple[LayeredMemoryNode, ...]:
+        """Expose immediate deeper positions without choosing one."""
+
+        return self.layered_memory.children(self.current.node_id)
+
+    def enter_deeper(
+        self,
+        child_id: LayeredMemoryNodeId,
+    ) -> "LayeredMemoryTraversal":
+        """Travel exactly one structural layer deeper."""
+
+        current = self.current
+
+        if child_id not in current.child_ids:
+            raise LayeredMemoryNavigationError(
+                "Requested Memory is not an immediate deeper position."
+            )
+
+        return LayeredMemoryTraversal(
+            self.layered_memory,
+            self.trail + (child_id,),
+        )
+
+    def can_return(self) -> bool:
+        """Whether this traversal can return along its travelled route."""
+
+        return len(self.trail) > 1
+
+    def return_toward_surface(self) -> "LayeredMemoryTraversal":
+        """Return exactly one step along the route actually travelled."""
+
+        if not self.can_return():
+            raise LayeredMemoryNavigationError(
+                "Traversal is already at its entry position."
+            )
+
+        return LayeredMemoryTraversal(
+            self.layered_memory,
+            self.trail[:-1],
+        )
+
+    def return_to_entry(self) -> "LayeredMemoryTraversal":
+        """Return to the position where this traversal entered Memory."""
+
+        return LayeredMemoryTraversal(
+            self.layered_memory,
+            (self.trail[0],),
+        )
+
+    def provenance_route(self) -> tuple[str, str]:
+        """Expose the current Memory's existing exit toward deeper reality."""
+
+        return self.layered_memory.provenance_route(
+            self.current.node_id
+        )
