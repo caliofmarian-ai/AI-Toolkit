@@ -767,3 +767,104 @@ class LayeredMemoryTraversal:
         return self.layered_memory.provenance_route(
             self.current.node_id
         )
+
+# ---------------------------------------------------------------------------
+# PCC-05 — Continuity Between Memory and Its Epistemic Origin
+# Technical execution: RUN 004
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class MemoryEpistemicOrigin:
+    """The preserved exit from one Memory toward its deeper ancestry.
+
+    This structure does not claim that the referenced Sedimentation,
+    Persistent Experience, Transformation, or Evidence has been loaded.
+
+    It exposes only identifiers already preserved by Memory provenance.
+
+    Resolution of those identifiers belongs to the organs that own the
+    corresponding historical bodies.
+    """
+
+    memory_id: SedimentedMemoryId
+    sedimentation_identifier: str
+    provenance_identifier: str
+    uncertainty: str | None = None
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.memory_id, SedimentedMemoryId):
+            raise LayeredMemoryRelationshipError(
+                "Memory epistemic origin requires a real Memory identifier."
+            )
+
+        if not isinstance(self.sedimentation_identifier, str):
+            raise LayeredMemoryRelationshipError(
+                "Sedimentation identifier must be textual."
+            )
+
+        if not self.sedimentation_identifier.strip():
+            raise LayeredMemoryRelationshipError(
+                "Sedimentation identifier cannot be empty."
+            )
+
+        if not isinstance(self.provenance_identifier, str):
+            raise LayeredMemoryRelationshipError(
+                "Provenance identifier must be textual."
+            )
+
+        if not self.provenance_identifier.strip():
+            raise LayeredMemoryRelationshipError(
+                "Provenance identifier cannot be empty."
+            )
+
+        if self.uncertainty is not None:
+            if not isinstance(self.uncertainty, str):
+                raise LayeredMemoryRelationshipError(
+                    "Memory-origin uncertainty must be textual when present."
+                )
+
+            if not self.uncertainty.strip():
+                raise LayeredMemoryRelationshipError(
+                    "Memory-origin uncertainty cannot be empty when present."
+                )
+
+    @property
+    def route(self) -> tuple[str, str]:
+        """Return the preserved descent identifiers in epistemic order."""
+
+        return (
+            self.sedimentation_identifier,
+            self.provenance_identifier,
+        )
+
+
+def _memory_epistemic_origin(
+    memory: SedimentedMemory,
+) -> MemoryEpistemicOrigin:
+    """Expose deeper ancestry already conserved by Sedimented Memory."""
+
+    return MemoryEpistemicOrigin(
+        memory_id=memory.memory_id,
+        sedimentation_identifier=memory.sedimentation_identifier,
+        provenance_identifier=memory.provenance_identifier,
+        uncertainty=memory.uncertainty,
+    )
+
+
+def layered_memory_epistemic_origin(
+    layered_memory: LayeredMemory,
+    node_id: LayeredMemoryNodeId,
+) -> MemoryEpistemicOrigin:
+    """Exit one Layered Memory position toward its preserved ancestry."""
+
+    node = layered_memory.get(node_id)
+    return _memory_epistemic_origin(node.memory)
+
+
+def traversal_epistemic_origin(
+    traversal: LayeredMemoryTraversal,
+) -> MemoryEpistemicOrigin:
+    """Exit the traversal's current Memory toward preserved ancestry."""
+
+    return _memory_epistemic_origin(traversal.current.memory)
