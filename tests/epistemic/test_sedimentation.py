@@ -322,3 +322,200 @@ def test_repository_does_not_create_memory_or_knowledge(tmp_path):
     assert not hasattr(recovered, "knowledge")
     assert not hasattr(recovered, "current_state")
     assert not hasattr(recovered, "living_project_image")
+
+
+# ---------------------------------------------------------------------------
+# PCC-04 RUN 003 — Verification -> Learning -> Sedimentation
+# ---------------------------------------------------------------------------
+
+from python.epistemic.provenance import Provenance
+
+from python.epistemic.sedimentation import (
+    Learning,
+    LearningSedimentationError,
+    LearningSedimentationPhysiology,
+)
+
+
+def make_verified_learning_source():
+    provenance = Provenance()
+
+    claim = provenance.make_claim(
+        "Learning source",
+        "The examined condition has demonstrable meaning.",
+    )
+
+    verification = provenance.verify(
+        claim,
+        "Learning verification",
+        state="VERIFIED",
+        basis="Explicit evidence examination",
+    )
+
+    return verification
+
+
+def test_learning_requires_verification():
+    verification = make_verified_learning_source()
+
+    physiology = LearningSedimentationPhysiology(
+        SedimentationRepository()
+    )
+
+    learning = physiology.learn(
+        verification,
+        identifier="LRN-000001",
+        title="Verified learning",
+        statement="The verified condition produced learning.",
+    )
+
+    assert learning.verification_identifier == verification.identifier
+
+
+def test_learning_is_not_memory_knowledge_or_canon():
+    verification = make_verified_learning_source()
+
+    physiology = LearningSedimentationPhysiology(
+        SedimentationRepository()
+    )
+
+    learning = physiology.learn(
+        verification,
+        identifier="LRN-000001",
+        title="Provisional learning",
+        statement="This meaning remains pre-sedimentation.",
+    )
+
+    assert isinstance(learning, Learning)
+    assert not hasattr(learning, "memory")
+    assert not hasattr(learning, "knowledge")
+    assert not hasattr(learning, "canon")
+
+
+def test_learning_can_propose_sedimentation():
+    verification = make_verified_learning_source()
+    repository = SedimentationRepository()
+
+    physiology = LearningSedimentationPhysiology(repository)
+
+    learning = physiology.learn(
+        verification,
+        identifier="LRN-000001",
+        title="Learning candidate",
+        statement="Repeated verified behavior should be retained.",
+    )
+
+    sedimentation = physiology.propose_sedimentation(
+        learning,
+        identifier="SED-000101",
+        title="Sedimentation candidate",
+        target=SedimentationTarget.MEMORY,
+    )
+
+    assert sedimentation.provenance_identifier == learning.identifier
+    assert sedimentation.statement == learning.statement
+    assert sedimentation.authority is SedimentationAuthority.PROPOSED
+
+
+def test_sedimentation_does_not_automatically_become_memory():
+    verification = make_verified_learning_source()
+    repository = SedimentationRepository()
+
+    physiology = LearningSedimentationPhysiology(repository)
+
+    learning = physiology.learn(
+        verification,
+        identifier="LRN-000001",
+        title="Learning candidate",
+        statement="Learning may deserve memory.",
+    )
+
+    sedimentation = physiology.propose_sedimentation(
+        learning,
+        identifier="SED-000101",
+        title="Memory proposal",
+        target=SedimentationTarget.MEMORY,
+    )
+
+    assert sedimentation.target is SedimentationTarget.MEMORY
+    assert sedimentation.authority is SedimentationAuthority.PROPOSED
+
+    assert not hasattr(physiology, "memory")
+    assert not hasattr(physiology, "knowledge")
+
+
+def test_learning_to_sedimentation_is_navigable():
+    verification = make_verified_learning_source()
+    repository = SedimentationRepository()
+
+    physiology = LearningSedimentationPhysiology(repository)
+
+    learning = physiology.learn(
+        verification,
+        identifier="LRN-000001",
+        title="Navigable learning",
+        statement="Learning retains its sedimentation descendants.",
+    )
+
+    first = physiology.propose_sedimentation(
+        learning,
+        identifier="SED-000101",
+        title="First proposal",
+        target=SedimentationTarget.MEMORY,
+    )
+
+    second = physiology.propose_sedimentation(
+        learning,
+        identifier="SED-000102",
+        title="Second proposal",
+        target=SedimentationTarget.KNOWLEDGE,
+    )
+
+    assert physiology.sedimentations_from(
+        learning
+    ) == (first, second)
+
+
+def test_sedimentation_to_learning_is_navigable():
+    verification = make_verified_learning_source()
+    repository = SedimentationRepository()
+
+    physiology = LearningSedimentationPhysiology(repository)
+
+    learning = physiology.learn(
+        verification,
+        identifier="LRN-000001",
+        title="Navigable learning",
+        statement="Sedimentation retains its Learning origin.",
+    )
+
+    sedimentation = physiology.propose_sedimentation(
+        learning,
+        identifier="SED-000101",
+        title="Proposal",
+        target=SedimentationTarget.MEMORY,
+    )
+
+    assert physiology.learning_for(sedimentation) == learning
+
+
+def test_unknown_learning_cannot_be_used_for_sedimentation():
+    repository = SedimentationRepository()
+    physiology = LearningSedimentationPhysiology(repository)
+
+    foreign = Learning(
+        identifier="LRN-FOREIGN",
+        title="Foreign learning",
+        verification_identifier="VER-FOREIGN",
+        statement="This learning was never registered.",
+    )
+
+    with pytest.raises(LearningSedimentationError):
+        physiology.propose_sedimentation(
+            foreign,
+            identifier="SED-FOREIGN",
+            title="Invalid sedimentation",
+            target=SedimentationTarget.MEMORY,
+        )
+
+    assert repository.all() == ()

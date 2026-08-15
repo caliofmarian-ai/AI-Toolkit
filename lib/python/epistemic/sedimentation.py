@@ -318,3 +318,195 @@ class SedimentationRepository:
             ) from exc
 
         return repository
+
+
+# ---------------------------------------------------------------------------
+# PCC-04 RUN 003 — canonical Learning -> Sedimentation physiology
+# ---------------------------------------------------------------------------
+
+from dataclasses import dataclass as _dataclass
+
+
+@_dataclass(frozen=True)
+class Learning:
+    """
+    A provisional learned meaning derived from explicit Verification.
+
+    Learning is not Memory.
+    Learning is not Knowledge.
+    Learning is not Canon.
+
+    It is the canonical intermediate physiology between Verification
+    and Sedimentation.
+    """
+
+    identifier: str
+    title: str
+    verification_identifier: str
+    statement: str
+    uncertainty: str | None = None
+
+    def __post_init__(self) -> None:
+        for field_name in (
+            "identifier",
+            "title",
+            "verification_identifier",
+            "statement",
+        ):
+            value = getattr(self, field_name)
+
+            if not isinstance(value, str) or not value.strip():
+                raise ValueError(
+                    f"{field_name} must be an explicit non-empty string"
+                )
+
+        if (
+            self.uncertainty is not None
+            and (
+                not isinstance(self.uncertainty, str)
+                or not self.uncertainty.strip()
+            )
+        ):
+            raise ValueError(
+                "uncertainty must be None or an explicit non-empty string"
+            )
+
+
+class LearningSedimentationError(RuntimeError):
+    """Canonical Learning/Sedimentation physiology was violated."""
+
+
+class LearningSedimentationPhysiology:
+    """
+    Materializes only:
+
+        Verification -> Learning -> Sedimentation
+
+    It deliberately stops before Memory.
+    """
+
+    def __init__(
+        self,
+        sedimentations: SedimentationRepository,
+    ) -> None:
+        if not isinstance(
+            sedimentations,
+            SedimentationRepository,
+        ):
+            raise TypeError(
+                "sedimentations must be SedimentationRepository"
+            )
+
+        self._sedimentations = sedimentations
+        self._learnings: dict[str, Learning] = {}
+
+    def learn(
+        self,
+        verification,
+        *,
+        identifier: str,
+        title: str,
+        statement: str,
+        uncertainty: str | None = None,
+    ) -> Learning:
+        from python.epistemic.provenance import Verification
+
+        if not isinstance(verification, Verification):
+            raise TypeError(
+                "learning requires an explicit PCC-03 Verification"
+            )
+
+        learning = Learning(
+            identifier=identifier,
+            title=title,
+            verification_identifier=verification.identifier,
+            statement=statement,
+            uncertainty=uncertainty,
+        )
+
+        existing = self._learnings.get(learning.identifier)
+
+        if existing is not None and existing != learning:
+            raise LearningSedimentationError(
+                "Learning identity collision"
+            )
+
+        self._learnings[learning.identifier] = learning
+
+        return learning
+
+    def learning(
+        self,
+        identifier: str,
+    ) -> Learning:
+        try:
+            return self._learnings[identifier]
+        except KeyError as exc:
+            raise LearningSedimentationError(
+                f"unknown Learning identity: {identifier}"
+            ) from exc
+
+    def propose_sedimentation(
+        self,
+        learning: Learning,
+        *,
+        identifier: str,
+        title: str,
+        target: SedimentationTarget,
+        uncertainty: str | None = None,
+    ) -> Sedimentation:
+        registered = self.learning(learning.identifier)
+
+        if registered != learning:
+            raise LearningSedimentationError(
+                "Learning anatomy does not match registered Learning"
+            )
+
+        sedimentation = Sedimentation.propose(
+            identifier=identifier,
+            title=title,
+            provenance_identifier=learning.identifier,
+            statement=learning.statement,
+            target=target,
+            uncertainty=(
+                uncertainty
+                if uncertainty is not None
+                else learning.uncertainty
+            ),
+        )
+
+        self._sedimentations.register(sedimentation)
+
+        return sedimentation
+
+    def learning_for(
+        self,
+        sedimentation: Sedimentation,
+    ) -> Learning:
+        registered_sedimentation = self._sedimentations.get(
+            sedimentation.identifier
+        )
+
+        if registered_sedimentation != sedimentation:
+            raise LearningSedimentationError(
+                "Sedimentation anatomy does not match repository"
+            )
+
+        return self.learning(
+            sedimentation.provenance_identifier
+        )
+
+    def sedimentations_from(
+        self,
+        learning: Learning,
+    ) -> tuple[Sedimentation, ...]:
+        registered = self.learning(learning.identifier)
+
+        if registered != learning:
+            raise LearningSedimentationError(
+                "Learning anatomy does not match registered Learning"
+            )
+
+        return self._sedimentations.by_provenance(
+            learning.identifier
+        )
