@@ -396,3 +396,208 @@ def seed_demonstrated_ai_toolkit_failures_run002() -> ErrorMemoryOrgan:
         .remember(import_topology_failure)
         .remember(metabolic_classification_failure)
     )
+
+# ---------------------------------------------------------------------------
+# Error Memory RUN 003 — Demonstrated Failure Intake
+# ---------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class DemonstratedFailureObservation:
+    """Conserved observation offered to Error Memory for possible formation.
+
+    This body represents what the intake boundary has actually been given.
+    It does not infer cause, recovery, or prevention knowledge.
+
+    The observation is not automatically Evidence, Canon, or Error Memory.
+    """
+
+    identity: str
+    title: str
+    kind: FailureKind
+    symptom: str
+    origin: FailureOrigin
+    demonstrated: bool
+    cause: str | None = None
+    recovery: str | None = None
+    prevention_rule: str | None = None
+
+    def __post_init__(self) -> None:
+        required = {
+            "identity": self.identity,
+            "title": self.title,
+            "symptom": self.symptom,
+        }
+
+        for name, value in required.items():
+            if not isinstance(value, str) or not value.strip():
+                raise ValueError(f"{name} must not be empty")
+
+        for name in ("cause", "recovery", "prevention_rule"):
+            value = getattr(self, name)
+            if value is not None and (
+                not isinstance(value, str) or not value.strip()
+            ):
+                raise ValueError(
+                    f"{name} must be non-empty when supplied"
+                )
+
+    @property
+    def semantic_identity(self) -> str:
+        return f"{self.identity} — {self.title}"
+
+
+@dataclass(frozen=True)
+class FailureIntakeResult:
+    """Read-only result of examining one failure observation.
+
+    Intake can legitimately refuse Error Memory formation.
+
+    Refusal preserves epistemic absence instead of manufacturing missing
+    historical knowledge.
+    """
+
+    observation_identity: str
+    observation_title: str
+    accepted: bool
+    state: str
+    reason: str
+    memory: ErrorMemory | None = None
+
+    def __post_init__(self) -> None:
+        if not self.observation_identity.strip():
+            raise ValueError(
+                "observation_identity must not be empty"
+            )
+
+        if not self.observation_title.strip():
+            raise ValueError(
+                "observation_title must not be empty"
+            )
+
+        if not self.state.strip():
+            raise ValueError("state must not be empty")
+
+        if not self.reason.strip():
+            raise ValueError("reason must not be empty")
+
+        if self.accepted and self.memory is None:
+            raise ValueError(
+                "accepted intake must contain formed Error Memory"
+            )
+
+        if not self.accepted and self.memory is not None:
+            raise ValueError(
+                "rejected intake must not contain Error Memory"
+            )
+
+    @property
+    def semantic_identity(self) -> str:
+        return (
+            f"{self.observation_identity} — "
+            f"{self.observation_title}"
+        )
+
+
+def form_error_memory_from_demonstrated_failure(
+    observation: DemonstratedFailureObservation,
+) -> FailureIntakeResult:
+    """Form Error Memory only from structurally sufficient demonstrated reality.
+
+    RUN 003 deliberately does not infer historical facts.
+
+    A failure observation can become Error Memory only when:
+
+    * the failure is explicitly demonstrated;
+    * navigable origin already exists;
+    * symptom is explicitly present;
+    * cause is explicitly supplied;
+    * recovery is explicitly supplied;
+    * prevention knowledge is explicitly supplied.
+
+    Missing interpretation remains missing.
+
+    The function does not inspect arbitrary files, conversations, stdout,
+    stderr, or repository state by itself. Producers of observations remain
+    responsible for preserving their own source reality and provenance.
+    """
+
+    if not observation.demonstrated:
+        return FailureIntakeResult(
+            observation_identity=observation.identity,
+            observation_title=observation.title,
+            accepted=False,
+            state="UNCONFIRMED",
+            reason=(
+                "Failure observation is not explicitly demonstrated."
+            ),
+        )
+
+    missing = tuple(
+        name
+        for name, value in (
+            ("cause", observation.cause),
+            ("recovery", observation.recovery),
+            ("prevention_rule", observation.prevention_rule),
+        )
+        if value is None
+    )
+
+    if missing:
+        return FailureIntakeResult(
+            observation_identity=observation.identity,
+            observation_title=observation.title,
+            accepted=False,
+            state="INCOMPLETE",
+            reason=(
+                "Demonstrated failure remains epistemically incomplete; "
+                "missing explicitly conserved fields: "
+                + ", ".join(missing)
+            ),
+        )
+
+    memory = ErrorMemory(
+        identity=observation.identity,
+        title=observation.title,
+        kind=observation.kind,
+        symptom=observation.symptom,
+        cause=observation.cause,
+        recovery=observation.recovery,
+        prevention_rule=observation.prevention_rule,
+        origin=observation.origin,
+        demonstrated=True,
+    )
+
+    return FailureIntakeResult(
+        observation_identity=observation.identity,
+        observation_title=observation.title,
+        accepted=True,
+        state="FORMED",
+        reason=(
+            "Demonstrated failure contained the complete explicit "
+            "historical anatomy required by Error Memory."
+        ),
+        memory=memory,
+    )
+
+
+def remember_demonstrated_failure(
+    organ: ErrorMemoryOrgan,
+    observation: DemonstratedFailureObservation,
+) -> tuple[ErrorMemoryOrgan, FailureIntakeResult]:
+    """Attempt intake without mutating the existing Error Memory organ.
+
+    Rejected or incomplete observations leave the organ exactly unchanged.
+    Accepted observations produce a new immutable organ through the existing
+    remember() physiology.
+    """
+
+    result = form_error_memory_from_demonstrated_failure(
+        observation
+    )
+
+    if not result.accepted:
+        return organ, result
+
+    assert result.memory is not None
+
+    return organ.remember(result.memory), result
