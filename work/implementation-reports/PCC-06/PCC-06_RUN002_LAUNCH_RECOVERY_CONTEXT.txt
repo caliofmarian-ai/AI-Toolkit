@@ -1,0 +1,24 @@
+PCC-06 RUN 002 — LAUNCH RECOVERY CONTEXT
+
+The originally generated RUN 002 body was materialized successfully, but
+the outer launcher attempted to execute the file directly from Android
+shared storage.
+
+Observed failure:
+
+Permission denied
+exit code 126
+
+This failure occurred at process launch. It does not demonstrate failure
+of the PCC-06 physiology contained in the RUN body.
+
+Recovery therefore preserves the existing body and invokes it explicitly
+through Bash:
+
+bash <RUN_SCRIPT>
+
+No chmod-based execution assumption is used for recovery.
+
+The RUN body itself remains responsible for its own physiological
+verification, Evidence, conservation, Git transformation, and final
+success/failure determination.
