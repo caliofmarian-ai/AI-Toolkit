@@ -190,31 +190,14 @@ class SedimentedMemoryPhysiology:
     def _meaning(
         governed: GovernedSedimentation,
     ) -> str:
-        sedimentation = governed.sedimentation
+        statement = governed.sedimentation.statement
 
-        for attribute in (
-            "meaning",
-            "learning",
-            "content",
-            "summary",
-        ):
-            if not hasattr(sedimentation, attribute):
-                continue
+        if not isinstance(statement, str) or not statement.strip():
+            raise MemoryPromotionError(
+                "Sedimentation statement must preserve semantic meaning."
+            )
 
-            value = getattr(sedimentation, attribute)
-
-            if hasattr(value, "meaning"):
-                value = getattr(value, "meaning")
-
-            if value is not None:
-                rendered = str(value)
-
-                if rendered.strip():
-                    return rendered
-
-        raise MemoryPromotionError(
-            "Sedimentation exposes no semantic meaning for Memory."
-        )
+        return statement
 
     @staticmethod
     def _provenance_identifier(
@@ -254,7 +237,7 @@ class SedimentedMemoryPhysiology:
     def _require_accepted(
         governed: GovernedSedimentation,
     ) -> None:
-        authority = governed.authority
+        authority = governed.sedimentation.authority
 
         if authority is not SedimentationAuthority.ACCEPTED:
             raise MemoryPromotionError(

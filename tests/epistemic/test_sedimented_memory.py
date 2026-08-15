@@ -21,34 +21,50 @@ from epistemic.sedimented_memory import (
 
 def make_learning() -> Learning:
     return Learning(
-        learning_id="LEARN-006A",
-        verification_identifier="VER-006A",
-        meaning="The organism learned a durable semantic conclusion.",
-        provenance_identifier="PROV-006A",
-        uncertainty="Residual uncertainty remains explicit.",
+        identifier="LEARN-006B",
+        title="Durable semantic learning",
+        verification_identifier="VER-006B",
+        statement=(
+            "The organism learned a durable semantic conclusion."
+        ),
+        uncertainty=(
+            "Residual uncertainty remains explicit."
+        ),
+    )
+
+
+def make_sedimentation(
+    target: SedimentationTarget,
+    authority: SedimentationAuthority = (
+        SedimentationAuthority.ACCEPTED
+    ),
+) -> Sedimentation:
+    learning = make_learning()
+
+    return Sedimentation(
+        identifier="SED-006B",
+        title="Sedimented semantic conclusion",
+        provenance_identifier=learning.identifier,
+        statement=learning.statement,
+        target=target,
+        authority=authority,
+        uncertainty=learning.uncertainty,
     )
 
 
 def make_governed(
     target: SedimentationTarget,
-    authority: SedimentationAuthority = SedimentationAuthority.ACCEPTED,
+    authority: SedimentationAuthority = (
+        SedimentationAuthority.ACCEPTED
+    ),
 ) -> GovernedSedimentation:
-    learning = make_learning()
-
-    sedimentation = Sedimentation(
-        sedimentation_id="SED-006A",
-        learning_identifier=learning.learning_id,
-        meaning=learning.meaning,
-        target=target,
-        provenance_identifier=learning.provenance_identifier,
-        uncertainty=learning.uncertainty,
-    )
-
     return GovernedSedimentation(
-        sedimentation=sedimentation,
+        sedimentation=make_sedimentation(
+            target,
+            authority,
+        ),
         governance=SedimentationGovernance.ROUTINE,
-        authority=authority,
-        reason="RUN 006A physiological examination.",
+        reason=None,
     )
 
 
@@ -77,11 +93,11 @@ def test_memory_preserves_sedimentation_identity():
 
     assert (
         result.memory.sedimentation_identifier
-        == governed.sedimentation.sedimentation_id
+        == governed.sedimentation.identifier
     )
 
 
-def test_memory_preserves_meaning():
+def test_memory_preserves_semantic_statement():
     governed = make_governed(
         SedimentationTarget.MEMORY
     )
@@ -92,7 +108,7 @@ def test_memory_preserves_meaning():
 
     assert (
         result.memory.meaning
-        == governed.sedimentation.meaning
+        == governed.sedimentation.statement
     )
 
 
@@ -126,7 +142,22 @@ def test_memory_preserves_uncertainty():
     )
 
 
-def test_memory_has_distinct_identity():
+def test_memory_identity_is_distinct_from_sedimentation_identity():
+    governed = make_governed(
+        SedimentationTarget.MEMORY
+    )
+
+    result = SedimentedMemoryPhysiology().deliver(
+        governed
+    )
+
+    assert (
+        str(result.memory.memory_id)
+        != governed.sedimentation.identifier
+    )
+
+
+def test_repeated_memory_materialization_has_distinct_memory_identity():
     governed = make_governed(
         SedimentationTarget.MEMORY
     )
@@ -138,26 +169,49 @@ def test_memory_has_distinct_identity():
 
     assert first.memory.memory_id != second.memory.memory_id
 
+    assert (
+        first.memory.sedimentation_identifier
+        == second.memory.sedimentation_identifier
+    )
+
 
 @pytest.mark.parametrize(
     "authority",
-    [
+    (
         SedimentationAuthority.PROPOSED,
         SedimentationAuthority.REJECTED,
-    ],
+    ),
 )
-def test_unaccepted_sedimentation_cannot_become_memory(
+def test_unaccepted_sedimentation_cannot_be_delivered(
     authority,
 ):
     governed = make_governed(
         SedimentationTarget.MEMORY,
-        authority=authority,
+        authority,
     )
 
     with pytest.raises(MemoryPromotionError):
         SedimentedMemoryPhysiology().deliver(
             governed
         )
+
+
+def test_accepted_authority_is_read_from_sedimentation():
+    governed = make_governed(
+        SedimentationTarget.MEMORY,
+        SedimentationAuthority.ACCEPTED,
+    )
+
+    assert (
+        governed.sedimentation.authority
+        is SedimentationAuthority.ACCEPTED
+    )
+
+    result = SedimentedMemoryPhysiology().deliver(
+        governed
+    )
+
+    assert result.memory is not None
 
 
 def test_knowledge_target_requires_existing_knowledge_receptor():
@@ -178,11 +232,9 @@ def test_knowledge_target_does_not_create_memory():
 
     sentinel = object()
 
-    physiology = SedimentedMemoryPhysiology(
+    result = SedimentedMemoryPhysiology(
         knowledge_receptor=lambda item: sentinel
-    )
-
-    result = physiology.deliver(governed)
+    ).deliver(governed)
 
     assert result.delivery is SedimentationDelivery.KNOWLEDGE
     assert result.memory is None
@@ -204,23 +256,28 @@ def test_memory_and_knowledge_remain_distinct():
         result.delivery
         is SedimentationDelivery.MEMORY_AND_KNOWLEDGE
     )
-    assert isinstance(result.memory, SedimentedMemory)
+
+    assert isinstance(
+        result.memory,
+        SedimentedMemory,
+    )
+
     assert result.knowledge is sentinel
     assert result.memory is not result.knowledge
 
 
-def test_memory_does_not_mutate_sedimentation():
+def test_delivery_does_not_mutate_original_sedimentation():
     governed = make_governed(
         SedimentationTarget.MEMORY
     )
 
-    before = governed.sedimentation
+    original = governed.sedimentation
 
     SedimentedMemoryPhysiology().deliver(
         governed
     )
 
-    assert governed.sedimentation == before
+    assert governed.sedimentation == original
 
 
 def test_memory_is_not_raw_experience():
@@ -228,40 +285,110 @@ def test_memory_is_not_raw_experience():
         SedimentationTarget.MEMORY
     )
 
-    result = SedimentedMemoryPhysiology().deliver(
+    memory = SedimentedMemoryPhysiology().deliver(
         governed
-    )
+    ).memory
 
-    assert not hasattr(
-        result.memory,
-        "conversation",
-    )
-    assert not hasattr(
-        result.memory,
-        "terminal_output",
-    )
-    assert not hasattr(
-        result.memory,
-        "raw_experience",
-    )
+    assert not hasattr(memory, "conversation")
+    assert not hasattr(memory, "terminal_output")
+    assert not hasattr(memory, "raw_experience")
 
 
-def test_missing_provenance_is_rejected():
+def test_memory_does_not_claim_verification_identity():
     governed = make_governed(
         SedimentationTarget.MEMORY
     )
 
-    broken = replace(
-        governed,
-        sedimentation=replace(
-            governed.sedimentation,
-            provenance_identifier="",
+    memory = SedimentedMemoryPhysiology().deliver(
+        governed
+    ).memory
+
+    assert not hasattr(
+        memory,
+        "verification_identifier",
+    )
+
+
+def test_governance_and_authority_remain_distinct():
+    governed = make_governed(
+        SedimentationTarget.MEMORY
+    )
+
+    assert (
+        governed.governance
+        is SedimentationGovernance.ROUTINE
+    )
+
+    assert (
+        governed.sedimentation.authority
+        is SedimentationAuthority.ACCEPTED
+    )
+
+
+def test_rejected_sedimentation_remains_preserved_as_object():
+    sedimentation = make_sedimentation(
+        SedimentationTarget.MEMORY,
+        SedimentationAuthority.REJECTED,
+    )
+
+    governed = GovernedSedimentation(
+        sedimentation=sedimentation,
+        governance=SedimentationGovernance.ROUTINE,
+    )
+
+    with pytest.raises(MemoryPromotionError):
+        SedimentedMemoryPhysiology().deliver(
+            governed
+        )
+
+    assert (
+        governed.sedimentation
+        == sedimentation
+    )
+
+
+def test_proposed_sedimentation_remains_preserved_as_object():
+    sedimentation = make_sedimentation(
+        SedimentationTarget.MEMORY,
+        SedimentationAuthority.PROPOSED,
+    )
+
+    governed = GovernedSedimentation(
+        sedimentation=sedimentation,
+        governance=SedimentationGovernance.HUMAN_AUTHORITY,
+        reason=(
+            "Explicit Human Authority is required before retention."
         ),
     )
 
-    with pytest.raises(
-        (MemoryPromotionError, ValueError)
-    ):
+    with pytest.raises(MemoryPromotionError):
         SedimentedMemoryPhysiology().deliver(
-            broken
+            governed
+        )
+
+    assert (
+        governed.sedimentation
+        == sedimentation
+    )
+
+
+def test_missing_knowledge_receptor_does_not_create_parallel_knowledge():
+    governed = make_governed(
+        SedimentationTarget.KNOWLEDGE
+    )
+
+    physiology = SedimentedMemoryPhysiology()
+
+    with pytest.raises(DownstreamKnowledgeError):
+        physiology.deliver(governed)
+
+
+def test_memory_and_knowledge_target_requires_real_knowledge_receptor():
+    governed = make_governed(
+        SedimentationTarget.MEMORY_AND_KNOWLEDGE
+    )
+
+    with pytest.raises(DownstreamKnowledgeError):
+        SedimentedMemoryPhysiology().deliver(
+            governed
         )
