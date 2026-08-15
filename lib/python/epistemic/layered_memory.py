@@ -21,7 +21,10 @@ from dataclasses import dataclass
 from typing import Iterable
 from uuid import uuid4
 
-from .sedimented_memory import SedimentedMemory
+from .sedimented_memory import (
+    SedimentedMemory,
+    SedimentedMemoryId,
+)
 
 
 class LayeredMemoryError(RuntimeError):
@@ -354,3 +357,281 @@ class LayeredMemory:
             )
 
         return tuple(created)
+
+
+# ---------------------------------------------------------------------------
+# PCC-05 — Conservation of Layered Memory in Time
+# Technical execution: RUN 002
+# ---------------------------------------------------------------------------
+
+from pathlib import Path as _Path
+import json as _json
+
+
+class LayeredMemoryPersistenceError(LayeredMemoryError):
+    """Layered Memory could not be safely preserved or reconstructed."""
+
+
+class LayeredMemoryRepository:
+    """Durable body for Layered Memory.
+
+    The repository preserves the existing LayeredMemory anatomy across
+    process death.
+
+    It does not redefine Memory semantics and does not own Experience,
+    Evidence, Sedimentation, Knowledge, CSL, or Progressive Recall.
+
+    The physical JSON representation is a versioned recipient, not the
+    identity or meaning of Layered Memory.
+    """
+
+    _FILENAME = "layered_memory.json"
+    _SCHEMA = "PCC-05-LAYERED-MEMORY-1"
+
+    def __init__(self, layered_memory: LayeredMemory | None = None) -> None:
+        if layered_memory is not None and not isinstance(
+            layered_memory,
+            LayeredMemory,
+        ):
+            raise TypeError(
+                "layered_memory must be LayeredMemory or None"
+            )
+
+        self._layered_memory = layered_memory or LayeredMemory()
+
+    @property
+    def layered_memory(self) -> LayeredMemory:
+        return self._layered_memory
+
+    def save(self, directory: str | _Path) -> _Path:
+        root = _Path(directory)
+        root.mkdir(parents=True, exist_ok=True)
+
+        path = root / self._FILENAME
+
+        payload = {
+            "schema": self._SCHEMA,
+            "nodes": [
+                {
+                    "node_id": str(node.node_id),
+                    "depth": node.depth,
+                    "parent_ids": [
+                        str(item) for item in node.parent_ids
+                    ],
+                    "child_ids": [
+                        str(item) for item in node.child_ids
+                    ],
+                    "memory": {
+                        "memory_id": str(node.memory.memory_id),
+                        "sedimentation_identifier":
+                            node.memory.sedimentation_identifier,
+                        "meaning": node.memory.meaning,
+                        "provenance_identifier":
+                            node.memory.provenance_identifier,
+                        "uncertainty": node.memory.uncertainty,
+                    },
+                }
+                for node in self._layered_memory.nodes()
+            ],
+        }
+
+        try:
+            path.write_text(
+                _json.dumps(
+                    payload,
+                    indent=2,
+                    ensure_ascii=False,
+                ) + "\n",
+                encoding="utf-8",
+            )
+        except OSError as exc:
+            raise LayeredMemoryPersistenceError(
+                f"could not preserve Layered Memory: {exc}"
+            ) from exc
+
+        return path
+
+    @classmethod
+    def load(
+        cls,
+        directory: str | _Path,
+    ) -> "LayeredMemoryRepository":
+        path = _Path(directory) / cls._FILENAME
+
+        if not path.exists():
+            return cls()
+
+        try:
+            payload = _json.loads(
+                path.read_text(encoding="utf-8")
+            )
+        except (OSError, _json.JSONDecodeError) as exc:
+            raise LayeredMemoryPersistenceError(
+                f"could not reconstruct Layered Memory: {exc}"
+            ) from exc
+
+        if not isinstance(payload, dict):
+            raise LayeredMemoryPersistenceError(
+                "Layered Memory persistent body must be an object"
+            )
+
+        if payload.get("schema") != cls._SCHEMA:
+            raise LayeredMemoryPersistenceError(
+                "unsupported Layered Memory persistence schema"
+            )
+
+        raw_nodes = payload.get("nodes")
+
+        if not isinstance(raw_nodes, list):
+            raise LayeredMemoryPersistenceError(
+                "Layered Memory nodes must be represented as a list"
+            )
+
+        layered = LayeredMemory()
+
+        try:
+            reconstructed: dict[
+                LayeredMemoryNodeId,
+                LayeredMemoryNode,
+            ] = {}
+
+            for raw in raw_nodes:
+                if not isinstance(raw, dict):
+                    raise TypeError(
+                        "each persisted node must be an object"
+                    )
+
+                raw_memory = raw["memory"]
+
+                if not isinstance(raw_memory, dict):
+                    raise TypeError(
+                        "persisted Memory must be an object"
+                    )
+
+                memory = SedimentedMemory(
+                    memory_id=SedimentedMemoryId(
+                        raw_memory["memory_id"]
+                    ),
+                    sedimentation_identifier=raw_memory[
+                        "sedimentation_identifier"
+                    ],
+                    meaning=raw_memory["meaning"],
+                    provenance_identifier=raw_memory[
+                        "provenance_identifier"
+                    ],
+                    uncertainty=raw_memory.get("uncertainty"),
+                )
+
+                node = LayeredMemoryNode(
+                    node_id=LayeredMemoryNodeId(
+                        raw["node_id"]
+                    ),
+                    memory=memory,
+                    depth=raw["depth"],
+                    parent_ids=tuple(
+                        LayeredMemoryNodeId(item)
+                        for item in raw["parent_ids"]
+                    ),
+                    child_ids=tuple(
+                        LayeredMemoryNodeId(item)
+                        for item in raw["child_ids"]
+                    ),
+                )
+
+                if node.node_id in reconstructed:
+                    raise LayeredMemoryIdentityError(
+                        "duplicate persisted Layered Memory identity"
+                    )
+
+                reconstructed[node.node_id] = node
+
+            cls._validate_reconstructed(reconstructed)
+
+            layered._nodes.update(reconstructed)
+
+        except (
+            KeyError,
+            TypeError,
+            ValueError,
+            LayeredMemoryError,
+        ) as exc:
+            raise LayeredMemoryPersistenceError(
+                f"invalid persisted Layered Memory anatomy: {exc}"
+            ) from exc
+
+        return cls(layered)
+
+    @staticmethod
+    def _validate_reconstructed(
+        nodes: dict[LayeredMemoryNodeId, LayeredMemoryNode],
+    ) -> None:
+        for node in nodes.values():
+            if node.depth == 0 and node.parent_ids:
+                raise LayeredMemoryRelationshipError(
+                    "surface Memory cannot have a parent"
+                )
+
+            if node.depth > 0 and not node.parent_ids:
+                raise LayeredMemoryRelationshipError(
+                    "deeper Memory must preserve a path toward surface"
+                )
+
+            if len(node.parent_ids) > 1:
+                raise LayeredMemoryRelationshipError(
+                    "RUN 002 supports one structural parent per node"
+                )
+
+            for parent_id in node.parent_ids:
+                if parent_id not in nodes:
+                    raise LayeredMemoryRelationshipError(
+                        "persisted parent does not exist"
+                    )
+
+                parent = nodes[parent_id]
+
+                if node.node_id not in parent.child_ids:
+                    raise LayeredMemoryRelationshipError(
+                        "parent/child relationship is not reciprocal"
+                    )
+
+                if parent.depth + 1 != node.depth:
+                    raise LayeredMemoryRelationshipError(
+                        "persisted depth relationship is invalid"
+                    )
+
+            for child_id in node.child_ids:
+                if child_id not in nodes:
+                    raise LayeredMemoryRelationshipError(
+                        "persisted child does not exist"
+                    )
+
+                child = nodes[child_id]
+
+                if node.node_id not in child.parent_ids:
+                    raise LayeredMemoryRelationshipError(
+                        "child/parent relationship is not reciprocal"
+                    )
+
+                if child.depth != node.depth + 1:
+                    raise LayeredMemoryRelationshipError(
+                        "persisted child depth is invalid"
+                    )
+
+        # Every deeper node must actually be able to return to a root.
+        for node in nodes.values():
+            current = node
+            visited: set[LayeredMemoryNodeId] = set()
+
+            while current.parent_ids:
+                if current.node_id in visited:
+                    raise LayeredMemoryRelationshipError(
+                        "persisted Layered Memory contains a cycle"
+                    )
+
+                visited.add(current.node_id)
+                current = nodes[current.parent_ids[0]]
+
+            if current.depth != 0:
+                raise LayeredMemoryRelationshipError(
+                    "persisted Memory cannot reach structural surface"
+                )
