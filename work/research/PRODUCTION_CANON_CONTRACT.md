@@ -525,47 +525,196 @@ UNKNOWN.
 
 # PCC-05 — Layered Memory
 
-Status: CANON EXTRACTION REQUIRED
+Status: IMPLEMENTATION DEMONSTRATED; CANON EXTRACTION REQUIRED
 
 ## Purpose
 
-Allow the epistemic organism to preserve increasing amounts of project knowledge without requiring the entire history to occupy active cognitive context at all times.
+Allow the epistemic organism to preserve increasing amounts of project
+knowledge without requiring the entire history to occupy active cognitive
+context at all times.
 
-The organism should be capable of travelling through its own memory according to purpose and required depth.
+Layered Memory provides navigable structural depth for sedimented Memory.
 
-Higher-level memory must not destroy the possibility of returning to deeper preserved Experience and Evidence.
+Higher-level Memory must preserve the possibility of returning toward deeper
+preserved epistemic ancestry.
+
+Layered Memory provides anatomy and navigation.
+
+It does not decide which information satisfies a current epistemic need.
 
 ## Canonical Basis
 
-TBD.
+The demonstrated implementation is governed by existing admitted Canon,
+including the requirements that:
 
-## Production Requirements
+- Memory remains distinct from Experience and Evidence;
+- derivation must not destroy provenance;
+- uncertainty must remain visible where preserved;
+- persistence does not establish authority;
+- structural depth does not establish truth;
+- higher Memory must preserve the path toward deeper ancestry;
+- and recall depth follows unresolved epistemic need.
 
-TBD.
+The governing stopping principle for future Progressive Recall is defined by:
+
+`canon/CANONICAL_NEED_DIRECTED_MEMORY_TRAVEL_AND_EPISTEMIC_SUFFICIENCY.md`
+
+That Canon explicitly separates Layered Memory anatomy from the physiological
+decision that deeper recall is required.
+
+This reconciliation does NOT claim that the PCC-05 production contract itself
+has been canonically admitted.
+
+Canonical extraction remains required unless and until Human Authority admits
+the resulting contract.
+
+## Production Requirements Demonstrated
+
+Repository Evidence currently demonstrates:
+
+1. stable Layered Memory node identity;
+2. explicit structural depth;
+3. parent and child relationships;
+4. navigation toward structural depth;
+5. navigation toward structural surface;
+6. preservation of Sedimented Memory;
+7. preservation of Sedimentation identity;
+8. preservation of deeper provenance identity;
+9. preservation of uncertainty where present;
+10. durable Layered Memory serialization;
+11. reconstruction across process death;
+12. structural validation during reconstruction;
+13. bidirectional active traversal;
+14. preservation of the actual travelled route;
+15. return toward traversal entry;
+16. exposure of the current Memory's preserved epistemic-origin route;
+17. separation from Experience, Evidence, CSL, Progressive Recall, truth,
+    authority, and canonical admission.
 
 ## Prohibited Behaviour
 
-TBD.
+PCC-05 must not:
+
+- invent missing Memory;
+- invent missing historical ancestry;
+- equate Memory with Experience;
+- equate Memory with Evidence;
+- infer truth from structural depth;
+- infer authority from persistence;
+- infer certainty from persistence;
+- erase preserved uncertainty;
+- erase provenance;
+- fabricate historical bodies from provenance identifiers;
+- select relevance merely because Memory is navigable;
+- decide epistemic sufficiency;
+- implement Progressive Recall under the identity of Layered Memory;
+- implement CSL under the identity of Layered Memory;
+- acquire Human Authority.
 
 ## Human Authority
 
-TBD.
+Human Authority remains external to Layered Memory.
+
+Demonstrated implementation does not canonically admit its own production
+contract.
+
+Human Authority is required for canonical admission.
 
 ## Required Provenance
 
-TBD.
+The demonstrated PCC-05 anatomy preserves:
+
+- Memory identity;
+- Sedimentation identity;
+- deeper provenance identity;
+- semantic Memory meaning;
+- uncertainty where present;
+- Layered Memory structural identity;
+- structural navigation relationships.
+
+PCC-05 preserves the door and address toward deeper epistemic ancestry.
+
+It does not falsely claim that referenced Experience, Transformation, Evidence,
+or historical bodies have been resolved merely because their provenance
+identifiers are available.
 
 ## Acceptance Evidence
 
-TBD.
+Demonstrated Evidence includes:
 
-## Acceptance Tests
+- `lib/python/epistemic/layered_memory.py`;
+- `tests/epistemic/test_layered_memory.py`;
+- `tests/epistemic/test_layered_memory_persistence.py`;
+- `tests/epistemic/test_layered_memory_traversal.py`;
+- `tests/epistemic/test_layered_memory_ancestry.py`;
+- `work/implementation-reports/PCC-05/PCC-05_RUN001_LAYERED_MEMORY_ANATOMY.md`;
+- `work/implementation-reports/PCC-05/PCC-05_RUN002_CONSERVATION_OF_LAYERED_MEMORY_IN_TIME.md`;
+- `work/implementation-reports/PCC-05/PCC-05_RUN003_BIDIRECTIONAL_TRAVEL_THROUGH_LAYERED_MEMORY.md`;
+- `work/implementation-reports/PCC-05/PCC-05_RUN004_CONTINUITY_BETWEEN_MEMORY_AND_EPISTEMIC_ORIGIN.md`;
+- corresponding Git history and conserved execution records.
 
-TBD.
+The immediately preceding interrupted contractual-reconciliation execution
+also reported successful existing PCC-05 examinations and a complete epistemic
+regression of 238 passed before stopping on classification of a newly generated
+`work/memory/` body.
+
+That terminal observation is historical execution evidence supplied from the
+human-controlled runtime.
+
+It is not represented as a GitHub CI result.
+
+## Acceptance Tests Demonstrated
+
+Existing examinations cover:
+
+- Layered Memory construction;
+- identity and relationship invariants;
+- structural depth;
+- navigation toward depth and surface;
+- persistence and reconstruction;
+- corruption rejection;
+- provenance preservation;
+- uncertainty preservation;
+- bidirectional traversal;
+- exact travelled-route behavior;
+- non-mutating traversal;
+- epistemic-origin exposure;
+- non-fabrication of deeper historical bodies;
+- and explicit absence of Progressive Recall claims.
+
+The immediately preceding runtime execution reported:
+
+**238 passed**
+
+for the complete epistemic regression before the execution stopped on
+post-test artifact classification.
 
 ## Current Implementation Status
 
-UNKNOWN.
+IMPLEMENTATION DEMONSTRATED FOR THE CURRENT PCC-05 SCOPE.
+
+Demonstrated physiological evolution:
+
+1. Layered Memory structural anatomy;
+2. conservation of Layered Memory in time;
+3. bidirectional travel through Layered Memory;
+4. continuity between Memory and its preserved epistemic origin.
+
+Not claimed by PCC-05:
+
+- CSL / Living Project Image;
+- Progressive Recall;
+- need-directed relevance selection;
+- epistemic sufficiency evaluation;
+- automatic historical-body resolution;
+- canonical self-admission.
+
+Therefore:
+
+**Implementation is demonstrated.**
+
+**Canonical extraction/admission of the production contract remains a
+separate Human Authority step.**
 
 ---
 
