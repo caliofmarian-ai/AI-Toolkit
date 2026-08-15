@@ -10618,3 +10618,104 @@ explicitly changes the Canon.
 **Human Authority:** explicit
 **Production-readiness basis:** PCC-03 RUN 007
 **Canonical admission:** accepted
+
+---
+
+## Canonical Execution Evidence & Supervision Contract
+
+**Canonical status:** CANON
+
+**Human Authority:** EXPLICIT
+
+By explicit Human Authority, the following Execution Evidence & Supervision
+Contract is admitted into AI-Toolkit Canon.
+
+This contract governs every future implementation RUN.
+
+### 1. Autosufficient RUN evidence
+
+Every implementation RUN must conserve the exact need, governing Canon,
+inherited organism state, intended transformation, exact executed Bash,
+complete stdout/stderr, errors, causal corrections, tests, mutations,
+metabolic products, commits, final state, and next boundary.
+
+### 2. Exact executed Bash
+
+The exact Bash executed must be conserved.
+
+A summary, reconstruction, or approximate description is insufficient.
+
+### 3. Incremental stdout/stderr conservation
+
+stdout and stderr must be captured incrementally, including normal execution,
+tests, exceptions, tracebacks, validation failures, and successful
+examinations.
+
+### 4. Consequence conservation
+
+Every RUN must conserve its mutations, metabolic products, repository
+authority, relevant HEAD identities, verification results, and execution
+consequences.
+
+### 5. Failure is evidence
+
+A failed RUN is part of epistemic history.
+
+Normal Bash failure must be conserved rather than erased, hidden, or replaced
+by a later successful result.
+
+### 6. Interruption recovery
+
+Evidence must be written incrementally.
+
+If Termux, Bash, the device, or another execution boundary interrupts a RUN,
+the next recovery RUN must detect and conserve surviving local evidence before
+performing further implementation mutation.
+
+A process that no longer exists cannot perform a later network push.
+Therefore durable local checkpointing together with mandatory next-run
+recovery is the canonical interruption physiology.
+
+### 7. Complete relevant local conservation
+
+The complete relevant local organism state, including metabolic products and
+failed-run evidence, must be conserved in Git.
+
+Failure does not authorize deletion or concealment of epistemic history.
+
+### 8. Completion gate
+
+A RUN may not declare COMPLETE until required examinations have succeeded,
+autosufficient evidence exists, required local state has been conserved,
+commit and push have succeeded, and local HEAD equals origin/main.
+
+### 9. GPT supervision responsibility
+
+After execution, GPT is responsible for inspecting GitHub directly,
+determining what happened from conserved repository evidence, distinguishing
+Bash defects from organism defects, and supervising the next action.
+
+The Human Authority is not required to manually relay information already
+conserved in Git.
+
+### 10. Canon-before-next-RUN
+
+GPT must confront every completed or failed RUN with governing Canon, actual
+repository anatomy, and conserved execution evidence before deriving the next
+implementation RUN.
+
+### Minimal Human Authority supervision protocol
+
+After execution of a Bash governed by this contract, the Human Authority may
+send only:
+
+`?`
+
+This means:
+
+**GPT must inspect GitHub directly, determine what happened, audit the RUN
+against Canon and actual organism state, and continue appropriately.**
+
+These requirements are normative and remain binding until explicitly changed
+by Human Authority.
+
