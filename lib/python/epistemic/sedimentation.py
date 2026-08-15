@@ -511,3 +511,135 @@ class LearningSedimentationPhysiology:
         return self._sedimentations.by_provenance(
             learning.identifier
         )
+
+
+# ---------------------------------------------------------------------------
+# PCC-04 RUN 004 — Sedimentation governance + Human Attention
+# ---------------------------------------------------------------------------
+
+
+class SedimentationGovernance(str, Enum):
+    """
+    Governance disposition of a Sedimentation proposal.
+
+    ROUTINE:
+        proposal may remain preserved without interrupting the human.
+
+    HUMAN_AUTHORITY:
+        explicit Human Authority is required before authoritative
+        sedimentation may occur.
+    """
+
+    ROUTINE = "ROUTINE"
+    HUMAN_AUTHORITY = "HUMAN_AUTHORITY"
+
+
+@dataclass(frozen=True)
+class GovernedSedimentation:
+    """
+    Governance envelope around an immutable Sedimentation proposal.
+
+    The envelope does not replace or mutate the underlying proposal.
+    """
+
+    sedimentation: Sedimentation
+    governance: SedimentationGovernance
+    reason: str | None = None
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.sedimentation, Sedimentation):
+            raise TypeError(
+                "sedimentation must be an explicit Sedimentation"
+            )
+
+        if not isinstance(
+            self.governance,
+            SedimentationGovernance,
+        ):
+            raise TypeError(
+                "governance must be SedimentationGovernance"
+            )
+
+        if self.reason is not None:
+            if not isinstance(self.reason, str):
+                raise TypeError(
+                    "reason must be a string or None"
+                )
+
+            if not self.reason.strip():
+                raise ValueError(
+                    "reason must be meaningful when supplied"
+                )
+
+        if (
+            self.governance
+            is SedimentationGovernance.HUMAN_AUTHORITY
+            and self.reason is None
+        ):
+            raise ValueError(
+                "Human Authority governance requires an explicit reason"
+            )
+
+    @property
+    def requires_human_attention(self) -> bool:
+        return (
+            self.governance
+            is SedimentationGovernance.HUMAN_AUTHORITY
+        )
+
+    @property
+    def may_continue_without_interruption(self) -> bool:
+        return not self.requires_human_attention
+
+    def accept_by_human_authority(
+        self,
+    ) -> Sedimentation:
+        if not self.requires_human_attention:
+            raise ValueError(
+                "routine sedimentation does not require "
+                "Human Authority acceptance"
+            )
+
+        return self.sedimentation.accept_by_human_authority()
+
+    def reject_by_human_authority(
+        self,
+    ) -> Sedimentation:
+        if not self.requires_human_attention:
+            raise ValueError(
+                "routine sedimentation does not require "
+                "Human Authority rejection"
+            )
+
+        return self.sedimentation.reject_by_human_authority()
+
+
+class SedimentationGovernor:
+    """
+    Applies an explicit governance disposition.
+
+    It does not infer Human Authority from arbitrary hidden heuristics.
+    The caller must provide the governance reason when Human Authority
+    is required.
+    """
+
+    def routine(
+        self,
+        sedimentation: Sedimentation,
+    ) -> GovernedSedimentation:
+        return GovernedSedimentation(
+            sedimentation=sedimentation,
+            governance=SedimentationGovernance.ROUTINE,
+        )
+
+    def require_human_authority(
+        self,
+        sedimentation: Sedimentation,
+        *,
+        reason: str,
+    ) -> GovernedSedimentation:
+        return GovernedSedimentation(
+            sedimentation=sedimentation,
+            governance=SedimentationGovernance.HUMAN_AUTHORITY,
+            reason=reason,
+        )

@@ -519,3 +519,124 @@ def test_unknown_learning_cannot_be_used_for_sedimentation():
         )
 
     assert repository.all() == ()
+
+
+# ---------------------------------------------------------------------------
+# PCC-04 RUN 004 — Sedimentation governance + Human Attention
+# ---------------------------------------------------------------------------
+
+from python.epistemic.sedimentation import (
+    GovernedSedimentation,
+    SedimentationGovernance,
+    SedimentationGovernor,
+)
+
+
+def make_governance_proposal():
+    return Sedimentation(
+        identifier="SED-GOV-001",
+        title="Governed sedimentation",
+        provenance_identifier="LRN-GOV-001",
+        statement="A provisional meaning may deserve preservation.",
+        target=SedimentationTarget.MEMORY,
+    )
+
+
+def test_routine_proposal_does_not_interrupt_human():
+    proposal = make_governance_proposal()
+
+    governed = SedimentationGovernor().routine(proposal)
+
+    assert governed.governance is SedimentationGovernance.ROUTINE
+    assert governed.requires_human_attention is False
+    assert governed.may_continue_without_interruption is True
+
+    # Proposal remains provisional.
+    assert proposal.authority is SedimentationAuthority.PROPOSED
+
+
+def test_routine_governance_does_not_auto_accept():
+    proposal = make_governance_proposal()
+
+    governed = SedimentationGovernor().routine(proposal)
+
+    assert governed.sedimentation == proposal
+    assert governed.sedimentation.is_accepted is False
+    assert governed.sedimentation.is_rejected is False
+
+
+def test_human_authority_requires_explicit_reason():
+    proposal = make_governance_proposal()
+
+    with pytest.raises(ValueError):
+        GovernedSedimentation(
+            sedimentation=proposal,
+            governance=SedimentationGovernance.HUMAN_AUTHORITY,
+        )
+
+
+def test_high_impact_proposal_can_require_human_authority():
+    proposal = make_governance_proposal()
+
+    governed = SedimentationGovernor().require_human_authority(
+        proposal,
+        reason="Canonical approval required",
+    )
+
+    assert governed.requires_human_attention is True
+    assert governed.reason == "Canonical approval required"
+    assert proposal.authority is SedimentationAuthority.PROPOSED
+
+
+def test_human_authority_can_accept_governed_proposal():
+    proposal = make_governance_proposal()
+
+    governed = SedimentationGovernor().require_human_authority(
+        proposal,
+        reason="Owner decision required",
+    )
+
+    accepted = governed.accept_by_human_authority()
+
+    assert accepted.authority is SedimentationAuthority.ACCEPTED
+
+    # Original history remains unchanged.
+    assert proposal.authority is SedimentationAuthority.PROPOSED
+
+
+def test_human_authority_can_reject_governed_proposal():
+    proposal = make_governance_proposal()
+
+    governed = SedimentationGovernor().require_human_authority(
+        proposal,
+        reason="Contested interpretation",
+    )
+
+    rejected = governed.reject_by_human_authority()
+
+    assert rejected.authority is SedimentationAuthority.REJECTED
+
+    # Original proposal remains preserved.
+    assert proposal.authority is SedimentationAuthority.PROPOSED
+
+
+def test_routine_governance_cannot_fake_human_authority():
+    proposal = make_governance_proposal()
+
+    governed = SedimentationGovernor().routine(proposal)
+
+    with pytest.raises(ValueError):
+        governed.accept_by_human_authority()
+
+    with pytest.raises(ValueError):
+        governed.reject_by_human_authority()
+
+
+def test_governance_creates_no_memory_or_knowledge():
+    proposal = make_governance_proposal()
+
+    governed = SedimentationGovernor().routine(proposal)
+
+    assert not hasattr(governed, "memory")
+    assert not hasattr(governed, "knowledge")
+    assert not hasattr(governed, "living_project_image")
