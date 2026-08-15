@@ -134,3 +134,191 @@ def test_memory_and_knowledge_destinations_remain_distinct():
     assert memory.target is SedimentationTarget.MEMORY
     assert knowledge.target is SedimentationTarget.KNOWLEDGE
     assert both.target is SedimentationTarget.MEMORY_AND_KNOWLEDGE
+
+
+# ---------------------------------------------------------------------------
+# PCC-04 RUN 002 — persistence + reconstruction
+# ---------------------------------------------------------------------------
+
+from python.epistemic.sedimentation import (
+    SedimentationPersistenceError,
+    SedimentationRepository,
+)
+
+
+def test_repository_preserves_sedimentation_identity():
+    repository = SedimentationRepository()
+    item = make_proposal()
+
+    repository.register(item)
+
+    assert repository.get(item.identifier) is item
+
+
+def test_repository_rejects_identity_collision():
+    repository = SedimentationRepository()
+
+    repository.register(make_proposal())
+
+    with pytest.raises(ValueError):
+        repository.register(
+            make_proposal(
+                statement="Different meaning under same identity."
+            )
+        )
+
+
+def test_repository_navigates_from_provenance_to_sedimentation():
+    repository = SedimentationRepository()
+
+    first = make_proposal(identifier="SED-000001")
+    second = make_proposal(
+        identifier="SED-000002",
+        title="Second interpretation",
+    )
+    unrelated = make_proposal(
+        identifier="SED-000003",
+        provenance_identifier="VER-OTHER",
+    )
+
+    repository.register(first)
+    repository.register(second)
+    repository.register(unrelated)
+
+    assert repository.by_provenance(
+        "VER-000001"
+    ) == (first, second)
+
+
+def test_repository_does_not_infer_unknown_provenance():
+    repository = SedimentationRepository()
+    repository.register(make_proposal())
+
+    assert repository.by_provenance("VER-UNKNOWN") == ()
+
+
+def test_persistence_reconstructs_proposed_sedimentation(tmp_path):
+    repository = SedimentationRepository()
+    original = make_proposal()
+
+    repository.register(original)
+    repository.save(tmp_path)
+
+    recovered = SedimentationRepository.load(tmp_path)
+    item = recovered.get(original.identifier)
+
+    assert item == original
+    assert item.authority is SedimentationAuthority.PROPOSED
+    assert item.provenance_identifier == original.provenance_identifier
+
+
+def test_persistence_reconstructs_accepted_authority(tmp_path):
+    repository = SedimentationRepository()
+    accepted = make_proposal().accept_by_human_authority()
+
+    repository.register(accepted)
+    repository.save(tmp_path)
+
+    recovered = SedimentationRepository.load(tmp_path)
+    item = recovered.get(accepted.identifier)
+
+    assert item == accepted
+    assert item.authority is SedimentationAuthority.ACCEPTED
+    assert item.is_accepted is True
+
+
+def test_persistence_reconstructs_rejected_authority(tmp_path):
+    repository = SedimentationRepository()
+    rejected = make_proposal().reject_by_human_authority()
+
+    repository.register(rejected)
+    repository.save(tmp_path)
+
+    recovered = SedimentationRepository.load(tmp_path)
+    item = recovered.get(rejected.identifier)
+
+    assert item == rejected
+    assert item.authority is SedimentationAuthority.REJECTED
+    assert item.is_rejected is True
+
+
+def test_persistence_preserves_uncertainty(tmp_path):
+    repository = SedimentationRepository()
+
+    original = make_proposal(
+        uncertainty="Evidence remains incomplete."
+    )
+
+    repository.register(original)
+    repository.save(tmp_path)
+
+    recovered = SedimentationRepository.load(tmp_path)
+
+    assert (
+        recovered.get(original.identifier).uncertainty
+        == "Evidence remains incomplete."
+    )
+
+
+def test_restart_preserves_provenance_navigation(tmp_path):
+    repository = SedimentationRepository()
+
+    first = make_proposal(identifier="SED-000001")
+    second = make_proposal(
+        identifier="SED-000002",
+        title="Second interpretation",
+    )
+
+    repository.register(first)
+    repository.register(second)
+    repository.save(tmp_path)
+
+    recovered = SedimentationRepository.load(tmp_path)
+
+    result = recovered.by_provenance("VER-000001")
+
+    assert tuple(x.identifier for x in result) == (
+        "SED-000001",
+        "SED-000002",
+    )
+
+
+def test_missing_repository_reconstructs_as_empty(tmp_path):
+    recovered = SedimentationRepository.load(tmp_path)
+
+    assert recovered.all() == ()
+
+
+def test_corrupt_persistence_is_not_silently_invented(tmp_path):
+    path = tmp_path / "sedimentation.json"
+    path.write_text("{broken", encoding="utf-8")
+
+    with pytest.raises(SedimentationPersistenceError):
+        SedimentationRepository.load(tmp_path)
+
+
+def test_unknown_schema_is_explicitly_rejected(tmp_path):
+    path = tmp_path / "sedimentation.json"
+    path.write_text(
+        '{"schema":"UNKNOWN","sedimentations":[]}\n',
+        encoding="utf-8",
+    )
+
+    with pytest.raises(SedimentationPersistenceError):
+        SedimentationRepository.load(tmp_path)
+
+
+def test_repository_does_not_create_memory_or_knowledge(tmp_path):
+    repository = SedimentationRepository()
+    accepted = make_proposal().accept_by_human_authority()
+
+    repository.register(accepted)
+    repository.save(tmp_path)
+
+    recovered = SedimentationRepository.load(tmp_path)
+
+    assert recovered.get(accepted.identifier).is_accepted
+    assert not hasattr(recovered, "memory")
+    assert not hasattr(recovered, "knowledge")
+    assert not hasattr(recovered, "current_state")
+    assert not hasattr(recovered, "living_project_image")

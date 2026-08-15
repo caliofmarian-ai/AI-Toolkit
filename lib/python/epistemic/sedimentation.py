@@ -146,3 +146,175 @@ class Sedimentation:
             self,
             authority=SedimentationAuthority.REJECTED,
         )
+
+# ---------------------------------------------------------------------------
+# PCC-04 RUN 002 — durable sedimentation physiology
+# ---------------------------------------------------------------------------
+
+from pathlib import Path
+import json
+
+
+class SedimentationPersistenceError(RuntimeError):
+    """Durable Sedimentation representation could not be preserved or read."""
+
+
+class SedimentationRepository:
+    """
+    Durable repository for the existing Sedimentation organ.
+
+    This repository owns only Sedimentation persistence.
+
+    It is not a Memory Store, Knowledge Engine, Provenance organ, Current State
+    organ, or Living Project Image.
+    """
+
+    _FILENAME = "sedimentation.json"
+
+    def __init__(self) -> None:
+        self._sedimentations: dict[str, Sedimentation] = {}
+
+    def register(self, sedimentation: Sedimentation) -> None:
+        if not isinstance(sedimentation, Sedimentation):
+            raise TypeError(
+                "sedimentation must be an explicit Sedimentation"
+            )
+
+        existing = self._sedimentations.get(sedimentation.identifier)
+
+        if existing is not None and existing != sedimentation:
+            raise ValueError(
+                "Sedimentation identity collision: "
+                f"{sedimentation.identifier}"
+            )
+
+        self._sedimentations[sedimentation.identifier] = sedimentation
+
+    def get(self, identifier: str) -> Sedimentation:
+        try:
+            return self._sedimentations[identifier]
+        except KeyError as exc:
+            raise KeyError(
+                f"unknown Sedimentation identity: {identifier}"
+            ) from exc
+
+    def by_provenance(
+        self,
+        provenance_identifier: str,
+    ) -> tuple[Sedimentation, ...]:
+        if (
+            not isinstance(provenance_identifier, str)
+            or not provenance_identifier.strip()
+        ):
+            raise ValueError(
+                "provenance_identifier must be an explicit non-empty string"
+            )
+
+        return tuple(
+            sedimentation
+            for sedimentation in self._sedimentations.values()
+            if sedimentation.provenance_identifier
+            == provenance_identifier
+        )
+
+    def all(self) -> tuple[Sedimentation, ...]:
+        return tuple(self._sedimentations.values())
+
+    def save(self, directory: str | Path) -> Path:
+        root = Path(directory)
+        root.mkdir(parents=True, exist_ok=True)
+
+        path = root / self._FILENAME
+
+        payload = {
+            "schema": "PCC-04-SEDIMENTATION-1",
+            "sedimentations": [
+                {
+                    "identifier": item.identifier,
+                    "title": item.title,
+                    "provenance_identifier": item.provenance_identifier,
+                    "statement": item.statement,
+                    "target": item.target.value,
+                    "authority": item.authority.value,
+                    "uncertainty": item.uncertainty,
+                }
+                for item in self._sedimentations.values()
+            ],
+        }
+
+        try:
+            path.write_text(
+                json.dumps(
+                    payload,
+                    indent=2,
+                    ensure_ascii=False,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+        except OSError as exc:
+            raise SedimentationPersistenceError(
+                f"could not persist Sedimentation repository: {exc}"
+            ) from exc
+
+        return path
+
+    @classmethod
+    def load(
+        cls,
+        directory: str | Path,
+    ) -> "SedimentationRepository":
+        path = Path(directory) / cls._FILENAME
+
+        repository = cls()
+
+        if not path.exists():
+            return repository
+
+        try:
+            payload = json.loads(
+                path.read_text(encoding="utf-8")
+            )
+        except (OSError, json.JSONDecodeError) as exc:
+            raise SedimentationPersistenceError(
+                f"could not reconstruct Sedimentation repository: {exc}"
+            ) from exc
+
+        if payload.get("schema") != "PCC-04-SEDIMENTATION-1":
+            raise SedimentationPersistenceError(
+                "unsupported Sedimentation persistence schema"
+            )
+
+        raw_items = payload.get("sedimentations")
+
+        if not isinstance(raw_items, list):
+            raise SedimentationPersistenceError(
+                "sedimentations must be represented as a list"
+            )
+
+        try:
+            for raw in raw_items:
+                item = Sedimentation(
+                    identifier=raw["identifier"],
+                    title=raw["title"],
+                    provenance_identifier=raw[
+                        "provenance_identifier"
+                    ],
+                    statement=raw["statement"],
+                    target=SedimentationTarget(raw["target"]),
+                    authority=SedimentationAuthority(
+                        raw["authority"]
+                    ),
+                    uncertainty=raw.get("uncertainty"),
+                )
+                repository.register(item)
+        except (
+            KeyError,
+            TypeError,
+            ValueError,
+        ) as exc:
+            raise SedimentationPersistenceError(
+                f"invalid persisted Sedimentation anatomy: {exc}"
+            ) from exc
+
+        return repository
