@@ -462,12 +462,13 @@ class LearningSedimentationPhysiology:
                 "Learning anatomy does not match registered Learning"
             )
 
-        sedimentation = Sedimentation.propose(
+        sedimentation = Sedimentation(
             identifier=identifier,
             title=title,
             provenance_identifier=learning.identifier,
             statement=learning.statement,
             target=target,
+            authority=SedimentationAuthority.PROPOSED,
             uncertainty=(
                 uncertainty
                 if uncertainty is not None
