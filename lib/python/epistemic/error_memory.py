@@ -833,3 +833,133 @@ def form_pre_execution_recurrence_examination(
         transformation_title=awareness.transformation_title,
         examinations=tuple(examinations),
     )
+
+# ---------------------------------------------------------------------------
+# Error Memory RUN 005
+# Transformation Preparation with Recurrence Evidence
+# ---------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class TransformationPreparation:
+    """Prepared transformation carrying recurrence examination evidence.
+
+    RUN 005 closes the physiological gap between pre-execution recurrence
+    examination and the later transformation lifecycle.
+
+    The preparation body carries:
+
+    * the identity and title of the intended transformation;
+    * the intended activities and context;
+    * the complete pre-execution recurrence examination;
+    * explicit visibility of unresolved demonstrated precedent.
+
+    It does not execute, approve, reject, validate, canonicalize, or mutate
+    the intended transformation or historical Error Memory.
+    """
+
+    transformation: IntendedTransformation
+    recurrence_examination: PreExecutionRecurrenceExamination
+
+    def __post_init__(self) -> None:
+        if (
+            self.transformation.identity
+            != self.recurrence_examination.transformation_identity
+        ):
+            raise ValueError(
+                "transformation preparation identity must match "
+                "recurrence examination identity"
+            )
+
+        if (
+            self.transformation.title
+            != self.recurrence_examination.transformation_title
+        ):
+            raise ValueError(
+                "transformation preparation title must match "
+                "recurrence examination title"
+            )
+
+    @property
+    def semantic_identity(self) -> str:
+        return (
+            f"{self.transformation.identity} — "
+            f"{self.transformation.title}"
+        )
+
+    @property
+    def recurrence_evidence(
+        self,
+    ) -> Tuple[RecurrenceExamination, ...]:
+        return self.recurrence_examination.examinations
+
+    @property
+    def unresolved_recurrence_evidence(
+        self,
+    ) -> Tuple[RecurrenceExamination, ...]:
+        return self.recurrence_examination.unresolved
+
+    @property
+    def has_unresolved_recurrence_evidence(self) -> bool:
+        return self.recurrence_examination.has_unresolved_precedent
+
+
+def prepare_transformation_with_recurrence_evidence(
+    transformation: IntendedTransformation,
+    recurrence_examination: PreExecutionRecurrenceExamination,
+) -> TransformationPreparation:
+    """Carry recurrence examination into transformation preparation.
+
+    The function does not infer an execution decision from the examination.
+
+    In particular:
+
+    * ADDRESSED is not equivalent to execution approval;
+    * NOT_APPLICABLE is not equivalent to execution approval;
+    * UNRESOLVED remains visible but does not grant Error Memory authority
+      to block execution;
+    * an empty examination remains legitimate when Error Memory exposed no
+      relevant demonstrated precedent.
+
+    Human Authority and the governing transformation lifecycle retain
+    decision authority.
+    """
+
+    return TransformationPreparation(
+        transformation=transformation,
+        recurrence_examination=recurrence_examination,
+    )
+
+
+def prepare_intended_transformation_from_error_memory(
+    organ: ErrorMemoryOrgan,
+    transformation: IntendedTransformation,
+    statements: Iterable[RecurrenceExaminationStatement] = (),
+) -> TransformationPreparation:
+    """Form recurrence awareness, examine it, and carry the evidence forward.
+
+    This is the complete read-only Error Memory preparation physiology formed
+    by RUN 001 through RUN 005:
+
+        demonstrated failures
+            -> recurrence awareness
+            -> explicit recurrence examination
+            -> transformation preparation
+
+    The function does not execute the transformation and does not mutate the
+    Error Memory organ.
+    """
+
+    awareness = form_pre_transformation_recurrence_awareness(
+        organ,
+        transformation,
+    )
+
+    examination = form_pre_execution_recurrence_examination(
+        awareness,
+        statements,
+    )
+
+    return prepare_transformation_with_recurrence_evidence(
+        transformation,
+        examination,
+    )
