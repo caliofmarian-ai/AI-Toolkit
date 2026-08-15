@@ -141,3 +141,9 @@ Exit code: `2`
 ?? work/implementation-reports/PCC-04/PCC-04_RUN006B_EXACT_ANATOMY_RECOVERY.md
 ?? work/implementation-reports/PCC-04/PCC-04_RUN006B_EXECUTED_BASH.sh
 ```
+[main 4ec2506] evidence: conserve failed PCC-04 RUN 006B
+ 5 files changed, 391 insertions(+), 77 deletions(-)
+ create mode 100644 work/implementation-reports/PCC-04/PCC-04_RUN006B_EXACT_ANATOMY_RECOVERY.md
+ create mode 100644 work/implementation-reports/PCC-04/PCC-04_RUN006B_EXECUTED_BASH.sh
+To https://github.com/caliofmarian-ai/AI-Toolkit.git
+   718256b..4ec2506  main -> main
