@@ -601,3 +601,235 @@ def remember_demonstrated_failure(
     assert result.memory is not None
 
     return organ.remember(result.memory), result
+
+# ---------------------------------------------------------------------------
+# Error Memory RUN 004 — Pre-Execution Recurrence Examination
+# ---------------------------------------------------------------------------
+
+class RecurrenceDisposition(str, Enum):
+    """Human-readable disposition of one demonstrated recurrence warning.
+
+    A disposition records examination state.  It is not permission to execute.
+    """
+
+    ADDRESSED = "ADDRESSED"
+    NOT_APPLICABLE = "NOT_APPLICABLE"
+    UNRESOLVED = "UNRESOLVED"
+
+
+@dataclass(frozen=True)
+class RecurrenceExamination:
+    """Explicit examination of one demonstrated recurrence precedent.
+
+    RUN 004 makes the previously implicit step visible:
+
+    a future transformation must be able to show how a relevant remembered
+    failure was considered before execution.
+
+    Examination does not authorize, block, execute, mutate Canon, or rewrite
+    historical Error Memory.
+    """
+
+    error_identity: str
+    error_title: str
+    prevention_rule: str
+    origin: FailureOrigin
+    disposition: RecurrenceDisposition
+    explanation: str
+
+    def __post_init__(self) -> None:
+        textual_fields = {
+            "error_identity": self.error_identity,
+            "error_title": self.error_title,
+            "prevention_rule": self.prevention_rule,
+            "explanation": self.explanation,
+        }
+
+        for name, value in textual_fields.items():
+            if not isinstance(value, str) or not value.strip():
+                raise ValueError(f"{name} must not be empty")
+
+    @property
+    def semantic_identity(self) -> str:
+        return f"{self.error_identity} — {self.error_title}"
+
+
+@dataclass(frozen=True)
+class PreExecutionRecurrenceExamination:
+    """Read-only pre-execution examination for an intended transformation.
+
+    Every demonstrated warning exposed by recurrence awareness remains visible.
+
+    Warnings for which no explicit examination has been supplied are conserved
+    as UNRESOLVED rather than silently disappearing.
+
+    This object is physiological awareness only.  It has no execution or
+    approval authority.
+    """
+
+    transformation_identity: str
+    transformation_title: str
+    examinations: Tuple[RecurrenceExamination, ...]
+
+    def __post_init__(self) -> None:
+        if not self.transformation_identity.strip():
+            raise ValueError("transformation_identity must not be empty")
+
+        if not self.transformation_title.strip():
+            raise ValueError("transformation_title must not be empty")
+
+        identities = [
+            examination.error_identity
+            for examination in self.examinations
+        ]
+
+        if len(identities) != len(set(identities)):
+            raise ValueError(
+                "recurrence examinations must have unique error identities"
+            )
+
+    @property
+    def semantic_identity(self) -> str:
+        return (
+            f"{self.transformation_identity} — "
+            f"{self.transformation_title}"
+        )
+
+    @property
+    def unresolved(self) -> Tuple[RecurrenceExamination, ...]:
+        return tuple(
+            examination
+            for examination in self.examinations
+            if examination.disposition == RecurrenceDisposition.UNRESOLVED
+        )
+
+    @property
+    def addressed(self) -> Tuple[RecurrenceExamination, ...]:
+        return tuple(
+            examination
+            for examination in self.examinations
+            if examination.disposition == RecurrenceDisposition.ADDRESSED
+        )
+
+    @property
+    def not_applicable(self) -> Tuple[RecurrenceExamination, ...]:
+        return tuple(
+            examination
+            for examination in self.examinations
+            if examination.disposition
+            == RecurrenceDisposition.NOT_APPLICABLE
+        )
+
+    @property
+    def has_unresolved_precedent(self) -> bool:
+        return bool(self.unresolved)
+
+
+@dataclass(frozen=True)
+class RecurrenceExaminationStatement:
+    """Explicit statement supplied for one remembered precedent.
+
+    The statement is intentionally separate from the warning itself so that
+    historical Error Memory remains immutable.
+    """
+
+    error_identity: str
+    disposition: RecurrenceDisposition
+    explanation: str
+
+    def __post_init__(self) -> None:
+        if not self.error_identity.strip():
+            raise ValueError("error_identity must not be empty")
+
+        if not self.explanation.strip():
+            raise ValueError("explanation must not be empty")
+
+
+def form_pre_execution_recurrence_examination(
+    awareness: PreTransformationRecurrenceAwareness,
+    statements: Iterable[RecurrenceExaminationStatement] = (),
+) -> PreExecutionRecurrenceExamination:
+    """Make examination of demonstrated recurrence warnings explicit.
+
+    Rules:
+
+    * awareness remains read-only;
+    * only warnings actually exposed by awareness can be examined;
+    * duplicate statements are rejected;
+    * a warning without a statement remains explicitly UNRESOLVED;
+    * statements cannot invent warnings that Error Memory did not expose;
+    * the result has no authority to permit or deny execution.
+
+    Human Authority and the governing transformation retain decision authority.
+    """
+
+    supplied = tuple(statements)
+
+    supplied_ids = [statement.error_identity for statement in supplied]
+
+    if len(supplied_ids) != len(set(supplied_ids)):
+        raise ValueError(
+            "recurrence examination statements must have unique "
+            "error identities"
+        )
+
+    warnings_by_identity = {
+        warning.error_identity: warning
+        for warning in awareness.warnings
+    }
+
+    unknown = tuple(
+        identity
+        for identity in supplied_ids
+        if identity not in warnings_by_identity
+    )
+
+    if unknown:
+        raise ValueError(
+            "cannot examine recurrence precedent not exposed by awareness: "
+            + ", ".join(unknown)
+        )
+
+    statements_by_identity = {
+        statement.error_identity: statement
+        for statement in supplied
+    }
+
+    examinations = []
+
+    for warning in awareness.warnings:
+        statement = statements_by_identity.get(warning.error_identity)
+
+        if statement is None:
+            examinations.append(
+                RecurrenceExamination(
+                    error_identity=warning.error_identity,
+                    error_title=warning.error_title,
+                    prevention_rule=warning.prevention_rule,
+                    origin=warning.origin,
+                    disposition=RecurrenceDisposition.UNRESOLVED,
+                    explanation=(
+                        "Relevant demonstrated precedent was exposed by "
+                        "Error Memory but no explicit examination statement "
+                        "was supplied."
+                    ),
+                )
+            )
+            continue
+
+        examinations.append(
+            RecurrenceExamination(
+                error_identity=warning.error_identity,
+                error_title=warning.error_title,
+                prevention_rule=warning.prevention_rule,
+                origin=warning.origin,
+                disposition=statement.disposition,
+                explanation=statement.explanation,
+            )
+        )
+
+    return PreExecutionRecurrenceExamination(
+        transformation_identity=awareness.transformation_identity,
+        transformation_title=awareness.transformation_title,
+        examinations=tuple(examinations),
+    )
