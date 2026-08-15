@@ -132,6 +132,7 @@ class ExecutionContext:
     confidence: float
     mode: str
     schema_version: str
+    recurrence_evidence: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -157,6 +158,7 @@ class ExecutionContext:
             "confidence": self.confidence,
             "mode": self.mode,
             "schema_version": self.schema_version,
+            "recurrence_evidence": dict(self.recurrence_evidence),
         }
 
 

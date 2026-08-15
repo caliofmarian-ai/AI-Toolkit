@@ -364,6 +364,12 @@ class AutonomousExecutionEngine:
         # STAGE: Prepare Execution Context
         # ------------------------------------------------------------------
         t0 = time.monotonic()
+        recurrence_evidence = self._prepare_recurrence_evidence_handoff(
+            queue_data=queue_data,
+            state_data=state_data,
+            context_data=context_data,
+        )
+
         exec_context = self._build_execution_context(
             execution_id=execution_id,
             generated_at=generated_at,
@@ -373,9 +379,44 @@ class AutonomousExecutionEngine:
             queue_data=queue_data,
             approval=approval,
             policy=policy,
+            recurrence_evidence=recurrence_evidence,
         )
+
+        self._evidence.record(
+            "ERROR_MEMORY",
+            "pre_execution_recurrence_evidence",
+            recurrence_evidence,
+        )
+
+        unresolved_count = recurrence_evidence.get(
+            "unresolved_count",
+            0,
+        )
+
         stage_results.append(
-            _stage_result(STAGE_PREPARE_CONTEXT, VALIDATION_PASS, _ms(t0))
+            _stage_result(
+                STAGE_PREPARE_CONTEXT,
+                VALIDATION_WARNING
+                if unresolved_count
+                else VALIDATION_PASS,
+                _ms(t0),
+                evidence={
+                    "recurrence_evidence_count":
+                        recurrence_evidence.get("evidence_count", 0),
+                    "unresolved_recurrence_count":
+                        unresolved_count,
+                    "execution_authority": False,
+                },
+                warnings=(
+                    [
+                        f"{unresolved_count} demonstrated recurrence "
+                        "precedent(s) remain UNRESOLVED; evidence is "
+                        "preserved for Human Authority."
+                    ]
+                    if unresolved_count
+                    else []
+                ),
+            )
         )
 
         # ------------------------------------------------------------------
@@ -618,6 +659,7 @@ class AutonomousExecutionEngine:
         queue_data: Dict[str, Any],
         approval: str,
         policy: ExecutionPolicy,
+        recurrence_evidence: Optional[Dict[str, Any]] = None,
     ) -> ExecutionContext:
         planning_id = queue_data.get("queue_id", "")
         state_id = state_data.get("state_id", "")
@@ -654,7 +696,113 @@ class AutonomousExecutionEngine:
             confidence=round(confidence, 3),
             mode=self.mode,
             schema_version=EXECUTION_VERSION,
+            recurrence_evidence=recurrence_evidence or {},
         )
+
+    def _prepare_recurrence_evidence_handoff(
+        self,
+        queue_data: Dict[str, Any],
+        state_data: Dict[str, Any],
+        context_data: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        """Carry Error Memory preventive evidence to ExecutionContext.
+
+        RUN 006 deliberately does not convert recurrence evidence into
+        execution authority.
+
+        CORE-015 policy and approval physiology remain unchanged.
+        """
+
+        scheduler = ExecutionScheduler()
+        next_entry = scheduler.next_executable(
+            queue_data,
+            state_data,
+        )
+
+        if not next_entry:
+            return {
+                "transformation_identity": "",
+                "transformation_title": "",
+                "evidence": [],
+                "unresolved": [],
+                "has_unresolved": False,
+                "evidence_count": 0,
+                "unresolved_count": 0,
+                "status": "NO_EXECUTABLE_TRANSFORMATION",
+            }
+
+        try:
+            from python.epistemic.error_memory import (
+                FailureKind,
+                IntendedTransformation,
+                form_recurrence_evidence_handoff,
+                prepare_intended_transformation_from_error_memory,
+                seed_demonstrated_ai_toolkit_failures_run002,
+            )
+        except ImportError:
+            from epistemic.error_memory import (
+                FailureKind,
+                IntendedTransformation,
+                form_recurrence_evidence_handoff,
+                prepare_intended_transformation_from_error_memory,
+                seed_demonstrated_ai_toolkit_failures_run002,
+            )
+
+        identity = str(
+            next_entry.get("entry_id")
+            or next_entry.get("planning_id")
+            or next_entry.get("id")
+            or "UNIDENTIFIED-TRANSFORMATION"
+        )
+
+        title = str(
+            next_entry.get("title")
+            or next_entry.get("summary")
+            or next_entry.get("description")
+            or identity
+        )
+
+        context_values = tuple(
+            value
+            for value in (
+                str(self.root),
+                str(context_data.get("current_branch", "")),
+                str(context_data.get("current_commit", "")),
+                str(state_data.get("current_issue", "")),
+                str(state_data.get("current_batch", "")),
+            )
+            if value
+        )
+
+        intended = IntendedTransformation(
+            identity=identity,
+            title=title,
+            activities=(
+                FailureKind.EXECUTION,
+                FailureKind.VALIDATION,
+                FailureKind.EPISTEMIC,
+            ),
+            context=context_values,
+        )
+
+        organ = seed_demonstrated_ai_toolkit_failures_run002()
+
+        preparation = prepare_intended_transformation_from_error_memory(
+            organ,
+            intended,
+        )
+
+        handoff = form_recurrence_evidence_handoff(
+            preparation,
+        )
+
+        body = handoff.to_dict()
+        body["status"] = "RECURRENCE_EVIDENCE_ATTACHED"
+        body["execution_authority"] = False
+        body["approval_authority"] = False
+        body["validation_authority"] = False
+
+        return body
 
     def _execute_approved_step(
         self,

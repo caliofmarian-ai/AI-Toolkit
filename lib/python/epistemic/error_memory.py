@@ -963,3 +963,117 @@ def prepare_intended_transformation_from_error_memory(
         transformation,
         examination,
     )
+
+# ---------------------------------------------------------------------------
+# Error Memory RUN 006
+# Recurrence Evidence Handoff to Execution Context
+# ---------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class RecurrenceEvidenceHandoff:
+    """Serializable preventive evidence carried toward execution context.
+
+    This body is a handoff, not an execution decision.
+
+    It conserves the recurrence examination already formed during
+    TransformationPreparation so downstream execution physiology cannot
+    silently lose the preventive evidence.
+
+    It does not execute, validate, approve, reject, block, canonicalize,
+    or mutate historical Error Memory.
+    """
+
+    transformation_identity: str
+    transformation_title: str
+    evidence: Tuple[RecurrenceExamination, ...]
+    unresolved: Tuple[RecurrenceExamination, ...]
+
+    def __post_init__(self) -> None:
+        if not self.transformation_identity.strip():
+            raise ValueError(
+                "transformation_identity must not be empty"
+            )
+
+        if not self.transformation_title.strip():
+            raise ValueError(
+                "transformation_title must not be empty"
+            )
+
+        evidence_ids = tuple(
+            item.error_identity for item in self.evidence
+        )
+        unresolved_ids = tuple(
+            item.error_identity for item in self.unresolved
+        )
+
+        if len(evidence_ids) != len(set(evidence_ids)):
+            raise ValueError(
+                "recurrence handoff evidence identities must be unique"
+            )
+
+        if len(unresolved_ids) != len(set(unresolved_ids)):
+            raise ValueError(
+                "unresolved recurrence identities must be unique"
+            )
+
+        unknown_unresolved = set(unresolved_ids) - set(evidence_ids)
+
+        if unknown_unresolved:
+            raise ValueError(
+                "unresolved recurrence evidence must belong to the "
+                "complete recurrence evidence set"
+            )
+
+    @property
+    def has_unresolved(self) -> bool:
+        return bool(self.unresolved)
+
+    def to_dict(self) -> dict:
+        def serialize(item: RecurrenceExamination) -> dict:
+            return {
+                "error_identity": item.error_identity,
+                "error_title": item.error_title,
+                "prevention_rule": item.prevention_rule,
+                "origin": {
+                    "repository_path": item.origin.repository_path,
+                    "run_identity": item.origin.run_identity,
+                    "git_commit": item.origin.git_commit,
+                },
+                "disposition": item.disposition.value,
+                "explanation": item.explanation,
+            }
+
+        return {
+            "transformation_identity": self.transformation_identity,
+            "transformation_title": self.transformation_title,
+            "evidence": [
+                serialize(item)
+                for item in self.evidence
+            ],
+            "unresolved": [
+                serialize(item)
+                for item in self.unresolved
+            ],
+            "has_unresolved": self.has_unresolved,
+            "evidence_count": len(self.evidence),
+            "unresolved_count": len(self.unresolved),
+        }
+
+
+def form_recurrence_evidence_handoff(
+    preparation: TransformationPreparation,
+) -> RecurrenceEvidenceHandoff:
+    """Carry RUN 005 recurrence evidence toward execution physiology.
+
+    The handoff is deterministic and read-only.
+
+    No new recurrence classification is invented here.  It carries exactly
+    what the pre-execution examination already established.
+    """
+
+    return RecurrenceEvidenceHandoff(
+        transformation_identity=preparation.transformation.identity,
+        transformation_title=preparation.transformation.title,
+        evidence=preparation.recurrence_evidence,
+        unresolved=preparation.unresolved_recurrence_evidence,
+    )
