@@ -10718,4 +10718,3 @@ against Canon and actual organism state, and continue appropriately.**
 
 These requirements are normative and remain binding until explicitly changed
 by Human Authority.
-
