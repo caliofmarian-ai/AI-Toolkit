@@ -95,3 +95,33 @@ This is the minimum OWNER-only boundary required before exposing privileged
 AI conversation capability on an Internet-accessible Railway deployment.
 
 It is not full future partner security hardening.
+
+---
+
+## Durable conversation / Persistent Experience continuation
+
+FUSION-02 now preserves Human and AI conversational material as durable RAW
+SOURCE associated with the existing AI session and existing Persistent
+Experience identity.
+
+Epistemic distinction remains explicit:
+
+RAW CONVERSATION != Evidence != Canon.
+
+Fresh final focused result:
+
+PASS
+
+Fresh portable AI Platform regression:
+
+PASS
+
+Fresh Persistent Experience regression:
+
+PASS
+
+Termux harness precedents were conserved separately.
+
+Full next-message context assembly remains deferred.
+
+No merge was performed.

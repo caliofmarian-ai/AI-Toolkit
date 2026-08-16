@@ -5,6 +5,7 @@ from typing import Any, Dict, Mapping, Optional
 
 from .adapters import builtin_adapters
 from .context_builder import AIContextBuilder
+from .conversation_experience import ConversationExperienceBridge
 from .model_manager import ModelManager
 from .pipeline import AIRequestPipeline
 from .prompt_library import PromptLibrary
@@ -20,6 +21,7 @@ class AIPlatformService:
         self.model_manager = ModelManager()
         self.context_builder = AIContextBuilder(repository_root, workspace_root)
         self.sessions = AISessionEngine(repository_root)
+        self.conversation_experience = ConversationExperienceBridge(repository_root)
         self.prompt_library = PromptLibrary()
         self.pipeline = AIRequestPipeline(
             registry=self.registry,
@@ -66,38 +68,112 @@ class AIPlatformService:
     def create_session(self, payload: Mapping[str, Any]) -> Dict[str, Any]:
         return self.sessions.create(payload)
 
-    def ask_repository(self, question: str, *, session_id: str = "", provider_id: str = "", model: str = "", prompt_name: str = "") -> Dict[str, Any]:
+    def ask_repository(
+        self,
+        question: str,
+        *,
+        session_id: str = "",
+        provider_id: str = "",
+        model: str = "",
+        prompt_name: str = "",
+    ) -> Dict[str, Any]:
         settings = self.settings.load()
-        prompt = self.prompt_library.resolve(prompt_name, fallback=question)
+        prompt = self.prompt_library.resolve(
+            prompt_name,
+            fallback=question,
+        )
         effective_question = question.strip() or prompt
-        result = self.pipeline.run(prompt, settings, provider_id=provider_id, model=model)
+
         if session_id:
-            session = self.sessions.append_interaction(session_id, effective_question, result["answer"], result["usage"])
+            session = self.sessions.get(session_id)
+            if not session:
+                raise ValueError(f"unknown session {session_id}")
         else:
-            context = result["context"]
             session = self.sessions.create(
                 {
-                    "project": context.get("engineering_session", {}).get("workspace_state", {}).get("active_project", ""),
-                    "repository": context.get("repository_profile", {}).get("name", ""),
-                    "branch": context.get("current_branch", ""),
-                    "issue": context.get("current_issue", ""),
-                    "epic": context.get("current_epic", ""),
-                    "sprint": context.get("current_sprint", ""),
-                    "workspace": context.get("workspace", {}).get("workspace", ""),
-                    "repository_profile": context.get("repository_profile", {}),
-                    "engineering_context": context,
-                    "selected_provider": result["provider"],
-                    "selected_model": result["model"],
+                    "project": self.sessions.root.name,
+                    "repository": self.sessions.root.name,
+                    "selected_provider": provider_id,
+                    "selected_model": model,
                 }
             )
-            session = self.sessions.append_interaction(session["id"], effective_question, result["answer"], result["usage"])
+
+        experience, binding = (
+            self.conversation_experience.ensure_experience(session)
+        )
+
+        session = self.sessions.bind_experience(
+            session["id"],
+            str(experience.experience_id),
+        )
+
+        human_sequence = len(
+            session.get("raw_sources", [])
+        ) + 1
+
+        human_source = self.conversation_experience.raw_source(
+            session=session,
+            experience=experience,
+            actor="HUMAN",
+            content=effective_question,
+            sequence=human_sequence,
+        )
+
+        # Human input becomes durable RAW SOURCE before provider execution.
+        session = self.sessions.append_raw_source(
+            session["id"],
+            human_source,
+        )
+
+        result = self.pipeline.run(
+            prompt,
+            settings,
+            provider_id=provider_id,
+            model=model,
+        )
+
+        session = self.sessions.append_interaction(
+            session["id"],
+            effective_question,
+            result["answer"],
+            result["usage"],
+        )
+
+        ai_sequence = len(
+            session.get("raw_sources", [])
+        ) + 1
+
+        ai_source = self.conversation_experience.raw_source(
+            session=session,
+            experience=experience,
+            actor="AI",
+            content=result["answer"],
+            sequence=ai_sequence,
+            provider=result["provider"],
+            model=result["model"],
+        )
+
+        session = self.sessions.append_raw_source(
+            session["id"],
+            ai_source,
+        )
+
         return {
             "session_id": session["id"],
+            "experience_id": str(experience.experience_id),
             "question": effective_question,
             "answer": result["answer"],
             "provider": result["provider"],
             "model": result["model"],
             "usage": result["usage"],
+            "raw_source_count": len(session.get("raw_sources", [])),
+            "epistemic_status": {
+                "conversation_is_raw_source": True,
+                "conversation_is_evidence": False,
+                "conversation_is_canon": False,
+                "automatic_sedimentation": False,
+                "human_authority_preserved": True,
+            },
         }
 
     def usage_summary(self) -> Dict[str, Any]:

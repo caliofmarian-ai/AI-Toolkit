@@ -15,6 +15,12 @@ from pathlib import Path
 from typing import Any
 
 from python.runtime.owner_access import OwnerAccessBoundary
+from python.ai_platform.sessions import AISessionEngine
+from python.experience.deployment import (
+    experience_store_path,
+    prepare_experience_repository,
+)
+from python.experience.identity import ExperienceId
 
 from python.experience.persistent_repository import (
     JsonFileExperienceRepository,
@@ -204,6 +210,65 @@ class EpistemicOrganismAccess:
             ),
         }
 
+    def conversation_session(
+        self,
+        session_id: str,
+    ) -> dict[str, Any]:
+        """
+        Recover one existing AI session and its bound Persistent Experience.
+
+        Raw sources remain raw sources.
+        No Evidence, Claim, Knowledge, Sedimentation, or Canon is created.
+        """
+        sessions = AISessionEngine(str(self.repository_root))
+        session = sessions.get(session_id)
+
+        if not session:
+            raise ValueError(f"unknown session {session_id}")
+
+        experience_id = str(
+            session.get("experience_id", "")
+        ).strip()
+
+        experience_state: dict[str, Any]
+
+        if experience_id:
+            repository = prepare_experience_repository(
+                repository_root=self.repository_root,
+            )
+            experience = repository.get(
+                ExperienceId(experience_id)
+            )
+            experience_state = {
+                "experience_id": str(experience.experience_id),
+                "state": experience.state.value,
+                "created_at": experience.created_at.isoformat(),
+                "recovered": True,
+            }
+        else:
+            experience_state = {
+                "experience_id": None,
+                "state": "UNBOUND",
+                "recovered": False,
+            }
+
+        return {
+            "session_id": session["id"],
+            "project": session.get("project", ""),
+            "repository": session.get("repository", ""),
+            "experience": experience_state,
+            "raw_sources": list(
+                session.get("raw_sources", [])
+            ),
+            "epistemic_boundaries": {
+                "raw_source_is_evidence": False,
+                "raw_source_is_canon": False,
+                "ai_statement_is_evidence": False,
+                "automatic_sedimentation": False,
+                "human_authority_preserved": True,
+            },
+        }
+
     def state(self) -> dict[str, Any]:
         payload = {
             "schema": "FUSION-01-EPISTEMIC-ORGANISM-STATE-1",
@@ -233,7 +298,7 @@ class EpistemicOrganismAccess:
                 "pcc_06": "SUSPENDED_FOR_MIGRATION",
                 "living_project_image": "DEFERRED",
                 "epic_thread": "DEFERRED",
-                "ai_session_engine_fusion": "DEFERRED_TO_FUSION_02",
+                "ai_session_engine_fusion": "FUSION_02_ACTIVE",
             },
         }
 

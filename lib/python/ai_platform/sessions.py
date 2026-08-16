@@ -29,6 +29,8 @@ class AISessionEngine:
             "selected_model": payload.get("selected_model", ""),
             "prompt_history": list(payload.get("prompt_history", [])),
             "conversation_history": list(payload.get("conversation_history", [])),
+            "raw_sources": list(payload.get("raw_sources", [])),
+            "experience_id": payload.get("experience_id", ""),
             "token_usage": list(payload.get("token_usage", [])),
             "created_at": payload.get("created_at", now),
             "updated_at": now,
@@ -49,6 +51,62 @@ class AISessionEngine:
     def get(self, session_id: str) -> Dict[str, Any]:
         path = self.dir / f"{session_id}.json"
         return self._read(path)
+
+    def bind_experience(
+        self,
+        session_id: str,
+        experience_id: str,
+    ) -> Dict[str, Any]:
+        session = self.get(session_id)
+        if not session:
+            raise ValueError(f"unknown session {session_id}")
+
+        existing = str(session.get("experience_id", "")).strip()
+        if existing and existing != experience_id:
+            raise ValueError(
+                f"session {session_id} already belongs to Experience {existing}"
+            )
+
+        session["experience_id"] = experience_id
+        session["updated_at"] = datetime.now(timezone.utc).isoformat()
+        self._save(session)
+        return session
+
+    def append_raw_source(
+        self,
+        session_id: str,
+        source: Mapping[str, Any],
+    ) -> Dict[str, Any]:
+        session = self.get(session_id)
+        if not session:
+            raise ValueError(f"unknown session {session_id}")
+
+        item = dict(source)
+
+        if item.get("session_id") != session_id:
+            raise ValueError("raw source session identity mismatch")
+
+        sources = session.setdefault("raw_sources", [])
+        expected_sequence = len(sources) + 1
+
+        if item.get("sequence") != expected_sequence:
+            raise ValueError(
+                "raw source temporal sequence does not continue session order"
+            )
+
+        sources.append(item)
+        session["updated_at"] = datetime.now(timezone.utc).isoformat()
+        self._save(session)
+        return session
+
+    def conversation_sources(
+        self,
+        session_id: str,
+    ) -> List[Dict[str, Any]]:
+        session = self.get(session_id)
+        if not session:
+            raise ValueError(f"unknown session {session_id}")
+        return list(session.get("raw_sources", []))
 
     def append_interaction(self, session_id: str, question: str, answer: str, usage: Mapping[str, Any]) -> Dict[str, Any]:
         session = self.get(session_id)
