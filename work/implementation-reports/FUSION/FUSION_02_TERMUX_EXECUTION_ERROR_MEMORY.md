@@ -670,3 +670,12 @@ For FUSION-02, the provider-bound reconstructed context is passed through
 - Error: git diff --cached --check failed.
 - Production mutation authorized: NO
 - Recovery rule: inspect demonstrated failure before retry.
+
+## RUN-02 / T2+T3 execution failure
+
+- Timestamp: 2026-08-16T20:57:35Z
+- Stage: authority
+- Failure: Worktree must be clean before RUN-02.
+- HEAD: e1015e71d7888045e825c94dcd60edeaab6e739d
+- Branch: main
+- Recovery rule: inspect demonstrated anatomy before further mutation.
