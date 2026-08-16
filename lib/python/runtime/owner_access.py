@@ -28,6 +28,8 @@ from typing import Mapping
 
 
 OWNER_TOKEN_ENV = "AI_TOOLKIT_OWNER_TOKEN"
+OWNER_SESSION_COOKIE = "ai_toolkit_owner_session"
+OWNER_SESSION_PURPOSE = b"AI-Toolkit/FUSION-02/owner-web-session/v1"
 
 
 @dataclass(frozen=True)
@@ -113,6 +115,83 @@ class OwnerAccessBoundary:
             role="OWNER",
             human_authority=True,
             reason="AUTHENTICATED_OWNER",
+        )
+
+    def session_cookie_value(self) -> str:
+        """
+        Derive a browser-session verifier from the configured Owner secret.
+
+        The Owner token itself is never returned to the browser after login
+        and is never embedded in HTML or JavaScript.
+        """
+        if not self.configured:
+            return ""
+        return hmac.new(
+            self._token.encode("utf-8"),
+            OWNER_SESSION_PURPOSE,
+            hashlib.sha256,
+        ).hexdigest()
+
+    def authenticate_cookie(
+        self,
+        cookie_header: str,
+    ) -> OwnerAccessDecision:
+        if not self.configured:
+            return OwnerAccessDecision(
+                authenticated=False,
+                role="NONE",
+                human_authority=False,
+                reason="OWNER_ACCESS_NOT_CONFIGURED",
+            )
+
+        supplied = ""
+        for part in str(cookie_header or "").split(";"):
+            name, separator, value = part.strip().partition("=")
+            if (
+                separator
+                and name == OWNER_SESSION_COOKIE
+            ):
+                supplied = value.strip()
+                break
+
+        expected = self.session_cookie_value()
+
+        if (
+            not supplied
+            or not hmac.compare_digest(expected, supplied)
+        ):
+            return OwnerAccessDecision(
+                authenticated=False,
+                role="NONE",
+                human_authority=False,
+                reason="OWNER_WEB_SESSION_REQUIRED",
+            )
+
+        return OwnerAccessDecision(
+            authenticated=True,
+            role="OWNER",
+            human_authority=True,
+            reason="AUTHENTICATED_OWNER_WEB_SESSION",
+        )
+
+    def authenticate_request(
+        self,
+        headers: Mapping[str, str] | None = None,
+    ) -> OwnerAccessDecision:
+        """
+        Preserve Bearer authentication and additionally accept the
+        server-derived HttpOnly Owner web session.
+
+        URL knowledge alone still confers no authority.
+        """
+        headers = headers or {}
+
+        bearer = self.authenticate(headers)
+        if bearer.authenticated:
+            return bearer
+
+        return self.authenticate_cookie(
+            str(headers.get("Cookie", ""))
         )
 
     def public_state(self) -> dict:

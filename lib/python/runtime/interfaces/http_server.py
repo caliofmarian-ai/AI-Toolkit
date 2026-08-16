@@ -24,7 +24,10 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from typing import TYPE_CHECKING, Any, Callable, Dict, Optional
 from urllib.parse import parse_qs, urlparse
 
-from python.runtime.owner_access import OwnerAccessBoundary
+from python.runtime.owner_access import (
+    OWNER_SESSION_COOKIE,
+    OwnerAccessBoundary,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -54,13 +57,70 @@ class _RuntimeHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def _redirect(
+        self,
+        location: str,
+        *,
+        cookie: str = "",
+    ) -> None:
+        self.send_response(303)
+        self.send_header("Location", location)
+        if cookie:
+            self.send_header("Set-Cookie", cookie)
+        self.send_header("Content-Length", "0")
+        self.end_headers()
+
+    def _owner_login_page(
+        self,
+        *,
+        rejected: bool = False,
+    ) -> str:
+        message = (
+            "<p class=\"error\">Owner credential rejected.</p>"
+            if rejected
+            else ""
+        )
+        return (
+            "<!doctype html><html><head>"
+            "<meta charset=\"utf-8\">"
+            "<meta name=\"viewport\" "
+            "content=\"width=device-width,initial-scale=1\">"
+            "<title>Owner Access — AI-Toolkit</title>"
+            "<style>"
+            "body{font-family:Arial,sans-serif;background:#0b1020;"
+            "color:#e5e7eb;display:grid;place-items:center;"
+            "min-height:100vh;margin:0}"
+            ".box{width:min(92vw,460px);background:#111827;"
+            "border:1px solid #1f2937;border-radius:14px;"
+            "padding:24px}"
+            "input,button{box-sizing:border-box;width:100%;"
+            "padding:12px;margin-top:10px;border-radius:8px}"
+            "input{background:#0b1020;color:#fff;"
+            "border:1px solid #374151}"
+            "button{background:#2563eb;color:#fff;border:0;"
+            "font-weight:700;cursor:pointer}"
+            ".muted{color:#9ca3af}.error{color:#fca5a5}"
+            "</style></head><body><main class=\"box\">"
+            "<h1>AI-Toolkit Owner Access</h1>"
+            "<p class=\"muted\">Private · Single Owner · "
+            "Human Authority</p>"
+            + message
+            + "<form method=\"post\" action=\"/owner/login\">"
+            "<label for=\"owner-token\">Owner credential</label>"
+            "<input id=\"owner-token\" name=\"owner_token\" "
+            "type=\"password\" autocomplete=\"current-password\" "
+            "required autofocus>"
+            "<button type=\"submit\">Enter AI-Toolkit</button>"
+            "</form></main></body></html>"
+        )
+
     def _read_body(self) -> bytes:
         length = int(self.headers.get("Content-Length", 0))
         return self.rfile.read(length) if length else b""
 
     def _require_owner(self) -> bool:
         srv = self.__class__._server_ref
-        decision = srv.owner_access.authenticate(self.headers)
+        decision = srv.owner_access.authenticate_request(self.headers)
 
         if decision.authenticated:
             return True
@@ -81,6 +141,65 @@ class _RuntimeHandler(BaseHTTPRequestHandler):
         srv = self.__class__._server_ref
         normalized_dashboard_path = srv.normalize_dashboard_path(path)
         prefer_json = query.get("format", [""])[0] == "json" or "application/json" in self.headers.get("Accept", "")
+        if path == "/owner/login":
+            decision = srv.owner_access.authenticate_request(
+                self.headers
+            )
+            if decision.authenticated:
+                self._redirect("/ai-control-center")
+            else:
+                self._send_html(self._owner_login_page())
+            return
+
+        if path == "/owner/logout":
+            self._redirect(
+                "/owner/login",
+                cookie=(
+                    f"{OWNER_SESSION_COOKIE}=; Path=/; "
+                    "Max-Age=0; HttpOnly; Secure; SameSite=Strict"
+                ),
+            )
+            return
+
+        if path == "/api/ai/sessions":
+            if not self._require_owner():
+                return
+            if srv.dashboard_service is None:
+                self._send_json(
+                    {"error": "AI dashboard service unavailable"},
+                    503,
+                )
+                return
+            sessions = (
+                srv.dashboard_service.ai_platform.sessions.list_sessions()
+            )
+            self._send_json({"sessions": sessions})
+            return
+
+        if path.startswith("/api/ai/sessions/"):
+            if not self._require_owner():
+                return
+            if srv.dashboard_service is None:
+                self._send_json(
+                    {"error": "AI dashboard service unavailable"},
+                    503,
+                )
+                return
+            session_id = path.rsplit("/", 1)[-1].strip()
+            session = (
+                srv.dashboard_service.ai_platform.sessions.get(
+                    session_id
+                )
+            )
+            if not session:
+                self._send_json(
+                    {"error": "AI session not found"},
+                    404,
+                )
+                return
+            self._send_json({"session": session})
+            return
+
         if normalized_dashboard_path == "/" and not prefer_json and srv.dashboard_service is not None:
             self._send_html(srv.render_dashboard(path, query))
 
@@ -138,6 +257,13 @@ class _RuntimeHandler(BaseHTTPRequestHandler):
             "/runtime",
             "/diagnostics",
         ):
+            if normalized_dashboard_path == "/ai-control-center":
+                decision = srv.owner_access.authenticate_request(
+                    self.headers
+                )
+                if not decision.authenticated:
+                    self._redirect("/owner/login")
+                    return
             if normalized_dashboard_path == "/repository":
                 privileged_query = bool(
                     (query.get("q") or [""])[0].strip()
@@ -178,6 +304,45 @@ class _RuntimeHandler(BaseHTTPRequestHandler):
         path = self.path.split("?")[0]
         srv = self.__class__._server_ref
         body = self._read_body()
+
+        if path == "/owner/login":
+            try:
+                form = parse_qs(
+                    body.decode("utf-8"),
+                    keep_blank_values=True,
+                )
+            except UnicodeDecodeError:
+                self._send_html(
+                    self._owner_login_page(rejected=True),
+                    400,
+                )
+                return
+
+            supplied = (
+                form.get("owner_token", [""])[0].strip()
+            )
+            decision = srv.owner_access.authenticate(
+                {"Authorization": f"Bearer {supplied}"}
+            )
+
+            if not decision.authenticated:
+                self._send_html(
+                    self._owner_login_page(rejected=True),
+                    401,
+                )
+                return
+
+            session_value = (
+                srv.owner_access.session_cookie_value()
+            )
+            self._redirect(
+                "/ai-control-center",
+                cookie=(
+                    f"{OWNER_SESSION_COOKIE}={session_value}; "
+                    "Path=/; HttpOnly; Secure; SameSite=Strict"
+                ),
+            )
+            return
 
         if path == "/webhook/github":
             sig = self.headers.get("X-Hub-Signature-256", "")

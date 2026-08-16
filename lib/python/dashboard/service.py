@@ -489,6 +489,10 @@ class EngineeringDashboardService:
             "AI Control Center",
             data,
             [
+                self._section(
+                    "Owner AI Chat",
+                    self._owner_ai_chat_panel(control),
+                ),
                 self._summary_grid(
                     [
                         {"label": "Providers", "value": str(len(control["providers"]))},
@@ -1262,6 +1266,22 @@ class EngineeringDashboardService:
             "dt{font-weight:700;margin-top:10px;}dd{margin:4px 0 10px 0;color:#d1d5db;}"
             "ul{padding-left:18px;}li{margin:6px 0;}.status{color:#9ca3af;font-size:12px;margin-left:4px;}"
             "h1,h2,h3{margin-top:0;} code{background:#1f2937;padding:2px 6px;border-radius:6px;}"
+            ".ai-chat{display:flex;flex-direction:column;gap:14px;}"
+            ".chat-toolbar{display:flex;justify-content:space-between;gap:12px;align-items:center;}"
+            ".chat-muted{font-size:12px;color:#9ca3af;margin-top:4px;}"
+            ".chat-controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;}"
+            ".chat-controls label{font-size:12px;color:#9ca3af;}"
+            ".chat-controls select,.chat-controls input,.chat-composer textarea{width:100%;box-sizing:border-box;margin-top:5px;background:#0b1020;color:#e5e7eb;border:1px solid #374151;border-radius:8px;padding:10px;}"
+            ".chat-history{height:420px;overflow:auto;background:#080d19;border:1px solid #1f2937;border-radius:12px;padding:14px;}"
+            ".chat-message{max-width:82%;padding:12px 14px;border-radius:12px;margin:10px 0;white-space:pre-wrap;word-break:break-word;}"
+            ".chat-message.human{margin-left:auto;background:#1d4ed8;}"
+            ".chat-message.ai{margin-right:auto;background:#1f2937;}"
+            ".chat-actor{font-size:11px;font-weight:700;text-transform:uppercase;opacity:.75;margin-bottom:5px;}"
+            ".chat-empty,.chat-status{color:#9ca3af;}"
+            ".chat-status.error{color:#fca5a5;}.chat-status.working{color:#93c5fd;}"
+            ".chat-composer{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end;}"
+            ".chat-composer button{background:#2563eb;color:white;border:0;border-radius:8px;padding:12px 20px;font-weight:700;cursor:pointer;}"
+            ".chat-composer button:disabled{opacity:.55;cursor:wait;}"
             "</style></head><body>"
             "<div class=\"layout\">"
             "<aside>"
@@ -1409,6 +1429,155 @@ class EngineeringDashboardService:
         if not rows:
             rows.append("<tr><td colspan=\"4\">No session history available.</td></tr>")
         return "<table><thead><tr><th>Session</th><th>Status</th><th>Repository</th><th>Completed Steps</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+
+    def _owner_ai_chat_panel(
+        self,
+        control: Mapping[str, Any],
+    ) -> str:
+        providers = [
+            item
+            for item in control.get("providers", [])
+            if item.get("connection")
+        ]
+
+        provider_options = []
+        for item in providers:
+            provider_id = escape(
+                str(
+                    item.get("id")
+                    or item.get("provider_id")
+                    or item.get("name", "")
+                ).lower()
+            )
+            name = escape(str(item.get("name", provider_id)))
+            models = item.get("models", []) or []
+            model = escape(str(models[0] if models else ""))
+            provider_options.append(
+                f'<option value="{provider_id}" '
+                f'data-model="{model}">{name}</option>'
+            )
+
+        options = "".join(provider_options)
+
+        return (
+            '<div id="owner-ai-chat" class="ai-chat">'
+            '<div class="chat-toolbar">'
+            '<div><strong>Owner AI Chat</strong>'
+            '<div class="chat-muted">'
+            'Persistent RAW conversation · '
+            'not automatically Evidence or Canon'
+            '</div></div>'
+            '<a href="/owner/logout">Owner logout</a>'
+            '</div>'
+            '<div class="chat-controls">'
+            '<label>AI Partner / Provider'
+            f'<select id="chat-provider">{options}</select>'
+            '</label>'
+            '<label>Model'
+            '<input id="chat-model" type="text" '
+            'placeholder="provider default">'
+            '</label>'
+            '<label>Session'
+            '<select id="chat-session">'
+            '<option value="">New conversation</option>'
+            '</select></label>'
+            '</div>'
+            '<div id="chat-history" class="chat-history">'
+            '<div class="chat-empty">'
+            'Select a session or send the first message.'
+            '</div></div>'
+            '<div id="chat-status" class="chat-status" '
+            'aria-live="polite"></div>'
+            '<form id="chat-form" class="chat-composer">'
+            '<textarea id="chat-question" rows="4" '
+            'placeholder="Talk to your AI Partner..." '
+            'required></textarea>'
+            '<button id="chat-send" type="submit">Send</button>'
+            '</form>'
+            '</div>'
+            '<script>'
+            '(()=>{'
+            'const $=id=>document.getElementById(id);'
+            'const history=$("chat-history"),'
+            'session=$("chat-session"),'
+            'provider=$("chat-provider"),'
+            'model=$("chat-model"),'
+            'status=$("chat-status"),'
+            'form=$("chat-form"),'
+            'question=$("chat-question"),'
+            'send=$("chat-send");'
+            'function esc(v){const d=document.createElement("div");'
+            'd.textContent=v==null?"":String(v);return d.innerHTML;}'
+            'function actorName(v){'
+            'return String(v||"").toUpperCase()==="HUMAN"'
+            '?"You":"AI Partner";}'
+            'function renderSources(items){'
+            'if(!items||!items.length){history.innerHTML='
+            '"<div class=\\"chat-empty\\">No messages yet.</div>";'
+            'return;}'
+            'history.innerHTML=items.map(x=>{'
+            'const actor=String(x.actor||"").toUpperCase();'
+            'const cls=actor==="HUMAN"?"human":"ai";'
+            'return "<article class=\\"chat-message "+cls+"\\">"'
+            '+"<div class=\\"chat-actor\\">"+esc(actorName(actor))'
+            '+"</div><div>"+esc(x.content||"")+"</div></article>";'
+            '}).join("");history.scrollTop=history.scrollHeight;}'
+            'async function jsonFetch(url,opts={}){'
+            'const r=await fetch(url,{credentials:"same-origin",...opts});'
+            'let data={};try{data=await r.json();}catch(_e){}'
+            'if(r.status===401){location.href="/owner/login";'
+            'throw new Error("Owner authentication required");}'
+            'if(!r.ok)throw new Error(data.detail||data.error||'
+            '("HTTP "+r.status));return data;}'
+            'async function loadSessions(preferred=""){'
+            'const data=await jsonFetch("/api/ai/sessions");'
+            'const items=data.sessions||[];'
+            'const current=preferred||session.value;'
+            'session.innerHTML="<option value=\\"\\">New conversation</option>"'
+            '+items.map(s=>"<option value=\\""+esc(s.id)+"\\">"'
+            '+esc((s.project||"AI-Toolkit")+" · "+s.id)'
+            '+"</option>").join("");'
+            'if(current&&items.some(s=>s.id===current))session.value=current;'
+            '}'
+            'async function loadSession(){'
+            'if(!session.value){renderSources([]);return;}'
+            'status.textContent="Loading conversation…";'
+            'try{const data=await jsonFetch("/api/ai/sessions/"'
+            '+encodeURIComponent(session.value));'
+            'const s=data.session||{};renderSources(s.raw_sources||[]);'
+            'if(s.selected_provider)provider.value=s.selected_provider;'
+            'if(s.selected_model)model.value=s.selected_model;'
+            'status.textContent="Conversation recovered.";}'
+            'catch(e){status.textContent=e.message;status.className='
+            '"chat-status error";}}'
+            'provider.addEventListener("change",()=>{'
+            'const o=provider.options[provider.selectedIndex];'
+            'if(o&&o.dataset.model)model.value=o.dataset.model;});'
+            'session.addEventListener("change",loadSession);'
+            'form.addEventListener("submit",async e=>{'
+            'e.preventDefault();const q=question.value.trim();if(!q)return;'
+            'send.disabled=true;question.disabled=true;'
+            'status.className="chat-status working";'
+            'status.textContent="AI Partner is working…";'
+            'try{const data=await jsonFetch("/api/ai/chat",{'
+            'method:"POST",headers:{"Content-Type":"application/json"},'
+            'body:JSON.stringify({question:q,session_id:session.value,'
+            'provider_id:provider.value,model:model.value})});'
+            'const sid=data.session_id||session.value;question.value="";'
+            'await loadSessions(sid);session.value=sid;await loadSession();'
+            'status.className="chat-status";'
+            'status.textContent="AI response received and persisted.";}'
+            'catch(e){status.className="chat-status error";'
+            'status.textContent=e.message;}finally{send.disabled=false;'
+            'question.disabled=false;question.focus();}});'
+            'const first=provider.options[provider.selectedIndex];'
+            'if(first&&first.dataset.model)model.value=first.dataset.model;'
+            'loadSessions().then(()=>{'
+            'if(session.options.length>1){session.selectedIndex=1;'
+            'loadSession();}}).catch(e=>{status.textContent=e.message;});'
+            '})();'
+            '</script>'
+        )
 
     def _provider_table(self, providers: Iterable[Mapping[str, Any]]) -> str:
         rows = []
