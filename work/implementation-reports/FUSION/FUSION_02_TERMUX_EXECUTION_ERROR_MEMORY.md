@@ -478,3 +478,84 @@ existing test module unless a new helper is deliberately introduced and
 defined.
 
 Do not modify or weaken production code to satisfy an undefined test helper.
+
+## FUSION-02 — undefined diagnostic logger
+
+### Classification
+
+`UNDEFINED_DIAGNOSTIC_LOGGER`
+
+### Observed failure
+
+The OpenAI token-budget diagnostic introduced:
+
+`logger.info(...)`
+
+inside `OpenAIProviderAdapter.complete()`.
+
+The module did not import `logging` and did not define `logger`.
+
+This caused every provider path reaching the diagnostic boundary to fail
+before `urllib.request.urlopen()` with:
+
+`NameError: name 'logger' is not defined`
+
+Eight provider tests therefore failed from one shared instrumentation defect.
+
+### Root cause
+
+The instrumentation patch introduced a new module-level dependency without
+first verifying that the target module already possessed that dependency.
+
+### Conservation rule
+
+Before inserting instrumentation that references a symbol:
+
+1. verify whether the symbol is imported or defined in the target module;
+2. if not, materialize the smallest explicit dependency required;
+3. run static compilation before behavioral tests;
+4. treat multiple downstream failures caused by one missing shared symbol as
+   one root defect, not as independent production defects;
+5. do not weaken provider failure behavior to make instrumentation pass.
+
+### Recovery
+
+The module now imports Python standard-library `logging` and defines:
+
+`logger = logging.getLogger(__name__)`
+
+The OpenAI request path, provider failure semantics, credentials, conversation
+content, and persistence semantics are otherwise unchanged.
+
+## FUSION-02 — generated test blank line at EOF
+
+### Classification
+
+`GENERATED_TEST_BLANK_LINE_AT_EOF`
+
+### Observed failure
+
+After all bounded FUSION-02 tests passed, staged-diff integrity stopped with:
+
+`tests/fusion/test_fusion_02_real_provider.py:652: new blank line at EOF.`
+
+### Root cause
+
+The generated test append operation left more than the canonical single
+terminal newline after the final substantive Python line.
+
+This was not a behavioral test failure and not a production defect.
+
+### Conservation rule
+
+For generated or appended source files:
+
+1. normalize CRLF/CR to LF;
+2. remove trailing spaces and tabs;
+3. remove empty lines following the final substantive line;
+4. terminate the file with exactly one newline;
+5. run `git diff --cached --check` before conservation.
+
+Previously demonstrated behavioral tests do not need to be rerun when the
+only subsequent mutation is deterministic EOF normalization and static syntax
+validation remains PASS.

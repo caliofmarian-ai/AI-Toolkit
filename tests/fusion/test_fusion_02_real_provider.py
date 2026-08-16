@@ -616,3 +616,36 @@ def test_http_failure_with_non_json_body_remains_fail_closed(
     assert diagnostic == "OpenAI HTTP failure: status=429"
     assert "test-secret-not-real" not in diagnostic
     assert "provider body not safe" not in diagnostic
+
+
+def test_openai_request_budget_diagnostic_is_content_free():
+    diagnostic = OpenAIProviderAdapter._openai_request_budget_diagnostic(
+        question="human-secret-content",
+        reconstructed_context="context-secret-content",
+        request_body=b'{"secret":"payload-secret-content"}',
+        model="gpt-4.1",
+    )
+
+    assert diagnostic["model"] == "gpt-4.1"
+    assert diagnostic["human_message_characters"] == len(
+        "human-secret-content"
+    )
+    assert diagnostic["reconstructed_context_characters"] == len(
+        "context-secret-content"
+    )
+    assert diagnostic["serialized_request_bytes"] == len(
+        b'{"secret":"payload-secret-content"}'
+    )
+    assert diagnostic["estimated_tokens_at_4_chars"] > 0
+    assert (
+        diagnostic["conservative_estimated_tokens_at_3_bytes"]
+        > 0
+    )
+
+    rendered = repr(diagnostic)
+
+    assert "human-secret-content" not in rendered
+    assert "context-secret-content" not in rendered
+    assert "payload-secret-content" not in rendered
+    assert "OPENAI_API_KEY" not in rendered
+    assert "Authorization" not in rendered

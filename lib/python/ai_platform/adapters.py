@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 import socket
 import time
@@ -8,6 +9,9 @@ import urllib.error
 import urllib.request
 from dataclasses import dataclass
 from typing import Any, Dict, List, Mapping, Sequence
+
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -213,6 +217,33 @@ class OpenAIProviderAdapter(StaticProviderAdapter):
 
         return answer
 
+
+    @staticmethod
+    def _openai_request_budget_diagnostic(
+        *,
+        question: str,
+        reconstructed_context: str,
+        request_body: bytes,
+        model: str,
+    ) -> Dict[str, Any]:
+        """Return content-free outbound OpenAI request measurements."""
+        human_chars = len(question)
+        context_chars = len(reconstructed_context)
+        request_bytes = len(request_body)
+
+        return {
+            "model": str(model),
+            "human_message_characters": human_chars,
+            "reconstructed_context_characters": context_chars,
+            "serialized_request_bytes": request_bytes,
+            "estimated_tokens_at_4_chars": (
+                request_bytes + 3
+            ) // 4,
+            "conservative_estimated_tokens_at_3_bytes": (
+                request_bytes + 2
+            ) // 3,
+        }
+
     def complete(
         self,
         question: str,
@@ -291,12 +322,28 @@ class OpenAIProviderAdapter(StaticProviderAdapter):
             ],
         }
 
+        request_body = json.dumps(
+            payload,
+            ensure_ascii=False,
+        ).encode("utf-8")
+
+        request_budget = self._openai_request_budget_diagnostic(
+            question=question,
+            reconstructed_context=reconstructed_context,
+            request_body=request_body,
+            model=selected_model,
+        )
+
+        logger.info(
+            "OpenAI outbound request budget",
+            extra={
+                "openai_request_budget": request_budget,
+            },
+        )
+
         request = urllib.request.Request(
             f"{base_url}/responses",
-            data=json.dumps(
-                payload,
-                ensure_ascii=False,
-            ).encode("utf-8"),
+            data=request_body,
             headers={
                 "Authorization": f"Bearer {credential}",
                 "Content-Type": "application/json",
