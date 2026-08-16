@@ -314,8 +314,67 @@ class OpenAIProviderAdapter(StaticProviderAdapter):
                 raw = response.read()
 
         except urllib.error.HTTPError as exc:
+            diagnostic_parts = [
+                f"status={exc.code}",
+            ]
+
+            request_id = ""
+
+            try:
+                request_id = str(
+                    exc.headers.get("x-request-id", "")
+                ).strip()
+            except (AttributeError, TypeError):
+                request_id = ""
+
+            if request_id:
+                diagnostic_parts.append(
+                    f"request_id={request_id}"
+                )
+
+            try:
+                error_raw = exc.read()
+            except (AttributeError, OSError):
+                error_raw = b""
+
+            if error_raw:
+                try:
+                    error_payload = json.loads(
+                        error_raw.decode("utf-8")
+                    )
+                except (
+                    UnicodeDecodeError,
+                    json.JSONDecodeError,
+                ):
+                    error_payload = {}
+
+                if isinstance(error_payload, Mapping):
+                    error_object = error_payload.get(
+                        "error",
+                        {},
+                    )
+
+                    if isinstance(error_object, Mapping):
+                        error_type = str(
+                            error_object.get("type", "")
+                        ).strip()
+                        error_code = str(
+                            error_object.get("code", "")
+                        ).strip()
+
+                        if error_type:
+                            diagnostic_parts.append(
+                                f"type={error_type}"
+                            )
+
+                        if error_code:
+                            diagnostic_parts.append(
+                                f"code={error_code}"
+                            )
+
             raise ProviderExecutionError(
-                f"OpenAI HTTP failure: status={exc.code}"
+                "OpenAI HTTP failure: "
+                + ", ".join(diagnostic_parts)
             ) from exc
 
         except (

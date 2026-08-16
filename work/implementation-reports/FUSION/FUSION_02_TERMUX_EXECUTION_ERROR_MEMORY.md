@@ -420,3 +420,61 @@ Demonstrated rule:
 Diagnostic output belonging to one reported failure must not be
 reclassified as an additional failure merely because it occupies a
 separate output line.
+
+## FUSION-02 — pytest repository import-path precedent
+
+Observed during OpenAI HTTP diagnostic acceptance:
+
+`pytest` reached test collection but failed with:
+
+`ModuleNotFoundError: No module named 'python'`
+
+The repository package under test is rooted beneath `lib/`, while that
+execution did not establish `lib/` on Python's import path.
+
+Classification:
+
+`PYTEST_IMPORT_PATH_NOT_ESTABLISHED`
+
+This is test-runner/environment infrastructure evidence.
+
+It is not evidence of a production defect in OpenAIProviderAdapter and
+must not cause production code to be modified.
+
+Recovery rule:
+
+When repository tests import the `python.*` package from `lib/python`,
+execute the bounded pytest invocation with the repository `lib/`
+directory present on `PYTHONPATH`, unless the repository's canonical
+runner establishes the equivalent import path itself.
+
+## FUSION-02 — stale provider test-helper reference
+
+Observed during OpenAI HTTP diagnostic acceptance:
+
+Two newly materialized provider tests called:
+
+`_openai_adapter()`
+
+The established test module helper is:
+
+`_adapter()`
+
+Observed result:
+
+`NameError: name '_openai_adapter' is not defined`
+
+Classification:
+
+`STALE_PROVIDER_TEST_HELPER_REFERENCE`
+
+This is test-infrastructure evidence and is not evidence of a production
+defect in OpenAIProviderAdapter.
+
+Recovery rule:
+
+New acceptance tests must reuse the demonstrated helper vocabulary of the
+existing test module unless a new helper is deliberately introduced and
+defined.
+
+Do not modify or weaken production code to satisfy an undefined test helper.

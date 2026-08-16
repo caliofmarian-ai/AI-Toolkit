@@ -503,3 +503,116 @@ def test_test_suite_never_uses_real_external_provider(monkeypatch):
     # this module are replaceable at the HTTP boundary. It must never need
     # or consume a real deployment credential.
     assert os.environ.get("OPENAI_API_KEY") != "test-secret-not-real"
+
+
+def test_http_429_preserves_sanitized_provider_diagnostic(
+    monkeypatch,
+):
+    import io
+
+    monkeypatch.setenv(
+        "OPENAI_API_KEY",
+        "test-secret-not-real",
+    )
+
+    adapter = _adapter()
+
+    provider_body = json.dumps(
+        {
+            "error": {
+                "message": (
+                    "Sensitive provider prose that must "
+                    "not be propagated"
+                ),
+                "type": "insufficient_quota",
+                "param": None,
+                "code": "insufficient_quota",
+            }
+        }
+    ).encode("utf-8")
+
+    def failure(request, timeout):
+        raise urllib.error.HTTPError(
+            url=request.full_url,
+            code=429,
+            msg="Too Many Requests",
+            hdrs={
+                "x-request-id": "req_fusion02_429",
+            },
+            fp=io.BytesIO(provider_body),
+        )
+
+    monkeypatch.setattr(
+        adapters_module.urllib.request,
+        "urlopen",
+        failure,
+    )
+
+    with pytest.raises(
+        adapters_module.ProviderExecutionError,
+    ) as caught:
+        adapter.complete(
+            question="Human message",
+            context={
+                "schema": "fusion-02-context/v1",
+            },
+            model="gpt-4.1",
+            provider_settings={},
+        )
+
+    diagnostic = str(caught.value)
+
+    assert "status=429" in diagnostic
+    assert "type=insufficient_quota" in diagnostic
+    assert "code=insufficient_quota" in diagnostic
+    assert "request_id=req_fusion02_429" in diagnostic
+
+    assert "test-secret-not-real" not in diagnostic
+    assert "Human message" not in diagnostic
+    assert "Sensitive provider prose" not in diagnostic
+
+
+def test_http_failure_with_non_json_body_remains_fail_closed(
+    monkeypatch,
+):
+    import io
+
+    monkeypatch.setenv(
+        "OPENAI_API_KEY",
+        "test-secret-not-real",
+    )
+
+    adapter = _adapter()
+
+    def failure(request, timeout):
+        raise urllib.error.HTTPError(
+            url=request.full_url,
+            code=429,
+            msg="Too Many Requests",
+            hdrs={},
+            fp=io.BytesIO(
+                b"provider body not safe for propagation"
+            ),
+        )
+
+    monkeypatch.setattr(
+        adapters_module.urllib.request,
+        "urlopen",
+        failure,
+    )
+
+    with pytest.raises(
+        adapters_module.ProviderExecutionError,
+    ) as caught:
+        adapter.complete(
+            question="Human message",
+            context={},
+            model="gpt-4.1",
+            provider_settings={},
+        )
+
+    diagnostic = str(caught.value)
+
+    assert diagnostic == "OpenAI HTTP failure: status=429"
+    assert "test-secret-not-real" not in diagnostic
+    assert "provider body not safe" not in diagnostic
