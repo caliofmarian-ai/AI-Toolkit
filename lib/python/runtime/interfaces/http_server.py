@@ -74,6 +74,23 @@ class _RuntimeHandler(BaseHTTPRequestHandler):
             self._send_json(data, 200 if data.get("healthy") else 503)
         elif path == "/api/v1/runtime":
             self._send_json(srv.api.runtime())
+        elif path in ("/organism", "/api/v1/organism"):
+            status = srv.api.status()
+            organism = status.get("organism")
+
+            if organism is None:
+                self._send_json(
+                    {
+                        "state": "UNKNOWN",
+                        "reason": (
+                            "Organism state is not available "
+                            "from RuntimeBootstrap."
+                        ),
+                    },
+                    503,
+                )
+            else:
+                self._send_json(organism)
         elif path == "/runtime":
             if srv.dashboard_service is not None and not prefer_json:
                 self._send_html(srv.render_dashboard(path, query))

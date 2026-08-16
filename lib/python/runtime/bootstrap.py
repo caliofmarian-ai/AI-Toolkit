@@ -24,32 +24,34 @@ Startup order (canonical):
 """
 
 import logging
+import threading
 import os
 import time
 from typing import Optional
 
 from lib.python.context_synchronization_engine import ContextSynchronizationEngine
-from lib.python.dashboard.service import EngineeringDashboardService
-from lib.python.runtime.identity import RuntimeIdentity
-from lib.python.runtime.config import RuntimeConfig
-from lib.python.runtime.diagnostics import RuntimeDiagnosticsService
-from lib.python.runtime.secrets import SecretManager
-from lib.python.runtime.registry import RuntimeRegistry
-from lib.python.runtime.lifecycle import LifecycleManager, LifecyclePhase
-from lib.python.runtime.supervisor import RuntimeSupervisor
-from lib.python.runtime.health import HealthService
-from lib.python.runtime.recovery import RecoveryService
-from lib.python.runtime.scheduler import SchedulerHost
-from lib.python.runtime.event_loop import EventLoop
-from lib.python.runtime.event_dispatcher import EventDispatcher
-from lib.python.runtime.job_queue import JobQueueHost
-from lib.python.runtime.metrics import RuntimeMetrics
-from lib.python.runtime.logging_service import configure_logging
-from lib.python.runtime.reports import RuntimeReports
-from lib.python.runtime.interfaces.http_server import RuntimeHttpServer
-from lib.python.runtime.interfaces.github_webhook import GitHubWebhookHost
-from lib.python.runtime.interfaces.telegram_gateway import TelegramGateway
-from lib.python.runtime.state import RuntimePublicState, RuntimeStateService
+from python.dashboard.service import EngineeringDashboardService
+from python.runtime.identity import RuntimeIdentity
+from python.runtime.config import RuntimeConfig
+from python.runtime.diagnostics import RuntimeDiagnosticsService
+from python.runtime.secrets import SecretManager
+from python.runtime.registry import RuntimeRegistry
+from python.runtime.lifecycle import LifecycleManager, LifecyclePhase
+from python.runtime.supervisor import RuntimeSupervisor
+from python.runtime.health import HealthService
+from python.runtime.recovery import RecoveryService
+from python.runtime.scheduler import SchedulerHost
+from python.runtime.event_loop import EventLoop
+from python.runtime.event_dispatcher import EventDispatcher
+from python.runtime.job_queue import JobQueueHost
+from python.runtime.metrics import RuntimeMetrics
+from python.runtime.logging_service import configure_logging
+from python.runtime.reports import RuntimeReports
+from python.runtime.interfaces.http_server import RuntimeHttpServer
+from python.runtime.interfaces.github_webhook import GitHubWebhookHost
+from python.runtime.interfaces.telegram_gateway import TelegramGateway
+from python.runtime.state import RuntimePublicState, RuntimeStateService
+from python.runtime.organism import EpistemicOrganismAccess
 
 logger = logging.getLogger(__name__)
 
@@ -87,6 +89,7 @@ class RuntimeBootstrap:
         self.telegram: Optional[TelegramGateway] = None
         self.dashboard_service: Optional[EngineeringDashboardService] = None
         self.engineering_context: Optional[dict] = None
+        self.organism: Optional[EpistemicOrganismAccess] = None
         self.repository_root = os.environ.get("AI_TOOLKIT_REPOSITORY_ROOT", os.getcwd())
         self.workspace_root = os.environ.get(
             "AI_TOOLKIT_WORKSPACE_ROOT",
@@ -145,6 +148,9 @@ class RuntimeBootstrap:
 
         # Step 10 — Restore persistent state
         self._step_restore_state()
+
+        # FUSION-01 — attach existing epistemic physiology
+        self._step_initialize_organism_access()
 
         # Step 11 — Initialize Scheduler
         self._step_initialize_scheduler()
@@ -300,6 +306,17 @@ class RuntimeBootstrap:
         logger.info("Bootstrap: state directory ready at %s", state_dir)
         self.metrics.increment("runtime.restarts")
 
+    def _step_initialize_organism_access(self) -> None:
+        """Attach the controlled runtime-facing epistemic boundary."""
+        self.organism = EpistemicOrganismAccess(self.repository_root)
+        self.registry.register_service(
+            "epistemic_organism",
+            self.organism,
+        )
+        logger.info(
+            "Bootstrap: epistemic organism access boundary initialized"
+        )
+
     def _step_initialize_scheduler(self) -> None:
         self.scheduler = SchedulerHost(tick_interval=1.0)
         # Register standard periodic jobs
@@ -354,7 +371,17 @@ class RuntimeBootstrap:
         self.dashboard_service = EngineeringDashboardService(
             repository_root=self.repository_root,
             workspace_root=self.workspace_root,
+            organism_service=self.organism,
         )
+
+        # FUSION-01 continuity:
+        # RuntimeBootstrap already owns the reconstructed engineering context.
+        # Reuse it instead of synchronously reconstructing the same context
+        # again inside EngineeringDashboardService.build(refresh=False).
+        if getattr(self, "engineering_context", None):
+            self.dashboard_service.seed_engineering_context(
+                self.engineering_context
+            )
         dashboard_error = ""
         initialized = False
         try:
@@ -376,35 +403,102 @@ class RuntimeBootstrap:
         logger.info("Bootstrap: dashboard initialized=%s", initialized)
 
     def _step_reconstruct_engineering_context(self) -> None:
+        """Reconstruct engineering context without allowing it to block boot forever.
+
+        Context Synchronization is an existing engineering capability, not part
+        of the FUSION-01 epistemic boundary. A bounded bootstrap wait preserves
+        that capability while preventing a pre-existing synchronization stall
+        from preventing RuntimeBootstrap from reaching READY indefinitely.
+        """
+
         context_error = ""
         initialized = False
         summary = {}
-        try:
-            result = ContextSynchronizationEngine(
-                repository=self.repository_root,
-                workspace_root=self.workspace_root,
-            ).synchronize(refresh=False)
-            self.engineering_context = result.get("engineering_context", {})
-            summary = {
-                "decision_history_count": self.engineering_context.get("decision_history_count", 0),
-                "validation_summary": self.engineering_context.get("validation_summary", {}),
-                "generated_at": self.engineering_context.get("generated_at", ""),
-            }
-            initialized = True
-        except Exception as exc:
+        result_holder = {}
+        error_holder = {}
+
+        def reconstruct() -> None:
+            try:
+                result_holder["result"] = ContextSynchronizationEngine(
+                    repository=self.repository_root,
+                    workspace_root=self.workspace_root,
+                ).synchronize(refresh=False)
+            except Exception as exc:
+                error_holder["error"] = exc
+
+        worker = threading.Thread(
+            target=reconstruct,
+            name="runtime-context-reconstruction",
+            daemon=True,
+        )
+        worker.start()
+
+        timeout_seconds = float(
+            os.environ.get(
+                "RUNTIME_CONTEXT_RECONSTRUCTION_TIMEOUT_SECONDS",
+                "15",
+            )
+        )
+        worker.join(timeout=max(0.1, timeout_seconds))
+
+        if worker.is_alive():
+            context_error = (
+                "Engineering context reconstruction exceeded "
+                f"{timeout_seconds:.1f}s bootstrap bound."
+            )
+            self.runtime_state.record_issue(
+                "Engineering context reconstruction timed out.",
+                source="engineering_context",
+                details=context_error,
+            )
+            logger.warning(
+                "Bootstrap: engineering context reconstruction timed out "
+                "after %.1fs; runtime bootstrap will continue",
+                timeout_seconds,
+            )
+        elif "error" in error_holder:
+            exc = error_holder["error"]
             context_error = str(exc)
             self.runtime_state.record_issue(
                 "Engineering context reconstruction failed.",
                 source="engineering_context",
                 details=context_error,
             )
-            logger.exception("Bootstrap: engineering context reconstruction failed")
+            logger.error(
+                "Bootstrap: engineering context reconstruction failed: %s",
+                exc,
+            )
+        else:
+            result = result_holder.get("result", {})
+            self.engineering_context = result.get(
+                "engineering_context",
+                {},
+            )
+            summary = {
+                "decision_history_count": self.engineering_context.get(
+                    "decision_history_count",
+                    0,
+                ),
+                "validation_summary": self.engineering_context.get(
+                    "validation_summary",
+                    {},
+                ),
+                "generated_at": self.engineering_context.get(
+                    "generated_at",
+                    "",
+                ),
+            }
+            initialized = True
+
         self.diagnostics.mark_engineering_context_initialized(
             initialized=initialized,
             error=context_error,
             summary=summary,
         )
-        logger.info("Bootstrap: engineering context initialized=%s", initialized)
+        logger.info(
+            "Bootstrap: engineering context initialized=%s",
+            initialized,
+        )
 
     def _wire_http_handlers(self) -> None:
         """Wire Runtime services into the HTTP server handlers."""
@@ -427,7 +521,19 @@ class RuntimeBootstrap:
             return self._build_runtime_snapshot()["runtime"]
 
         def status_handler() -> dict:
-            return self._build_runtime_snapshot()
+            snapshot = self._build_runtime_snapshot()
+            snapshot["organism"] = (
+                self.organism.state()
+                if self.organism is not None
+                else {
+                    "state": "UNKNOWN",
+                    "reason": (
+                        "Epistemic organism boundary "
+                        "is not initialized."
+                    ),
+                }
+            )
+            return snapshot
 
         self.http_server.set_health_handler(health_handler)
         self.http_server.set_ready_handler(ready_handler)

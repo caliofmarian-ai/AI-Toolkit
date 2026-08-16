@@ -323,6 +323,7 @@ class EngineeringDashboardService:
         repository_root: str = ".",
         workspace_root: Optional[str] = None,
         cache_ttl_seconds: float = 5.0,
+        organism_service: Optional[Any] = None,
     ) -> None:
         self.repository_root = Path(repository_root).resolve()
         self.workspace_root = (
@@ -331,6 +332,7 @@ class EngineeringDashboardService:
             else self.repository_root.parent
         )
         self.cache_ttl_seconds = cache_ttl_seconds
+        self.organism_service = organism_service
         self._cache_expires_at = 0.0
         self._cached_payload: Optional[Dict[str, Any]] = None
         self.ai_platform = AIPlatformService(
@@ -358,6 +360,17 @@ class EngineeringDashboardService:
         reports = self._load_reports(engineering_context=engineering_context)
         runtime = self._load_runtime(session, workspace, engineering_context=engineering_context)
         diagnostics = self._load_diagnostics(runtime)
+        organism = (
+            self.organism_service.state()
+            if self.organism_service is not None
+            else {
+                "state": "UNKNOWN",
+                "reason": (
+                    "Dashboard is not attached to "
+                    "RuntimeBootstrap organism boundary."
+                ),
+            }
+        )
         capabilities = self._load_capabilities(
             workspace,
             session,
@@ -375,6 +388,7 @@ class EngineeringDashboardService:
             "session": session,
             "reports": reports,
             "runtime": runtime,
+            "organism": organism,
             "diagnostics": diagnostics,
             "capabilities": capabilities,
             "ai_control_center": ai_control_center,
@@ -1019,7 +1033,28 @@ class EngineeringDashboardService:
             ],
         }
 
+    def seed_engineering_context(
+        self,
+        engineering_context: Mapping[str, Any],
+    ) -> None:
+        """Reuse engineering context reconstructed by the owning runtime.
+
+        This prevents the dashboard from synchronously invoking the same
+        ContextSynchronizationEngine again during one RuntimeBootstrap cycle.
+        Human Authority and canonical persistence remain unchanged.
+        """
+        self._runtime_engineering_context = dict(engineering_context)
+
     def _load_engineering_context(self, *, refresh: bool = False) -> Dict[str, Any]:
+        if not refresh:
+            runtime_context = getattr(
+                self,
+                "_runtime_engineering_context",
+                None,
+            )
+            if runtime_context is not None:
+                return dict(runtime_context)
+
         path = self.repository_root / ".ai" / "context" / "engineering_context.json"
         if refresh or not path.exists():
             try:
