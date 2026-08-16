@@ -654,3 +654,11 @@ Before AST-based mutation at a function-call boundary:
 
 For FUSION-02, the provider-bound reconstructed context is passed through
 `context_override`.
+
+## RUN-01 / T1 execution error — 2026-08-16T20:37:40Z
+
+- Stage: `repository-authority`
+- Exit code: `14`
+- Error: Worktree is not clean before RUN-01.
+- Conservation rule: fail closed; no production mutation authorized.
+- Required prevention: inspect this demonstrated failure before the next recovery run.
