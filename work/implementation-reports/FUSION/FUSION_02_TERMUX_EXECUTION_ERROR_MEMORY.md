@@ -679,3 +679,11 @@ For FUSION-02, the provider-bound reconstructed context is passed through
 - HEAD: e1015e71d7888045e825c94dcd60edeaab6e739d
 - Branch: main
 - Recovery rule: inspect demonstrated anatomy before further mutation.
+
+## RUN-02 / T2+T3 execution failure
+
+- Timestamp: 2026-08-16T21:04:46Z
+- Authority: 0fc3c166c78c09e57329307398e6421bc7169d44
+- Stage: authority
+- Failure: Worktree is not clean.
+- Recovery: inspect demonstrated anatomy before mutation.
