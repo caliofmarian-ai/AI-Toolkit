@@ -687,3 +687,79 @@ For FUSION-02, the provider-bound reconstructed context is passed through
 - Stage: authority
 - Failure: Worktree is not clean.
 - Recovery: inspect demonstrated anatomy before mutation.
+
+## RUN-04 false UEM preflight anatomy
+
+**Classification:** deterministic Bash generated from an unverified API assumption
+
+**Observed failure:**
+
+The first RUN-04 execution stopped during the UEM physiology preflight with:
+
+`AssertionError: outgoing`
+
+The generated preflight asserted that `UniversalEngineeringModel` exposed:
+
+- `outgoing`
+- `incoming`
+- `neighbors`
+
+Direct inspection of the exact repository authority demonstrated that these methods do not exist.
+
+The real `UniversalEngineeringModel` interface at the affected authority exposes:
+
+- `add_object`
+- `get_object`
+- `all_objects`
+- `objects_by_type`
+- `has_object`
+- `add_relationship`
+- `all_relationships`
+- `relationships_of_type`
+- `statistics`
+- `__len__`
+- `__iter__`
+
+`UemBuilder.build(semantic_results)` is the demonstrated construction boundary.
+
+**Root cause:**
+
+The Bash contained a convenience traversal API assumption that was not verified against the exact source before execution.
+
+This violated the established execution discipline:
+
+`INSPECT REPOSITORY → KNOW ANATOMY → GENERATE DETERMINISTIC BASH → PREFLIGHT VERIFY`
+
+The failure was not a defect in UEM.
+
+It was a defect in the generated preflight contract.
+
+**Secondary execution defect:**
+
+The failing Python block used:
+
+`python ... || exit 30`
+
+instead of routing the failure through the Bash `fail()` function.
+
+Therefore the original RUN-04 failure did not automatically update Error Memory.
+
+**Permanent prevention rule:**
+
+A deterministic repository preflight may assert only exact symbols, signatures, fields, methods and boundaries verified from the expected repository authority.
+
+Do not infer convenience methods from architectural descriptions.
+
+All qualifying Python preflight failures must return through the Bash error-conservation path rather than bypassing it with a direct shell exit.
+
+**Recovery:**
+
+RUN-04 recovery replaces the false method assumptions with the exact demonstrated UEM interface and routes all subsequent preflight failures through Error Memory conservation.
+
+## RUN-04 recovery execution error — 2026-08-16T22:06:12Z
+
+**Stage:** materialization-preflight
+
+**Failure:** Knowledge Materialization anatomy differs from inspected authority.
+
+**Preventive rule:** Deterministic Termux Bash must verify only repository anatomy already demonstrated from the exact authority. A preflight must never assert convenience APIs that were not verified in source.
