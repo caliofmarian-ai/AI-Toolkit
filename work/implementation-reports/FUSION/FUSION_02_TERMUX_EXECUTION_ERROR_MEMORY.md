@@ -559,3 +559,21 @@ For generated or appended source files:
 Previously demonstrated behavioral tests do not need to be rerun when the
 only subsequent mutation is deterministic EOF normalization and static syntax
 validation remains PASS.
+
+## Railway structured logging visibility precedent
+
+Observed during FUSION-02 OpenAI token-budget diagnosis:
+
+- Python `logging` accepted the diagnostic measurements through
+  `extra={"openai_request_budget": ...}`.
+- Railway retained the log event but its inspected JSON did not expose
+  that custom `extra` object.
+- Therefore successful insertion into Python `logging.extra` is not
+  sufficient evidence that an operational diagnostic is visible in
+  Railway.
+- For bounded operational measurements required during live acceptance,
+  non-sensitive scalar values must also be serialized into the standard
+  log message while structured metadata may be retained in parallel.
+- Never serialize credentials, Authorization headers, human message
+  content, reconstructed context content, or complete provider payloads
+  merely to improve log visibility.

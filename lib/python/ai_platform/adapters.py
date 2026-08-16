@@ -335,7 +335,23 @@ class OpenAIProviderAdapter(StaticProviderAdapter):
         )
 
         logger.info(
-            "OpenAI outbound request budget",
+            (
+                "OpenAI outbound request budget: "
+                "model=%s, "
+                "human_message_characters=%d, "
+                "reconstructed_context_characters=%d, "
+                "serialized_request_bytes=%d, "
+                "estimated_tokens_at_4_chars=%d, "
+                "conservative_estimated_tokens_at_3_bytes=%d"
+            ),
+            request_budget["model"],
+            request_budget["human_message_characters"],
+            request_budget["reconstructed_context_characters"],
+            request_budget["serialized_request_bytes"],
+            request_budget["estimated_tokens_at_4_chars"],
+            request_budget[
+                "conservative_estimated_tokens_at_3_bytes"
+            ],
             extra={
                 "openai_request_budget": request_budget,
             },

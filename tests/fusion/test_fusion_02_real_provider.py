@@ -649,3 +649,83 @@ def test_openai_request_budget_diagnostic_is_content_free():
     assert "payload-secret-content" not in rendered
     assert "OPENAI_API_KEY" not in rendered
     assert "Authorization" not in rendered
+
+def test_request_budget_is_visible_in_standard_log_message(
+    monkeypatch,
+    caplog,
+):
+    monkeypatch.setenv(
+        "OPENAI_API_KEY",
+        "test-secret-not-real",
+    )
+
+    captured = {}
+
+    class Response:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+        def read(self):
+            return json.dumps(
+                {
+                    "output_text": "provider answer",
+                    "usage": {
+                        "input_tokens": 1,
+                        "output_tokens": 1,
+                    },
+                }
+            ).encode("utf-8")
+
+    def fake_urlopen(request, timeout):
+        captured["body"] = request.data
+        return Response()
+
+    monkeypatch.setattr(
+        adapters_module.urllib.request,
+        "urlopen",
+        fake_urlopen,
+    )
+
+    caplog.set_level(
+        "INFO",
+        logger="python.ai_platform.adapters",
+    )
+
+    adapter = _adapter()
+
+    adapter.complete(
+        question="hi",
+        context={
+            "schema": "fusion-02-context/v1",
+            "probe": "x" * 32,
+        },
+        model="gpt-4.1",
+        provider_settings={},
+    )
+
+    messages = [
+        record.getMessage()
+        for record in caplog.records
+        if "OpenAI outbound request budget" in record.getMessage()
+    ]
+
+    assert len(messages) == 1
+
+    message = messages[0]
+
+    assert "model=gpt-4.1" in message
+    assert "human_message_characters=2" in message
+    assert "reconstructed_context_characters=" in message
+    assert "serialized_request_bytes=" in message
+    assert "estimated_tokens_at_4_chars=" in message
+    assert "conservative_estimated_tokens_at_3_bytes=" in message
+
+    assert "test-secret-not-real" not in message
+    assert '"probe"' not in message
+    assert ("x" * 32) not in message
+    assert "hi" not in message
+
+    assert captured["body"]
