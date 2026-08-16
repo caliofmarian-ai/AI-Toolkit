@@ -662,3 +662,11 @@ For FUSION-02, the provider-bound reconstructed context is passed through
 - Error: Worktree is not clean before RUN-01.
 - Conservation rule: fail closed; no production mutation authorized.
 - Required prevention: inspect this demonstrated failure before the next recovery run.
+
+## RUN-01 / T1 execution error — 2026-08-16T20:46:05Z
+
+- Stage: `integrity-validation`
+- Exit code: `62`
+- Error: git diff --cached --check failed.
+- Production mutation authorized: NO
+- Recovery rule: inspect demonstrated failure before retry.
