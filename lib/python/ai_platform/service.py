@@ -1,4 +1,5 @@
 from __future__ import annotations
+import logging
 
 from collections import defaultdict
 from typing import Any, Dict, Mapping, Optional
@@ -13,6 +14,120 @@ from .prompt_library import PromptLibrary
 from .registry import ProviderRegistry
 from .sessions import AISessionEngine
 from .settings import AISettingsStore, masked_provider_settings
+
+logger = logging.getLogger(__name__)
+
+
+
+def _fusion02_context_anatomy(context):
+    """Return structural size metadata, never context values."""
+    import json
+
+    def serialized_bytes(value):
+        return len(
+            json.dumps(
+                value,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+                default=str,
+            ).encode("utf-8")
+        )
+
+    total = serialized_bytes(context)
+    branches = {}
+
+    if isinstance(context, dict):
+        for key, value in context.items():
+            branch_bytes = serialized_bytes(value)
+
+            branches[str(key)] = {
+                "bytes": branch_bytes,
+                "percent": round(
+                    (
+                        branch_bytes
+                        / total
+                        * 100.0
+                    )
+                    if total
+                    else 0.0,
+                    2,
+                ),
+                "kind": (
+                    "object"
+                    if isinstance(value, dict)
+                    else "array"
+                    if isinstance(value, list)
+                    else "string"
+                    if isinstance(value, str)
+                    else type(value).__name__
+                ),
+                "children": (
+                    len(value)
+                    if isinstance(
+                        value,
+                        (dict, list),
+                    )
+                    else 0
+                ),
+            }
+
+    return {
+        "total_serialized_bytes": total,
+        "estimated_tokens_at_4_bytes": (
+            (total + 3) // 4
+        ),
+        "branch_count": len(branches),
+        "branches": branches,
+    }
+
+
+def _fusion02_log_context_anatomy(context):
+    """Log structural measurements only."""
+    anatomy = _fusion02_context_anatomy(
+        context
+    )
+
+    ordered = sorted(
+        anatomy["branches"].items(),
+        key=lambda item: (
+            item[1]["bytes"]
+        ),
+        reverse=True,
+    )
+
+    branch_summary = ",".join(
+        (
+            f"{name}="
+            f"{data['bytes']}"
+            f"({data['percent']}%)"
+        )
+        for name, data in ordered
+    )
+
+    logger.info(
+        "FUSION-02 reconstructed context anatomy: "
+        "total_serialized_bytes=%s, "
+        "estimated_tokens_at_4_bytes=%s, "
+        "branch_count=%s, "
+        "branches=%s",
+        anatomy[
+            "total_serialized_bytes"
+        ],
+        anatomy[
+            "estimated_tokens_at_4_bytes"
+        ],
+        anatomy[
+            "branch_count"
+        ],
+        branch_summary,
+        extra={
+            "fusion02_context_anatomy":
+                anatomy,
+        },
+    )
+
+    return anatomy
 
 
 class AIPlatformService:
@@ -142,6 +257,7 @@ class AIPlatformService:
             },
         )
 
+        _fusion02_log_context_anatomy(reconstructed_context)
         result = self.pipeline.run(
             prompt,
             settings,

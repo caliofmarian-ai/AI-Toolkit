@@ -618,3 +618,39 @@ When diagnosis depends on runtime-generated state:
 
 Runtime diagnostics must report metadata, not secret or conversational
 content.
+
+## FUSION-02 — pipeline context argument contract
+
+### Classification
+
+`PIPELINE_CONTEXT_OVERRIDE_ARGUMENT`
+
+### Demonstrated failure
+
+A diagnostic instrument attempted to discover the reconstructed context at
+`self.pipeline.run()` by searching for a keyword argument named `context`.
+
+The actual production call uses:
+
+`context_override=reconstructed_context`
+
+The instrument therefore stopped before mutation.
+
+### Root cause
+
+The diagnostic relied on an assumed argument name instead of first proving
+the exact production call contract.
+
+### Engineering rule
+
+Before AST-based mutation at a function-call boundary:
+
+1. inspect the exact current call;
+2. prove the receiver and method;
+3. enumerate the actual keyword arguments;
+4. derive the target expression from the demonstrated source;
+5. fail closed when the contract differs;
+6. never substitute an assumed keyword name.
+
+For FUSION-02, the provider-bound reconstructed context is passed through
+`context_override`.

@@ -231,3 +231,122 @@ def test_no_parallel_memory_or_session_system_created():
     assert "class Experience" not in source
     assert "class Provenance" not in source
     assert "class LayeredMemoryRepository" not in source
+
+
+def test_fusion02_context_anatomy_exposes_only_structure():
+    from python.ai_platform.service import (
+        _fusion02_context_anatomy,
+    )
+
+    human_secret = (
+        "HUMAN RAW CONTENT MUST NOT LEAK"
+    )
+
+    repository_secret = (
+        "REPOSITORY VALUE MUST NOT LEAK"
+    )
+
+    context = {
+        "conversation": {
+            "sources": [
+                {
+                    "actor": "HUMAN",
+                    "content": human_secret,
+                }
+            ]
+        },
+        "repository_profile": {
+            "private": repository_secret,
+        },
+    }
+
+    anatomy = (
+        _fusion02_context_anatomy(
+            context
+        )
+    )
+
+    assert (
+        anatomy[
+            "total_serialized_bytes"
+        ]
+        > 0
+    )
+
+    assert (
+        anatomy["branch_count"]
+        == 2
+    )
+
+    assert (
+        "conversation"
+        in anatomy["branches"]
+    )
+
+    assert (
+        "repository_profile"
+        in anatomy["branches"]
+    )
+
+    serialized = repr(anatomy)
+
+    assert human_secret not in serialized
+    assert repository_secret not in serialized
+
+
+def test_fusion02_context_anatomy_preserves_branch_identity():
+    from python.ai_platform.service import (
+        _fusion02_context_anatomy,
+    )
+
+    context = {
+        "repository_profile": {
+            "payload": "x" * 10000,
+        },
+        "runtime_status": {
+            "payload": "y" * 1000,
+        },
+        "conversation": {
+            "sources": [],
+        },
+    }
+
+    anatomy = (
+        _fusion02_context_anatomy(
+            context
+        )
+    )
+
+    repository_bytes = (
+        anatomy["branches"][
+            "repository_profile"
+        ]["bytes"]
+    )
+
+    runtime_bytes = (
+        anatomy["branches"][
+            "runtime_status"
+        ]["bytes"]
+    )
+
+    assert (
+        repository_bytes
+        > runtime_bytes
+    )
+
+    assert (
+        anatomy[
+            "estimated_tokens_at_4_bytes"
+        ]
+        > 0
+    )
+
+    for branch in (
+        anatomy["branches"].values()
+    ):
+        assert set(branch) == {
+            "bytes",
+            "percent",
+            "kind",
+            "children",
+        }
