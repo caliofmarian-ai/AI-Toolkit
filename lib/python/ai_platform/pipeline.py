@@ -27,6 +27,7 @@ class AIRequestPipeline:
         *,
         provider_id: str = "",
         model: str = "",
+        context_override: Mapping[str, Any] | None = None,
     ) -> Dict[str, Any]:
         providers = self.registry.list_providers(settings)
         discovered = self.model_manager.discover_models(providers)
@@ -38,8 +39,16 @@ class AIRequestPipeline:
         if adapter is None:
             raise ValueError(f"no adapter found for provider: {selected_provider!r}")
 
-        context = self.context_builder.build()
-        completion = adapter.complete(question=question, context=context, model=selected_model)
+        context = (
+            dict(context_override)
+            if context_override is not None
+            else self.context_builder.build()
+        )
+        completion = adapter.complete(
+            question=question,
+            context=context,
+            model=selected_model,
+        )
         usage = {
             "provider": selected_provider,
             "model": selected_model,

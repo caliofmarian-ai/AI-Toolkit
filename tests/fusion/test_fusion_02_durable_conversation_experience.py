@@ -10,7 +10,7 @@ from python.runtime.organism import EpistemicOrganismAccess
 from python.runtime.owner_access import OwnerAccessBoundary
 
 
-def _fake_result(prompt, settings, provider_id="", model=""):
+def _fake_result(prompt, settings, provider_id="", model="", context_override=None):
     return {
         "answer": "AI durable answer",
         "provider": provider_id or "test-provider",
@@ -23,7 +23,7 @@ def _fake_result(prompt, settings, provider_id="", model=""):
             "latency_ms": 1,
             "success": True,
         },
-        "context": {},
+        "context": context_override if context_override is not None else {},
     }
 
 

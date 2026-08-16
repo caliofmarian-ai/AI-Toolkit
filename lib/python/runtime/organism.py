@@ -180,34 +180,58 @@ class EpistemicOrganismAccess:
         }
 
     def _error_memory_state(self) -> dict[str, Any]:
-        precedent = (
-            self.repository_root
-            / "work"
-            / "implementation-reports"
-            / "PCC-04"
-            / "PCC-04_RUN006D_IMPORT_TOPOLOGY_RECOVERY.md"
-        )
+        precedents = [
+            (
+                self.repository_root
+                / "work"
+                / "implementation-reports"
+                / "PCC-04"
+                / "PCC-04_RUN006D_IMPORT_TOPOLOGY_RECOVERY.md"
+            ),
+            (
+                self.repository_root
+                / "work"
+                / "implementation-reports"
+                / "FUSION"
+                / "FUSION_01_DEMONSTRATED_FAILURE_PRECEDENTS.md"
+            ),
+            (
+                self.repository_root
+                / "work"
+                / "implementation-reports"
+                / "FUSION"
+                / "FUSION_02_TERMUX_EXECUTION_ERROR_MEMORY.md"
+            ),
+        ]
+
+        available = [
+            str(path.relative_to(self.repository_root))
+            for path in precedents
+            if path.exists()
+        ]
 
         return {
             "physiology": (
                 "Error Memory / demonstrated-failure history"
             ),
-            "runtime_reachable": precedent.exists(),
+            "runtime_reachable": bool(available),
             "dedicated_executable_service": "UNKNOWN",
-            "demonstrated_precedent": (
-                str(precedent.relative_to(self.repository_root))
-                if precedent.exists()
-                else None
-            ),
+            "demonstrated_precedents": available,
+            "precedent_count": len(available),
             "state": (
                 "AVAILABLE_AS_EVIDENCE"
-                if precedent.exists()
+                if available
                 else "UNKNOWN"
             ),
             "reason": (
-                "Historical demonstrated failure remains Evidence. "
+                "Demonstrated failures and recoveries remain Evidence. "
                 "No dedicated ErrorMemory service is fabricated."
             ),
+            "epistemic_boundary": {
+                "evidence_is_canon": False,
+                "automatic_sedimentation": False,
+                "human_authority_preserved": True,
+            },
         }
 
     def conversation_session(

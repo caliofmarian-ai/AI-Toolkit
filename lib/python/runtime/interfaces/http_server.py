@@ -138,6 +138,13 @@ class _RuntimeHandler(BaseHTTPRequestHandler):
             "/runtime",
             "/diagnostics",
         ):
+            if normalized_dashboard_path == "/repository":
+                privileged_query = bool(
+                    (query.get("q") or [""])[0].strip()
+                    or (query.get("prompt") or [""])[0].strip()
+                )
+                if privileged_query and not self._require_owner():
+                    return
             self._send_html(srv.render_dashboard(path, query))
         elif srv.dashboard_service is not None and path == "/api/ai/control-center":
             if not self._require_owner():
@@ -179,6 +186,54 @@ class _RuntimeHandler(BaseHTTPRequestHandler):
             self._send_json(result)
         elif path == "/webhook/telegram":
             result = srv.handle_telegram_update(body)
+            self._send_json(result)
+        elif path == "/api/ai/chat":
+            if not self._require_owner():
+                return
+            if srv.dashboard_service is None:
+                self._send_json(
+                    {"error": "AI dashboard service unavailable"},
+                    503,
+                )
+                return
+            try:
+                payload = json.loads(body.decode("utf-8") or "{}")
+            except (UnicodeDecodeError, json.JSONDecodeError):
+                self._send_json({"error": "invalid JSON body"}, 400)
+                return
+
+            question = str(payload.get("question", "")).strip()
+            session_id = str(payload.get("session_id", "")).strip()
+            provider_id = str(payload.get("provider_id", "")).strip()
+            model = str(payload.get("model", "")).strip()
+            prompt_name = str(payload.get("prompt_name", "")).strip()
+
+            if not question and not prompt_name:
+                self._send_json({"error": "missing question"}, 400)
+                return
+
+            try:
+                result = srv.dashboard_service.ai_platform.ask_repository(
+                    question=question,
+                    session_id=session_id,
+                    provider_id=provider_id,
+                    model=model,
+                    prompt_name=prompt_name,
+                )
+            except ValueError as exc:
+                self._send_json({"error": str(exc)}, 400)
+                return
+            except Exception as exc:
+                logger.exception("Owner AI chat failed")
+                self._send_json(
+                    {
+                        "error": "AI chat execution failed",
+                        "detail": f"{type(exc).__name__}: {exc}",
+                    },
+                    500,
+                )
+                return
+
             self._send_json(result)
         else:
             self._send_json({"error": "not found"}, 404)

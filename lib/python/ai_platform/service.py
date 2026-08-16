@@ -6,6 +6,7 @@ from typing import Any, Dict, Mapping, Optional
 from .adapters import builtin_adapters
 from .context_builder import AIContextBuilder
 from .conversation_experience import ConversationExperienceBridge
+from .conversation_context import ConversationContextReconstructor
 from .model_manager import ModelManager
 from .pipeline import AIRequestPipeline
 from .prompt_library import PromptLibrary
@@ -22,6 +23,10 @@ class AIPlatformService:
         self.context_builder = AIContextBuilder(repository_root, workspace_root)
         self.sessions = AISessionEngine(repository_root)
         self.conversation_experience = ConversationExperienceBridge(repository_root)
+        self.conversation_context = ConversationContextReconstructor(
+            repository_root,
+            workspace_root,
+        )
         self.prompt_library = PromptLibrary()
         self.pipeline = AIRequestPipeline(
             registry=self.registry,
@@ -125,11 +130,24 @@ class AIPlatformService:
             human_source,
         )
 
+        reconstructed_context = self.conversation_context.build(
+            session["id"],
+            partner_identity={
+                "provider": provider_id or session.get(
+                    "selected_provider", ""
+                ),
+                "model": model or session.get(
+                    "selected_model", ""
+                ),
+            },
+        )
+
         result = self.pipeline.run(
             prompt,
             settings,
             provider_id=provider_id,
             model=model,
+            context_override=reconstructed_context,
         )
 
         session = self.sessions.append_interaction(
@@ -167,6 +185,8 @@ class AIPlatformService:
             "model": result["model"],
             "usage": result["usage"],
             "raw_source_count": len(session.get("raw_sources", [])),
+            "context": reconstructed_context,
+            "context_schema": reconstructed_context.get("schema"),
             "epistemic_status": {
                 "conversation_is_raw_source": True,
                 "conversation_is_evidence": False,
