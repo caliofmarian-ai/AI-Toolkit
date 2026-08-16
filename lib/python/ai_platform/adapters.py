@@ -1,7 +1,11 @@
 from __future__ import annotations
 
+import json
 import os
+import socket
 import time
+import urllib.error
+import urllib.request
 from dataclasses import dataclass
 from typing import Any, Dict, List, Mapping, Sequence
 
@@ -85,6 +89,307 @@ class StaticProviderAdapter:
         }
 
 
+class ProviderExecutionError(RuntimeError):
+    """A real provider request failed."""
+
+
+class ProviderCredentialError(ProviderExecutionError):
+    """Required provider credentials are unavailable."""
+
+
+class ProviderResponseError(ProviderExecutionError):
+    """Provider returned an invalid response."""
+
+
+class OpenAIProviderAdapter(StaticProviderAdapter):
+    DEFAULT_BASE_URL = "https://api.openai.com/v1"
+    DEFAULT_TIMEOUT_SECONDS = 60
+
+    def _credential(
+        self,
+        provider_settings: Mapping[str, Any],
+    ) -> str:
+        configured_env = str(
+            provider_settings.get("api_key_env", "")
+        ).strip()
+
+        candidates = []
+
+        if configured_env:
+            candidates.append(configured_env)
+
+        candidates.extend(self.descriptor.env_vars)
+
+        seen = set()
+
+        for env_name in candidates:
+            if not env_name or env_name in seen:
+                continue
+
+            seen.add(env_name)
+
+            credential = os.environ.get(env_name, "").strip()
+
+            if credential:
+                return credential
+
+        raise ProviderCredentialError(
+            "OpenAI credential unavailable in environment"
+        )
+
+    def connection_available(
+        self,
+        provider_settings: Mapping[str, Any],
+    ) -> bool:
+        try:
+            self._credential(provider_settings)
+            return True
+        except ProviderCredentialError:
+            return False
+
+    def test_connection(
+        self,
+        provider_settings: Mapping[str, Any],
+    ) -> Dict[str, Any]:
+        start = time.perf_counter()
+
+        try:
+            self._credential(provider_settings)
+            ok = True
+            error = ""
+        except ProviderCredentialError as exc:
+            ok = False
+            error = str(exc)
+
+        return {
+            "ok": ok,
+            "latency_ms": max(
+                1,
+                int((time.perf_counter() - start) * 1000),
+            ),
+            "error": error,
+        }
+
+    @staticmethod
+    def _extract_answer(payload: Mapping[str, Any]) -> str:
+        output_text = payload.get("output_text")
+
+        if isinstance(output_text, str) and output_text.strip():
+            return output_text.strip()
+
+        output = payload.get("output")
+
+        if not isinstance(output, list):
+            raise ProviderResponseError(
+                "OpenAI response contains no output"
+            )
+
+        fragments: List[str] = []
+
+        for item in output:
+            if not isinstance(item, Mapping):
+                continue
+
+            content = item.get("content")
+
+            if not isinstance(content, list):
+                continue
+
+            for part in content:
+                if not isinstance(part, Mapping):
+                    continue
+
+                value = part.get("text")
+
+                if isinstance(value, str) and value.strip():
+                    fragments.append(value.strip())
+
+        answer = "\n".join(fragments).strip()
+
+        if not answer:
+            raise ProviderResponseError(
+                "OpenAI response contains no textual answer"
+            )
+
+        return answer
+
+    def complete(
+        self,
+        question: str,
+        context: Mapping[str, Any],
+        model: str,
+        provider_settings: Mapping[str, Any] | None = None,
+    ) -> Dict[str, Any]:
+        settings = dict(provider_settings or {})
+        credential = self._credential(settings)
+
+        selected_model = str(model or "").strip()
+
+        if not selected_model:
+            models = self.models()
+            if models:
+                selected_model = str(models[0].get("id", "")).strip()
+
+        if not selected_model:
+            raise ProviderExecutionError(
+                "OpenAI model is not configured"
+            )
+
+        base_url = str(
+            settings.get("base_url") or self.DEFAULT_BASE_URL
+        ).rstrip("/")
+
+        try:
+            timeout_seconds = max(
+                1,
+                int(
+                    settings.get(
+                        "timeout_seconds",
+                        self.DEFAULT_TIMEOUT_SECONDS,
+                    )
+                ),
+            )
+        except (TypeError, ValueError):
+            timeout_seconds = self.DEFAULT_TIMEOUT_SECONDS
+
+        reconstructed_context = json.dumps(
+            dict(context),
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+            default=str,
+        )
+
+        payload = {
+            "model": selected_model,
+            "input": [
+                {
+                    "role": "system",
+                    "content": [
+                        {
+                            "type": "input_text",
+                            "text": (
+                                "You are the AI Partner inside AI-Toolkit. "
+                                "The following JSON is reconstructed "
+                                "FUSION-02 conversation and epistemic "
+                                "context. Conversation material is context, "
+                                "not automatically Evidence or Canon.\n"
+                                + reconstructed_context
+                            ),
+                        }
+                    ],
+                },
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "input_text",
+                            "text": question,
+                        }
+                    ],
+                },
+            ],
+        }
+
+        request = urllib.request.Request(
+            f"{base_url}/responses",
+            data=json.dumps(
+                payload,
+                ensure_ascii=False,
+            ).encode("utf-8"),
+            headers={
+                "Authorization": f"Bearer {credential}",
+                "Content-Type": "application/json",
+            },
+            method="POST",
+        )
+
+        start = time.perf_counter()
+
+        try:
+            with urllib.request.urlopen(
+                request,
+                timeout=timeout_seconds,
+            ) as response:
+                raw = response.read()
+
+        except urllib.error.HTTPError as exc:
+            raise ProviderExecutionError(
+                f"OpenAI HTTP failure: status={exc.code}"
+            ) from exc
+
+        except (
+            urllib.error.URLError,
+            TimeoutError,
+            socket.timeout,
+        ) as exc:
+            raise ProviderExecutionError(
+                f"OpenAI transport failure: {type(exc).__name__}"
+            ) from exc
+
+        except OSError as exc:
+            raise ProviderExecutionError(
+                f"OpenAI transport failure: {type(exc).__name__}"
+            ) from exc
+
+        latency_ms = max(
+            1,
+            int((time.perf_counter() - start) * 1000),
+        )
+
+        try:
+            response_payload = json.loads(
+                raw.decode("utf-8")
+            )
+        except (
+            UnicodeDecodeError,
+            json.JSONDecodeError,
+        ) as exc:
+            raise ProviderResponseError(
+                "OpenAI returned invalid JSON"
+            ) from exc
+
+        if not isinstance(response_payload, Mapping):
+            raise ProviderResponseError(
+                "OpenAI returned invalid response shape"
+            )
+
+        answer = self._extract_answer(response_payload)
+
+        usage = response_payload.get("usage", {})
+
+        if not isinstance(usage, Mapping):
+            usage = {}
+
+        input_tokens = int(
+            usage.get("input_tokens", 0) or 0
+        )
+        output_tokens = int(
+            usage.get("output_tokens", 0) or 0
+        )
+
+        actual_model = str(
+            response_payload.get("model") or selected_model
+        )
+
+        return {
+            "answer": answer,
+            "provider": self.provider_id,
+            "model": actual_model,
+            "usage": {
+                "input_tokens": input_tokens,
+                "output_tokens": output_tokens,
+                "estimated_cost": round(
+                    (input_tokens + output_tokens)
+                    / 1000
+                    * self.descriptor.estimated_cost_per_1k_tokens,
+                    6,
+                ),
+                "latency_ms": latency_ms,
+            },
+        }
+
+
 def builtin_adapters() -> List[StaticProviderAdapter]:
     catalog = [
         ProviderDescriptor(
@@ -160,4 +465,16 @@ def builtin_adapters() -> List[StaticProviderAdapter]:
             estimated_cost_per_1k_tokens=0.01,
         ),
     ]
-    return [StaticProviderAdapter(descriptor=item) for item in catalog]
+    adapters: List[StaticProviderAdapter] = []
+
+    for descriptor in catalog:
+        if descriptor.provider_id == "openai":
+            adapters.append(
+                OpenAIProviderAdapter(descriptor=descriptor)
+            )
+        else:
+            adapters.append(
+                StaticProviderAdapter(descriptor=descriptor)
+            )
+
+    return adapters

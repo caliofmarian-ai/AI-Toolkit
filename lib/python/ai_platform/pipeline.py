@@ -44,10 +44,15 @@ class AIRequestPipeline:
             if context_override is not None
             else self.context_builder.build()
         )
+        provider_settings = dict(
+            settings.get("providers", {})
+        ).get(str(selected_provider), {})
+
         completion = adapter.complete(
             question=question,
             context=context,
             model=selected_model,
+            provider_settings=provider_settings,
         )
         usage = {
             "provider": selected_provider,
