@@ -577,3 +577,44 @@ Observed during FUSION-02 OpenAI token-budget diagnosis:
 - Never serialize credentials, Authorization headers, human message
   content, reconstructed context content, or complete provider payloads
   merely to improve log visibility.
+
+## FUSION-02 — local/runtime session boundary
+
+### Classification
+
+`LOCAL_RUNTIME_SESSION_BOUNDARY_ASSUMPTION`
+
+### Demonstrated failure
+
+A Termux diagnostic attempted to locate the live Owner AI Chat session at:
+
+`.ai/ai_sessions`
+
+The directory did not exist in the local checkout.
+
+### Root cause
+
+AISessionEngine persists session files relative to the repository root of the
+running process.
+
+The live Owner AI Chat request is executed on Railway.
+
+Therefore runtime session state created on Railway is not automatically
+present in the separate Termux checkout.
+
+### Engineering rule
+
+Never assume ephemeral or deployment-local runtime state exists in another
+repository checkout merely because both checkouts share the same Git commit.
+
+When diagnosis depends on runtime-generated state:
+
+1. inspect static contracts locally;
+2. identify the runtime observation boundary;
+3. instrument sanitized measurements at that boundary;
+4. deploy through the normal Git path;
+5. observe the real runtime execution;
+6. never substitute synthetic state and call it production evidence.
+
+Runtime diagnostics must report metadata, not secret or conversational
+content.
