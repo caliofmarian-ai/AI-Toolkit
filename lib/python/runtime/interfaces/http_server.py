@@ -24,6 +24,8 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from typing import TYPE_CHECKING, Any, Callable, Dict, Optional
 from urllib.parse import parse_qs, urlparse
 
+from python.runtime.owner_access import OwnerAccessBoundary
+
 logger = logging.getLogger(__name__)
 
 
@@ -55,6 +57,22 @@ class _RuntimeHandler(BaseHTTPRequestHandler):
     def _read_body(self) -> bytes:
         length = int(self.headers.get("Content-Length", 0))
         return self.rfile.read(length) if length else b""
+
+    def _require_owner(self) -> bool:
+        srv = self.__class__._server_ref
+        decision = srv.owner_access.authenticate(self.headers)
+
+        if decision.authenticated:
+            return True
+
+        self._send_json(
+            {
+                "error": "owner authentication required",
+                "access": decision.as_dict(),
+            },
+            401,
+        )
+        return False
 
     def do_GET(self) -> None:
         parsed = urlparse(self.path)
@@ -122,9 +140,13 @@ class _RuntimeHandler(BaseHTTPRequestHandler):
         ):
             self._send_html(srv.render_dashboard(path, query))
         elif srv.dashboard_service is not None and path == "/api/ai/control-center":
+            if not self._require_owner():
+                return
             payload = srv.dashboard_payload(refresh="1" in query.get("refresh", []))
             self._send_json(payload.get("ai_control_center", {}))
         elif srv.dashboard_service is not None and path == "/api/ai/ask":
+            if not self._require_owner():
+                return
             question = (query.get("q") or [""])[0].strip()
             prompt_name = (query.get("prompt") or [""])[0].strip()
             if not question and not prompt_name:
@@ -176,6 +198,7 @@ class RuntimeHttpServer:
         self._server: Optional[HTTPServer] = None
         self._thread: Optional[threading.Thread] = None
         self.dashboard_service = None
+        self.owner_access = OwnerAccessBoundary()
 
         # Default no-op handlers (replaced by bootstrap)
         self._health_handler: Callable[[], dict] = lambda: {"healthy": True}

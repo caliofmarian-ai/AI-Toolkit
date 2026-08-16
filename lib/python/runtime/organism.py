@@ -14,6 +14,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+from python.runtime.owner_access import OwnerAccessBoundary
+
 from python.experience.persistent_repository import (
     JsonFileExperienceRepository,
 )
@@ -37,6 +39,7 @@ class EpistemicOrganismAccess:
         self.layered_memory_repository_class = LayeredMemoryRepository
         self.sedimentation_repository_class = SedimentationRepository
         self.provenance_class = Provenance
+        self.owner_access = OwnerAccessBoundary()
 
     @property
     def memory_root(self) -> Path:
@@ -225,6 +228,7 @@ class EpistemicOrganismAccess:
                 "runtime_may_mutate_canon": False,
                 "runtime_may_replace_csl": False,
             },
+            "owner_access": self.owner_access.public_state(),
             "migration_boundaries": {
                 "pcc_06": "SUSPENDED_FOR_MIGRATION",
                 "living_project_image": "DEFERRED",
