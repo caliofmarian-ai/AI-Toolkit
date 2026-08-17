@@ -18,6 +18,79 @@ class AIContextBuilder:
         self.repository_root = Path(repository_root).resolve()
         self.workspace_root = Path(workspace_root).resolve() if workspace_root else self.repository_root.parent
 
+    def build_permanent_orientation(self) -> Dict[str, Any]:
+        """Build bounded read-only orientation without repository profiling.
+
+        Permanent orientation tells the AI where it is operating and which
+        high-level epistemic manifestations are visible.  It deliberately
+        does not materialize repository knowledge.  Task-specific knowledge
+        belongs to later cognitive retrieval and Working Context assembly.
+        """
+        git = GitContextProvider(str(self.repository_root)).collect()
+        development = DevelopmentContextProvider(str(self.repository_root)).collect()
+        runtime_payload = self._read_json(
+            self.repository_root / ".ai" / "runtime" / "state" / "runtime_status.json"
+        )
+        runtime_status = runtime_payload.get("runtime", runtime_payload)
+
+        return {
+            "schema": "ai-toolkit/permanent-epistemic-orientation/v1",
+            "organism": "AI-Toolkit",
+            "project": self.repository_root.name,
+            "human_authority": {
+                "authority": "human",
+                "ai_may_promote_authority": False,
+            },
+            "epistemic_classes": [
+                "canon",
+                "evidence",
+                "conversation",
+                "error_memory",
+                "persistent_experience",
+                "runtime",
+                "repository",
+            ],
+            "available_organs": [
+                "csl_uem",
+                "canon",
+                "knowledge_graph",
+                "repository",
+                "provenance",
+                "layered_memory",
+                "persistent_experience",
+            ],
+            "navigation_capabilities": [
+                "search",
+                "resolve",
+                "read",
+                "inspect",
+                "traverse",
+                "trace_provenance",
+            ],
+            "current_branch": git.get("current_branch", ""),
+            "current_sprint": (development.get("planning", {}) or {}).get(
+                "current_sprint",
+                "",
+            ),
+            "current_epic": (development.get("current_context", {}) or {}).get(
+                "current_epic",
+                "",
+            ),
+            "current_issue": (development.get("current_context", {}) or {}).get(
+                "current_issue",
+                "",
+            ),
+            "runtime_status": runtime_status,
+            "constraints": {
+                "knowledge_availability_is_not_working_context": True,
+                "retrieval_confers_authority": False,
+                "semantic_identity_is_physical_location": False,
+                "navigation_read_only": True,
+                "unknown_is_valid": True,
+                "full_repository_profile_default_payload": False,
+            },
+        }
+
     def build(self) -> Dict[str, Any]:
         git = GitContextProvider(str(self.repository_root)).collect()
         development = DevelopmentContextProvider(str(self.repository_root)).collect()
