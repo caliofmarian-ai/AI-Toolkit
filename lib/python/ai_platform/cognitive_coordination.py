@@ -24,6 +24,21 @@ class InformationNeed:
 
 
 @dataclass(frozen=True)
+class NeedEvaluation:
+    schema: str
+    need_id: str
+    research_required: bool
+    requested_capabilities: tuple[str, ...]
+    reason: str
+    confidence: str
+
+    def to_dict(self) -> dict[str, Any]:
+        result = asdict(self)
+        result["requested_capabilities"] = list(self.requested_capabilities)
+        return result
+
+
+@dataclass(frozen=True)
 class JourneyState:
     schema: str
     journey_id: str
@@ -43,6 +58,7 @@ class JourneyState:
 class EpistemicCognitiveCoordinator:
     INFORMATION_NEED_SCHEMA = "FUSION-02-INFORMATION-NEED-1"
     JOURNEY_SCHEMA = "FUSION-02-JOURNEY-STATE-1"
+    NEED_EVALUATION_SCHEMA = "FUSION-02-NEED-EVALUATION-1"
 
     TERMINAL_STATUSES = (
         "SATISFIED",
@@ -80,6 +96,74 @@ class EpistemicCognitiveCoordinator:
             },
         )
 
+    def evaluate_need(self, need: InformationNeed) -> NeedEvaluation:
+        question = need.question.casefold()
+
+        repository_signals = (
+            "repository",
+            "repo",
+            "git",
+            "github",
+            "commit",
+            "branch",
+            "pull request",
+            "issue",
+            "code",
+            "file",
+            "implementation",
+            "test",
+            "audit",
+            "evidence",
+            "source",
+            "trace",
+            "dependency",
+            "architecture",
+        )
+
+        trivial_messages = {
+            "hi",
+            "hello",
+            "hey",
+            "thanks",
+            "thank you",
+            "ok",
+            "okay",
+        }
+
+        if question in trivial_messages:
+            return NeedEvaluation(
+                schema=self.NEED_EVALUATION_SCHEMA,
+                need_id=need.need_id,
+                research_required=False,
+                requested_capabilities=(),
+                reason="NO_EPISTEMIC_NAVIGATION_REQUIRED",
+                confidence="HIGH",
+            )
+
+        if any(signal in question for signal in repository_signals):
+            return NeedEvaluation(
+                schema=self.NEED_EVALUATION_SCHEMA,
+                need_id=need.need_id,
+                research_required=True,
+                requested_capabilities=(
+                    "search",
+                    "resolve",
+                    "read",
+                    "inspect",
+                ),
+                reason="REPOSITORY_EVIDENCE_REQUIRED",
+                confidence="BOUNDED_HEURISTIC",
+            )
+
+        return NeedEvaluation(
+            schema=self.NEED_EVALUATION_SCHEMA,
+            need_id=need.need_id,
+            research_required=False,
+            requested_capabilities=(),
+            reason="RESEARCH_REQUIREMENT_UNDEMONSTRATED",
+            confidence="UNKNOWN",
+        )
+
     def begin_journey(
         self,
         need: InformationNeed,
@@ -107,12 +191,26 @@ class EpistemicCognitiveCoordinator:
         session_id: str = "",
     ) -> dict[str, Any]:
         need = self.formulate_need(question)
+        evaluation = self.evaluate_need(need)
+
+        evaluated_need = InformationNeed(
+            schema=need.schema,
+            need_id=need.need_id,
+            question=need.question,
+            objective=need.objective,
+            epistemic_status=need.epistemic_status,
+            research_required=evaluation.research_required,
+            requested_capabilities=evaluation.requested_capabilities,
+            constraints=need.constraints,
+        )
+
         journey = self.begin_journey(
-            need,
+            evaluated_need,
             session_id=session_id,
         )
 
         return {
-            "information_need": need.to_dict(),
+            "information_need": evaluated_need.to_dict(),
+            "need_evaluation": evaluation.to_dict(),
             "journey": journey.to_dict(),
         }
