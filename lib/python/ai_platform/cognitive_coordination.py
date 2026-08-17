@@ -39,6 +39,25 @@ class NeedEvaluation:
 
 
 @dataclass(frozen=True)
+class NavigationPlan:
+    schema: str
+    need_id: str
+    required: bool
+    capabilities: tuple[str, ...]
+    read_only: bool
+    authority_preserved: bool
+    working_context_materialized: bool
+    retrieval_executed: bool
+    stopping_conditions: tuple[str, ...]
+
+    def to_dict(self) -> dict[str, Any]:
+        result = asdict(self)
+        result["capabilities"] = list(self.capabilities)
+        result["stopping_conditions"] = list(self.stopping_conditions)
+        return result
+
+
+@dataclass(frozen=True)
 class JourneyState:
     schema: str
     journey_id: str
@@ -59,6 +78,7 @@ class EpistemicCognitiveCoordinator:
     INFORMATION_NEED_SCHEMA = "FUSION-02-INFORMATION-NEED-1"
     JOURNEY_SCHEMA = "FUSION-02-JOURNEY-STATE-1"
     NEED_EVALUATION_SCHEMA = "FUSION-02-NEED-EVALUATION-1"
+    NAVIGATION_PLAN_SCHEMA = "FUSION-02-NAVIGATION-PLAN-1"
 
     TERMINAL_STATUSES = (
         "SATISFIED",
@@ -164,6 +184,35 @@ class EpistemicCognitiveCoordinator:
             confidence="UNKNOWN",
         )
 
+    def plan_navigation(
+        self,
+        need: InformationNeed,
+        evaluation: NeedEvaluation,
+    ) -> NavigationPlan:
+        required = evaluation.research_required
+
+        return NavigationPlan(
+            schema=self.NAVIGATION_PLAN_SCHEMA,
+            need_id=need.need_id,
+            required=required,
+            capabilities=(
+                evaluation.requested_capabilities
+                if required
+                else ()
+            ),
+            read_only=True,
+            authority_preserved=True,
+            working_context_materialized=False,
+            retrieval_executed=False,
+            stopping_conditions=(
+                "NEED_SATISFIED",
+                "NO_EPISTEMIC_GAIN",
+                "UNKNOWN",
+                "HUMAN_REQUIRED",
+                "FORBIDDEN",
+            ) if required else (),
+        )
+
     def begin_journey(
         self,
         need: InformationNeed,
@@ -204,6 +253,11 @@ class EpistemicCognitiveCoordinator:
             constraints=need.constraints,
         )
 
+        navigation_plan = self.plan_navigation(
+            evaluated_need,
+            evaluation,
+        )
+
         journey = self.begin_journey(
             evaluated_need,
             session_id=session_id,
@@ -212,5 +266,6 @@ class EpistemicCognitiveCoordinator:
         return {
             "information_need": evaluated_need.to_dict(),
             "need_evaluation": evaluation.to_dict(),
+            "navigation_plan": navigation_plan.to_dict(),
             "journey": journey.to_dict(),
         }
