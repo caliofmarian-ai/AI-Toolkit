@@ -8,6 +8,7 @@ from .adapters import builtin_adapters
 from .context_builder import AIContextBuilder
 from .conversation_experience import ConversationExperienceBridge
 from .conversation_context import ConversationContextReconstructor
+from .cognitive_coordination import EpistemicCognitiveCoordinator
 from .model_manager import ModelManager
 from .pipeline import AIRequestPipeline
 from .prompt_library import PromptLibrary
@@ -142,6 +143,7 @@ class AIPlatformService:
             repository_root,
             workspace_root,
         )
+        self.cognitive_coordinator = EpistemicCognitiveCoordinator()
         self.prompt_library = PromptLibrary()
         self.pipeline = AIRequestPipeline(
             registry=self.registry,
@@ -245,6 +247,11 @@ class AIPlatformService:
             human_source,
         )
 
+        cognitive_coordination = self.cognitive_coordinator.initialize(
+            effective_question,
+            session_id=session["id"],
+        )
+
         reconstructed_context = self.conversation_context.build(
             session["id"],
             partner_identity={
@@ -301,6 +308,8 @@ class AIPlatformService:
             "model": result["model"],
             "usage": result["usage"],
             "raw_source_count": len(session.get("raw_sources", [])),
+            "information_need": cognitive_coordination["information_need"],
+            "journey": cognitive_coordination["journey"],
             "context": reconstructed_context,
             "context_schema": reconstructed_context.get("schema"),
             "epistemic_status": {
