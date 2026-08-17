@@ -8,7 +8,12 @@ from .adapters import builtin_adapters
 from .context_builder import AIContextBuilder
 from .conversation_experience import ConversationExperienceBridge
 from .conversation_context import ConversationContextReconstructor
-from .cognitive_coordination import EpistemicCognitiveCoordinator
+from .cognitive_coordination import (
+    EpistemicCognitiveCoordinator,
+    InformationNeed,
+    JourneyState,
+    NavigationPlan,
+)
 from python.evidence_engine.engine import EvidenceEngine
 from .model_manager import ModelManager
 from .pipeline import AIRequestPipeline
@@ -243,7 +248,6 @@ class AIPlatformService:
             sequence=human_sequence,
         )
 
-        # Human input becomes durable RAW SOURCE before provider execution.
         session = self.sessions.append_raw_source(
             session["id"],
             human_source,
@@ -254,13 +258,108 @@ class AIPlatformService:
             session_id=session["id"],
         )
 
+        need_data = cognitive_coordination["information_need"]
+        journey_data = cognitive_coordination["journey"]
+        navigation_plan_data = cognitive_coordination.get(
+            "navigation_plan"
+        )
+
+        information_need = InformationNeed(
+            schema=need_data["schema"],
+            need_id=need_data["need_id"],
+            question=need_data["question"],
+            objective=need_data["objective"],
+            epistemic_status=need_data["epistemic_status"],
+            research_required=need_data["research_required"],
+            requested_capabilities=tuple(
+                need_data["requested_capabilities"]
+            ),
+            constraints=dict(need_data["constraints"]),
+        )
+
+        journey_state = JourneyState(
+            schema=journey_data["schema"],
+            journey_id=journey_data["journey_id"],
+            need_id=journey_data["need_id"],
+            status=journey_data["status"],
+            step_count=journey_data["step_count"],
+            epistemic_gain=journey_data["epistemic_gain"],
+            visited=tuple(journey_data["visited"]),
+            stopping_reason=journey_data["stopping_reason"],
+        )
+
         search_navigation = None
-        navigation_plan = cognitive_coordination.get("navigation_plan")
-        if navigation_plan is not None:
-            search_navigation = self.cognitive_coordinator.execute_search_navigation(
-                navigation_plan,
-                evidence_engine=self.evidence_engine,
+        retrieval = None
+
+        if (
+            navigation_plan_data is not None
+            and navigation_plan_data["required"] is True
+            and "search" in navigation_plan_data["capabilities"]
+        ):
+            navigation_plan = NavigationPlan(
+                schema=navigation_plan_data["schema"],
+                need_id=navigation_plan_data["need_id"],
+                required=navigation_plan_data["required"],
+                capabilities=tuple(
+                    navigation_plan_data["capabilities"]
+                ),
+                read_only=navigation_plan_data["read_only"],
+                authority_preserved=navigation_plan_data[
+                    "authority_preserved"
+                ],
+                working_context_materialized=(
+                    navigation_plan_data[
+                        "working_context_materialized"
+                    ]
+                ),
+                retrieval_executed=navigation_plan_data[
+                    "retrieval_executed"
+                ],
+                stopping_conditions=tuple(
+                    navigation_plan_data["stopping_conditions"]
+                ),
             )
+
+            search_navigation = (
+                self.cognitive_coordinator.execute_search_navigation(
+                    plan=navigation_plan,
+                    journey=journey_state,
+                    keyword=effective_question,
+                    search=self.evidence_engine.find,
+                )
+            )
+
+            retrieval = search_navigation.get("retrieval")
+
+            navigation_journey = search_navigation.get("journey")
+
+            if navigation_journey is not None:
+                journey_state = JourneyState(
+                    schema=navigation_journey["schema"],
+                    journey_id=navigation_journey["journey_id"],
+                    need_id=navigation_journey["need_id"],
+                    status=navigation_journey["status"],
+                    step_count=navigation_journey["step_count"],
+                    epistemic_gain=navigation_journey[
+                        "epistemic_gain"
+                    ],
+                    visited=tuple(
+                        navigation_journey["visited"]
+                    ),
+                    stopping_reason=navigation_journey[
+                        "stopping_reason"
+                    ],
+                )
+
+        working_context = (
+            self.cognitive_coordinator.materialize_working_context(
+                need=information_need,
+                journey=journey_state,
+                retrieval=retrieval,
+            )
+        )
+
+        working_context_data = working_context.to_dict()
 
         reconstructed_context = self.conversation_context.build(
             session["id"],
@@ -274,13 +373,23 @@ class AIPlatformService:
             },
         )
 
-        _fusion02_log_context_anatomy(reconstructed_context)
+        provider_cognitive_context = dict(
+            reconstructed_context
+        )
+        provider_cognitive_context[
+            "working_context"
+        ] = working_context_data
+
+        _fusion02_log_context_anatomy(
+            provider_cognitive_context
+        )
+
         result = self.pipeline.run(
             prompt,
             settings,
             provider_id=provider_id,
             model=model,
-            context_override=reconstructed_context,
+            context_override=provider_cognitive_context,
         )
 
         session = self.sessions.append_interaction(
@@ -317,18 +426,27 @@ class AIPlatformService:
             "provider": result["provider"],
             "model": result["model"],
             "usage": result["usage"],
-            "raw_source_count": len(session.get("raw_sources", [])),
-            "information_need": cognitive_coordination["information_need"],
-            "journey": cognitive_coordination["journey"],
+            "raw_source_count": len(
+                session.get("raw_sources", [])
+            ),
+            "information_need": cognitive_coordination[
+                "information_need"
+            ],
+            "journey": journey_state.to_dict(),
             "search_navigation": search_navigation,
-            "context": reconstructed_context,
-            "context_schema": reconstructed_context.get("schema"),
+            "working_context": working_context_data,
+            "context": provider_cognitive_context,
+            "context_schema": provider_cognitive_context.get(
+                "schema"
+            ),
             "epistemic_status": {
                 "conversation_is_raw_source": True,
                 "conversation_is_evidence": False,
                 "conversation_is_canon": False,
                 "automatic_sedimentation": False,
+                "retrieval_confers_authority": False,
                 "human_authority_preserved": True,
+                "unknown_is_valid": True,
             },
         }
 

@@ -1,11 +1,86 @@
 from __future__ import annotations
 
+from copy import deepcopy
 from pathlib import Path
 
 from python.ai_platform.service import AIPlatformService
 
 
-def test_service_executes_bounded_search_navigation_before_provider(
+def _prepare_service(service, monkeypatch):
+    session = {
+        "id": "FUSION02-SERVICE",
+        "selected_provider": "provider-alpha",
+        "selected_model": "model-alpha",
+        "raw_sources": [],
+    }
+
+    experience = type(
+        "Experience",
+        (),
+        {"experience_id": "FUSION02-EXPERIENCE"},
+    )()
+
+    monkeypatch.setattr(
+        service.settings,
+        "load",
+        lambda: {},
+    )
+
+    monkeypatch.setattr(
+        service.prompt_library,
+        "resolve",
+        lambda prompt_name, fallback: fallback,
+    )
+
+    monkeypatch.setattr(
+        service.sessions,
+        "create",
+        lambda payload: deepcopy(session),
+    )
+
+    monkeypatch.setattr(
+        service.sessions,
+        "get",
+        lambda session_id: deepcopy(session),
+    )
+
+    monkeypatch.setattr(
+        service.conversation_experience,
+        "ensure_experience",
+        lambda current_session: (experience, {}),
+    )
+
+    monkeypatch.setattr(
+        service.sessions,
+        "bind_experience",
+        lambda *args: deepcopy(session),
+    )
+
+    monkeypatch.setattr(
+        service.conversation_experience,
+        "raw_source",
+        lambda **kwargs: {
+            "actor": kwargs["actor"],
+            "content": kwargs["content"],
+        },
+    )
+
+    monkeypatch.setattr(
+        service.sessions,
+        "append_raw_source",
+        lambda session_id, source: deepcopy(session),
+    )
+
+    monkeypatch.setattr(
+        service.sessions,
+        "append_interaction",
+        lambda *args: deepcopy(session),
+    )
+
+    return session
+
+
+def test_service_search_working_context_provider_order(
     monkeypatch,
     tmp_path,
 ):
@@ -14,98 +89,55 @@ def test_service_executes_bounded_search_navigation_before_provider(
         workspace_root=str(tmp_path),
     )
 
+    _prepare_service(service, monkeypatch)
+
     events = []
 
-    service.settings.load = lambda: {}
-
-    service.prompt_library.resolve = (
-        lambda prompt_name, fallback: fallback
-    )
-
-    service.conversation_experience.ensure_experience = lambda session: (
-        type("Experience", (), {"experience_id": "EXP-SERVICE-SEARCH"})(),
-        None,
-    )
-
-    service.conversation_experience.raw_source = (
-        lambda **kwargs: {
-            "actor": kwargs["actor"],
-            "content": kwargs["content"],
-        }
-    )
-
-    session = {
-        "id": "SESSION-SERVICE-SEARCH",
-        "selected_provider": "",
-        "selected_model": "",
-        "raw_sources": [],
-    }
-
-    service.sessions.create = lambda payload: dict(session)
-    service.sessions.get = lambda session_id: dict(session)
-    service.sessions.bind_experience = (
-        lambda session_id, experience_id: dict(session)
-    )
-    service.sessions.append_raw_source = (
-        lambda session_id, raw_source: dict(
-            session,
-            raw_sources=[
-                *session.get("raw_sources", []),
-                raw_source,
-            ],
-        )
-    )
-    service.sessions.append_interaction = (
-        lambda session_id, question, answer, usage: dict(session)
-    )
-
-    navigation_plan = {
-        "requested_capabilities": ["search"],
-        "search": {
-            "keyword": "cognitive_coordination",
+    reconstructed = {
+        "schema": "LEGACY-CONTEXT-1",
+        "conversation": {
+            "durable": True,
+            "marker": "PRESERVE-ME",
+        },
+        "persistent_experience": {
+            "preserved": True,
         },
     }
 
-    service.cognitive_coordinator.initialize = (
-        lambda question, session_id: {
-            "information_need": {
-                "raw_source": question,
-            },
-            "journey": {
-                "state": "INITIAL",
-            },
-            "navigation_plan": navigation_plan,
-        }
+    def build_context(*args, **kwargs):
+        events.append("context")
+        return deepcopy(reconstructed)
+
+    monkeypatch.setattr(
+        service.conversation_context,
+        "build",
+        build_context,
     )
 
-    def execute_search(plan, *, evidence_engine):
+    def bounded_search(keyword):
         events.append("search")
-        assert plan is navigation_plan
-        assert evidence_engine is service.evidence_engine
         return {
-            "capability": "search",
-            "status": "EXECUTED",
-            "source_identity": "repository-relative-path",
-            "results": {
-                "docs": [],
-                "python": [
-                    "lib/python/ai_platform/cognitive_coordination.py",
-                ],
-                "shell": [],
-                "tests": [],
-                "semantic": {},
-            },
+            "docs": [],
+            "python": [
+                "lib/python/alpha.py",
+            ],
+            "shell": [],
+            "tests": [
+                "tests/test_alpha.py",
+            ],
+            "semantic": {},
+            "raw_secret_marker": (
+                "MUST-NOT-ENTER-WORKING-CONTEXT"
+            ),
         }
 
-    service.cognitive_coordinator.execute_search_navigation = execute_search
+    monkeypatch.setattr(
+        service.evidence_engine,
+        "find",
+        bounded_search,
+    )
 
-    def build_context(session_id, partner_identity):
-        events.append("context")
-        return {
-            "schema": "test-context/v1",
-        }
-
-    service.conversation_context.build = build_context
+    captured = {}
 
     def provider_run(
         prompt,
@@ -116,18 +148,27 @@ def test_service_executes_bounded_search_navigation_before_provider(
         context_override=None,
     ):
         events.append("provider")
+        captured["context"] = deepcopy(
+            context_override
+        )
+
         return {
             "answer": "provider-answer",
-            "provider": "test-provider",
-            "model": "test-model",
+            "provider": provider_id or "provider-alpha",
+            "model": model or "model-alpha",
             "usage": {},
         }
 
-    service.pipeline.run = provider_run
+    monkeypatch.setattr(
+        service.pipeline,
+        "run",
+        provider_run,
+    )
 
     result = service.ask_repository(
-        "Find cognitive coordination evidence",
-        session_id="SESSION-SERVICE-SEARCH",
+        "inspect repository implementation",
+        provider_id="provider-alpha",
+        model="model-alpha",
     )
 
     assert events == [
@@ -136,20 +177,61 @@ def test_service_executes_bounded_search_navigation_before_provider(
         "provider",
     ]
 
-    assert result["search_navigation"]["capability"] == "search"
-    assert result["search_navigation"]["status"] == "EXECUTED"
-    assert (
-        result["search_navigation"]["source_identity"]
-        == "repository-relative-path"
+    provider_context = captured["context"]
+
+    assert provider_context["schema"] == (
+        "LEGACY-CONTEXT-1"
     )
 
-    assert "working_context" not in result
-    assert "resolved_navigation" not in result
-    assert "read_navigation" not in result
-    assert "inspect_navigation" not in result
+    assert provider_context["conversation"] == {
+        "durable": True,
+        "marker": "PRESERVE-ME",
+    }
+
+    assert provider_context[
+        "persistent_experience"
+    ] == {
+        "preserved": True,
+    }
+
+    assert "working_context" in provider_context
+
+    working = provider_context["working_context"]
+
+    assert working["bounded"] is True
+    assert working["authority_conferred"] is False
+    assert working[
+        "human_authority_preserved"
+    ] is True
+    assert working["unknown_is_valid"] is True
+
+    assert working["source_identity_kind"] == (
+        "repository-relative-path"
+    )
+
+    assert working["source_paths"] == [
+        "lib/python/alpha.py",
+        "tests/test_alpha.py",
+    ]
+
+    serialized = repr(working)
+
+    assert (
+        "MUST-NOT-ENTER-WORKING-CONTEXT"
+        not in serialized
+    )
+    assert "raw_secret_marker" not in serialized
+    assert "result" not in working
+
+    assert result["working_context"] == working
+    assert result["context"] == provider_context
+
+    assert result["search_navigation"][
+        "retrieval"
+    ]["capability"] == "search"
 
 
-def test_service_does_not_execute_search_when_plan_does_not_authorize_it(
+def test_service_unknown_working_context_without_research(
     monkeypatch,
     tmp_path,
 ):
@@ -158,86 +240,82 @@ def test_service_does_not_execute_search_when_plan_does_not_authorize_it(
         workspace_root=str(tmp_path),
     )
 
-    service.settings.load = lambda: {}
-    service.prompt_library.resolve = (
-        lambda prompt_name, fallback: fallback
-    )
+    _prepare_service(service, monkeypatch)
 
-    service.conversation_experience.ensure_experience = lambda session: (
-        type("Experience", (), {"experience_id": "EXP-NO-SEARCH"})(),
-        None,
-    )
-
-    service.conversation_experience.raw_source = (
-        lambda **kwargs: {
-            "actor": kwargs["actor"],
-            "content": kwargs["content"],
-        }
-    )
-
-    session = {
-        "id": "SESSION-NO-SEARCH",
-        "selected_provider": "",
-        "selected_model": "",
-        "raw_sources": [],
-    }
-
-    service.sessions.create = lambda payload: dict(session)
-    service.sessions.get = lambda session_id: dict(session)
-    service.sessions.bind_experience = (
-        lambda session_id, experience_id: dict(session)
-    )
-    service.sessions.append_raw_source = (
-        lambda session_id, raw_source: dict(session)
-    )
-    service.sessions.append_interaction = (
-        lambda session_id, question, answer, usage: dict(session)
-    )
-
-    service.cognitive_coordinator.initialize = (
-        lambda question, session_id: {
-            "information_need": {
-                "raw_source": question,
+    monkeypatch.setattr(
+        service.conversation_context,
+        "build",
+        lambda *args, **kwargs: {
+            "schema": "LEGACY-CONTEXT-1",
+            "conversation": {
+                "preserved": True,
             },
-            "journey": {
-                "state": "INITIAL",
-            },
-            "navigation_plan": None,
-        }
+        },
     )
 
-    def forbidden_search(*args, **kwargs):
-        raise AssertionError("search must not execute without navigation plan")
+    captured = {}
 
-    service.cognitive_coordinator.execute_search_navigation = forbidden_search
+    def provider_run(
+        prompt,
+        settings,
+        *,
+        provider_id="",
+        model="",
+        context_override=None,
+    ):
+        captured["context"] = deepcopy(
+            context_override
+        )
 
-    service.conversation_context.build = (
-        lambda session_id, partner_identity: {
-            "schema": "test-context/v1",
-        }
-    )
-
-    service.pipeline.run = (
-        lambda prompt, settings, **kwargs: {
+        return {
             "answer": "provider-answer",
-            "provider": "test-provider",
-            "model": "test-model",
+            "provider": provider_id or "provider-alpha",
+            "model": model or "model-alpha",
             "usage": {},
         }
+
+    monkeypatch.setattr(
+        service.pipeline,
+        "run",
+        provider_run,
     )
 
     result = service.ask_repository(
-        "ordinary request",
-        session_id="SESSION-NO-SEARCH",
+        "hello",
+        provider_id="provider-alpha",
+        model="model-alpha",
     )
 
     assert result["search_navigation"] is None
 
+    working = result["working_context"]
 
-def test_service_search_integration_does_not_mutate_repository(
+    assert working["status"] == "UNKNOWN"
+    assert working["source_paths"] == []
+    assert working["evidence"] == []
+    assert working["authority_conferred"] is False
+    assert working[
+        "human_authority_preserved"
+    ] is True
+    assert working["unknown_is_valid"] is True
+    assert working["bounded"] is True
+
+    assert captured["context"][
+        "conversation"
+    ] == {
+        "preserved": True,
+    }
+
+    assert captured["context"][
+        "working_context"
+    ] == working
+
+
+def test_service_search_remains_read_only(
     tmp_path,
 ):
     root = Path(tmp_path)
+
     marker = root / "controlled-evidence.md"
     marker.write_text(
         "controlled read-only evidence\n",
@@ -251,7 +329,9 @@ def test_service_search_integration_does_not_mutate_repository(
         workspace_root=str(root),
     )
 
-    result = service.evidence_engine.find("controlled-evidence")
+    result = service.evidence_engine.find(
+        "controlled-evidence"
+    )
 
     after = marker.read_bytes()
 
