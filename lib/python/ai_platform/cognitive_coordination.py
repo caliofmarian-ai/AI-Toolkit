@@ -58,6 +58,30 @@ class NavigationPlan:
 
 
 @dataclass(frozen=True)
+class WorkingContext:
+    schema: str
+    need_id: str
+    journey_id: str
+    status: str
+    source_identity_kind: str
+    source_paths: tuple[str, ...]
+    evidence: tuple[Mapping[str, Any], ...]
+    authority_conferred: bool
+    human_authority_preserved: bool
+    unknown_is_valid: bool
+    bounded: bool
+
+    def to_dict(self) -> dict[str, Any]:
+        result = asdict(self)
+        result["source_paths"] = list(self.source_paths)
+        result["evidence"] = [
+            dict(item)
+            for item in self.evidence
+        ]
+        return result
+
+
+@dataclass(frozen=True)
 class JourneyState:
     schema: str
     journey_id: str
@@ -79,6 +103,7 @@ class EpistemicCognitiveCoordinator:
     JOURNEY_SCHEMA = "FUSION-02-JOURNEY-STATE-1"
     NEED_EVALUATION_SCHEMA = "FUSION-02-NEED-EVALUATION-1"
     NAVIGATION_PLAN_SCHEMA = "FUSION-02-NAVIGATION-PLAN-1"
+    WORKING_CONTEXT_SCHEMA = "FUSION-02-WORKING-CONTEXT-1"
 
     TERMINAL_STATUSES = (
         "SATISFIED",
@@ -345,6 +370,133 @@ class EpistemicCognitiveCoordinator:
                 "result": result,
             },
         }
+
+    def materialize_working_context(
+        self,
+        *,
+        need: InformationNeed,
+        journey: JourneyState,
+        retrieval: Mapping[str, Any] | None,
+        max_sources: int = 8,
+    ) -> WorkingContext:
+        """Materialize bounded active evidence from one retrieval result."""
+        if max_sources < 1:
+            raise ValueError("max_sources must be at least 1")
+
+        if retrieval is None:
+            return WorkingContext(
+                schema=self.WORKING_CONTEXT_SCHEMA,
+                need_id=need.need_id,
+                journey_id=journey.journey_id,
+                status="UNKNOWN",
+                source_identity_kind="repository-relative-path",
+                source_paths=(),
+                evidence=(),
+                authority_conferred=False,
+                human_authority_preserved=True,
+                unknown_is_valid=True,
+                bounded=True,
+            )
+
+        if not isinstance(retrieval, Mapping):
+            raise TypeError("retrieval must be a mapping or None")
+
+        if retrieval.get("authority_conferred") is not False:
+            raise ValueError(
+                "Retrieval must not confer epistemic authority"
+            )
+
+        if retrieval.get("working_context_materialized") is not False:
+            raise ValueError(
+                "Working Context must be materialized exactly once "
+                "from candidate retrieval"
+            )
+
+        source_identity_kind = retrieval.get(
+            "source_identity_kind",
+            "",
+        )
+
+        if source_identity_kind != "repository-relative-path":
+            raise ValueError(
+                "Working Context requires repository-relative source identity"
+            )
+
+        raw_paths = retrieval.get("source_paths", ())
+
+        if not isinstance(raw_paths, (list, tuple)):
+            raise TypeError("retrieval source_paths must be a sequence")
+
+        selected_paths: list[str] = []
+
+        for value in raw_paths:
+            if not isinstance(value, str):
+                continue
+
+            normalized = value.strip()
+
+            if not normalized:
+                continue
+
+            if normalized in selected_paths:
+                continue
+
+            selected_paths.append(normalized)
+
+            if len(selected_paths) >= max_sources:
+                break
+
+        result = retrieval.get("result", {})
+
+        if not isinstance(result, Mapping):
+            raise TypeError("retrieval result must be a mapping")
+
+        evidence: list[Mapping[str, Any]] = []
+
+        for path in selected_paths:
+            families: list[str] = []
+
+            for family in ("python", "shell", "tests", "docs"):
+                values = result.get(family, ())
+
+                if (
+                    isinstance(values, (list, tuple))
+                    and path in values
+                ):
+                    families.append(family)
+
+            semantic = result.get("semantic", {})
+
+            if isinstance(semantic, Mapping) and path in semantic:
+                families.append("semantic")
+
+            evidence.append(
+                {
+                    "source_path": path,
+                    "source_identity_kind": source_identity_kind,
+                    "families": families,
+                }
+            )
+
+        status = (
+            "MATERIALIZED"
+            if selected_paths
+            else "UNKNOWN"
+        )
+
+        return WorkingContext(
+            schema=self.WORKING_CONTEXT_SCHEMA,
+            need_id=need.need_id,
+            journey_id=journey.journey_id,
+            status=status,
+            source_identity_kind=source_identity_kind,
+            source_paths=tuple(selected_paths),
+            evidence=tuple(evidence),
+            authority_conferred=False,
+            human_authority_preserved=True,
+            unknown_is_valid=True,
+            bounded=True,
+        )
 
     def initialize(
         self,
