@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 from hashlib import sha256
+from pathlib import Path
 from typing import Any, Callable, Mapping
 
 
@@ -369,6 +370,92 @@ class EpistemicCognitiveCoordinator:
                 "source_paths": list(source_paths),
                 "result": result,
             },
+        }
+
+    def execute_read_navigation(
+        self,
+        source_path: str,
+        *,
+        read,
+        repository_root=None,
+    ) -> Dict[str, Any]:
+        """Read one bounded repository source without conferring authority."""
+        normalized_path = str(source_path or "").strip()
+
+        if not normalized_path:
+            return {
+                "schema": "FUSION-02-READ-ONLY-SOURCE-1",
+                "capability": "read",
+                "status": "UNKNOWN",
+                "read_only": True,
+                "bounded": True,
+                "authority_conferred": False,
+                "human_authority_preserved": True,
+                "unknown_is_valid": True,
+                "source_identity_kind": "repository-relative-path",
+                "source_path": "",
+                "content": "",
+                "epistemic_gain": False,
+            }
+
+        candidate = Path(normalized_path)
+
+        if candidate.is_absolute() or ".." in candidate.parts:
+            return {
+                "schema": "FUSION-02-READ-ONLY-SOURCE-1",
+                "capability": "read",
+                "status": "UNKNOWN",
+                "read_only": True,
+                "bounded": True,
+                "authority_conferred": False,
+                "human_authority_preserved": True,
+                "unknown_is_valid": True,
+                "source_identity_kind": "repository-relative-path",
+                "source_path": normalized_path,
+                "content": "",
+                "epistemic_gain": False,
+            }
+
+        if repository_root is None:
+            return {
+                "schema": "FUSION-02-READ-ONLY-SOURCE-1",
+                "capability": "read",
+                "status": "UNKNOWN",
+                "read_only": True,
+                "bounded": True,
+                "authority_conferred": False,
+                "human_authority_preserved": True,
+                "unknown_is_valid": True,
+                "source_identity_kind": "repository-relative-path",
+                "source_path": normalized_path,
+                "content": "",
+                "epistemic_gain": False,
+            }
+
+        root = Path(repository_root)
+
+        content = read(root, normalized_path)
+
+        if not isinstance(content, str):
+            content = ""
+
+        return {
+            "schema": "FUSION-02-READ-ONLY-SOURCE-1",
+            "capability": "read",
+            "status": (
+                "RETRIEVED"
+                if content
+                else "UNKNOWN"
+            ),
+            "read_only": True,
+            "bounded": True,
+            "authority_conferred": False,
+            "human_authority_preserved": True,
+            "unknown_is_valid": True,
+            "source_identity_kind": "repository-relative-path",
+            "source_path": normalized_path,
+            "content": content,
+            "epistemic_gain": bool(content),
         }
 
     def materialize_working_context(
