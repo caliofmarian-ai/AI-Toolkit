@@ -637,3 +637,85 @@ class EpistemicCognitiveCoordinator:
             "navigation_plan": navigation_plan.to_dict(),
             "journey": journey.to_dict(),
         }
+
+    def evaluate_cognitive_step(
+        self,
+        *,
+        journey: JourneyState,
+        outcome: str,
+        observation_identity: str = "",
+        epistemic_gain: bool,
+    ) -> Dict[str, Any]:
+        """Evaluate one bounded cognitive step and transition its journey."""
+        allowed_outcomes = {
+            "SATISFIED",
+            "PARTIAL",
+            "UNKNOWN",
+            "BLOCKED",
+            "HUMAN_REQUIRED",
+            "FORBIDDEN",
+            "NO_EPISTEMIC_GAIN",
+        }
+
+        normalized_outcome = str(outcome or "").strip().upper()
+
+        if normalized_outcome not in allowed_outcomes:
+            raise ValueError(
+                "unsupported cognitive outcome: "
+                + normalized_outcome
+            )
+
+        gain = bool(epistemic_gain)
+
+        effective_outcome = normalized_outcome
+
+        if (
+            normalized_outcome in {"PARTIAL", "UNKNOWN"}
+            and not gain
+        ):
+            effective_outcome = "NO_EPISTEMIC_GAIN"
+
+        continue_navigation = (
+            effective_outcome in {"PARTIAL", "UNKNOWN"}
+            and gain
+        )
+
+        if continue_navigation:
+            next_status = "IN_PROGRESS"
+            stopping_reason = ""
+        else:
+            next_status = effective_outcome
+            stopping_reason = effective_outcome
+
+        visited = list(journey.visited)
+
+        normalized_identity = str(
+            observation_identity or ""
+        ).strip()
+
+        if (
+            normalized_identity
+            and normalized_identity not in visited
+        ):
+            visited.append(normalized_identity)
+
+        transitioned_journey = JourneyState(
+            schema=journey.schema,
+            journey_id=journey.journey_id,
+            need_id=journey.need_id,
+            status=next_status,
+            step_count=journey.step_count + 1,
+            epistemic_gain=gain,
+            visited=tuple(visited),
+            stopping_reason=stopping_reason,
+        )
+
+        return {
+            "schema": "FUSION-02-COGNITIVE-STEP-1",
+            "outcome": effective_outcome,
+            "continue_navigation": continue_navigation,
+            "authority_conferred": False,
+            "human_authority_preserved": True,
+            "unknown_is_valid": True,
+            "journey": transitioned_journey.to_dict(),
+        }
