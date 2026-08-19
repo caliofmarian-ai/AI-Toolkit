@@ -361,6 +361,41 @@ class AIPlatformService:
 
         working_context_data = working_context.to_dict()
 
+        read_navigation = None
+
+        if isinstance(retrieval, dict):
+            source_paths = retrieval.get(
+                "source_paths",
+                (),
+            )
+
+            if source_paths:
+                selected_source_path = source_paths[0]
+
+                def _bounded_repository_read(
+                    repository_root,
+                    relative_path,
+                ):
+                    target = (
+                        repository_root / relative_path
+                    ).resolve()
+
+                    target.relative_to(
+                        repository_root.resolve()
+                    )
+
+                    return target.read_text(
+                        encoding="utf-8",
+                    )
+
+                read_navigation = (
+                    self.cognitive_coordinator.execute_read_navigation(
+                        selected_source_path,
+                        read=_bounded_repository_read,
+                        repository_root=self.sessions.root,
+                    )
+                )
+
         reconstructed_context = self.conversation_context.build(
             session["id"],
             partner_identity={
@@ -379,6 +414,11 @@ class AIPlatformService:
         provider_cognitive_context[
             "working_context"
         ] = working_context_data
+
+        if read_navigation is not None:
+            provider_cognitive_context[
+                "read_navigation"
+            ] = read_navigation
 
         _fusion02_log_context_anatomy(
             provider_cognitive_context
@@ -434,6 +474,7 @@ class AIPlatformService:
             ],
             "journey": journey_state.to_dict(),
             "search_navigation": search_navigation,
+            "read_navigation": read_navigation,
             "working_context": working_context_data,
             "context": provider_cognitive_context,
             "context_schema": provider_cognitive_context.get(

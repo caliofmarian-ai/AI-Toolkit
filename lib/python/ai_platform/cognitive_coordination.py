@@ -434,7 +434,23 @@ class EpistemicCognitiveCoordinator:
 
         root = Path(repository_root)
 
-        content = read(root, normalized_path)
+        try:
+            content = read(root, normalized_path)
+        except (OSError, UnicodeError):
+            return {
+                "schema": "FUSION-02-READ-ONLY-SOURCE-1",
+                "capability": "read",
+                "status": "UNKNOWN",
+                "read_only": True,
+                "bounded": True,
+                "authority_conferred": False,
+                "human_authority_preserved": True,
+                "unknown_is_valid": True,
+                "source_identity_kind": "repository-relative-path",
+                "source_path": normalized_path,
+                "content": "",
+                "epistemic_gain": False,
+            }
 
         if not isinstance(content, str):
             content = ""
