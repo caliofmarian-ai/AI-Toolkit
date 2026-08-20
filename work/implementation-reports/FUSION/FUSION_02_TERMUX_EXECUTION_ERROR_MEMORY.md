@@ -1326,3 +1326,42 @@ only files that actually contain the demonstrated implementation,
 certification, Error Memory, tree, test, or report delta.
 
 No production repair is required for this error.
+
+## FUSION-02 — Natural-language repository discovery gap
+
+### Classification
+
+`FUSION02_NATURAL_LANGUAGE_REPOSITORY_DISCOVERY_GAP`
+
+### Demonstrated observation
+
+After FUSION-02 closure, the deployed AI Partner reported that it could not
+inspect the Railway repository filesystem.
+
+Direct source audit demonstrated that repository filesystem access already
+existed:
+
+- AIPlatformService already owned EvidenceEngine(repository_root);
+- EvidenceEngine already traversed repository_root;
+- bounded repository reads already used real local Path.read_text.
+
+The demonstrated failure was therefore not absence of repository access.
+
+The actual defect was that EvidenceEngine.find() treated the complete human
+question as one literal filename substring. Natural-language questions could
+therefore fail to discover repository files that were physically present and
+readable.
+
+### Recovery rule
+
+Repository access diagnostics must distinguish:
+
+1. physical repository filesystem access;
+2. discovery/navigation capability;
+3. bounded file read capability;
+4. provider/network capability.
+
+Failure of natural-language discovery must not be reported as absence of the
+repository filesystem when local repository access is demonstrably present.
+
+This record is Evidence, not Canon.
