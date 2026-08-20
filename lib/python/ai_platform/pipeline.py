@@ -25,6 +25,15 @@ class AIRequestPipeline:
         self.context_builder = context_builder
         self._shadow_working_context: WorkingContext | None = None
         self._last_shadow_comparison: Dict[str, Any] | None = None
+        self._default_cognitive_working_context: WorkingContext | None = None
+
+    def use_cognitive_working_context(
+        self,
+        working_context: WorkingContext | None,
+    ) -> None:
+        self._default_cognitive_working_context = working_context
+        self._shadow_working_context = None
+        self._last_shadow_comparison = None
 
     def observe_working_context(
         self,
@@ -79,7 +88,27 @@ class AIRequestPipeline:
         context_governance = None
         shadow_comparison = None
 
-        if working_context is not None:
+        default_cognitive_working_context = (
+            self._default_cognitive_working_context
+        )
+        self._default_cognitive_working_context = None
+
+        if (
+            working_context is not None
+            and default_cognitive_working_context is not None
+        ):
+            raise ValueError(
+                "explicit and default cognitive working contexts "
+                "cannot coexist"
+            )
+
+        effective_working_context = (
+            working_context
+            if working_context is not None
+            else default_cognitive_working_context
+        )
+
+        if effective_working_context is not None:
             provider_capacity = self.registry.model_token_limit(
                 str(selected_provider),
                 str(selected_model),
@@ -96,7 +125,7 @@ class AIRequestPipeline:
             )
 
             governed = governor.govern(
-                working_context=working_context,
+                working_context=effective_working_context,
                 budget=budget,
             )
 

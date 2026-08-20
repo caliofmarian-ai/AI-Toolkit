@@ -1,3 +1,39 @@
+# FUSION-02 — E16/T12 Default Cognitive Cutover
+
+## Sens uman
+
+Organismul nu mai folosește noua fiziologie doar ca observație paralelă.
+Pentru cererea simplă `hi`, Working Context cognitiv devine contextul real
+guvernat care traversează limita către furnizorul AI.
+
+## Conservări obligatorii
+
+- Context Budget Governance rămâne activ;
+- provider/model selection rămâne neschimbată;
+- Human Authority rămâne conservată;
+- UNKNOWN rămâne valid și nu este transformat în certitudine;
+- cutover-ul nu persistă o a doua Session sau Journey;
+- contractul istoric `service -> pipeline.run` nu este extins;
+- fallback-ul legacy rămâne disponibil când nu există cutover cognitiv.
+
+## Acceptance
+
+E16/T12 dedicated acceptance: PASS.
+
+Historical service-contract regression: PASS.
+
+Complete FUSION regression: PASS.
+
+## Stare
+
+E16 — FINALIZAT / CERTIFICAT.
+
+T12 — FINALIZAT / CERTIFICAT.
+
+Următorul nod autorizat este E17, exact conform arborelui FUSION-02.
+
+## Arbore complet FUSION-02
+
 # FUSION-02 — Arborele evoluției organismului epistemic
 
 ## Rolul acestui document

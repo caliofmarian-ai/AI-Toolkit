@@ -424,14 +424,14 @@ class AIPlatformService:
             provider_cognitive_context
         )
 
-        observe_working_context = getattr(
+        use_cognitive_working_context = getattr(
             self.pipeline,
-            "observe_working_context",
+            "use_cognitive_working_context",
             None,
         )
 
-        if callable(observe_working_context):
-            observe_working_context(
+        if callable(use_cognitive_working_context):
+            use_cognitive_working_context(
                 working_context
             )
 
