@@ -1,3 +1,70 @@
+# FUSION-02 — E20/T16 Legacy Default Context Retirement
+
+## Sens uman
+
+Organismul nu mai folosește fiziologia veche drept mecanism implicit al
+cererii reale.
+
+Cererea reală trece prin fiziologia cognitivă, formează Working Context și
+trimite către provider contextul cognitiv explicit și guvernat.
+
+Fiziologia legacy nu a fost distrusă. Ea rămâne compatibilitate istorică la
+nivelul pipeline-ului pentru contractele deja demonstrate.
+
+## Limita corectă a retragerii
+
+Retragerea înseamnă:
+
+AIPlatformService real request
+→ Cognitive Coordination
+→ Working Context
+→ Context Budget Governance
+→ provider_cognitive_context
+→ provider boundary
+
+Retragerea NU înseamnă ștergerea fizică a compatibilității istorice din
+AIRequestPipeline.
+
+## Conservări demonstrate
+
+- T1 characterization contract rămâne valid;
+- T11 shadow compatibility rămâne valid;
+- Working Context rămâne fiziologia reală a serviciului;
+- Context Budget Governance rămâne activ;
+- provider/model selection nu este redefinită;
+- Human Authority nu este transferată providerului;
+- legacy compatibility nu devine din nou fiziologie implicită a serviciului.
+
+## Eroare recuperată
+
+E20-ERR-001 — LEGACY_RETIREMENT_COMPATIBILITY_BOUNDARY_REGRESSION
+
+Prima implementare a interpretat retirement ca eliminare a fallback-ului
+istoric din pipeline. Full regression a demonstrat că aceasta încălca
+contractele T1 și T11.
+
+Recuperarea a mutat limita de retirement la organul corect: serviciul real.
+
+## Acceptance
+
+- T16 acceptance: PASS
+- T1 characterization: PASS
+- T11 shadow compatibility: PASS
+- full FUSION regression: PASS
+
+## Stare
+
+E20 — FINALIZAT / CERTIFICAT.
+
+T16 — FINALIZAT / CERTIFICAT.
+
+FUSION-02 — TOATE CELE 21 DE NODURI E0-E20 SUNT FINALIZATE.
+
+Nu este autorizată în acest raport inventarea unei etape ulterioare.
+Următoarea evoluție trebuie derivată din arborele și corpusul autoritativ.
+
+## Arbore complet FUSION-02
+
 # FUSION-02 — Arborele evoluției organismului epistemic
 
 ## Rolul acestui document

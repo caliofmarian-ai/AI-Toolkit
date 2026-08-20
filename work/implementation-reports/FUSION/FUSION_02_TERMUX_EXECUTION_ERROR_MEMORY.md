@@ -1251,3 +1251,78 @@ representation.
 Production was not modified by this failed recovery gate.
 
 Evidence, not Canon.
+
+## E20-ERR-001 — LEGACY_RETIREMENT_COMPATIBILITY_BOUNDARY_REGRESSION
+
+Classification:
+RECOVERED IMPLEMENTATION-BOUNDARY ERROR
+
+Observed during:
+FUSION-02 / E20 / T16 — Legacy Default Context Retirement
+
+Failure:
+The first T16 implementation removed the historical implicit
+`context_builder.build()` fallback from `AIRequestPipeline.run()`.
+
+Demonstrated regressions:
+- T11 shadow pipeline could no longer execute its historical legacy provider path;
+- T1 characterization baseline could no longer transport the built repository profile;
+- T1 production characterization contract no longer found
+  `self.context_builder.build()` in the pipeline.
+
+Root cause:
+"Legacy Default Context Retirement" was interpreted as physical removal of the
+legacy pipeline compatibility physiology.
+
+That interpretation exceeded the demonstrated architectural boundary.
+
+Correct semantic boundary:
+- AIPlatformService real request physiology is cognitive;
+- AIPlatformService supplies `provider_cognitive_context`;
+- the historical pipeline fallback remains available for compatibility,
+  characterization, shadow observation, and direct legacy callers;
+- legacy existence does not mean legacy is the organism's implicit real service physiology.
+
+Recovery rule:
+Never delete a historical compatibility physiology merely because it has been
+retired from the organism's primary/default service path.
+
+Acceptance required:
+- restore T1;
+- restore T11;
+- preserve E16/E17/E18/E19 cognitive service cutover;
+- prove real service requests do not depend on implicit legacy context;
+- full FUSION regression must pass before E20 certification.
+
+## E20-ERR-002 — EXACT_BOUNDARY_REQUIRED_UNCHANGED_COMPATIBILITY_FILE
+
+Classification:
+RECOVERED COMMIT-GATE ERROR
+
+Observed during:
+FUSION-02 / E20 / T16 final certification
+
+Demonstrated observation:
+The final exact-mutation-boundary gate required
+`lib/python/ai_platform/pipeline.py` to appear in the staged diff.
+
+The recovered T16 implementation had already restored that file exactly to
+its conserved pre-E20 compatibility state. Therefore the file was correctly
+absent from the staged diff.
+
+Root cause:
+The gate confused two different sets:
+
+- files allowed to be modified;
+- files required to be modified.
+
+A compatibility file inspected and conserved by a batch does not need to
+appear in the commit when its final content is identical to the conserved
+authority.
+
+Recovery rule:
+Exact mutation boundaries must reject unexpected mutations, but must require
+only files that actually contain the demonstrated implementation,
+certification, Error Memory, tree, test, or report delta.
+
+No production repair is required for this error.
