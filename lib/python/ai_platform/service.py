@@ -455,13 +455,29 @@ class AIPlatformService:
                 working_context
             )
 
-        result = self.pipeline.run(
-            prompt,
-            settings,
-            provider_id=provider_id,
-            model=model,
-            context_override=provider_cognitive_context,
-        )
+        try:
+            result = self.pipeline.run(
+                prompt,
+                settings,
+                provider_id=provider_id,
+                model=model,
+                context_override=provider_cognitive_context,
+            )
+        except Exception as exc:
+            persisted_session = self.sessions.get(
+                session["id"]
+            )
+
+            if persisted_session:
+                self.sessions.mark_journey_interruption(
+                    session["id"],
+                    reason=(
+                        "provider-failure:"
+                        + type(exc).__name__
+                    ),
+                )
+
+            raise
 
         session = self.sessions.append_interaction(
             session["id"],

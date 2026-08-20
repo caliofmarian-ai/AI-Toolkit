@@ -1,3 +1,65 @@
+# FUSION-02 — E19/T15 Failure, Restart and Human Authority
+
+## Sens uman
+
+Organismul știe acum cum să-și conserve poziția cognitivă atunci când
+funcționarea este întreruptă.
+
+O eroare de provider nu devine adevăr, cunoaștere sau autoritate.
+
+Întreruperea poate fi consemnată împreună cu identitatea Journey-ului și a
+nevoii curente, iar checkpoint-ul poate supraviețui reconstruirii motorului.
+
+O conversație poate continua ulterior printr-un Journey nou fără ca Journey,
+Working Context, Persistent Experience sau Human Authority să fie confundate.
+
+## T15 — certificat
+
+- interruption checkpoint;
+- Journey identity conservation;
+- Need identity conservation;
+- interruption status;
+- stopping reason;
+- restart recovery;
+- checkpoint persistence;
+- failure confers no epistemic authority;
+- Human Authority preservation;
+- no fabricated Journey;
+- no fabricated AI answer;
+- no fabricated usage;
+- later Journey remains possible;
+- unknown persistent session fails closed;
+- synthetic service boundary remains non-persistent.
+
+## Erori recuperate
+
+- E19-ERR-001 — PYTHON_SOURCE_LITERAL_NEWLINE_ESCAPE_CORRUPTION;
+- E19-ERR-002 — INCOMPLETE_SYNTHETIC_SESSION_EXPERIENCE_BOUNDARY_FIXTURE;
+- E19-ERR-003 — INCOMPLETE_SYNTHETIC_SESSION_CONTEXT_RECONSTRUCTION_FIXTURE;
+- E19-ERR-004 — RECOVERY_AUDIT_GATE_FORMAT_ASSUMPTION.
+
+Toate rămân vizibile istoric.
+
+Niciuna dintre recuperări nu a necesitat reset sau force push.
+
+## Acceptance
+
+Focused E19/T15 acceptance: PASS.
+
+Complete FUSION regression: PASS — 212 tests at the pre-certification gate.
+
+## Poziție evolutivă
+
+E19 — FINALIZAT / CERTIFICAT.
+
+T15 — FINALIZAT / CERTIFICAT.
+
+FUSION-02 — E0-E19 = 20 / 21 = 95.2%.
+
+E20/T16 rămâne singurul nod nefinalizat din FUSION-02.
+
+## Arbore complet FUSION-02
+
 # FUSION-02 — Arborele evoluției organismului epistemic
 
 ## Rolul acestui document

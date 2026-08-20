@@ -1089,3 +1089,165 @@ The integration must also preserve the established service test boundary.
 - run the complete FUSION regression before certification.
 
 This failure is Evidence, not Canon.
+
+---
+
+## Demonstrated execution precedent — Python source newline escaped as literal text
+
+### Observation
+
+During FUSION-02 E19/T15 implementation, the Session organ transformation
+completed its textual write, but the immediate Python syntax gate failed with:
+
+`SyntaxError: unexpected character after line continuation character`
+
+The demonstrated corrupted source fragment was:
+
+`return {}\n`
+
+where `\n` existed as two literal source characters rather than as an actual
+line ending.
+
+### Classification
+
+**E19-ERR-001 — PYTHON_SOURCE_LITERAL_NEWLINE_ESCAPE_CORRUPTION**
+
+This was an implementation-script serialization error.
+
+It is not evidence that the E19/T15 physiology is conceptually invalid.
+
+The failure occurred before E19/T15 acceptance and before commit/push.
+
+### Root cause
+
+The previous Bash generated Python source through a transformation whose final
+write encoded a newline escape incorrectly, materializing the characters
+backslash+n into `sessions.py`.
+
+### Recovery rule
+
+When a Bash transforms Python source, the resulting source must be syntax
+checked immediately.
+
+If an exact literal newline escape is demonstrated in source, repair only the
+demonstrated corruption and preserve the remaining materialized implementation.
+
+Do not use a repository-wide reset when the failed mutation can be causally and
+exactly recovered.
+
+### Epistemic boundary
+
+This record is demonstrated Error Memory Evidence.
+
+It is not Canon.
+
+It does not confer authority.
+
+Human Authority remains conserved.
+
+## FUSION-02 — E19/T15 synthetic session fixture bypassed established experience boundary
+
+### Classification
+
+`E19-ERR-002 — INCOMPLETE_SYNTHETIC_SESSION_EXPERIENCE_BOUNDARY_FIXTURE`
+
+### Demonstrated observation
+
+The E19/T15 focused acceptance failed before provider execution.
+
+The synthetic service test replaced `AISessionEngine.create()` and `AISessionEngine.get()`
+but left the real `bind_experience()` persistence operation active.
+
+The real `bind_experience()` correctly rejected the synthetic session because that
+session was intentionally absent from persistent storage.
+
+### Root cause
+
+The new acceptance fixture modeled only part of the already-established synthetic
+service boundary.
+
+The defect is in the test fixture, not in production persistence physiology.
+
+### Recovery rule
+
+Synthetic service tests must mock the complete established pre-provider persistence
+boundary they intentionally replace.
+
+Production `bind_experience()` must remain fail-closed for unknown persistent sessions.
+
+No production guard may be weakened merely to satisfy a synthetic fixture.
+
+Evidence, not Canon.
+
+## FUSION-02 — E19/T15 synthetic session omitted ConversationContext boundary
+
+### Classification
+
+`E19-ERR-003 — INCOMPLETE_SYNTHETIC_SESSION_CONTEXT_RECONSTRUCTION_FIXTURE`
+
+### Demonstrated observation
+
+After repairing the synthetic Experience persistence boundary, the focused
+E19/T15 acceptance advanced farther through `AIPlatformService.ask_repository`
+but stopped before provider invocation.
+
+`ConversationContextEngine.build()` attempted normal organism-backed recovery
+for `synthetic-e19-session`.
+
+That recovery correctly failed because the test intentionally creates no
+persistent session.
+
+### Root cause
+
+The synthetic service fixture still modeled only part of the established
+pre-provider boundary.
+
+The test intended to validate provider-failure behavior without creating
+persistence, but it did not replace Conversation Context reconstruction even
+though that reconstruction legitimately requires a persistent session.
+
+### Recovery rule
+
+For this synthetic acceptance only, replace the complete persistence-dependent
+pre-provider boundary:
+
+- Experience binding;
+- raw-source persistence;
+- Conversation Context reconstruction.
+
+Do not weaken production recovery semantics.
+
+Do not teach the organism that an unknown synthetic session is a real
+persistent session.
+
+Evidence, not Canon.
+
+## FUSION-02 — E19/T15 recovery audit gate assumed fixture formatting
+
+### Classification
+
+`E19-ERR-004 — RECOVERY_AUDIT_GATE_FORMAT_ASSUMPTION`
+
+### Demonstrated observation
+
+The recovery batch stopped before mutation because its audit gate required
+specific fixture text that was not guaranteed by the actual evolving worktree.
+
+The preceding pytest traceback had already demonstrated the relevant semantic
+fact: the synthetic session was intentionally non-persistent, while the final
+assertion called `journey_reference()` on that unknown persistent identity.
+
+### Root cause
+
+The recovery gate tested an unnecessary representation detail instead of the
+demonstrated semantic failure.
+
+### Recovery rule
+
+Recovery gates must validate only facts required by the demonstrated failure.
+They must not require incidental formatting or an assumed intermediate fixture
+representation.
+
+Production was not modified by this failed recovery gate.
+
+Evidence, not Canon.

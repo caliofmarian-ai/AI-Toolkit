@@ -133,6 +133,47 @@ class AISessionEngine:
 
         return session
 
+    def mark_journey_interruption(
+        self,
+        session_id: str,
+        *,
+        reason: str,
+    ) -> Dict[str, Any]:
+        """Persist a non-authoritative interruption checkpoint."""
+        session = self.get(session_id)
+
+        if not session:
+            raise ValueError(f"unknown session {session_id}")
+
+        reference = session.get(
+            "journey_reference",
+            {},
+        )
+
+        if not isinstance(reference, Mapping) or not reference:
+            return session
+
+        reason = str(reason).strip()
+
+        if not reason:
+            reason = "runtime-interruption"
+
+        checkpoint = dict(reference)
+        checkpoint["status"] = "INTERRUPTED"
+        checkpoint["stopping_reason"] = reason
+        checkpoint["authority_conferred"] = False
+        checkpoint["human_authority_preserved"] = True
+        checkpoint["restart_recoverable"] = True
+
+        session["journey_reference"] = checkpoint
+        session["updated_at"] = (
+            datetime.now(timezone.utc).isoformat()
+        )
+
+        self._save(session)
+
+        return session
+
     def journey_reference(
         self,
         session_id: str,
