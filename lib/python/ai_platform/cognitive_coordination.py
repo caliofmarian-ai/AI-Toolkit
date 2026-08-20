@@ -1018,3 +1018,216 @@ class EpistemicCognitiveCoordinator:
             "unknown_is_valid": True,
             "journey": transitioned_journey.to_dict(),
         }
+
+
+@dataclass(frozen=True)
+class ContextBudget:
+    """Provider-safe budget for temporary Working Context consciousness."""
+
+    provider_capacity: int
+    reserved_orientation: int
+    reserved_question: int
+    reserved_instructions: int
+    reserved_answer: int
+    available_context: int
+
+    def to_dict(self) -> dict[str, int]:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
+class GovernedWorkingContext:
+    """Whole-object Working Context selected under a provider budget."""
+
+    budget: ContextBudget
+    context: Mapping[str, Any]
+    estimated_context_units: int
+    compacted: bool
+    rejected: bool
+    rejection_reason: str
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "budget": self.budget.to_dict(),
+            "context": dict(self.context),
+            "estimated_context_units": self.estimated_context_units,
+            "compacted": self.compacted,
+            "rejected": self.rejected,
+            "rejection_reason": self.rejection_reason,
+        }
+
+
+class ContextBudgetGovernor:
+    """Govern provider-facing context without mutating organism knowledge."""
+
+    def calculate_budget(
+        self,
+        *,
+        provider_capacity: int | None,
+        reserved_orientation: int,
+        reserved_question: int,
+        reserved_instructions: int,
+        reserved_answer: int,
+    ) -> ContextBudget:
+        if provider_capacity is None or provider_capacity <= 0:
+            raise ValueError(
+                "provider capacity must be known and positive"
+            )
+
+        reservations = (
+            reserved_orientation,
+            reserved_question,
+            reserved_instructions,
+            reserved_answer,
+        )
+
+        if any(value < 0 for value in reservations):
+            raise ValueError("budget reservations cannot be negative")
+
+        reserved_total = sum(reservations)
+
+        if reserved_total >= provider_capacity:
+            raise ValueError(
+                "provider capacity exhausted by required reservations"
+            )
+
+        return ContextBudget(
+            provider_capacity=provider_capacity,
+            reserved_orientation=reserved_orientation,
+            reserved_question=reserved_question,
+            reserved_instructions=reserved_instructions,
+            reserved_answer=reserved_answer,
+            available_context=provider_capacity-reserved_total,
+        )
+
+    @staticmethod
+    def estimate_units(value: Any) -> int:
+        import json
+
+        serialized=json.dumps(
+            value,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+        )
+
+        return max(1, (len(serialized.encode("utf-8"))+3)//4)
+
+    def govern(
+        self,
+        *,
+        working_context: WorkingContext,
+        budget: ContextBudget,
+    ) -> GovernedWorkingContext:
+        original=working_context.to_dict()
+
+        if self.estimate_units(original) <= budget.available_context:
+            return GovernedWorkingContext(
+                budget=budget,
+                context=original,
+                estimated_context_units=self.estimate_units(original),
+                compacted=False,
+                rejected=False,
+                rejection_reason="",
+            )
+
+        base=dict(original)
+        evidence=list(base.pop("evidence", []))
+        provenance=list(base.pop("provenance", []))
+        epistemic_results=list(base.pop("epistemic_results", []))
+        relationships=list(base.pop("relationships", []))
+
+        if self.estimate_units(base) > budget.available_context:
+            return GovernedWorkingContext(
+                budget=budget,
+                context={},
+                estimated_context_units=0,
+                compacted=True,
+                rejected=True,
+                rejection_reason="HARD_CONTEXT_OVERFLOW",
+            )
+
+        selected_evidence=[]
+        selected_provenance=[]
+        selected_results=[]
+
+        provenance_by_path={
+            item.get("source_path"): item
+            for item in provenance
+            if isinstance(item, Mapping)
+        }
+
+        result_by_path={
+            item.get("source_path"): item
+            for item in epistemic_results
+            if isinstance(item, Mapping)
+        }
+
+        for item in evidence:
+            if not isinstance(item, Mapping):
+                continue
+
+            path=item.get("source_path")
+            candidate=dict(base)
+            candidate["evidence"]=selected_evidence+[dict(item)]
+
+            candidate_provenance=list(selected_provenance)
+            if path in provenance_by_path:
+                candidate_provenance.append(
+                    dict(provenance_by_path[path])
+                )
+
+            candidate_results=list(selected_results)
+            if path in result_by_path:
+                candidate_results.append(
+                    dict(result_by_path[path])
+                )
+
+            candidate["provenance"]=candidate_provenance
+            candidate["epistemic_results"]=candidate_results
+            candidate["relationships"]=relationships
+
+            if (
+                self.estimate_units(candidate)
+                > budget.available_context
+            ):
+                break
+
+            selected_evidence.append(dict(item))
+            selected_provenance=candidate_provenance
+            selected_results=candidate_results
+
+        compacted=dict(base)
+        compacted["evidence"]=selected_evidence
+        compacted["provenance"]=selected_provenance
+        compacted["epistemic_results"]=selected_results
+        compacted["relationships"]=relationships
+
+        while (
+            relationships
+            and self.estimate_units(compacted)
+            > budget.available_context
+        ):
+            relationships=relationships[:-1]
+            compacted["relationships"]=relationships
+
+        estimated=self.estimate_units(compacted)
+
+        if estimated > budget.available_context:
+            return GovernedWorkingContext(
+                budget=budget,
+                context={},
+                estimated_context_units=0,
+                compacted=True,
+                rejected=True,
+                rejection_reason="HARD_CONTEXT_OVERFLOW",
+            )
+
+        return GovernedWorkingContext(
+            budget=budget,
+            context=compacted,
+            estimated_context_units=estimated,
+            compacted=True,
+            rejected=False,
+            rejection_reason="",
+        )

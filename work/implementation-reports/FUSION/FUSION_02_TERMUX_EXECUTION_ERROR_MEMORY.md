@@ -941,3 +941,55 @@ physiology.
 The authority branch was reconciled with demonstrated production behavior.
 
 No production mutation was required.
+
+## FUSION-02 — E14/T10 representative budget fixture omitted relationships
+
+### Classification
+
+`E14-ERR-001 — REPRESENTATIVE_BUDGET_FIXTURE_OMITTED_RELATIONSHIPS`
+
+### Demonstrated observation
+
+The first E14/T10 focused acceptance executed five tests.
+
+Four passed.
+
+The representative compaction test expected one complete evidence object to
+fit, but the calculated fixture budget included:
+
+- base Working Context;
+- first evidence object;
+- matching provenance;
+- matching epistemic result;
+
+while omitting the relationship collection that the production governor also
+preserves before evaluating the candidate.
+
+Production therefore correctly determined that the complete candidate did not
+fit and retained zero evidence objects rather than partially truncating one.
+
+### Root cause
+
+The synthetic acceptance budget did not measure the same complete candidate
+shape that production evaluates.
+
+This was a test-fixture construction error, not demonstrated production
+corruption.
+
+### Recovery rule
+
+Representative budget fixtures must calculate capacity from the complete
+candidate object that production is required to preserve.
+
+Production whole-object and provenance-preservation guards must not be weakened
+to satisfy an undersized synthetic fixture.
+
+### Conservation
+
+The failed production mutation is preserved.
+
+No reset is authorized.
+
+No force push is authorized.
+
+This record is demonstrated execution Evidence, not Canon.

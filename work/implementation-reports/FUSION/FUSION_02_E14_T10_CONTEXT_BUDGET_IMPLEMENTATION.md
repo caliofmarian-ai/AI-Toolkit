@@ -1,3 +1,49 @@
+# FUSION-02 — E14/T10 Context Budget Governance
+
+## Rezultat
+
+Prima ramură de producție E14/T10 este implementată și acceptată.
+
+Organismul poate calcula un buget sigur pentru Working Context fără să reducă
+Journey sau cunoașterea organismului.
+
+## Implementat
+
+- capacitate provider obligatoriu cunoscută;
+- headroom pentru orientation;
+- headroom pentru human question;
+- headroom pentru instructions;
+- headroom pentru answer;
+- estimarea Working Context;
+- compactare pe obiecte epistemice întregi;
+- conservarea provenienței asociate;
+- hard overflow explicit;
+- fail-closed pentru capacitate necunoscută;
+- Working Context original nemodificat.
+
+## Eroare demonstrată și recuperată
+
+E14-ERR-001 — REPRESENTATIVE_BUDGET_FIXTURE_OMITTED_RELATIONSHIPS.
+
+Fixture-ul calcula un buget fără relationships, deși producția conserva
+relationships în candidatul evaluat.
+
+Fixture-ul a fost reconciliat cu forma completă a candidatului.
+
+Producția nu a fost slăbită.
+
+## Rămas în T10
+
+- conectarea capacității modelului din ProviderRegistry;
+- conectarea payload-ului guvernat la provider boundary;
+- acceptance multi-provider/model asupra requestului serializat.
+
+E14 rămâne nodul curent.
+
+E15/T11 nu este încă autorizat.
+
+## Arbore complet FUSION-02
+
 # FUSION-02 — Arborele evoluției organismului epistemic
 
 ## Rolul acestui document
