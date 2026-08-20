@@ -993,3 +993,49 @@ No reset is authorized.
 No force push is authorized.
 
 This record is demonstrated execution Evidence, not Canon.
+
+## FUSION-02 — E15/T11 shadow interface regression
+
+### Classification
+
+`E15_SHADOW_PIPELINE_TEST_DOUBLE_SIGNATURE_REGRESSION`
+
+### Demonstrated observation
+
+The first E15/T11 Shadow Pipeline implementation passed its dedicated
+acceptance group but failed the complete FUSION regression:
+
+- 8 historical tests failed;
+- 173 historical tests passed;
+- all failures occurred before certification/commit;
+- the failure was caused by service.py passing a new
+  `shadow_working_context` keyword directly through the historical
+  `pipeline.run(...)` call boundary.
+
+Historical tests intentionally replace `pipeline.run` with bounded test
+doubles implementing the established call contract. The new keyword therefore
+changed the service-level invocation contract even though the intended
+production behavior was observation-only.
+
+### Root cause
+
+The attempted shadow physiology was attached by expanding an established
+service-to-pipeline method invocation instead of introducing an orthogonal
+observation channel.
+
+This violated conservation of the historical invocation boundary.
+
+### Recovery rule
+
+For E15/T11:
+
+1. `AIPlatformService.ask_repository()` must retain the established
+   `pipeline.run(...)` call signature;
+2. shadow state must be supplied through a separate observation interface;
+3. historical test doubles must not need modification merely to accommodate
+   shadow physiology;
+4. the provider payload remains legacy-authoritative;
+5. shadow observation must not persist epistemic state;
+6. complete FUSION regression must pass before E15 certification.
+
+The failed attempt did not reach GitHub main.

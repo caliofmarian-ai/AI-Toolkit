@@ -1,3 +1,51 @@
+# FUSION-02 — E15/T11 Shadow Pipeline Completion
+
+## Sens uman
+
+Organismul poate observa fiziologia cognitivă în paralel cu fiziologia
+existentă fără să-i permită încă să preia controlul răspunsului.
+
+## Corecția precedentului E15
+
+Prima încercare T11 a extins apelul istoric `pipeline.run(...)` cu un keyword
+nou. Testele istorice folosesc substitute intenționat limitate la contractul
+existent, iar regresia completă a demonstrat ruptura.
+
+Implementarea certificată folosește în schimb un canal separat de observație.
+Apelul service → pipeline.run rămâne neschimbat.
+
+## Contract demonstrat
+
+- providerul primește contextul existent;
+- Working Context cognitiv este observat separat;
+- Context Budget Governance este aplicat fiziologiei shadow;
+- payload-ul cognitiv nu este trimis providerului;
+- shadow este consumat exact o dată;
+- provider/model selection nu se schimbă;
+- provider answer behavior nu se schimbă;
+- shadow nu persistă Session sau Journey;
+- shadow nu conferă autoritate;
+- Human Authority rămâne conservată;
+- testele istorice nu necesită schimbarea contractului lor.
+
+## Acceptance
+
+Dedicated E15/T11 acceptance: PASS.
+
+Historical regression care a demonstrat eroarea precedentă: PASS.
+
+Complete FUSION regression: PASS.
+
+## Stare
+
+E15 — FINALIZAT / CERTIFICAT.
+
+T11 — FINALIZAT / CERTIFICAT.
+
+Următorul nod autorizat: E16/T12.
+
+## Arbore complet FUSION-02
+
 # FUSION-02 — Arborele evoluției organismului epistemic
 
 ## Rolul acestui document

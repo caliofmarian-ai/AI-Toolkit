@@ -424,6 +424,17 @@ class AIPlatformService:
             provider_cognitive_context
         )
 
+        observe_working_context = getattr(
+            self.pipeline,
+            "observe_working_context",
+            None,
+        )
+
+        if callable(observe_working_context):
+            observe_working_context(
+                working_context
+            )
+
         result = self.pipeline.run(
             prompt,
             settings,

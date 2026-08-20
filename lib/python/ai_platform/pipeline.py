@@ -23,6 +23,26 @@ class AIRequestPipeline:
         self.registry = registry
         self.model_manager = model_manager
         self.context_builder = context_builder
+        self._shadow_working_context: WorkingContext | None = None
+        self._last_shadow_comparison: Dict[str, Any] | None = None
+
+    def observe_working_context(
+        self,
+        working_context: WorkingContext | None,
+    ) -> None:
+        self._shadow_working_context = working_context
+        self._last_shadow_comparison = None
+
+    def consume_shadow_comparison(
+        self,
+    ) -> Dict[str, Any] | None:
+        comparison = self._last_shadow_comparison
+        self._last_shadow_comparison = None
+        return (
+            dict(comparison)
+            if comparison is not None
+            else None
+        )
 
     def run(
         self,
@@ -57,6 +77,7 @@ class AIRequestPipeline:
             )
 
         context_governance = None
+        shadow_comparison = None
 
         if working_context is not None:
             provider_capacity = self.registry.model_token_limit(
@@ -102,6 +123,81 @@ class AIRequestPipeline:
                 else self.context_builder.build()
             )
 
+        shadow_working_context = self._shadow_working_context
+        self._shadow_working_context = None
+
+        if shadow_working_context is not None:
+            provider_capacity = self.registry.model_token_limit(
+                str(selected_provider),
+                str(selected_model),
+            )
+
+            shadow_governor = ContextBudgetGovernor()
+
+            shadow_budget = shadow_governor.calculate_budget(
+                provider_capacity=provider_capacity,
+                reserved_orientation=reserved_orientation,
+                reserved_question=reserved_question,
+                reserved_instructions=reserved_instructions,
+                reserved_answer=reserved_answer,
+            )
+
+            shadow_governed = shadow_governor.govern(
+                working_context=shadow_working_context,
+                budget=shadow_budget,
+            )
+
+            shadow_comparison = {
+                "mode": "SHADOW",
+                "provider_payload_source": "LEGACY",
+                "shadow_payload_sent_to_provider": False,
+                "provider_capacity": shadow_budget.provider_capacity,
+                "available_context": shadow_budget.available_context,
+                "legacy_estimated_context_units": (
+                    shadow_governor.estimate_units(context)
+                ),
+                "cognitive_estimated_context_units": (
+                    shadow_governed.estimated_context_units
+                ),
+                "cognitive_compacted": shadow_governed.compacted,
+                "cognitive_rejected": shadow_governed.rejected,
+                "cognitive_rejection_reason": (
+                    shadow_governed.rejection_reason
+                ),
+                "cognitive_source_count": len(
+                    shadow_governed.context.get(
+                        "source_paths",
+                        [],
+                    )
+                ),
+                "cognitive_epistemic_result_count": len(
+                    shadow_governed.context.get(
+                        "epistemic_results",
+                        [],
+                    )
+                ),
+                "cognitive_provenance_count": len(
+                    shadow_governed.context.get(
+                        "provenance",
+                        [],
+                    )
+                ),
+                "authority_conferred": (
+                    shadow_governed.context.get(
+                        "authority_conferred",
+                        False,
+                    )
+                ),
+                "human_authority_preserved": (
+                    shadow_governed.context.get(
+                        "human_authority_preserved",
+                        True,
+                    )
+                ),
+            }
+
+        self._last_shadow_comparison = shadow_comparison
+
         provider_settings = dict(
             settings.get("providers", {})
         ).get(str(selected_provider), {})
@@ -130,5 +226,6 @@ class AIRequestPipeline:
             "model": selected_model,
             "context": context,
             "context_governance": context_governance,
+            "shadow_comparison": shadow_comparison,
             "usage": usage,
         }
