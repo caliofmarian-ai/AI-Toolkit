@@ -403,6 +403,19 @@ class AIPlatformService:
 
         working_context_data = working_context.to_dict()
 
+        # Bind the current Journey when the session is owned by the
+        # persistent AISessionEngine. Synthetic/test-double sessions may
+        # intentionally exist only at the service boundary.
+        persisted_session = self.sessions.get(
+            session["id"]
+        )
+
+        if persisted_session:
+            session = self.sessions.bind_journey(
+                session["id"],
+                journey_state.to_dict(),
+            )
+
         reconstructed_context = self.conversation_context.build(
             session["id"],
             partner_identity={

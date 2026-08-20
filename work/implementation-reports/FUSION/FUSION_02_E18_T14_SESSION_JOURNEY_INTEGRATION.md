@@ -1,3 +1,90 @@
+# FUSION-02 — E18/T14 Session / Journey Integration
+
+## Sens uman
+
+Organismul poate lega conversația persistentă de parcursul cognitiv fără să
+confunde cele două structuri.
+
+Conversation este containerul durabil al dialogului.
+
+Journey este parcursul cognitiv al unei nevoi informaționale.
+
+O conversație poate avea succesiv mai multe Journey-uri, deoarece fiecare
+cerere nouă poate produce o nevoie informațională și un parcurs cognitiv nou.
+
+Sesiunea păstrează numai referința compactă către Journey-ul curent.
+
+## Separări conservate
+
+- Conversation != Journey
+- Journey != Working Context
+- Journey reference != Memory
+- Journey binding != Experience creation
+
+## Persistență
+
+Referința compactă păstrează:
+
+- journey_id;
+- need_id;
+- status;
+- step_count;
+- epistemic_gain;
+- stopping_reason.
+
+Sesiunile istorice fără Journey rămân lizibile.
+
+Referința Journey supraviețuiește restartului prin persistence-ul existent al
+AISessionEngine.
+
+## Erori recuperate
+
+### E18-ERR-001
+
+SESSION_JOURNEY_LIFETIME_IDENTITY_REGRESSION
+
+Prima implementare a legat prea strict Conversation de primul Journey și a
+refuzat o cerere ulterioară care producea legitim un Journey nou.
+
+Recovery: sesiunea păstrează Journey-ul curent, nu un Journey unic pe durata
+întregii conversații.
+
+### E18-ERR-002
+
+SERVICE_TEST_DOUBLE_PERSISTENCE_BOUNDARY_REGRESSION
+
+Prima integrare service-level a presupus existența fizică a sesiunii și a
+încălcat boundary-ul testelor care folosesc sesiuni sintetice.
+
+Recovery: binding-ul persistent se execută numai când sesiunea este prezentă
+în AISessionEngine.
+
+## Acceptance
+
+Focused E18/T14 acceptance: PASS.
+
+Complete FUSION regression: PASS.
+
+Structural conservation: PASS.
+
+Human Authority: CONSERVED.
+
+## Stare
+
+E18 — FINALIZAT / CERTIFICAT.
+
+T14 — FINALIZAT / CERTIFICAT.
+
+FUSION-02 — 19 / 21 = 90.5%.
+
+Următorul nod autorizat:
+
+E19 — Comportamentul organismului la eroare, oprire și repornire.
+
+T15 — Failure / Restart / Human Authority Validation.
+
+## Arbore complet FUSION-02
+
 # FUSION-02 — Arborele evoluției organismului epistemic
 
 ## Rolul acestui document

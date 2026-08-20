@@ -1039,3 +1039,53 @@ For E15/T11:
 6. complete FUSION regression must pass before E15 certification.
 
 The failed attempt did not reach GitHub main.
+
+## FUSION-02 — E18/T14 Session/Journey integration regression
+
+### Classification
+
+`E18_SESSION_JOURNEY_LIFETIME_IDENTITY_AND_TEST_BOUNDARY_REGRESSION`
+
+### Demonstrated failures
+
+The first E18/T14 implementation passed its focused acceptance but failed the
+complete FUSION regression in two established behaviors.
+
+1. A durable Conversation may receive a new human request and therefore begin
+   a new Journey while retaining the same session identity.
+
+   The failed implementation incorrectly treated the first Journey ID as a
+   lifetime identity of the session and rejected a later Journey.
+
+2. Existing service-level tests replace the session persistence boundary with
+   controlled test doubles.
+
+   The failed integration introduced a new direct persistence call that was
+   not part of those established doubles, causing the service to attempt a
+   physical session lookup for a synthetic session.
+
+### Root cause
+
+Conversation identity and Journey identity were coupled too strongly.
+
+The correct relation is:
+
+Conversation = durable dialogue container.
+
+Journey = cognitive trajectory for a particular information need/request.
+
+A Conversation may therefore reference the CURRENT Journey and later replace
+that reference when a new request starts a new Journey.
+
+The integration must also preserve the established service test boundary.
+
+### Recovery rule
+
+- update the compact current Journey reference;
+- do not reject a legitimate new Journey on the same Conversation;
+- preserve Conversation history and Experience identity;
+- preserve Working Context separation;
+- make service binding compatible with established session doubles;
+- run the complete FUSION regression before certification.
+
+This failure is Evidence, not Canon.

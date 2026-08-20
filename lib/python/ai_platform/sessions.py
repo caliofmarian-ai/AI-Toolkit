@@ -31,6 +31,9 @@ class AISessionEngine:
             "conversation_history": list(payload.get("conversation_history", [])),
             "raw_sources": list(payload.get("raw_sources", [])),
             "experience_id": payload.get("experience_id", ""),
+            "journey_reference": dict(
+                payload.get("journey_reference", {})
+            ),
             "token_usage": list(payload.get("token_usage", [])),
             "created_at": payload.get("created_at", now),
             "updated_at": now,
@@ -71,6 +74,84 @@ class AISessionEngine:
         session["updated_at"] = datetime.now(timezone.utc).isoformat()
         self._save(session)
         return session
+
+    def bind_journey(
+        self,
+        session_id: str,
+        journey: Mapping[str, Any],
+    ) -> Dict[str, Any]:
+        """Persist only the cognitive Journey reference owned by a session."""
+        session = self.get(session_id)
+
+        if not session:
+            raise ValueError(f"unknown session {session_id}")
+
+        if not isinstance(journey, Mapping):
+            raise TypeError("journey must be a mapping")
+
+        journey_id = str(
+            journey.get("journey_id", "")
+        ).strip()
+
+        need_id = str(
+            journey.get("need_id", "")
+        ).strip()
+
+        if not journey_id:
+            raise ValueError("journey_id must not be empty")
+
+        if not need_id:
+            raise ValueError("journey need_id must not be empty")
+
+        reference = {
+            "journey_id": journey_id,
+            "need_id": need_id,
+            "status": str(
+                journey.get("status", "UNKNOWN")
+            ).strip() or "UNKNOWN",
+            "step_count": int(
+                journey.get("step_count", 0)
+            ),
+            "epistemic_gain": bool(
+                journey.get("epistemic_gain", False)
+            ),
+            "stopping_reason": str(
+                journey.get("stopping_reason", "")
+            ),
+        }
+
+        # A Conversation is durable across multiple human requests.
+        # Each request may legitimately begin a new Journey.
+        # The session therefore owns the CURRENT Journey reference;
+        # Journey identity is not the lifetime identity of Conversation.
+        session["journey_reference"] = reference
+        session["updated_at"] = (
+            datetime.now(timezone.utc).isoformat()
+        )
+
+        self._save(session)
+
+        return session
+
+    def journey_reference(
+        self,
+        session_id: str,
+    ) -> Dict[str, Any]:
+        """Read the compact Journey reference owned by a session."""
+        session = self.get(session_id)
+
+        if not session:
+            raise ValueError(f"unknown session {session_id}")
+
+        reference = session.get(
+            "journey_reference",
+            {},
+        )
+
+        if not isinstance(reference, Mapping):
+            return {}
+
+        return dict(reference)
 
     def append_raw_source(
         self,
