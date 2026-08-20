@@ -915,3 +915,29 @@ Before mutation:
 5. newly demonstrated failures are appended as Evidence, not Canon.
 
 Production was not modified by this failure.
+
+## FUSION-02 — E13/T9 certification/tree authority mismatch
+
+### Classification
+
+`AUTHORITY_BRANCH_LEFT_UNCHECKED_AFTER_CERTIFICATION`
+
+### Demonstrated observation
+
+E13/T9 was marked FINALIZAT / CERTIFICAT while its persistent evolution tree
+still showed the authority branch as incomplete.
+
+Production already demonstrated:
+
+- technical observations do not become epistemic authority;
+- retrieval has authority_conferred=False;
+- Human Authority remains preserved.
+
+The defect was therefore in evolution-state conservation, not in production
+physiology.
+
+### Recovery
+
+The authority branch was reconciled with demonstrated production behavior.
+
+No production mutation was required.
