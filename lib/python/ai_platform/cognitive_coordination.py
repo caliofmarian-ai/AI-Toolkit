@@ -70,6 +70,11 @@ class WorkingContext:
     source_paths: tuple[str, ...]
     evidence: tuple[Mapping[str, Any], ...]
     provenance: tuple[Mapping[str, Any], ...]
+    epistemic_results: tuple[Mapping[str, Any], ...]
+    semantic_identities: tuple[str, ...]
+    epistemic_classes: tuple[str, ...]
+    uncertainties: tuple[str, ...]
+    relationships: tuple[Mapping[str, Any], ...]
     journey_summary: Mapping[str, Any]
     authority_conferred: bool
     human_authority_preserved: bool
@@ -82,6 +87,15 @@ class WorkingContext:
         result["source_paths"] = list(self.source_paths)
         result["evidence"] = [dict(item) for item in self.evidence]
         result["provenance"] = [dict(item) for item in self.provenance]
+        result["epistemic_results"] = [
+            dict(item) for item in self.epistemic_results
+        ]
+        result["semantic_identities"] = list(self.semantic_identities)
+        result["epistemic_classes"] = list(self.epistemic_classes)
+        result["uncertainties"] = list(self.uncertainties)
+        result["relationships"] = [
+            dict(item) for item in self.relationships
+        ]
         result["journey_summary"] = dict(self.journey_summary)
         return result
 
@@ -502,6 +516,11 @@ class EpistemicCognitiveCoordinator:
                 source_paths=(),
                 evidence=(),
                 provenance=(),
+                epistemic_results=(),
+                semantic_identities=(),
+                epistemic_classes=(),
+                uncertainties=("retrieval-unavailable",),
+                relationships=(),
                 journey_summary={
                     "status": journey.status,
                     "step_count": journey.step_count,
@@ -604,6 +623,75 @@ class EpistemicCognitiveCoordinator:
             for item in evidence
         )
 
+        semantic = result.get("semantic", {})
+        semantic_identities: list[str] = []
+
+        if isinstance(semantic, Mapping):
+            for path in selected_paths:
+                value = semantic.get(path)
+
+                if not isinstance(value, Mapping):
+                    continue
+
+                identity = value.get("identity", "")
+
+                if not isinstance(identity, str):
+                    continue
+
+                identity = identity.strip()
+
+                if identity and identity not in semantic_identities:
+                    semantic_identities.append(identity)
+
+        raw_class = retrieval.get("epistemic_class", "")
+        epistemic_classes = (
+            (raw_class.strip(),)
+            if isinstance(raw_class, str) and raw_class.strip()
+            else ()
+        )
+
+        raw_uncertainties = retrieval.get("uncertainties", ())
+        uncertainties = (
+            tuple(
+                dict.fromkeys(
+                    value.strip()
+                    for value in raw_uncertainties
+                    if isinstance(value, str) and value.strip()
+                )
+            )
+            if isinstance(raw_uncertainties, (list, tuple))
+            else ()
+        )
+
+        raw_relationships = retrieval.get("relationships", ())
+        relationships = (
+            tuple(
+                dict(value)
+                for value in raw_relationships
+                if isinstance(value, Mapping)
+            )
+            if isinstance(raw_relationships, (list, tuple))
+            else ()
+        )
+
+        epistemic_results = tuple(
+            {
+                "identity": (
+                    semantic_identities[index]
+                    if index < len(semantic_identities)
+                    else item["source_path"]
+                ),
+                "source_path": item["source_path"],
+                "epistemic_class": (
+                    epistemic_classes[0]
+                    if epistemic_classes
+                    else "UNKNOWN"
+                ),
+                "authority": "TECHNICAL_OBSERVATION",
+            }
+            for index, item in enumerate(evidence)
+        )
+
         journey_summary = {
             "status": journey.status,
             "step_count": journey.step_count,
@@ -628,6 +716,11 @@ class EpistemicCognitiveCoordinator:
             source_paths=tuple(selected_paths),
             evidence=tuple(evidence),
             provenance=provenance,
+            epistemic_results=epistemic_results,
+            semantic_identities=tuple(semantic_identities),
+            epistemic_classes=epistemic_classes,
+            uncertainties=uncertainties,
+            relationships=relationships,
             journey_summary=journey_summary,
             authority_conferred=False,
             human_authority_preserved=True,
