@@ -638,6 +638,129 @@ class EpistemicCognitiveCoordinator:
             "journey": journey.to_dict(),
         }
 
+    def evaluate_cognitive_loop_guard(
+        self,
+        *,
+        journey: JourneyState,
+        need_id: str = "",
+        result_identity: str = "",
+        observation_identity: str = "",
+        capability: str = "",
+        unavailable_organ: bool = False,
+        ambiguous: bool = False,
+        authority_stop: bool = False,
+        epistemic_gain: bool = True,
+    ) -> Dict[str, Any]:
+        """Evaluate one bounded set of cognitive-loop stopping guards."""
+        normalized_need = str(need_id or "").strip()
+        normalized_result = str(
+            result_identity or ""
+        ).strip()
+        normalized_observation = str(
+            observation_identity or ""
+        ).strip()
+        normalized_capability = str(
+            capability or ""
+        ).strip()
+
+        visited = tuple(
+            str(value).strip()
+            for value in journey.visited
+            if str(value).strip()
+        )
+
+        repeated_need = bool(
+            normalized_need
+            and normalized_need == journey.need_id
+            and journey.step_count > 0
+        )
+
+        result_token = (
+            f"result:{normalized_result}"
+            if normalized_result
+            else ""
+        )
+
+        repeated_result = bool(
+            result_token
+            and result_token in visited
+        )
+
+        identity_capability_token = (
+            "observation:"
+            + normalized_observation
+            + "|capability:"
+            + normalized_capability
+            if normalized_observation
+            and normalized_capability
+            else ""
+        )
+
+        repeated_identity_capability = bool(
+            identity_capability_token
+            and identity_capability_token in visited
+        )
+
+        traversal_cycle = bool(
+            normalized_observation
+            and normalized_observation in visited
+        )
+
+        no_epistemic_gain = not bool(
+            epistemic_gain
+        )
+
+        stopping_reason = ""
+
+        if authority_stop:
+            stopping_reason = "AUTHORITY_STOP"
+        elif unavailable_organ:
+            stopping_reason = "UNAVAILABLE_ORGAN"
+        elif ambiguous:
+            stopping_reason = "AMBIGUITY"
+        elif repeated_identity_capability:
+            stopping_reason = (
+                "REPEATED_IDENTITY_CAPABILITY"
+            )
+        elif repeated_result:
+            stopping_reason = "REPEATED_RESULT"
+        elif traversal_cycle:
+            stopping_reason = "TRAVERSAL_CYCLE"
+        elif repeated_need:
+            stopping_reason = "REPEATED_NEED"
+        elif no_epistemic_gain:
+            stopping_reason = "NO_EPISTEMIC_GAIN"
+
+        return {
+            "schema": (
+                "FUSION-02-COGNITIVE-LOOP-GUARD-1"
+            ),
+            "continue_navigation": not bool(
+                stopping_reason
+            ),
+            "stopping_reason": stopping_reason,
+            "repeated_need": repeated_need,
+            "repeated_result": repeated_result,
+            "repeated_identity_capability": (
+                repeated_identity_capability
+            ),
+            "traversal_cycle": traversal_cycle,
+            "unavailable_organ": bool(
+                unavailable_organ
+            ),
+            "ambiguous": bool(ambiguous),
+            "authority_stop": bool(
+                authority_stop
+            ),
+            "no_epistemic_gain": (
+                no_epistemic_gain
+            ),
+            "authority_conferred": False,
+            "human_authority_preserved": True,
+            "unknown_is_valid": True,
+            "bounded": True,
+        }
+
     def evaluate_cognitive_step(
         self,
         *,
