@@ -1,3 +1,50 @@
+# FUSION-02 — E14/T10 Provider Boundary Completion
+
+## Sens uman
+
+Organismul își cunoaște acum limita spațiului mental disponibil pentru modelul
+AI ales și își controlează Working Context înainte ca informația să ajungă la
+provider.
+
+## T10 finalizat
+
+Sunt demonstrate împreună:
+
+- capacitatea exactă provider/model din ProviderRegistry;
+- headroom separat;
+- măsurarea Working Context;
+- compactarea pe obiecte întregi;
+- conservarea provenienței;
+- fail-closed pentru capacitate necunoscută;
+- hard overflow explicit;
+- guvernarea înainte de adapter.complete;
+- conservarea căii legacy context_override;
+- lipsa mutației Working Context original;
+- acceptance pe modele cu capacități diferite.
+
+## Autoritate
+
+ProviderRegistry rămâne sursa existentă pentru capacitatea modelelor.
+
+Context Budget Governance nu creează autoritate epistemică.
+
+Reducerea provider-facing Working Context nu reduce Journey și nu reduce
+cunoașterea organismului.
+
+## Eroare istorică
+
+E14-ERR-001 rămâne vizibilă ca eroare de fixture recuperată.
+
+## Stare
+
+E14 — FINALIZAT / CERTIFICAT.
+
+T10 — FINALIZAT / CERTIFICAT.
+
+Următorul nod din arbore este E15.
+
+## Arbore complet FUSION-02
+
 # FUSION-02 — Arborele evoluției organismului epistemic
 
 ## Rolul acestui document

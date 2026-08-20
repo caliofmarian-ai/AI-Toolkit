@@ -4,6 +4,10 @@ from datetime import datetime, timezone
 from typing import Any, Dict, Mapping
 
 from .context_builder import AIContextBuilder
+from .cognitive_coordination import (
+    ContextBudgetGovernor,
+    WorkingContext,
+)
 from .model_manager import ModelManager
 from .registry import ProviderRegistry
 
@@ -28,6 +32,11 @@ class AIRequestPipeline:
         provider_id: str = "",
         model: str = "",
         context_override: Mapping[str, Any] | None = None,
+        working_context: WorkingContext | None = None,
+        reserved_orientation: int = 256,
+        reserved_question: int = 256,
+        reserved_instructions: int = 512,
+        reserved_answer: int = 1024,
     ) -> Dict[str, Any]:
         providers = self.registry.list_providers(settings)
         discovered = self.model_manager.discover_models(providers)
@@ -39,11 +48,60 @@ class AIRequestPipeline:
         if adapter is None:
             raise ValueError(f"no adapter found for provider: {selected_provider!r}")
 
-        context = (
-            dict(context_override)
-            if context_override is not None
-            else self.context_builder.build()
-        )
+        if (
+            working_context is not None
+            and context_override is not None
+        ):
+            raise ValueError(
+                "working_context and context_override are mutually exclusive"
+            )
+
+        context_governance = None
+
+        if working_context is not None:
+            provider_capacity = self.registry.model_token_limit(
+                str(selected_provider),
+                str(selected_model),
+            )
+
+            governor = ContextBudgetGovernor()
+
+            budget = governor.calculate_budget(
+                provider_capacity=provider_capacity,
+                reserved_orientation=reserved_orientation,
+                reserved_question=reserved_question,
+                reserved_instructions=reserved_instructions,
+                reserved_answer=reserved_answer,
+            )
+
+            governed = governor.govern(
+                working_context=working_context,
+                budget=budget,
+            )
+
+            if governed.rejected:
+                raise ValueError(
+                    "working context exceeds provider-safe budget: "
+                    + governed.rejection_reason
+                )
+
+            context = dict(governed.context)
+            context_governance = {
+                "provider_capacity": budget.provider_capacity,
+                "available_context": budget.available_context,
+                "estimated_context_units": (
+                    governed.estimated_context_units
+                ),
+                "compacted": governed.compacted,
+                "rejected": governed.rejected,
+            }
+        else:
+            context = (
+                dict(context_override)
+                if context_override is not None
+                else self.context_builder.build()
+            )
+
         provider_settings = dict(
             settings.get("providers", {})
         ).get(str(selected_provider), {})
@@ -71,5 +129,6 @@ class AIRequestPipeline:
             "provider": selected_provider,
             "model": selected_model,
             "context": context,
+            "context_governance": context_governance,
             "usage": usage,
         }

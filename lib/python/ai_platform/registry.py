@@ -20,6 +20,38 @@ class ProviderRegistry:
     def provider_ids(self) -> List[str]:
         return sorted(self._adapters.keys())
 
+    def model_token_limit(
+        self,
+        provider_id: str,
+        model: str,
+    ) -> int | None:
+        """Return the registered capacity for one exact provider/model."""
+        adapter = self._adapters.get(provider_id)
+        if adapter is None:
+            return None
+
+        model_id = str(model).strip()
+        if not model_id:
+            return None
+
+        for item in adapter.models():
+            if str(item.get("id", "")).strip() != model_id:
+                continue
+
+            raw = item.get(
+                "token_limit",
+                adapter.descriptor.token_limit,
+            )
+
+            try:
+                limit = int(raw)
+            except (TypeError, ValueError):
+                return None
+
+            return limit if limit > 0 else None
+
+        return None
+
     def test_connection(self, provider_id: str, provider_settings: Mapping[str, Any]) -> Dict[str, Any]:
         adapter = self._adapters.get(provider_id)
         if adapter is None:
