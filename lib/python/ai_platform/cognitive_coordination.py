@@ -638,6 +638,55 @@ class EpistemicCognitiveCoordinator:
             "journey": journey.to_dict(),
         }
 
+    def conserve_journey_boundary(
+        self,
+        *,
+        journey: JourneyState,
+        boundary: str,
+        provider_failed: bool = False,
+        stopping_reason: str = "",
+    ) -> JourneyState:
+        """Conserve Journey state across a terminal execution boundary."""
+        normalized_boundary = str(
+            boundary or ""
+        ).strip().upper()
+
+        normalized_reason = str(
+            stopping_reason or ""
+        ).strip().upper()
+
+        allowed_boundaries = {
+            "BLOCKED",
+            "HUMAN_REQUIRED",
+            "FORBIDDEN",
+            "PROVIDER_FAILURE",
+        }
+
+        if provider_failed:
+            normalized_boundary = "PROVIDER_FAILURE"
+
+        if normalized_boundary not in allowed_boundaries:
+            raise ValueError(
+                "unsupported journey conservation boundary: "
+                + normalized_boundary
+            )
+
+        reason = (
+            normalized_reason
+            or normalized_boundary
+        )
+
+        return JourneyState(
+            schema=journey.schema,
+            journey_id=journey.journey_id,
+            need_id=journey.need_id,
+            status=normalized_boundary,
+            step_count=journey.step_count,
+            epistemic_gain=journey.epistemic_gain,
+            visited=tuple(journey.visited),
+            stopping_reason=reason,
+        )
+
     def evaluate_cognitive_loop_guard(
         self,
         *,
