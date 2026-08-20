@@ -872,3 +872,46 @@ Do not alter production or acceptance semantics to recover from a whitespace
 failure.
 
 This is demonstrated execution Evidence, not Canon.
+
+## FUSION-02 — E13/T9 Error Memory gate assumed an absent precedent
+
+### Classification
+
+`ERROR_MEMORY_GATE_FALSE_REQUIRED_PRECEDENT`
+
+### Demonstrated observation
+
+The E13/T9 semantic-completion batch stopped before production mutation
+because its Error Memory gate asserted that the literal precedent:
+
+`TERMUX_BATCH_MESSAGE_FRAGMENTATION`
+
+must already exist in the authoritative Error Memory file.
+
+Direct GitHub inspection of the authoritative file demonstrated that this
+literal record was not present there.
+
+The batch therefore confused:
+
+- consulting Error Memory before mutation;
+
+with:
+
+- requiring one particular historical label to exist in Error Memory.
+
+### Root cause
+
+The execution gate encoded an invented completeness assumption about Error
+Memory instead of reading and respecting the records that actually exist.
+
+### Recovery rule
+
+Before mutation:
+
+1. Error Memory must be read;
+2. its demonstrated precedents must constrain execution;
+3. absence of an unrelated historical label must not fail the batch;
+4. no precedent may be invented merely to satisfy a gate;
+5. newly demonstrated failures are appended as Evidence, not Canon.
+
+Production was not modified by this failure.
