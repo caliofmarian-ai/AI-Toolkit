@@ -1365,3 +1365,34 @@ Failure of natural-language discovery must not be reported as absence of the
 repository filesystem when local repository access is demonstrably present.
 
 This record is Evidence, not Canon.
+
+## FUSION-02 — Railway repository root unavailable to AI Partner
+
+### Classification
+
+`RUNTIME_REPOSITORY_ROOT_DISCOVERY_FAILURE`
+
+### Demonstrated observation
+
+After commit `c6bb238e38f1a7921bfb960cb46429619a297267`,
+the deployed AI Partner still reported:
+
+- `RUNTIME_REPOSITORY_ROOT: UNKNOWN`;
+- FUSION_02 evolution tree not found;
+- AI Platform service.py not found;
+- repository search as last working stage;
+- bounded read as first failed stage.
+
+The authoritative checkout demonstrably contains those files.
+
+### Recovery rule
+
+Do not mutate natural-language EvidenceEngine discovery again.
+
+First identify the actual deployed filesystem root and the exact
+bootstrap path by which AIPlatformService receives repository_root.
+
+The repository root must be derived from demonstrated runtime anatomy,
+not assumed from process current-working-directory semantics.
+
+This record is Evidence, not Canon.
