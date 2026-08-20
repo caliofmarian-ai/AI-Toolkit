@@ -1,3 +1,54 @@
+# FUSION-02 — E17/T13 Research-path Cognitive Cutover / Provenance Validation
+
+## Sens uman
+
+Organismul poate acum cerceta repository-ul real prin fiziologia cognitivă
+fără să trimită implicit profilul complet al repository-ului furnizorului AI.
+
+Fluxul certificat este:
+
+Human Question
+→ Information Need
+→ bounded read-only Search
+→ repository-relative Source Identity
+→ bounded Read
+→ Evidence
+→ matching Provenance
+→ selective Working Context
+→ Context Budget Governance
+→ Provider
+
+## Conservări
+
+- cercetarea rămâne read-only;
+- maximum opt surse intră implicit în Working Context;
+- conținutul citit este legat de source_path;
+- proveniența este păstrată pentru evidența selectată;
+- retrieval-ul și read-ul nu conferă autoritate;
+- UNKNOWN rămâne valid;
+- Human Authority rămâne conservată;
+- full repository profile nu este reintrodus în payload-ul cognitiv;
+- E16 default cognitive cutover rămâne activ;
+- Context Budget Governance rămâne ultima barieră înainte de provider.
+
+## Acceptance
+
+E17/T13 dedicated acceptance: PASS.
+
+E13–E16 conservation regression: PASS.
+
+Complete FUSION regression: PASS.
+
+## Stare
+
+E17 — FINALIZAT / CERTIFICAT.
+
+T13 — FINALIZAT / CERTIFICAT.
+
+Următorul nod autorizat: E18/T14 — Session / Journey Integration.
+
+## Arbore complet FUSION-02
+
 # FUSION-02 — Arborele evoluției organismului epistemic
 
 ## Rolul acestui document

@@ -351,16 +351,6 @@ class AIPlatformService:
                     ],
                 )
 
-        working_context = (
-            self.cognitive_coordinator.materialize_working_context(
-                need=information_need,
-                journey=journey_state,
-                retrieval=retrieval,
-            )
-        )
-
-        working_context_data = working_context.to_dict()
-
         read_navigation = None
 
         if isinstance(retrieval, dict):
@@ -395,6 +385,23 @@ class AIPlatformService:
                         repository_root=self.sessions.root,
                     )
                 )
+
+                retrieval = (
+                    self.cognitive_coordinator.attach_read_evidence(
+                        retrieval=retrieval,
+                        read_navigation=read_navigation,
+                    )
+                )
+
+        working_context = (
+            self.cognitive_coordinator.materialize_working_context(
+                need=information_need,
+                journey=journey_state,
+                retrieval=retrieval,
+            )
+        )
+
+        working_context_data = working_context.to_dict()
 
         reconstructed_context = self.conversation_context.build(
             session["id"],

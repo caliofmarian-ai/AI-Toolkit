@@ -492,6 +492,102 @@ class EpistemicCognitiveCoordinator:
             "epistemic_gain": bool(content),
         }
 
+    def attach_read_evidence(
+        self,
+        *,
+        retrieval: Mapping[str, Any],
+        read_navigation: Mapping[str, Any],
+    ) -> dict[str, Any]:
+        """Attach one bounded read observation to candidate retrieval."""
+        if not isinstance(retrieval, Mapping):
+            raise TypeError("retrieval must be a mapping")
+
+        if not isinstance(read_navigation, Mapping):
+            raise TypeError("read_navigation must be a mapping")
+
+        if retrieval.get("authority_conferred") is not False:
+            raise ValueError(
+                "Retrieval must not confer epistemic authority"
+            )
+
+        if read_navigation.get("authority_conferred") is not False:
+            raise ValueError(
+                "Read observation must not confer epistemic authority"
+            )
+
+        if read_navigation.get("read_only") is not True:
+            raise ValueError(
+                "Research read observation must remain read-only"
+            )
+
+        if read_navigation.get("bounded") is not True:
+            raise ValueError(
+                "Research read observation must remain bounded"
+            )
+
+        source_path = str(
+            read_navigation.get("source_path", "")
+        ).strip()
+
+        source_paths = tuple(
+            value
+            for value in retrieval.get("source_paths", ())
+            if isinstance(value, str)
+        )
+
+        if source_path and source_path not in source_paths:
+            raise ValueError(
+                "Read observation source must originate from retrieval"
+            )
+
+        result = dict(retrieval)
+
+        observations = []
+
+        existing = result.get("read_observations", ())
+
+        if isinstance(existing, (list, tuple)):
+            observations.extend(
+                dict(item)
+                for item in existing
+                if isinstance(item, Mapping)
+            )
+
+        if source_path:
+            observations.append(
+                {
+                    "source_path": source_path,
+                    "source_identity_kind": read_navigation.get(
+                        "source_identity_kind",
+                        "repository-relative-path",
+                    ),
+                    "status": read_navigation.get(
+                        "status",
+                        "UNKNOWN",
+                    ),
+                    "content": read_navigation.get(
+                        "content",
+                        "",
+                    ),
+                    "epistemic_gain": bool(
+                        read_navigation.get(
+                            "epistemic_gain",
+                            False,
+                        )
+                    ),
+                    "authority_conferred": False,
+                    "human_authority_preserved": True,
+                    "read_only": True,
+                    "bounded": True,
+                }
+            )
+
+        result["read_observations"] = observations
+        result["authority_conferred"] = False
+        result["working_context_materialized"] = False
+
+        return result
+
     def materialize_working_context(
         self,
         *,
@@ -605,19 +701,59 @@ class EpistemicCognitiveCoordinator:
             if isinstance(semantic, Mapping) and path in semantic:
                 families.append("semantic")
 
-            evidence.append(
-                {
-                    "source_path": path,
-                    "source_identity_kind": source_identity_kind,
-                    "families": families,
-                }
+            read_observation = None
+
+            raw_read_observations = retrieval.get(
+                "read_observations",
+                (),
             )
+
+            if isinstance(
+                raw_read_observations,
+                (list, tuple),
+            ):
+                for observation in raw_read_observations:
+                    if not isinstance(observation, Mapping):
+                        continue
+
+                    if (
+                        observation.get("source_path")
+                        == path
+                    ):
+                        read_observation = observation
+                        break
+
+            item = {
+                "source_path": path,
+                "source_identity_kind": source_identity_kind,
+                "families": families,
+            }
+
+            if read_observation is not None:
+                item["read_status"] = (
+                    read_observation.get(
+                        "status",
+                        "UNKNOWN",
+                    )
+                )
+                item["content"] = (
+                    read_observation.get(
+                        "content",
+                        "",
+                    )
+                )
+                item["read_only"] = True
+                item["bounded"] = True
+                item["authority_conferred"] = False
+
+            evidence.append(item)
 
         provenance = tuple(
             {
                 "source_path": item["source_path"],
                 "source_identity_kind": item["source_identity_kind"],
                 "retrieval_capability": retrieval.get("capability", ""),
+                "read_observed": "read_status" in item,
                 "authority_conferred": False,
             }
             for item in evidence
