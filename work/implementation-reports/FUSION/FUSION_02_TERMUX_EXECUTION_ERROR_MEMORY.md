@@ -763,3 +763,112 @@ RUN-04 recovery replaces the false method assumptions with the exact demonstrate
 **Failure:** Knowledge Materialization anatomy differs from inspected authority.
 
 **Preventive rule:** Deterministic Termux Bash must verify only repository anatomy already demonstrated from the exact authority. A preflight must never assert convenience APIs that were not verified in source.
+
+## FUSION-02 — E13/T9 stale retrieval fixture authority contract
+
+### Classification
+
+`STALE_T9_RETRIEVAL_TEST_FIXTURE_AUTHORITY_CONTRACT`
+
+### Demonstrated observation
+
+The E13/T9 focused acceptance constructed a synthetic retrieval mapping
+without the established field:
+
+`authority_conferred=False`
+
+The existing production contract explicitly refuses retrieval input unless
+that field is exactly false.
+
+Observed result:
+
+`ValueError: Retrieval must not confer epistemic authority`
+
+### Root cause
+
+The new test fixture omitted an already-established retrieval invariant.
+
+This failure did not demonstrate a defect in the production authority guard.
+
+### Recovery rule
+
+When constructing retrieval fixtures for Working Context acceptance, preserve
+the established retrieval contract explicitly, including
+`authority_conferred=False`.
+
+Do not weaken or remove the production authority guard to satisfy an
+incomplete test fixture.
+
+This is demonstrated execution Evidence, not Canon.
+
+## FUSION-02 — E13/T9 incomplete synthetic retrieval contract
+
+### Classification
+
+`INCOMPLETE_T9_SYNTHETIC_RETRIEVAL_CONTRACT`
+
+### Demonstrated observation
+
+The focused E13/T9 test fixture was repaired once for
+`authority_conferred=False` but still omitted the second already-established
+Working Context retrieval invariant:
+
+`working_context_materialized=False`
+
+The production guard correctly stopped with:
+
+`ValueError: Working Context must be materialized exactly once from candidate retrieval`
+
+### Direct repository verification
+
+The pre-existing authoritative test
+`tests/fusion/test_fusion_02_first_working_context_materialization.py`
+demonstrates that valid candidate retrieval fixtures explicitly contain both:
+
+- `authority_conferred: False`
+- `working_context_materialized: False`
+
+It also contains negative tests proving that authority promotion and an
+already-materialized retrieval must be rejected.
+
+### Recovery rule
+
+Before constructing a new synthetic retrieval fixture, inspect and reuse the
+complete established retrieval contract from existing acceptance tests.
+
+Do not discover required fixture fields one exception at a time.
+
+Do not weaken production guards to accommodate an incomplete fixture.
+
+This is demonstrated execution Evidence, not Canon.
+
+## FUSION-02 — E13/T9 generated report EOF whitespace
+
+### Classification
+
+`GENERATED_REPORT_BLANK_LINE_AT_EOF`
+
+### Demonstrated observation
+
+All E13/T9 acceptance and conservation checks passed, but
+`git diff --cached --check` stopped the commit because the generated
+implementation report ended with an additional blank line.
+
+Observed diagnostic:
+
+`FUSION_02_E13_T9_IMPLEMENTATION.md:587: new blank line at EOF.`
+
+### Root cause
+
+The report generator concatenated a newline after evolution-tree content that
+already terminated with newline characters.
+
+### Recovery rule
+
+Generated Markdown reports must be normalized with `rstrip() + "\n"` before
+staging.
+
+Do not alter production or acceptance semantics to recover from a whitespace
+failure.
+
+This is demonstrated execution Evidence, not Canon.

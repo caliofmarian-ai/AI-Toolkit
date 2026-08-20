@@ -64,9 +64,13 @@ class WorkingContext:
     need_id: str
     journey_id: str
     status: str
+    human_question: str
+    constraints: Mapping[str, bool]
     source_identity_kind: str
     source_paths: tuple[str, ...]
     evidence: tuple[Mapping[str, Any], ...]
+    provenance: tuple[Mapping[str, Any], ...]
+    journey_summary: Mapping[str, Any]
     authority_conferred: bool
     human_authority_preserved: bool
     unknown_is_valid: bool
@@ -74,11 +78,11 @@ class WorkingContext:
 
     def to_dict(self) -> dict[str, Any]:
         result = asdict(self)
+        result["constraints"] = dict(self.constraints)
         result["source_paths"] = list(self.source_paths)
-        result["evidence"] = [
-            dict(item)
-            for item in self.evidence
-        ]
+        result["evidence"] = [dict(item) for item in self.evidence]
+        result["provenance"] = [dict(item) for item in self.provenance]
+        result["journey_summary"] = dict(self.journey_summary)
         return result
 
 
@@ -492,9 +496,18 @@ class EpistemicCognitiveCoordinator:
                 need_id=need.need_id,
                 journey_id=journey.journey_id,
                 status="UNKNOWN",
+                human_question=need.question,
+                constraints=dict(need.constraints),
                 source_identity_kind="repository-relative-path",
                 source_paths=(),
                 evidence=(),
+                provenance=(),
+                journey_summary={
+                    "status": journey.status,
+                    "step_count": journey.step_count,
+                    "epistemic_gain": journey.epistemic_gain,
+                    "stopping_reason": journey.stopping_reason,
+                },
                 authority_conferred=False,
                 human_authority_preserved=True,
                 unknown_is_valid=True,
@@ -581,6 +594,23 @@ class EpistemicCognitiveCoordinator:
                 }
             )
 
+        provenance = tuple(
+            {
+                "source_path": item["source_path"],
+                "source_identity_kind": item["source_identity_kind"],
+                "retrieval_capability": retrieval.get("capability", ""),
+                "authority_conferred": False,
+            }
+            for item in evidence
+        )
+
+        journey_summary = {
+            "status": journey.status,
+            "step_count": journey.step_count,
+            "epistemic_gain": journey.epistemic_gain,
+            "stopping_reason": journey.stopping_reason,
+        }
+
         status = (
             "MATERIALIZED"
             if selected_paths
@@ -592,9 +622,13 @@ class EpistemicCognitiveCoordinator:
             need_id=need.need_id,
             journey_id=journey.journey_id,
             status=status,
+            human_question=need.question,
+            constraints=dict(need.constraints),
             source_identity_kind=source_identity_kind,
             source_paths=tuple(selected_paths),
             evidence=tuple(evidence),
+            provenance=provenance,
+            journey_summary=journey_summary,
             authority_conferred=False,
             human_authority_preserved=True,
             unknown_is_valid=True,

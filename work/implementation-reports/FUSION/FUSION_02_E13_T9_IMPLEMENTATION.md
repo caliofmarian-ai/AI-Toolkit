@@ -1,3 +1,102 @@
+# FUSION-02 — E13/T9 Working Context Assembly
+
+## Poziția în evoluția organismului
+
+Program:
+**Fuziunea dintre AI-Toolkit generația 1 și Organismul Epistemic**
+
+Etapa curentă:
+**FUSION-02**
+
+Nod biologic/cognitiv:
+**E13 — Formarea contextului mental de lucru**
+
+Task tehnic:
+**T9 — Working Context Assembly**
+
+## Ce poate face acum această ramură
+
+Working Context poate conserva selectiv:
+
+- întrebarea umană relevantă;
+- constrângerile relevante;
+- sursele selectate bounded;
+- deduplicarea surselor;
+- proveniența;
+- concluzia compactă a Journey.
+
+## Separări epistemice conservate
+
+Knowledge != Journey.
+
+Journey != Working Context.
+
+Retrieval != Working Context.
+
+Retrieval nu conferă autoritate epistemică.
+
+Working Context nu materializează repository-ul integral.
+
+Human Authority rămâne autoritatea finală.
+
+## Erori istorice E13/T9
+
+### E13-ERR-002
+WRONG_EVOLUTION_TREE_PATH
+
+Recuperată.
+
+### E13-ERR-003
+TERMUX_BATCH_MESSAGE_FRAGMENTATION
+
+Recuperată.
+
+### E13-ERR-004
+STALE_RETRIEVAL_AUTHORITY_FIXTURE
+
+Recuperată fără slăbirea production guard.
+
+### E13-ERR-005
+INCOMPLETE_T9_SYNTHETIC_RETRIEVAL_CONTRACT
+
+Fixture-ul nu reutiliza întreg contractul retrieval deja demonstrat.
+
+Recuperare:
+`authority_conferred=False`
+și
+`working_context_materialized=False`
+sunt conservate explicit.
+
+Production guards nu au fost slăbite.
+
+## Starea T9
+
+T9 este implementat parțial și demonstrat.
+
+### Bifat
+
+- [x] Human Question
+- [x] Human Constraints
+- [x] Bounded Selection
+- [x] Deduplication
+- [x] Provenance
+- [x] Compact Journey Conclusion
+
+### Nebifat
+
+- [ ] Epistemic Results
+- [ ] Semantic Identities
+- [ ] Epistemic Class
+- [ ] Uncertainty
+- [ ] Relevant Relations
+- [ ] Representative proof că Working Context este strict mai mic și selectiv
+
+E13 nu este încă declarat complet.
+
+E14/T10 nu este încă autorizat.
+
+## Arborele complet FUSION-02
+
 # FUSION-02 — Arborele evoluției organismului epistemic
 
 ## Rolul acestui document
