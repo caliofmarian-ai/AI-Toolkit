@@ -1396,3 +1396,41 @@ The repository root must be derived from demonstrated runtime anatomy,
 not assumed from process current-working-directory semantics.
 
 This record is Evidence, not Canon.
+
+## FUSION-02 — Session persistence coupled to deployment filesystem
+
+### Classification
+
+`DEPLOYMENT_COUPLED_SESSION_STORAGE`
+
+### Demonstrated observation
+
+AISessionEngine historically derived its session directory from
+`repository_root/.ai/ai_sessions`.
+
+On an ephemeral deployment filesystem this couples conversation state to
+one deployment checkout.
+
+A redeploy may therefore replace the filesystem containing:
+
+- session identity;
+- conversation history;
+- raw sources;
+- Experience identity;
+- Journey reference;
+- interruption/recovery state.
+
+### Recovery
+
+Repository identity and durable runtime state now have separate roots.
+
+`AI_TOOLKIT_STATE_ROOT` may identify durable mounted storage.
+
+When that variable is absent, historical repository-local behavior remains
+available for local development and compatibility.
+
+The implementation acceptance demonstrates recovery of the same Session
+after changing repository/deployment root while retaining the same durable
+state root.
+
+This record is Evidence, not Canon.

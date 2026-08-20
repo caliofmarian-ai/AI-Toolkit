@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Mapping
@@ -8,9 +9,35 @@ from uuid import uuid4
 
 
 class AISessionEngine:
-    def __init__(self, repository_root: str = ".") -> None:
+    def __init__(
+        self,
+        repository_root: str = ".",
+        *,
+        state_root: str | None = None,
+    ) -> None:
         self.root = Path(repository_root).resolve()
-        self.dir = self.root / ".ai" / "ai_sessions"
+
+        configured_state_root = (
+            state_root
+            if state_root is not None
+            else os.environ.get("AI_TOOLKIT_STATE_ROOT", "")
+        )
+
+        if configured_state_root:
+            self.state_root = Path(
+                configured_state_root
+            ).expanduser().resolve()
+        else:
+            # Historical/local compatibility:
+            # without an explicit durable root, preserve the established
+            # repository-local state anatomy.
+            self.state_root = self.root
+
+        self.dir = (
+            self.state_root
+            / ".ai"
+            / "ai_sessions"
+        )
 
     def create(self, payload: Mapping[str, Any]) -> Dict[str, Any]:
         now = datetime.now(timezone.utc).isoformat()
