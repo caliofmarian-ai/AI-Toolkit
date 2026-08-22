@@ -21,6 +21,10 @@ from python.experience.deployment import (
     prepare_experience_repository,
 )
 from python.experience.identity import ExperienceId
+from python.experience.repository import ExperienceNotFoundError
+from python.ai_platform.historical_experience_recovery import (
+    historical_continuity,
+)
 
 from python.experience.persistent_repository import (
     JsonFileExperienceRepository,
@@ -260,15 +264,34 @@ class EpistemicOrganismAccess:
             repository = prepare_experience_repository(
                 repository_root=self.repository_root,
             )
-            experience = repository.get(
-                ExperienceId(experience_id)
-            )
-            experience_state = {
-                "experience_id": str(experience.experience_id),
-                "state": experience.state.value,
-                "created_at": experience.created_at.isoformat(),
-                "recovered": True,
-            }
+
+            try:
+                experience = repository.get(
+                    ExperienceId(experience_id)
+                )
+            except ExperienceNotFoundError:
+                continuity = historical_continuity(session)
+                experience_state = {
+                    "experience_id": str(continuity.experience_id),
+                    "state": continuity.historical_state.value,
+                    "created_at": None,
+                    "recovered": True,
+                    "historical_continuity": True,
+                    "recovery_provenance": (
+                        continuity.recovery_provenance
+                    ),
+                    "exact_created_at_recoverable": (
+                        continuity.exact_created_at_recoverable
+                    ),
+                }
+            else:
+                experience_state = {
+                    "experience_id": str(experience.experience_id),
+                    "state": experience.state.value,
+                    "created_at": experience.created_at.isoformat(),
+                    "recovered": True,
+                    "historical_continuity": False,
+                }
         else:
             experience_state = {
                 "experience_id": None,

@@ -1498,3 +1498,36 @@ Conservation:
 - no reset
 - no restore
 - no stash
+
+FUSION-02 — Real browser continuation second recovery boundary
+
+Observed through real Railway browser execution:
+
+Browser
+-> AIPlatformService.ask_repository
+-> ConversationContext.build
+-> EpistemicOrganism.conversation_session
+-> PersistentExperienceRepository.get
+-> ExperienceNotFoundError
+
+Classification:
+SECOND_UNINTEGRATED_EXPERIENCE_RECOVERY_BOUNDARY
+
+The earlier ConversationExperienceBridge recovery was successful enough
+for execution to advance into context reconstruction.
+
+EpistemicOrganism.conversation_session still assumed that every session
+Experience reference must resolve to a physically persisted canonical
+Experience.
+
+For historical sessions created before durable Experience storage, this
+assumption is false.
+
+Required conservation:
+- repository lookup remains first authority
+- only ExperienceNotFoundError may enter historical continuity
+- canonical persisted Experience remains authoritative when present
+- historical continuity must not be inserted into Experience repository
+- original historical Experience identity must remain unchanged
+- exact historical created_at must not be fabricated
+- unrelated repository failures must propagate
