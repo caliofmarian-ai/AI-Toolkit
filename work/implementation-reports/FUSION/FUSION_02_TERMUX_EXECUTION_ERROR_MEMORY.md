@@ -1434,3 +1434,33 @@ after changing repository/deployment root while retaining the same durable
 state root.
 
 This record is Evidence, not Canon.
+
+## FUSION-02-ERR-AI-PARTNER-REATTACH-001 — INVENTED_DASHBOARD_SERVICE_CLASS
+
+- Status: RECOVERED
+- Observed: 2026-08-21T00:07:44.290920+00:00
+- Failure stage: test collection
+- Demonstrated failure:
+  ImportError: cannot import name DashboardService from python.dashboard.service
+- Root cause:
+  the acceptance fixture assumed a DashboardService class that is not
+  part of the authoritative dashboard anatomy.
+- Recovery authority:
+  inspect and use the real AI Partner request boundary already present
+  in the dashboard/runtime implementation.
+- Conservation:
+  no reset; no production rollback; durable AISessionEngine physiology
+  remains authoritative.
+FUSION-02-ERR — SESSION_REATTACHMENT_TEST_ASSUMED_NONEXISTENT_RUNTIME_PATH
+STATUS: RECOVERED
+CAUSE: acceptance test assumed lib/python/runtime/server.py without repository evidence.
+OBSERVED_REAL_HTTP_ORGAN: lib/python/runtime/interfaces/http_server.py
+RECOVERY: production remains untouched; test now discovers and binds to the demonstrated HTTP runtime anatomy.
+AUTHORITY: Human Authority conserved.
+RECORDED_AT: 2026-08-22T17:33:24.479669+00:00
+FUSION-02-ERR — SESSION_REATTACHMENT_REPORT_TRAILING_WHITESPACE_COMMIT_GATE
+STATUS: RECOVERED
+CAUSE: git diff --cached --check detected trailing whitespace in the generated anatomy report at lines 42 and 56.
+RECOVERY: only demonstrated trailing whitespace was normalized; production physiology was unchanged.
+CONSERVATION: prior staged reattachment implementation preserved.
+RECORDED_AT: 2026-08-22T17:38:02.025265+00:00

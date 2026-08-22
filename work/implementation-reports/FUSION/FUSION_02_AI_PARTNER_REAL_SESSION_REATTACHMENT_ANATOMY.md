@@ -1,3 +1,81 @@
+# FUSION-02 — AI Partner Real Session Reattachment Anatomy
+
+Generated: 2026-08-21T05:42:34.837620+00:00
+
+## Purpose
+
+Recover the exact production anatomy required to connect
+the browser-visible AI Partner conversation to the durable
+AISessionEngine identity.
+
+This report is inspection authority only.
+
+It does not yet certify browser reattachment.
+
+## Demonstrated baseline
+
+- Full FUSION regression before this recovery: 229 passed.
+- EngineeringDashboardService is the real dashboard service.
+- POST /api/ai/chat is the real owner AI chat HTTP boundary.
+- The HTTP boundary already accepts session_id.
+- The HTTP boundary passes session_id to AIPlatformService.
+- Existing browser mutation attempts durable session identity.
+- No DashboardService abstraction is authorized.
+
+## Current worktree
+
+BEGIN CURRENT WORKTREE
+ M lib/python/dashboard/service.py
+ M work/implementation-reports/FUSION/FUSION_02_TERMUX_EXECUTION_ERROR_MEMORY.md
+END CURRENT WORKTREE
+
+## Existing dashboard service mutation
+
+BEGIN SERVICE DIFF
+diff --git a/lib/python/dashboard/service.py b/lib/python/dashboard/service.py
+index e560a93..bd31df6 100644
+--- a/lib/python/dashboard/service.py
++++ b/lib/python/dashboard/service.py
+@@ -933,8 +933,17 @@ class EngineeringDashboardService:
+     def _load_ai_control_center(self) -> Dict[str, Any]:
+         return self.ai_platform.control_center()
+
+-    def ask_repository(self, question: str, prompt_name: str = "") -> Dict[str, Any]:
+-        return self.ai_platform.ask_repository(question=question, prompt_name=prompt_name)
++    def ask_repository(
++        self,
++        question: str,
++        prompt_name: str = "",
++        session_id: str = "",
++    ) -> Dict[str, Any]:
++        return self.ai_platform.ask_repository(
++            question=question,
++            prompt_name=prompt_name,
++            session_id=session_id,
++        )
+
+     def _load_capabilities(
+         self,
+@@ -1558,12 +1567,12 @@ class EngineeringDashboardService:
+             'e.preventDefault();const q=question.value.trim();if(!q)return;'
+             'send.disabled=true;question.disabled=true;'
+             'status.className="chat-status working";'
+-            'status.textContent="AI Partner is working…";'
++            'const storedSession=localStorage.getItem("ai_toolkit_partner_session_id");''if(storedSession&&session){session.value=storedSession;}''status.textContent="AI Partner is working…";'
+             'try{const data=await jsonFetch("/api/ai/chat",{'
+             'method:"POST",headers:{"Content-Type":"application/json"},'
+             'body:JSON.stringify({question:q,session_id:session.value,'
+             'provider_id:provider.value,model:model.value})});'
+-            'const sid=data.session_id||session.value;question.value="";'
++            'const sid=data.session_id||session.value;''if(sid){session.value=sid;localStorage.setItem("ai_toolkit_partner_session_id",sid);}''question.value="";'
+             'await loadSessions(sid);session.value=sid;await loadSession();'
+             'status.className="chat-status";'
+             'status.textContent="AI response received and persisted.";}'
+END SERVICE DIFF
+
+## Dashboard service anatomy
+
+BEGIN DASHBOARD SERVICE
 from __future__ import annotations
 
 import json
@@ -1728,3 +1806,1980 @@ class EngineeringDashboardService:
             return str(path.relative_to(self.repository_root))
         except ValueError:
             return str(path)
+
+END DASHBOARD SERVICE
+
+## Dashboard HTTP server anatomy
+
+BEGIN DASHBOARD HTTP SERVER
+from __future__ import annotations
+
+import json
+import threading
+import webbrowser
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from typing import Any, Dict, Optional
+from urllib.parse import parse_qs, urlparse
+
+from .service import EngineeringDashboardService
+
+
+class _DashboardRequestHandler(BaseHTTPRequestHandler):
+    def log_message(self, fmt, *args):
+        return
+
+    def do_GET(self) -> None:
+        parsed = urlparse(self.path)
+        path = self._normalize_path(parsed.path)
+        query = parse_qs(parsed.query)
+        server = self.server._dashboard_server  # type: ignore[attr-defined]
+        if path == "/health":
+            self._send_json({"ok": True, "service": "dashboard"})
+            return
+        if path == "/api/dashboard":
+            self._send_json(server.service.build(refresh="refresh=1" in parsed.query))
+            return
+        if path == "/api/capabilities":
+            payload = server.service.build(refresh="refresh=1" in parsed.query)
+            self._send_json(payload["capabilities"])
+            return
+        if path == "/api/runtime":
+            payload = server.service.build(refresh="refresh=1" in parsed.query)
+            self._send_json(payload["runtime"])
+            return
+        if path == "/api/diagnostics":
+            payload = server.service.build(refresh="refresh=1" in parsed.query)
+            self._send_json(payload["diagnostics"])
+            return
+        if path == "/api/ai/control-center":
+            payload = server.service.build(refresh="refresh=1" in parsed.query)
+            self._send_json(payload["ai_control_center"])
+            return
+        if path == "/api/ai/ask":
+            question = (query.get("q") or [""])[0].strip()
+            prompt_name = (query.get("prompt") or [""])[0].strip()
+            if not question and not prompt_name:
+                self._send_json({"error": "missing query"}, status=400)
+                return
+            self._send_json(server.service.ask_repository(question=question, prompt_name=prompt_name))
+            return
+        payload = server.service.build(refresh="refresh=1" in parsed.query)
+        if path == "/":
+            self._send_html(server.service.render_home(payload))
+            return
+        if path == "/projects":
+            self._send_html(server.service.render_projects(payload))
+            return
+        if path == "/repository":
+            question = (query.get("q") or [""])[0].strip()
+            prompt_name = (query.get("prompt") or [""])[0].strip()
+            self._send_html(server.service.render_repository(payload, question=question, prompt_name=prompt_name))
+            return
+        if path == "/session":
+            self._send_html(server.service.render_session(payload))
+            return
+        if path == "/ai-control-center":
+            self._send_html(server.service.render_ai_control_center(payload))
+            return
+        if path == "/knowledge":
+            self._send_html(server.service.render_explorer(payload))
+            return
+        if path == "/validation":
+            self._send_html(server.service.render_diagnostics(payload))
+            return
+        if path == "/settings":
+            self._send_html(server.service.render_runtime(payload))
+            return
+        if path == "/explorer":
+            self._send_html(server.service.render_explorer(payload))
+            return
+        if path == "/reports":
+            self._send_html(server.service.render_reports(payload))
+            return
+        if path == "/runtime":
+            self._send_html(server.service.render_runtime(payload))
+            return
+        if path == "/diagnostics":
+            self._send_html(server.service.render_diagnostics(payload))
+            return
+        if path.startswith("/capabilities/"):
+            slug = path.rsplit("/", 1)[-1]
+            page = server.service.render_capability(slug, payload)
+            if page is None:
+                self._send_json({"error": "not found"}, status=404)
+                return
+            self._send_html(page)
+            return
+        self._send_json({"error": "not found"}, status=404)
+
+    def _normalize_path(self, path: str) -> str:
+        aliases = {
+            "/dashboard": "/",
+            "/project-manager": "/projects",
+            "/engineering-session": "/session",
+        }
+        return aliases.get(path, path)
+
+    def _send_html(self, html: str, status: int = 200) -> None:
+        body = html.encode("utf-8")
+        self.send_response(status)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def _send_json(self, payload: Dict[str, Any], status: int = 200) -> None:
+        body = json.dumps(payload, indent=2, ensure_ascii=False).encode("utf-8")
+        self.send_response(status)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+
+class DashboardHttpServer:
+    def __init__(
+        self,
+        host: str = "127.0.0.1",
+        port: int = 8081,
+        repository_root: str = ".",
+        workspace_root: Optional[str] = None,
+    ) -> None:
+        self.host = host
+        self.port = port
+        self.service = EngineeringDashboardService(
+            repository_root=repository_root,
+            workspace_root=workspace_root,
+        )
+        self._server: Optional[HTTPServer] = None
+        self._thread: Optional[threading.Thread] = None
+
+    @property
+    def url(self) -> str:
+        return f"http://{self.host}:{self.port}/"
+
+    def start(self) -> None:
+        self.service.build(refresh=True)
+        self._server = self._build_server()
+        self._thread = threading.Thread(
+            target=self._server.serve_forever,
+            daemon=True,
+            name="EngineeringDashboardHttpServer",
+        )
+        self._thread.start()
+
+    def serve_forever(self) -> None:
+        self.service.build(refresh=True)
+        self._server = self._build_server()
+        self._server.serve_forever()
+
+    def stop(self) -> None:
+        if self._server is not None:
+            self._server.shutdown()
+            self._server.server_close()
+        if self._thread is not None:
+            self._thread.join(timeout=5)
+
+    def _handler_class(self):
+        return type(
+            "EngineeringDashboardHandler",
+            (_DashboardRequestHandler,),
+            {},
+        )
+
+    def _build_server(self) -> HTTPServer:
+        server = HTTPServer((self.host, self.port), self._handler_class())
+        server._dashboard_server = self  # type: ignore[attr-defined]
+        return server
+
+
+def serve_dashboard(
+    host: str = "127.0.0.1",
+    port: int = 8081,
+    repository_root: str = ".",
+    workspace_root: Optional[str] = None,
+    open_browser: bool = False,
+) -> None:
+    server = DashboardHttpServer(
+        host=host,
+        port=port,
+        repository_root=repository_root,
+        workspace_root=workspace_root,
+    )
+    print(f"AI-Toolkit Dashboard running at {server.url}")
+    if open_browser:
+        webbrowser.open(server.url)
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        server.stop()
+
+END DASHBOARD HTTP SERVER
+
+## Runtime HTTP interface anatomy
+
+BEGIN RUNTIME HTTP INTERFACE
+"""
+CORE-021 — Runtime HTTP Server
+CANON-055 §5, CANON-056
+
+Minimal HTTP server (stdlib only) that exposes:
+
+    GET  /health    — liveness check
+    GET  /ready     — readiness check
+    GET  /metrics   — metrics snapshot
+    GET  /status    — full Runtime status report
+    POST /webhook/github  — GitHub webhook receiver
+    POST /webhook/telegram — Telegram update receiver (fallback to polling)
+
+Uses Python's built-in http.server so no third-party HTTP framework
+is required.
+"""
+
+import json
+import logging
+import threading
+from lib.python.runtime.interfaces.runtime_api import RuntimeApiRouter
+
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from typing import TYPE_CHECKING, Any, Callable, Dict, Optional
+from urllib.parse import parse_qs, urlparse
+
+from python.runtime.owner_access import (
+    OWNER_SESSION_COOKIE,
+    OwnerAccessBoundary,
+)
+
+logger = logging.getLogger(__name__)
+
+
+class _RuntimeHandler(BaseHTTPRequestHandler):
+    """Request handler that delegates to the RuntimeHttpServer callbacks."""
+
+    # These are set by RuntimeHttpServer before creating instances.
+    _server_ref: "RuntimeHttpServer" = None  # type: ignore[assignment]
+
+    def log_message(self, fmt, *args):
+        logger.debug("HTTP %s", fmt % args)
+
+    def _send_json(self, data: dict, status: int = 200) -> None:
+        body = json.dumps(data, indent=2).encode()
+        self.send_response(status)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def _send_html(self, html: str, status: int = 200) -> None:
+        body = html.encode("utf-8")
+        self.send_response(status)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def _redirect(
+        self,
+        location: str,
+        *,
+        cookie: str = "",
+    ) -> None:
+        self.send_response(303)
+        self.send_header("Location", location)
+        if cookie:
+            self.send_header("Set-Cookie", cookie)
+        self.send_header("Content-Length", "0")
+        self.end_headers()
+
+    def _owner_login_page(
+        self,
+        *,
+        rejected: bool = False,
+    ) -> str:
+        message = (
+            "<p class=\"error\">Owner credential rejected.</p>"
+            if rejected
+            else ""
+        )
+        return (
+            "<!doctype html><html><head>"
+            "<meta charset=\"utf-8\">"
+            "<meta name=\"viewport\" "
+            "content=\"width=device-width,initial-scale=1\">"
+            "<title>Owner Access — AI-Toolkit</title>"
+            "<style>"
+            "body{font-family:Arial,sans-serif;background:#0b1020;"
+            "color:#e5e7eb;display:grid;place-items:center;"
+            "min-height:100vh;margin:0}"
+            ".box{width:min(92vw,460px);background:#111827;"
+            "border:1px solid #1f2937;border-radius:14px;"
+            "padding:24px}"
+            "input,button{box-sizing:border-box;width:100%;"
+            "padding:12px;margin-top:10px;border-radius:8px}"
+            "input{background:#0b1020;color:#fff;"
+            "border:1px solid #374151}"
+            "button{background:#2563eb;color:#fff;border:0;"
+            "font-weight:700;cursor:pointer}"
+            ".muted{color:#9ca3af}.error{color:#fca5a5}"
+            "</style></head><body><main class=\"box\">"
+            "<h1>AI-Toolkit Owner Access</h1>"
+            "<p class=\"muted\">Private · Single Owner · "
+            "Human Authority</p>"
+            + message
+            + "<form method=\"post\" action=\"/owner/login\">"
+            "<label for=\"owner-token\">Owner credential</label>"
+            "<input id=\"owner-token\" name=\"owner_token\" "
+            "type=\"password\" autocomplete=\"current-password\" "
+            "required autofocus>"
+            "<button type=\"submit\">Enter AI-Toolkit</button>"
+            "</form></main></body></html>"
+        )
+
+    def _read_body(self) -> bytes:
+        length = int(self.headers.get("Content-Length", 0))
+        return self.rfile.read(length) if length else b""
+
+    def _require_owner(self) -> bool:
+        srv = self.__class__._server_ref
+        decision = srv.owner_access.authenticate_request(self.headers)
+
+        if decision.authenticated:
+            return True
+
+        self._send_json(
+            {
+                "error": "owner authentication required",
+                "access": decision.as_dict(),
+            },
+            401,
+        )
+        return False
+
+    def do_GET(self) -> None:
+        parsed = urlparse(self.path)
+        path = parsed.path
+        query = parse_qs(parsed.query)
+        srv = self.__class__._server_ref
+        normalized_dashboard_path = srv.normalize_dashboard_path(path)
+        prefer_json = query.get("format", [""])[0] == "json" or "application/json" in self.headers.get("Accept", "")
+        if path == "/owner/login":
+            decision = srv.owner_access.authenticate_request(
+                self.headers
+            )
+            if decision.authenticated:
+                self._redirect("/ai-control-center")
+            else:
+                self._send_html(self._owner_login_page())
+            return
+
+        if path == "/owner/logout":
+            self._redirect(
+                "/owner/login",
+                cookie=(
+                    f"{OWNER_SESSION_COOKIE}=; Path=/; "
+                    "Max-Age=0; HttpOnly; Secure; SameSite=Strict"
+                ),
+            )
+            return
+
+        if path == "/api/ai/sessions":
+            if not self._require_owner():
+                return
+            if srv.dashboard_service is None:
+                self._send_json(
+                    {"error": "AI dashboard service unavailable"},
+                    503,
+                )
+                return
+            sessions = (
+                srv.dashboard_service.ai_platform.sessions.list_sessions()
+            )
+            self._send_json({"sessions": sessions})
+            return
+
+        if path.startswith("/api/ai/sessions/"):
+            if not self._require_owner():
+                return
+            if srv.dashboard_service is None:
+                self._send_json(
+                    {"error": "AI dashboard service unavailable"},
+                    503,
+                )
+                return
+            session_id = path.rsplit("/", 1)[-1].strip()
+            session = (
+                srv.dashboard_service.ai_platform.sessions.get(
+                    session_id
+                )
+            )
+            if not session:
+                self._send_json(
+                    {"error": "AI session not found"},
+                    404,
+                )
+                return
+            self._send_json({"session": session})
+            return
+
+        if normalized_dashboard_path == "/" and not prefer_json and srv.dashboard_service is not None:
+            self._send_html(srv.render_dashboard(path, query))
+
+        elif normalized_dashboard_path == "/" and prefer_json:
+            data = srv.api.status()
+            self._send_json(data)
+        elif path in ("/health", "/api/v1/health"):
+            data = srv.api.health()
+            self._send_json(data, 200 if data.get("healthy") else 503)
+        elif path == "/api/v1/runtime":
+            self._send_json(srv.api.runtime())
+        elif path in ("/organism", "/api/v1/organism"):
+            status = srv.api.status()
+            organism = status.get("organism")
+
+            if organism is None:
+                self._send_json(
+                    {
+                        "state": "UNKNOWN",
+                        "reason": (
+                            "Organism state is not available "
+                            "from RuntimeBootstrap."
+                        ),
+                    },
+                    503,
+                )
+            else:
+                self._send_json(organism)
+        elif path == "/runtime":
+            if srv.dashboard_service is not None and not prefer_json:
+                self._send_html(srv.render_dashboard(path, query))
+            else:
+                self._send_json(srv.api.runtime())
+        elif path == "/diagnostics":
+            if srv.dashboard_service is not None and not prefer_json:
+                self._send_html(srv.render_dashboard(path, query))
+            else:
+                self._send_json(srv.api.status().get("diagnostics", {}))
+        elif path == "/ready":
+            data = srv.handle_ready()
+            status = 200 if data.get("ready") else 503
+            self._send_json(data, status)
+        elif path in ("/metrics", "/api/v1/metrics"):
+            self._send_json(srv.api.metrics())
+        elif path in ("/status", "/api/v1/status"):
+            self._send_json(srv.api.status())
+        elif srv.dashboard_service is not None and normalized_dashboard_path in (
+            "/",
+            "/projects",
+            "/session",
+            "/repository",
+            "/ai-control-center",
+            "/explorer",
+            "/reports",
+            "/runtime",
+            "/diagnostics",
+        ):
+            if normalized_dashboard_path == "/ai-control-center":
+                decision = srv.owner_access.authenticate_request(
+                    self.headers
+                )
+                if not decision.authenticated:
+                    self._redirect("/owner/login")
+                    return
+            if normalized_dashboard_path == "/repository":
+                privileged_query = bool(
+                    (query.get("q") or [""])[0].strip()
+                    or (query.get("prompt") or [""])[0].strip()
+                )
+                if privileged_query and not self._require_owner():
+                    return
+            self._send_html(srv.render_dashboard(path, query))
+        elif srv.dashboard_service is not None and path == "/api/ai/control-center":
+            if not self._require_owner():
+                return
+            payload = srv.dashboard_payload(refresh="1" in query.get("refresh", []))
+            self._send_json(payload.get("ai_control_center", {}))
+        elif srv.dashboard_service is not None and path == "/api/ai/ask":
+            if not self._require_owner():
+                return
+            question = (query.get("q") or [""])[0].strip()
+            prompt_name = (query.get("prompt") or [""])[0].strip()
+            if not question and not prompt_name:
+                self._send_json({"error": "missing query"}, 400)
+                return
+            self._send_json(srv.dashboard_service.ask_repository(question=question, prompt_name=prompt_name))
+        elif srv.dashboard_service is not None and path == "/api/dashboard":
+            self._send_json(srv.dashboard_payload(refresh="1" in query.get("refresh", [])))
+        elif srv.dashboard_service is not None and path == "/api/capabilities":
+            payload = srv.dashboard_payload(refresh="1" in query.get("refresh", []))
+            self._send_json(payload.get("capabilities", {}))
+        elif srv.dashboard_service is not None and path.startswith("/capabilities/"):
+            page = srv.render_dashboard(path, query)
+            if page is None:
+                self._send_json({"error": "not found"}, 404)
+            else:
+                self._send_html(page)
+        else:
+            self._send_json({"error": "not found"}, 404)
+
+    def do_POST(self) -> None:
+        path = self.path.split("?")[0]
+        srv = self.__class__._server_ref
+        body = self._read_body()
+
+        if path == "/owner/login":
+            try:
+                form = parse_qs(
+                    body.decode("utf-8"),
+                    keep_blank_values=True,
+                )
+            except UnicodeDecodeError:
+                self._send_html(
+                    self._owner_login_page(rejected=True),
+                    400,
+                )
+                return
+
+            supplied = (
+                form.get("owner_token", [""])[0].strip()
+            )
+            decision = srv.owner_access.authenticate(
+                {"Authorization": f"Bearer {supplied}"}
+            )
+
+            if not decision.authenticated:
+                self._send_html(
+                    self._owner_login_page(rejected=True),
+                    401,
+                )
+                return
+
+            session_value = (
+                srv.owner_access.session_cookie_value()
+            )
+            self._redirect(
+                "/ai-control-center",
+                cookie=(
+                    f"{OWNER_SESSION_COOKIE}={session_value}; "
+                    "Path=/; HttpOnly; Secure; SameSite=Strict"
+                ),
+            )
+            return
+
+        if path == "/webhook/github":
+            sig = self.headers.get("X-Hub-Signature-256", "")
+            event_type = self.headers.get("X-GitHub-Event", "unknown")
+            result = srv.handle_github_webhook(event_type, sig, body)
+            self._send_json(result)
+        elif path == "/webhook/telegram":
+            result = srv.handle_telegram_update(body)
+            self._send_json(result)
+        elif path == "/api/ai/chat":
+            if not self._require_owner():
+                return
+            if srv.dashboard_service is None:
+                self._send_json(
+                    {"error": "AI dashboard service unavailable"},
+                    503,
+                )
+                return
+            try:
+                payload = json.loads(body.decode("utf-8") or "{}")
+            except (UnicodeDecodeError, json.JSONDecodeError):
+                self._send_json({"error": "invalid JSON body"}, 400)
+                return
+
+            question = str(payload.get("question", "")).strip()
+            session_id = str(payload.get("session_id", "")).strip()
+            provider_id = str(payload.get("provider_id", "")).strip()
+            model = str(payload.get("model", "")).strip()
+            prompt_name = str(payload.get("prompt_name", "")).strip()
+
+            if not question and not prompt_name:
+                self._send_json({"error": "missing question"}, 400)
+                return
+
+            try:
+                result = srv.dashboard_service.ai_platform.ask_repository(
+                    question=question,
+                    session_id=session_id,
+                    provider_id=provider_id,
+                    model=model,
+                    prompt_name=prompt_name,
+                )
+            except ValueError as exc:
+                self._send_json({"error": str(exc)}, 400)
+                return
+            except Exception as exc:
+                logger.exception("Owner AI chat failed")
+                self._send_json(
+                    {
+                        "error": "AI chat execution failed",
+                        "detail": f"{type(exc).__name__}: {exc}",
+                    },
+                    500,
+                )
+                return
+
+            self._send_json(result)
+        else:
+            self._send_json({"error": "not found"}, 404)
+
+
+class RuntimeHttpServer:
+    """
+    Minimal HTTP server for the Runtime Server.
+
+    All route handlers are injectable so callers can wire in the
+    real Health, Metrics, and Webhook implementations.
+    """
+
+    def __init__(self, host: str = "0.0.0.0", port: int = 8080):
+        self._host = host
+        self._port = port
+        self._server: Optional[HTTPServer] = None
+        self._thread: Optional[threading.Thread] = None
+        self.dashboard_service = None
+        self.owner_access = OwnerAccessBoundary()
+
+        # Default no-op handlers (replaced by bootstrap)
+        self._health_handler: Callable[[], dict] = lambda: {"healthy": True}
+        self._ready_handler: Callable[[], dict] = lambda: {"ready": True}
+        self._runtime_handler: Callable[[], dict] = lambda: {"state": "BOOT"}
+        self._metrics_handler: Callable[[], dict] = lambda: {}
+        self._status_handler: Callable[[], dict] = lambda: {}
+        self._github_handler: Callable[[str, str, bytes], dict] = lambda et, sig, b: {"ok": True}
+        self._telegram_handler: Callable[[bytes], dict] = lambda b: {"ok": True}
+        self.api = RuntimeApiRouter(
+            health=self.handle_health,
+            runtime=self.handle_runtime,
+            status=self.handle_status,
+            metrics=self.handle_metrics,
+        )
+
+    # ------------------------------------------------------------------ #
+    # Handler injection
+    # ------------------------------------------------------------------ #
+
+    def set_health_handler(self, fn: Callable[[], dict]) -> None:
+        self._health_handler = fn
+
+    def set_ready_handler(self, fn: Callable[[], dict]) -> None:
+        self._ready_handler = fn
+
+    def set_runtime_handler(self, fn: Callable[[], dict]) -> None:
+        self._runtime_handler = fn
+
+    def set_metrics_handler(self, fn: Callable[[], dict]) -> None:
+        self._metrics_handler = fn
+
+    def set_status_handler(self, fn: Callable[[], dict]) -> None:
+        self._status_handler = fn
+
+    def set_github_webhook_handler(self, fn: Callable[[str, str, bytes], dict]) -> None:
+        self._github_handler = fn
+
+    def set_telegram_update_handler(self, fn: Callable[[bytes], dict]) -> None:
+        self._telegram_handler = fn
+
+    def set_dashboard_service(self, service: Any) -> None:
+        self.dashboard_service = service
+
+    # ------------------------------------------------------------------ #
+    # Internal dispatch (called from _RuntimeHandler)
+    # ------------------------------------------------------------------ #
+
+    def handle_health(self) -> dict:
+        try:
+            return self._health_handler()
+        except Exception as exc:
+            logger.error("Health handler error: %s", exc)
+            return {"healthy": True, "error": str(exc)}
+
+    def handle_ready(self) -> dict:
+        try:
+            return self._ready_handler()
+        except Exception as exc:
+            logger.error("Ready handler error: %s", exc)
+            return {"ready": False, "error": str(exc)}
+
+    def handle_runtime(self) -> dict:
+        try:
+            return self._runtime_handler()
+        except Exception as exc:
+            logger.error("Runtime handler error: %s", exc)
+            return {"state": "FAILED", "error": str(exc)}
+
+    def handle_metrics(self) -> dict:
+        try:
+            return self._metrics_handler()
+        except Exception as exc:
+            return {"error": str(exc)}
+
+    def handle_status(self) -> dict:
+        try:
+            return self._status_handler()
+        except Exception as exc:
+            return {"error": str(exc)}
+
+    def handle_github_webhook(self, event_type: str, signature: str, body: bytes) -> dict:
+        try:
+            return self._github_handler(event_type, signature, body)
+        except Exception as exc:
+            logger.error("GitHub webhook handler error: %s", exc)
+            return {"ok": False, "error": str(exc)}
+
+    def handle_telegram_update(self, body: bytes) -> dict:
+        try:
+            return self._telegram_handler(body)
+        except Exception as exc:
+            logger.error("Telegram update handler error: %s", exc)
+            return {"ok": False, "error": str(exc)}
+
+    # ------------------------------------------------------------------ #
+    # Lifecycle
+    # ------------------------------------------------------------------ #
+
+    def start(self) -> None:
+        # Give the handler class a reference to this server instance
+        # using a class-level attribute (one server per process).
+        _RuntimeHandler._server_ref = self
+
+        self._server = HTTPServer((self._host, self._port), _RuntimeHandler)
+        self._thread = threading.Thread(
+            target=self._server.serve_forever,
+            name="RuntimeHttpServer",
+            daemon=True,
+        )
+        self._thread.start()
+        logger.info("RuntimeHttpServer listening on %s:%s", self._host, self._port)
+
+    def stop(self) -> None:
+        if self._server:
+            self._server.shutdown()
+            self._server.server_close()
+        if self._thread:
+            self._thread.join(timeout=5)
+        logger.info("RuntimeHttpServer stopped")
+
+    def dashboard_payload(self, *, refresh: bool = False) -> dict:
+        if self.dashboard_service is None:
+            return {}
+        return self.dashboard_service.build(refresh=refresh)
+
+    def render_dashboard(self, path: str, query: Dict[str, Any]) -> Optional[str]:
+        if self.dashboard_service is None:
+            return None
+        refresh = "1" in query.get("refresh", [])
+        payload = self.dashboard_service.build(refresh=refresh)
+        normalized_path = self.normalize_dashboard_path(path)
+        if normalized_path == "/":
+            return self.dashboard_service.render_home(payload)
+        if normalized_path == "/projects":
+            return self.dashboard_service.render_projects(payload)
+        if normalized_path == "/session":
+            return self.dashboard_service.render_session(payload)
+        if normalized_path == "/repository":
+            question = (query.get("q") or [""])[0].strip()
+            prompt_name = (query.get("prompt") or [""])[0].strip()
+            return self.dashboard_service.render_repository(payload, question=question, prompt_name=prompt_name)
+        if normalized_path == "/ai-control-center":
+            return self.dashboard_service.render_ai_control_center(payload)
+        if normalized_path == "/explorer":
+            return self.dashboard_service.render_explorer(payload)
+        if normalized_path == "/reports":
+            return self.dashboard_service.render_reports(payload)
+        if normalized_path == "/runtime":
+            return self.dashboard_service.render_runtime(payload)
+        if normalized_path == "/diagnostics":
+            return self.dashboard_service.render_diagnostics(payload)
+        if normalized_path.startswith("/capabilities/"):
+            slug = normalized_path.rsplit("/", 1)[-1]
+            return self.dashboard_service.render_capability(slug, payload)
+        return None
+
+    def normalize_dashboard_path(self, path: str) -> str:
+        aliases = {
+            "/dashboard": "/",
+            "/project-manager": "/projects",
+            "/engineering-session": "/session",
+            "/knowledge": "/explorer",
+            "/validation": "/diagnostics",
+            "/settings": "/runtime",
+        }
+        return aliases.get(path, path)
+
+END RUNTIME HTTP INTERFACE
+
+## AISessionEngine anatomy
+
+BEGIN AI SESSION ENGINE
+from __future__ import annotations
+
+import json
+import os
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Dict, List, Mapping
+from uuid import uuid4
+
+
+class AISessionEngine:
+    def __init__(
+        self,
+        repository_root: str = ".",
+        *,
+        state_root: str | None = None,
+    ) -> None:
+        self.root = Path(repository_root).resolve()
+
+        configured_state_root = (
+            state_root
+            if state_root is not None
+            else os.environ.get("AI_TOOLKIT_STATE_ROOT", "")
+        )
+
+        if configured_state_root:
+            self.state_root = Path(
+                configured_state_root
+            ).expanduser().resolve()
+        else:
+            # Historical/local compatibility:
+            # without an explicit durable root, preserve the established
+            # repository-local state anatomy.
+            self.state_root = self.root
+
+        self.dir = (
+            self.state_root
+            / ".ai"
+            / "ai_sessions"
+        )
+
+    def create(self, payload: Mapping[str, Any]) -> Dict[str, Any]:
+        now = datetime.now(timezone.utc).isoformat()
+        session = {
+            "id": payload.get("id", f"AI-SESSION-{uuid4().hex[:12].upper()}"),
+            "project": payload.get("project", self.root.name),
+            "repository": payload.get("repository", self.root.name),
+            "branch": payload.get("branch", ""),
+            "issue": payload.get("issue", ""),
+            "epic": payload.get("epic", ""),
+            "sprint": payload.get("sprint", ""),
+            "workspace": payload.get("workspace", ""),
+            "repository_profile": payload.get("repository_profile", {}),
+            "engineering_context": payload.get("engineering_context", {}),
+            "selected_provider": payload.get("selected_provider", ""),
+            "selected_model": payload.get("selected_model", ""),
+            "prompt_history": list(payload.get("prompt_history", [])),
+            "conversation_history": list(payload.get("conversation_history", [])),
+            "raw_sources": list(payload.get("raw_sources", [])),
+            "experience_id": payload.get("experience_id", ""),
+            "journey_reference": dict(
+                payload.get("journey_reference", {})
+            ),
+            "token_usage": list(payload.get("token_usage", [])),
+            "created_at": payload.get("created_at", now),
+            "updated_at": now,
+        }
+        self._save(session)
+        return session
+
+    def list_sessions(self) -> List[Dict[str, Any]]:
+        if not self.dir.exists():
+            return []
+        items = []
+        for path in sorted(self.dir.glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True):
+            session = self._read(path)
+            if session:
+                items.append(session)
+        return items
+
+    def get(self, session_id: str) -> Dict[str, Any]:
+        path = self.dir / f"{session_id}.json"
+        return self._read(path)
+
+    def bind_experience(
+        self,
+        session_id: str,
+        experience_id: str,
+    ) -> Dict[str, Any]:
+        session = self.get(session_id)
+        if not session:
+            raise ValueError(f"unknown session {session_id}")
+
+        existing = str(session.get("experience_id", "")).strip()
+        if existing and existing != experience_id:
+            raise ValueError(
+                f"session {session_id} already belongs to Experience {existing}"
+            )
+
+        session["experience_id"] = experience_id
+        session["updated_at"] = datetime.now(timezone.utc).isoformat()
+        self._save(session)
+        return session
+
+    def bind_journey(
+        self,
+        session_id: str,
+        journey: Mapping[str, Any],
+    ) -> Dict[str, Any]:
+        """Persist only the cognitive Journey reference owned by a session."""
+        session = self.get(session_id)
+
+        if not session:
+            raise ValueError(f"unknown session {session_id}")
+
+        if not isinstance(journey, Mapping):
+            raise TypeError("journey must be a mapping")
+
+        journey_id = str(
+            journey.get("journey_id", "")
+        ).strip()
+
+        need_id = str(
+            journey.get("need_id", "")
+        ).strip()
+
+        if not journey_id:
+            raise ValueError("journey_id must not be empty")
+
+        if not need_id:
+            raise ValueError("journey need_id must not be empty")
+
+        reference = {
+            "journey_id": journey_id,
+            "need_id": need_id,
+            "status": str(
+                journey.get("status", "UNKNOWN")
+            ).strip() or "UNKNOWN",
+            "step_count": int(
+                journey.get("step_count", 0)
+            ),
+            "epistemic_gain": bool(
+                journey.get("epistemic_gain", False)
+            ),
+            "stopping_reason": str(
+                journey.get("stopping_reason", "")
+            ),
+        }
+
+        # A Conversation is durable across multiple human requests.
+        # Each request may legitimately begin a new Journey.
+        # The session therefore owns the CURRENT Journey reference;
+        # Journey identity is not the lifetime identity of Conversation.
+        session["journey_reference"] = reference
+        session["updated_at"] = (
+            datetime.now(timezone.utc).isoformat()
+        )
+
+        self._save(session)
+
+        return session
+
+    def mark_journey_interruption(
+        self,
+        session_id: str,
+        *,
+        reason: str,
+    ) -> Dict[str, Any]:
+        """Persist a non-authoritative interruption checkpoint."""
+        session = self.get(session_id)
+
+        if not session:
+            raise ValueError(f"unknown session {session_id}")
+
+        reference = session.get(
+            "journey_reference",
+            {},
+        )
+
+        if not isinstance(reference, Mapping) or not reference:
+            return session
+
+        reason = str(reason).strip()
+
+        if not reason:
+            reason = "runtime-interruption"
+
+        checkpoint = dict(reference)
+        checkpoint["status"] = "INTERRUPTED"
+        checkpoint["stopping_reason"] = reason
+        checkpoint["authority_conferred"] = False
+        checkpoint["human_authority_preserved"] = True
+        checkpoint["restart_recoverable"] = True
+
+        session["journey_reference"] = checkpoint
+        session["updated_at"] = (
+            datetime.now(timezone.utc).isoformat()
+        )
+
+        self._save(session)
+
+        return session
+
+    def journey_reference(
+        self,
+        session_id: str,
+    ) -> Dict[str, Any]:
+        """Read the compact Journey reference owned by a session."""
+        session = self.get(session_id)
+
+        if not session:
+            raise ValueError(f"unknown session {session_id}")
+
+        reference = session.get(
+            "journey_reference",
+            {},
+        )
+
+        if not isinstance(reference, Mapping):
+            return {}
+
+        return dict(reference)
+
+    def append_raw_source(
+        self,
+        session_id: str,
+        source: Mapping[str, Any],
+    ) -> Dict[str, Any]:
+        session = self.get(session_id)
+        if not session:
+            raise ValueError(f"unknown session {session_id}")
+
+        item = dict(source)
+
+        if item.get("session_id") != session_id:
+            raise ValueError("raw source session identity mismatch")
+
+        sources = session.setdefault("raw_sources", [])
+        expected_sequence = len(sources) + 1
+
+        if item.get("sequence") != expected_sequence:
+            raise ValueError(
+                "raw source temporal sequence does not continue session order"
+            )
+
+        sources.append(item)
+        session["updated_at"] = datetime.now(timezone.utc).isoformat()
+        self._save(session)
+        return session
+
+    def conversation_sources(
+        self,
+        session_id: str,
+    ) -> List[Dict[str, Any]]:
+        session = self.get(session_id)
+        if not session:
+            raise ValueError(f"unknown session {session_id}")
+        return list(session.get("raw_sources", []))
+
+    def append_interaction(self, session_id: str, question: str, answer: str, usage: Mapping[str, Any]) -> Dict[str, Any]:
+        session = self.get(session_id)
+        if not session:
+            raise ValueError(f"unknown session {session_id}")
+        now = datetime.now(timezone.utc).isoformat()
+        session.setdefault("prompt_history", []).append(question)
+        session.setdefault("conversation_history", []).append({"question": question, "answer": answer, "timestamp": now})
+        session.setdefault("token_usage", []).append(dict(usage))
+        session["updated_at"] = now
+        self._save(session)
+        return session
+
+    def _save(self, session: Mapping[str, Any]) -> None:
+        self.dir.mkdir(parents=True, exist_ok=True)
+        path = self.dir / f"{session['id']}.json"
+        path.write_text(json.dumps(dict(session), indent=2), encoding="utf-8")
+
+    def _read(self, path: Path) -> Dict[str, Any]:
+        if not path.exists():
+            return {}
+        try:
+            return json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return {}
+
+END AI SESSION ENGINE
+
+## AIPlatformService anatomy
+
+BEGIN AI PLATFORM SERVICE
+from __future__ import annotations
+import logging
+
+from collections import defaultdict
+from typing import Any, Dict, Mapping, Optional
+
+from .adapters import builtin_adapters
+from .context_builder import AIContextBuilder
+from .conversation_experience import ConversationExperienceBridge
+from .conversation_context import ConversationContextReconstructor
+from .cognitive_coordination import (
+    EpistemicCognitiveCoordinator,
+    InformationNeed,
+    JourneyState,
+    NavigationPlan,
+)
+from python.evidence_engine.engine import EvidenceEngine
+from .model_manager import ModelManager
+from .pipeline import AIRequestPipeline
+from .prompt_library import PromptLibrary
+from .registry import ProviderRegistry
+from .sessions import AISessionEngine
+from .settings import AISettingsStore, masked_provider_settings
+
+logger = logging.getLogger(__name__)
+
+
+
+def _fusion02_context_anatomy(context):
+    """Return structural size metadata, never context values."""
+    import json
+
+    def serialized_bytes(value):
+        return len(
+            json.dumps(
+                value,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+                default=str,
+            ).encode("utf-8")
+        )
+
+    total = serialized_bytes(context)
+    branches = {}
+
+    if isinstance(context, dict):
+        for key, value in context.items():
+            branch_bytes = serialized_bytes(value)
+
+            branches[str(key)] = {
+                "bytes": branch_bytes,
+                "percent": round(
+                    (
+                        branch_bytes
+                        / total
+                        * 100.0
+                    )
+                    if total
+                    else 0.0,
+                    2,
+                ),
+                "kind": (
+                    "object"
+                    if isinstance(value, dict)
+                    else "array"
+                    if isinstance(value, list)
+                    else "string"
+                    if isinstance(value, str)
+                    else type(value).__name__
+                ),
+                "children": (
+                    len(value)
+                    if isinstance(
+                        value,
+                        (dict, list),
+                    )
+                    else 0
+                ),
+            }
+
+    return {
+        "total_serialized_bytes": total,
+        "estimated_tokens_at_4_bytes": (
+            (total + 3) // 4
+        ),
+        "branch_count": len(branches),
+        "branches": branches,
+    }
+
+
+def _fusion02_log_context_anatomy(context):
+    """Log structural measurements only."""
+    anatomy = _fusion02_context_anatomy(
+        context
+    )
+
+    ordered = sorted(
+        anatomy["branches"].items(),
+        key=lambda item: (
+            item[1]["bytes"]
+        ),
+        reverse=True,
+    )
+
+    branch_summary = ",".join(
+        (
+            f"{name}="
+            f"{data['bytes']}"
+            f"({data['percent']}%)"
+        )
+        for name, data in ordered
+    )
+
+    logger.info(
+        "FUSION-02 reconstructed context anatomy: "
+        "total_serialized_bytes=%s, "
+        "estimated_tokens_at_4_bytes=%s, "
+        "branch_count=%s, "
+        "branches=%s",
+        anatomy[
+            "total_serialized_bytes"
+        ],
+        anatomy[
+            "estimated_tokens_at_4_bytes"
+        ],
+        anatomy[
+            "branch_count"
+        ],
+        branch_summary,
+        extra={
+            "fusion02_context_anatomy":
+                anatomy,
+        },
+    )
+
+    return anatomy
+
+
+class AIPlatformService:
+    def __init__(self, repository_root: str = ".", workspace_root: Optional[str] = None) -> None:
+        self.settings = AISettingsStore(repository_root)
+        self.registry = ProviderRegistry()
+        self.model_manager = ModelManager()
+        self.context_builder = AIContextBuilder(repository_root, workspace_root)
+        self.sessions = AISessionEngine(repository_root)
+        self.conversation_experience = ConversationExperienceBridge(repository_root)
+        self.conversation_context = ConversationContextReconstructor(
+            repository_root,
+            workspace_root,
+        )
+        self.cognitive_coordinator = EpistemicCognitiveCoordinator()
+        self.evidence_engine = EvidenceEngine(repository_root)
+        self.prompt_library = PromptLibrary()
+        self.pipeline = AIRequestPipeline(
+            registry=self.registry,
+            model_manager=self.model_manager,
+            context_builder=self.context_builder,
+        )
+        for adapter in builtin_adapters():
+            self.registry.register(adapter)
+
+    def configure_provider(self, provider_id: str, **kwargs: Any) -> Dict[str, Any]:
+        settings = self.settings.configure_provider(provider_id, **kwargs)
+        return masked_provider_settings(settings)
+
+    def configure_models(self, roles: Mapping[str, str]) -> Dict[str, Any]:
+        settings = self.settings.configure_models(roles)
+        return masked_provider_settings(settings)
+
+    def configure_routing(self, default_provider: str = "", fallback_provider: str = "") -> Dict[str, Any]:
+        settings = self.settings.configure_routing(
+            default_provider=default_provider or None,
+            fallback_provider=fallback_provider or None,
+        )
+        return masked_provider_settings(settings)
+
+    def test_connection(self, provider_id: str) -> Dict[str, Any]:
+        settings = self.settings.load()
+        provider_settings = dict(settings.get("providers", {})).get(provider_id, {})
+        return self.registry.test_connection(provider_id, provider_settings)
+
+    def connect(self, provider_id: str) -> Dict[str, Any]:
+        result = self.test_connection(provider_id)
+        result["action"] = "connect"
+        return result
+
+    def disconnect(self, provider_id: str) -> Dict[str, Any]:
+        result = {
+            "provider": provider_id,
+            "status": "disconnected",
+            "connection": False,
+            "action": "disconnect",
+        }
+        return result
+
+    def create_session(self, payload: Mapping[str, Any]) -> Dict[str, Any]:
+        return self.sessions.create(payload)
+
+    def ask_repository(
+        self,
+        question: str,
+        *,
+        session_id: str = "",
+        provider_id: str = "",
+        model: str = "",
+        prompt_name: str = "",
+    ) -> Dict[str, Any]:
+        settings = self.settings.load()
+        prompt = self.prompt_library.resolve(
+            prompt_name,
+            fallback=question,
+        )
+        effective_question = question.strip() or prompt
+
+        if session_id:
+            session = self.sessions.get(session_id)
+            if not session:
+                raise ValueError(f"unknown session {session_id}")
+        else:
+            session = self.sessions.create(
+                {
+                    "project": self.sessions.root.name,
+                    "repository": self.sessions.root.name,
+                    "selected_provider": provider_id,
+                    "selected_model": model,
+                }
+            )
+
+        experience, binding = (
+            self.conversation_experience.ensure_experience(session)
+        )
+
+        session = self.sessions.bind_experience(
+            session["id"],
+            str(experience.experience_id),
+        )
+
+        human_sequence = len(
+            session.get("raw_sources", [])
+        ) + 1
+
+        human_source = self.conversation_experience.raw_source(
+            session=session,
+            experience=experience,
+            actor="HUMAN",
+            content=effective_question,
+            sequence=human_sequence,
+        )
+
+        session = self.sessions.append_raw_source(
+            session["id"],
+            human_source,
+        )
+
+        cognitive_coordination = self.cognitive_coordinator.initialize(
+            effective_question,
+            session_id=session["id"],
+        )
+
+        need_data = cognitive_coordination["information_need"]
+        journey_data = cognitive_coordination["journey"]
+        navigation_plan_data = cognitive_coordination.get(
+            "navigation_plan"
+        )
+
+        information_need = InformationNeed(
+            schema=need_data["schema"],
+            need_id=need_data["need_id"],
+            question=need_data["question"],
+            objective=need_data["objective"],
+            epistemic_status=need_data["epistemic_status"],
+            research_required=need_data["research_required"],
+            requested_capabilities=tuple(
+                need_data["requested_capabilities"]
+            ),
+            constraints=dict(need_data["constraints"]),
+        )
+
+        journey_state = JourneyState(
+            schema=journey_data["schema"],
+            journey_id=journey_data["journey_id"],
+            need_id=journey_data["need_id"],
+            status=journey_data["status"],
+            step_count=journey_data["step_count"],
+            epistemic_gain=journey_data["epistemic_gain"],
+            visited=tuple(journey_data["visited"]),
+            stopping_reason=journey_data["stopping_reason"],
+        )
+
+        search_navigation = None
+        retrieval = None
+
+        if (
+            navigation_plan_data is not None
+            and navigation_plan_data["required"] is True
+            and "search" in navigation_plan_data["capabilities"]
+        ):
+            navigation_plan = NavigationPlan(
+                schema=navigation_plan_data["schema"],
+                need_id=navigation_plan_data["need_id"],
+                required=navigation_plan_data["required"],
+                capabilities=tuple(
+                    navigation_plan_data["capabilities"]
+                ),
+                read_only=navigation_plan_data["read_only"],
+                authority_preserved=navigation_plan_data[
+                    "authority_preserved"
+                ],
+                working_context_materialized=(
+                    navigation_plan_data[
+                        "working_context_materialized"
+                    ]
+                ),
+                retrieval_executed=navigation_plan_data[
+                    "retrieval_executed"
+                ],
+                stopping_conditions=tuple(
+                    navigation_plan_data["stopping_conditions"]
+                ),
+            )
+
+            search_navigation = (
+                self.cognitive_coordinator.execute_search_navigation(
+                    plan=navigation_plan,
+                    journey=journey_state,
+                    keyword=effective_question,
+                    search=self.evidence_engine.find,
+                )
+            )
+
+            retrieval = search_navigation.get("retrieval")
+
+            navigation_journey = search_navigation.get("journey")
+
+            if navigation_journey is not None:
+                journey_state = JourneyState(
+                    schema=navigation_journey["schema"],
+                    journey_id=navigation_journey["journey_id"],
+                    need_id=navigation_journey["need_id"],
+                    status=navigation_journey["status"],
+                    step_count=navigation_journey["step_count"],
+                    epistemic_gain=navigation_journey[
+                        "epistemic_gain"
+                    ],
+                    visited=tuple(
+                        navigation_journey["visited"]
+                    ),
+                    stopping_reason=navigation_journey[
+                        "stopping_reason"
+                    ],
+                )
+
+        read_navigation = None
+
+        if isinstance(retrieval, dict):
+            source_paths = retrieval.get(
+                "source_paths",
+                (),
+            )
+
+            if source_paths:
+                selected_source_path = source_paths[0]
+
+                def _bounded_repository_read(
+                    repository_root,
+                    relative_path,
+                ):
+                    target = (
+                        repository_root / relative_path
+                    ).resolve()
+
+                    target.relative_to(
+                        repository_root.resolve()
+                    )
+
+                    return target.read_text(
+                        encoding="utf-8",
+                    )
+
+                read_navigation = (
+                    self.cognitive_coordinator.execute_read_navigation(
+                        selected_source_path,
+                        read=_bounded_repository_read,
+                        repository_root=self.sessions.root,
+                    )
+                )
+
+                retrieval = (
+                    self.cognitive_coordinator.attach_read_evidence(
+                        retrieval=retrieval,
+                        read_navigation=read_navigation,
+                    )
+                )
+
+        working_context = (
+            self.cognitive_coordinator.materialize_working_context(
+                need=information_need,
+                journey=journey_state,
+                retrieval=retrieval,
+            )
+        )
+
+        working_context_data = working_context.to_dict()
+
+        # Bind the current Journey when the session is owned by the
+        # persistent AISessionEngine. Synthetic/test-double sessions may
+        # intentionally exist only at the service boundary.
+        persisted_session = self.sessions.get(
+            session["id"]
+        )
+
+        if persisted_session:
+            session = self.sessions.bind_journey(
+                session["id"],
+                journey_state.to_dict(),
+            )
+
+        reconstructed_context = self.conversation_context.build(
+            session["id"],
+            partner_identity={
+                "provider": provider_id or session.get(
+                    "selected_provider", ""
+                ),
+                "model": model or session.get(
+                    "selected_model", ""
+                ),
+            },
+        )
+
+        provider_cognitive_context = dict(
+            reconstructed_context
+        )
+        provider_cognitive_context[
+            "working_context"
+        ] = working_context_data
+
+        if read_navigation is not None:
+            provider_cognitive_context[
+                "read_navigation"
+            ] = read_navigation
+
+        _fusion02_log_context_anatomy(
+            provider_cognitive_context
+        )
+
+        use_cognitive_working_context = getattr(
+            self.pipeline,
+            "use_cognitive_working_context",
+            None,
+        )
+
+        if callable(use_cognitive_working_context):
+            use_cognitive_working_context(
+                working_context
+            )
+
+        try:
+            result = self.pipeline.run(
+                prompt,
+                settings,
+                provider_id=provider_id,
+                model=model,
+                context_override=provider_cognitive_context,
+            )
+        except Exception as exc:
+            persisted_session = self.sessions.get(
+                session["id"]
+            )
+
+            if persisted_session:
+                self.sessions.mark_journey_interruption(
+                    session["id"],
+                    reason=(
+                        "provider-failure:"
+                        + type(exc).__name__
+                    ),
+                )
+
+            raise
+
+        session = self.sessions.append_interaction(
+            session["id"],
+            effective_question,
+            result["answer"],
+            result["usage"],
+        )
+
+        ai_sequence = len(
+            session.get("raw_sources", [])
+        ) + 1
+
+        ai_source = self.conversation_experience.raw_source(
+            session=session,
+            experience=experience,
+            actor="AI",
+            content=result["answer"],
+            sequence=ai_sequence,
+            provider=result["provider"],
+            model=result["model"],
+        )
+
+        session = self.sessions.append_raw_source(
+            session["id"],
+            ai_source,
+        )
+
+        return {
+            "session_id": session["id"],
+            "experience_id": str(experience.experience_id),
+            "question": effective_question,
+            "answer": result["answer"],
+            "provider": result["provider"],
+            "model": result["model"],
+            "usage": result["usage"],
+            "raw_source_count": len(
+                session.get("raw_sources", [])
+            ),
+            "information_need": cognitive_coordination[
+                "information_need"
+            ],
+            "journey": journey_state.to_dict(),
+            "search_navigation": search_navigation,
+            "read_navigation": read_navigation,
+            "working_context": working_context_data,
+            "context": provider_cognitive_context,
+            "context_schema": provider_cognitive_context.get(
+                "schema"
+            ),
+            "epistemic_status": {
+                "conversation_is_raw_source": True,
+                "conversation_is_evidence": False,
+                "conversation_is_canon": False,
+                "automatic_sedimentation": False,
+                "retrieval_confers_authority": False,
+                "human_authority_preserved": True,
+                "unknown_is_valid": True,
+            },
+        }
+
+    def usage_summary(self) -> Dict[str, Any]:
+        sessions = self.sessions.list_sessions()
+        total = {
+            "tokens": 0,
+            "estimated_cost": 0.0,
+            "latency_ms": 0,
+            "requests": 0,
+            "success": 0,
+            "errors": 0,
+        }
+        by_provider: Dict[str, Dict[str, Any]] = defaultdict(
+            lambda: {
+                "tokens": 0,
+                "estimated_cost": 0.0,
+                "latency_ms": 0,
+                "requests": 0,
+                "success": 0,
+                "errors": 0,
+            }
+        )
+        for session in sessions:
+            for usage in session.get("token_usage", []):
+                provider = usage.get("provider", "unknown")
+                tokens = int(usage.get("input_tokens", 0)) + int(usage.get("output_tokens", 0))
+                cost = float(usage.get("estimated_cost", 0.0))
+                latency = int(usage.get("latency_ms", 0))
+                success = bool(usage.get("success", False))
+
+                total["tokens"] += tokens
+                total["estimated_cost"] += cost
+                total["latency_ms"] += latency
+                total["requests"] += 1
+                total["success"] += 1 if success else 0
+                total["errors"] += 0 if success else 1
+
+                by_provider[provider]["tokens"] += tokens
+                by_provider[provider]["estimated_cost"] += cost
+                by_provider[provider]["latency_ms"] += latency
+                by_provider[provider]["requests"] += 1
+                by_provider[provider]["success"] += 1 if success else 0
+                by_provider[provider]["errors"] += 0 if success else 1
+
+        success_rate = (total["success"] / total["requests"] * 100.0) if total["requests"] else 0.0
+        avg_latency = (total["latency_ms"] / total["requests"]) if total["requests"] else 0.0
+        return {
+            "total": {
+                **total,
+                "estimated_cost": round(total["estimated_cost"], 6),
+                "success_rate": round(success_rate, 2),
+                "average_latency_ms": round(avg_latency, 2),
+            },
+            "by_provider": {
+                provider: {
+                    **stats,
+                    "estimated_cost": round(float(stats["estimated_cost"]), 6),
+                    "success_rate": round((stats["success"] / stats["requests"] * 100.0) if stats["requests"] else 0.0, 2),
+                    "average_latency_ms": round((stats["latency_ms"] / stats["requests"]) if stats["requests"] else 0.0, 2),
+                }
+                for provider, stats in by_provider.items()
+            },
+        }
+
+    def control_center(self) -> Dict[str, Any]:
+        settings = self.settings.load()
+        providers = self.registry.list_providers(settings)
+        discovered = self.model_manager.discover_models(providers)
+        role_models = self.model_manager.resolve_roles(settings, discovered)
+        usage = self.usage_summary()
+        return {
+            "providers": providers,
+            "connections": [
+                {
+                    "provider": item["id"],
+                    "connect": True,
+                    "disconnect": True,
+                    "test_connection": True,
+                    "last_success": item.get("last_success", ""),
+                    "last_failure": item.get("last_failure", ""),
+                    "last_response_time": item.get("last_response_time", 0),
+                    "health_status": item.get("health", "unknown"),
+                }
+                for item in providers
+            ],
+            "model_manager": {
+                "discovered_models": discovered,
+                "role_models": role_models,
+            },
+            "settings": masked_provider_settings(settings),
+            "prompt_library": self.prompt_library.list_categories(),
+            "usage": usage,
+            "recent_sessions": [
+                {
+                    "id": item.get("id", ""),
+                    "project": item.get("project", ""),
+                    "repository": item.get("repository", ""),
+                    "branch": item.get("branch", ""),
+                    "issue": item.get("issue", ""),
+                    "epic": item.get("epic", ""),
+                    "sprint": item.get("sprint", ""),
+                    "workspace": item.get("workspace", ""),
+                    "selected_provider": item.get("selected_provider", ""),
+                    "selected_model": item.get("selected_model", ""),
+                    "prompt_count": len(item.get("prompt_history", [])),
+                    "conversation_count": len(item.get("conversation_history", [])),
+                }
+                for item in self.sessions.list_sessions()[:10]
+            ],
+        }
+
+END AI PLATFORM SERVICE
+
+## Existing owner chat acceptance
+
+BEGIN OWNER CHAT TEST
+from __future__ import annotations
+
+import os
+
+from python.dashboard.service import EngineeringDashboardService
+from python.runtime.owner_access import (
+    OWNER_SESSION_COOKIE,
+    OwnerAccessBoundary,
+)
+
+
+def test_owner_web_session_is_derived_not_raw_secret(monkeypatch):
+    monkeypatch.setenv(
+        "AI_TOOLKIT_OWNER_TOKEN",
+        "fusion-02-test-owner-secret",
+    )
+    boundary = OwnerAccessBoundary()
+    cookie_value = boundary.session_cookie_value()
+
+    assert cookie_value
+    assert cookie_value != "fusion-02-test-owner-secret"
+    assert "fusion-02-test-owner-secret" not in cookie_value
+
+
+def test_owner_cookie_authenticates_existing_boundary(monkeypatch):
+    monkeypatch.setenv(
+        "AI_TOOLKIT_OWNER_TOKEN",
+        "fusion-02-test-owner-secret",
+    )
+    boundary = OwnerAccessBoundary()
+    cookie = (
+        f"{OWNER_SESSION_COOKIE}="
+        f"{boundary.session_cookie_value()}"
+    )
+
+    decision = boundary.authenticate_request(
+        {"Cookie": cookie}
+    )
+
+    assert decision.authenticated is True
+    assert decision.role == "OWNER"
+    assert decision.human_authority is True
+
+
+def test_invalid_owner_cookie_fails_closed(monkeypatch):
+    monkeypatch.setenv(
+        "AI_TOOLKIT_OWNER_TOKEN",
+        "fusion-02-test-owner-secret",
+    )
+    boundary = OwnerAccessBoundary()
+
+    decision = boundary.authenticate_request(
+        {
+            "Cookie": (
+                f"{OWNER_SESSION_COOKIE}=not-valid"
+            )
+        }
+    )
+
+    assert decision.authenticated is False
+    assert decision.human_authority is False
+
+
+def test_existing_bearer_contract_remains_valid(monkeypatch):
+    monkeypatch.setenv(
+        "AI_TOOLKIT_OWNER_TOKEN",
+        "fusion-02-test-owner-secret",
+    )
+    boundary = OwnerAccessBoundary()
+
+    decision = boundary.authenticate_request(
+        {
+            "Authorization": (
+                "Bearer fusion-02-test-owner-secret"
+            )
+        }
+    )
+
+    assert decision.authenticated is True
+    assert decision.role == "OWNER"
+
+
+def test_ai_control_center_contains_real_chat_surface(tmp_path):
+    service = EngineeringDashboardService(
+        repository_root=str(tmp_path),
+        workspace_root=str(tmp_path),
+    )
+
+    control = {
+        "providers": [
+            {
+                "id": "openai",
+                "provider_id": "openai",
+                "name": "OpenAI",
+                "connection": True,
+                "models": ["gpt-4.1"],
+            }
+        ]
+    }
+
+    html = service._owner_ai_chat_panel(control)
+
+    assert 'id="chat-form"' in html
+    assert 'id="chat-question"' in html
+    assert 'id="chat-session"' in html
+    assert 'id="chat-provider"' in html
+    assert "/api/ai/chat" in html
+    assert "/api/ai/sessions" in html
+    assert "AI Partner is working" in html
+    assert "RAW conversation" in html
+    assert "Evidence or Canon" in html
+
+
+def test_chat_ui_does_not_embed_owner_secret(
+    tmp_path,
+    monkeypatch,
+):
+    secret = "MUST-NOT-APPEAR-IN-HTML"
+    monkeypatch.setenv(
+        "AI_TOOLKIT_OWNER_TOKEN",
+        secret,
+    )
+
+    service = EngineeringDashboardService(
+        repository_root=str(tmp_path),
+        workspace_root=str(tmp_path),
+    )
+
+    html = service._owner_ai_chat_panel(
+        {
+            "providers": [
+                {
+                    "id": "openai",
+                    "name": "OpenAI",
+                    "connection": True,
+                    "models": ["gpt-4.1"],
+                }
+            ]
+        }
+    )
+
+    assert secret not in html
+    assert "AI_TOOLKIT_OWNER_TOKEN" not in html
+
+
+def test_chat_uses_same_origin_cookie_not_js_owner_token(
+    tmp_path,
+):
+    service = EngineeringDashboardService(
+        repository_root=str(tmp_path),
+        workspace_root=str(tmp_path),
+    )
+
+    html = service._owner_ai_chat_panel(
+        {
+            "providers": [
+                {
+                    "id": "openai",
+                    "name": "OpenAI",
+                    "connection": True,
+                    "models": ["gpt-4.1"],
+                }
+            ]
+        }
+    )
+
+    assert 'credentials:"same-origin"' in html
+    assert "Authorization" not in html
+    assert "Bearer " not in html
+
+
+def test_session_readback_uses_existing_ai_session_engine():
+    from python.ai_platform.sessions import AISessionEngine
+
+    assert hasattr(AISessionEngine, "list_sessions")
+    assert hasattr(AISessionEngine, "get")
+    assert hasattr(AISessionEngine, "conversation_sources")
+
+END OWNER CHAT TEST
+
+## Browser frontend candidates
+
+BEGIN FRONTEND PATHS
+NONE FOUND
+END FRONTEND PATHS
+
+## Recovered real physiological chain
+
+Browser AI Partner
+-> POST /api/ai/chat
+-> session_id from browser
+-> dashboard_service.ai_platform.ask_repository
+-> AIPlatformService
+-> AISessionEngine
+-> AI_TOOLKIT_STATE_ROOT
+-> durable session state
+
+## Required acceptance
+
+1. AI Partner creates or continues a session.
+2. Response returns the actual session_id.
+3. Browser stores that session_id.
+4. Page reload restores that session_id.
+5. Next message sends the same session_id.
+6. AISessionEngine resolves the same durable session.
+7. Conversation history remains continuous.
+8. Railway redeploy occurs.
+9. Browser reconnects to the same durable session.
+10. Conversation continues after redeployment.
+11. Full FUSION regression remains green.
+
+## Conservation
+
+- No reset.
+- No restore.
+- No force push.
+- Existing production mutation preserved.
+- Durable state-root physiology preserved.
+- Human authority preserved.
+
+## Status
+
+REAL SESSION REATTACHMENT ANATOMY RECOVERED.
+
+IMPLEMENTATION NOT YET CERTIFIED.
