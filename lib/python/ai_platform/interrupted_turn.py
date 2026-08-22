@@ -34,13 +34,28 @@ def recover_interrupted_human_turn(
     """
     Detect a durable HUMAN turn that has no following AI raw source.
 
-    Recovery is deliberately conservative:
+    Recovery is deliberately conservative.
 
-    - the final raw source must be HUMAN;
-    - the Journey must be INTERRUPTED;
-    - the Journey must explicitly be restart-recoverable;
-    - the source must belong to the same session;
-    - no durable mutation is performed.
+    Modern sessions use explicit interruption physiology:
+
+    - Journey status is INTERRUPTED;
+    - restart_recoverable is explicitly True.
+
+    Historical sessions may predate those fields. They are recoverable
+    only when the durable raw-source anatomy itself demonstrates an
+    unmatched final HUMAN turn:
+
+    - the final raw source is HUMAN;
+    - it belongs to this exact session;
+    - its sequence is the final contiguous raw-source sequence;
+    - it has non-empty content;
+    - the Journey remains IN_PROGRESS;
+    - restart_recoverable is absent, rather than explicitly False.
+
+    An explicit restart_recoverable=False is always authoritative and
+    prevents recovery.
+
+    No durable mutation is performed by this detector.
 
     Returning None means normal conversation physiology should continue.
     """
@@ -91,10 +106,23 @@ def recover_interrupted_human_turn(
         journey.get("status", "")
     ).strip().upper()
 
-    if status != "INTERRUPTED":
-        return None
+    restart_marker_present = "restart_recoverable" in journey
+    restart_recoverable = journey.get("restart_recoverable")
 
-    if journey.get("restart_recoverable") is not True:
+    explicit_interruption = (
+        status == "INTERRUPTED"
+        and restart_recoverable is True
+    )
+
+    historical_interruption = (
+        status == "IN_PROGRESS"
+        and not restart_marker_present
+    )
+
+    if not (
+        explicit_interruption
+        or historical_interruption
+    ):
         return None
 
     content = str(
@@ -123,5 +151,8 @@ def recover_interrupted_human_turn(
         journey_id=str(
             journey.get("journey_id", "")
         ).strip(),
-        restart_recoverable=True,
+        restart_recoverable=(
+            explicit_interruption
+            or historical_interruption
+        ),
     )
