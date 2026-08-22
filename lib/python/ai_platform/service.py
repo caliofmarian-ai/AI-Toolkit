@@ -203,6 +203,7 @@ class AIPlatformService:
         question: str,
         *,
         session_id: str = "",
+        resume_interrupted_turn: bool = False,
         provider_id: str = "",
         model: str = "",
         prompt_name: str = "",
@@ -254,6 +255,14 @@ class AIPlatformService:
             effective_question = interrupted_turn.content
         else:
             effective_question = question
+
+        if resume_interrupted_turn and interrupted_turn is None:
+            raise ValueError(
+                "No interrupted human turn is available for continuation"
+            )
+
+        if resume_interrupted_turn:
+            effective_question = interrupted_turn.content
 
         if interrupted_turn is None:
             session = self.sessions.append_raw_source(

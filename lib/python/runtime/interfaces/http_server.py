@@ -372,8 +372,15 @@ class _RuntimeHandler(BaseHTTPRequestHandler):
             provider_id = str(payload.get("provider_id", "")).strip()
             model = str(payload.get("model", "")).strip()
             prompt_name = str(payload.get("prompt_name", "")).strip()
+            resume_interrupted_turn = bool(
+                payload.get("resume_interrupted_turn", False)
+            )
 
-            if not question and not prompt_name:
+            if (
+                not question
+                and not prompt_name
+                and not resume_interrupted_turn
+            ):
                 self._send_json({"error": "missing question"}, 400)
                 return
 
@@ -384,6 +391,7 @@ class _RuntimeHandler(BaseHTTPRequestHandler):
                     provider_id=provider_id,
                     model=model,
                     prompt_name=prompt_name,
+                    resume_interrupted_turn=resume_interrupted_turn,
                 )
             except ValueError as exc:
                 self._send_json({"error": str(exc)}, 400)

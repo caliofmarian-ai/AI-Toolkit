@@ -1550,3 +1550,99 @@ Recovery uses:
     PYTHONPATH=<repository-root>/lib
 
 No production rollback was performed.
+
+## Browser continuation — HTTP boundary assumption failure
+
+Classification: ACCEPTANCE / IMPLEMENTATION SCRIPT ANATOMY ERROR
+
+Observed failure:
+
+`FAIL: HTTP session_id forwarding boundary not found.`
+
+Cause:
+
+The implementation script assumed that the HTTP boundary forwarded
+`session_id` directly from `payload.get(...)` inside the
+`ask_repository(...)` call.
+
+The real deployed/source anatomy is:
+
+- parse `question`
+- parse `session_id`
+- parse `provider_id`
+- parse `model`
+- parse `prompt_name`
+- validate question/prompt
+- call `ask_repository(...)` with `session_id=session_id`
+
+Therefore the failed script searched for a source pattern that does
+not exist.
+
+Conservation:
+
+- the already implemented service continuation contract is preserved;
+- no reset, restore, or stash is authorized;
+- the HTTP integration must follow the demonstrated source anatomy.
+
+## Browser continuation — Python literal corruption
+
+Classification: IMPLEMENTATION SCRIPT DEFECT
+
+The failed implementation inserted JavaScript immediately after a
+Python string literal without creating a separate quoted Python
+literal. This produced:
+
+    'session.addEventListener(...);'continueButton...
+
+and therefore an unterminated Python string.
+
+Canonical correction:
+
+Dashboard JavaScript in `lib/python/dashboard/service.py` is emitted
+through adjacent Python string literals. Any new JavaScript fragment
+must itself be represented by valid adjacent Python string literals.
+
+The recovery must preserve already-valid local service and HTTP
+continuation work and replace only the malformed dashboard mutation.
+
+## FUSION-02 browser continuation — invalid temporary path
+
+Classification: IMPLEMENTATION SCRIPT EXECUTION ERROR
+
+A previous recovery script attempted to write a Git-authoritative
+dashboard copy under `/tmp`. In the actual Termux execution
+environment that path was not writable for this operation and the
+script stopped before the dashboard mutation.
+
+Correction:
+- repository-local scratch storage only;
+- no `/tmp`;
+- no reset;
+- no restore;
+- no stash;
+- Git-authoritative dashboard reconstruction remains isolated from
+  already-valid local service and HTTP work.
+## FUSION-02 — semantic validator must not require diagnostic prose
+
+Classification: VALIDATOR DEFECT
+
+Demonstrated failure:
+
+A materialized implementation successfully patched the service and HTTP
+continuation contracts and passed Python syntax validation. A later validator
+then failed because it required the literal diagnostic text
+`session has no recoverable interrupted human turn`.
+
+That literal message was not a demonstrated production contract.
+
+Conservation rule:
+
+- Never validate semantic behavior by requiring arbitrary diagnostic prose.
+- Never infer implementation failure solely from absence of an error-message
+  string.
+- After a successful materialization and syntax check, preserve the worktree.
+- Validate Python structure through AST/signatures and behavior through tests.
+- Do not reapply an already successful mutation merely because a later
+  validator was defective.
+
+This is demonstrated execution-error Evidence, not Canon.
