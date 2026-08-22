@@ -1464,3 +1464,37 @@ CAUSE: git diff --cached --check detected trailing whitespace in the generated a
 RECOVERY: only demonstrated trailing whitespace was normalized; production physiology was unchanged.
 CONSERVATION: prior staged reattachment implementation preserved.
 RECORDED_AT: 2026-08-22T17:38:02.025265+00:00
+
+FUSION-02 — Historical orphan continuity acceptance recovery
+
+Failure classification:
+ACCEPTANCE_TEST_BOUNDARY_ERROR
+
+Observed failure:
+test_bridge_does_not_insert_continuity_into_repository
+
+Root cause:
+The test inspected an arbitrary 300-character window beginning at
+historical_continuity(session).
+
+That textual window crossed from the historical-orphan branch into the
+separate new-Experience branch and therefore observed the legitimate
+self.experiences.add(experience) call used for newly created Experiences.
+
+Production defect:
+NO
+
+Production mutation required for recovery:
+NO
+
+Correction:
+Constrain the assertion to the exact historical-orphan branch boundary.
+
+Conservation:
+- historical continuity implementation preserved
+- canonical Experience model preserved
+- new Experience creation preserved
+- repository persistence preserved
+- no reset
+- no restore
+- no stash

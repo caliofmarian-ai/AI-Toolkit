@@ -35,6 +35,12 @@ from python.experience.deployment import prepare_experience_repository
 from python.experience.identity import ExperienceId
 from python.experience.model import Experience
 from python.experience.session_binding import SessionBinding
+from python.ai_platform.historical_experience_recovery import (
+    HistoricalExperienceContinuity,
+    HistoricalOrphanExperienceEvidence,
+    historical_continuity,
+    inspect_historical_orphan,
+)
 
 
 class ConversationExperienceBridge:
@@ -49,7 +55,7 @@ class ConversationExperienceBridge:
     def ensure_experience(
         self,
         session: Mapping[str, Any],
-    ) -> tuple[Experience, SessionBinding]:
+    ) -> tuple[Experience | HistoricalExperienceContinuity, SessionBinding]:
         session_id = str(session.get("id", "")).strip()
         if not session_id:
             raise ValueError("AI session requires stable identity")
@@ -58,7 +64,15 @@ class ConversationExperienceBridge:
 
         if existing:
             experience_id = ExperienceId(existing)
-            experience = self.experiences.get(experience_id)
+            try:
+                experience = self.experiences.get(experience_id)
+            except Exception as exc:
+                from python.experience.repository import ExperienceNotFoundError
+
+                if not isinstance(exc, ExperienceNotFoundError):
+                    raise
+
+                experience = historical_continuity(session)
         else:
             experience = Experience.create().activate()
             self.experiences.add(experience)
@@ -74,7 +88,7 @@ class ConversationExperienceBridge:
     def raw_source(
         *,
         session: Mapping[str, Any],
-        experience: Experience,
+        experience: Experience | HistoricalExperienceContinuity,
         actor: str,
         content: str,
         sequence: int,
@@ -132,6 +146,13 @@ class ConversationExperienceBridge:
                 "automatic_authority": False,
             },
         }
+
+    def classify_historical_orphan(
+        self,
+        session: Mapping[str, Any],
+    ) -> HistoricalOrphanExperienceEvidence:
+        """Classify lost Experience evidence without mutation."""
+        return inspect_historical_orphan(session)
 
     def recover_experience(
         self,
