@@ -8,6 +8,7 @@ from .adapters import builtin_adapters
 from .context_builder import AIContextBuilder
 from .conversation_experience import ConversationExperienceBridge
 from .conversation_context import ConversationContextReconstructor
+from .interrupted_turn import recover_interrupted_human_turn
 from .cognitive_coordination import (
     EpistemicCognitiveCoordinator,
     InformationNeed,
@@ -248,10 +249,17 @@ class AIPlatformService:
             sequence=human_sequence,
         )
 
-        session = self.sessions.append_raw_source(
-            session["id"],
-            human_source,
-        )
+        interrupted_turn = recover_interrupted_human_turn(session)
+        if interrupted_turn is not None:
+            effective_question = interrupted_turn.content
+        else:
+            effective_question = question
+
+        if interrupted_turn is None:
+            session = self.sessions.append_raw_source(
+                session["id"],
+                human_source,
+            )
 
         cognitive_coordination = self.cognitive_coordinator.initialize(
             effective_question,

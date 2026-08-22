@@ -1531,3 +1531,22 @@ Required conservation:
 - original historical Experience identity must remain unchanged
 - exact historical created_at must not be fabricated
 - unrelated repository failures must propagate
+
+## FUSION-02 — Interrupted Human Turn Recovery / PYTHONPATH recovery
+
+Previous targeted acceptance failed during pytest collection with:
+
+    ModuleNotFoundError: No module named 'python'
+
+Classification:
+
+    EXECUTION ENVIRONMENT ERROR
+
+The implementation was preserved. The Termux command had omitted the
+repository `lib` directory from PYTHONPATH.
+
+Recovery uses:
+
+    PYTHONPATH=<repository-root>/lib
+
+No production rollback was performed.
