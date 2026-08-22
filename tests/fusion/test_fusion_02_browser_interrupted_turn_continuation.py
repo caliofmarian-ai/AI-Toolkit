@@ -1,3 +1,4 @@
+import ast
 from pathlib import Path
 
 
@@ -10,11 +11,51 @@ def read(relative: str) -> str:
 
 def test_service_exposes_explicit_resume_contract():
     source = read("lib/python/ai_platform/service.py")
+    tree = ast.parse(source)
 
     assert "resume_interrupted_turn: bool = False" in source
-    assert (
-        "resume_interrupted_turn and interrupted_turn is None"
-        in source
+
+    ask_repository = next(
+        node
+        for node in ast.walk(tree)
+        if (
+            isinstance(node, ast.FunctionDef)
+            and node.name == "ask_repository"
+        )
+    )
+
+    resume_branch = next(
+        node
+        for node in ask_repository.body
+        if (
+            isinstance(node, ast.If)
+            and isinstance(node.test, ast.Name)
+            and node.test.id == "resume_interrupted_turn"
+        )
+    )
+
+    assert any(
+        isinstance(node, ast.If)
+        and isinstance(node.test, ast.Compare)
+        and isinstance(node.test.left, ast.Name)
+        and node.test.left.id == "interrupted_turn"
+        and any(
+            isinstance(operator, ast.Is)
+            for operator in node.test.ops
+        )
+        and any(
+            isinstance(comparator, ast.Constant)
+            and comparator.value is None
+            for comparator in node.test.comparators
+        )
+        for statement in resume_branch.body
+        for node in ast.walk(statement)
+    )
+
+    assert any(
+        isinstance(node, ast.Raise)
+        for statement in resume_branch.body
+        for node in ast.walk(statement)
     )
     assert "effective_question = interrupted_turn.content" in source
 

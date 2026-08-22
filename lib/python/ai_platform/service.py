@@ -238,33 +238,29 @@ class AIPlatformService:
             str(experience.experience_id),
         )
 
-        human_sequence = len(
-            session.get("raw_sources", [])
-        ) + 1
-
-        human_source = self.conversation_experience.raw_source(
-            session=session,
-            experience=experience,
-            actor="HUMAN",
-            content=effective_question,
-            sequence=human_sequence,
-        )
-
         interrupted_turn = recover_interrupted_human_turn(session)
-        if interrupted_turn is not None:
-            effective_question = interrupted_turn.content
-        else:
-            effective_question = question
-
-        if resume_interrupted_turn and interrupted_turn is None:
-            raise ValueError(
-                "No interrupted human turn is available for continuation"
-            )
 
         if resume_interrupted_turn:
+            if interrupted_turn is None:
+                raise ValueError(
+                    "No interrupted human turn is available for continuation"
+                )
             effective_question = interrupted_turn.content
+        else:
+            effective_question = question.strip() or prompt
 
-        if interrupted_turn is None:
+            human_sequence = len(
+                session.get("raw_sources", [])
+            ) + 1
+
+            human_source = self.conversation_experience.raw_source(
+                session=session,
+                experience=experience,
+                actor="HUMAN",
+                content=effective_question,
+                sequence=human_sequence,
+            )
+
             session = self.sessions.append_raw_source(
                 session["id"],
                 human_source,

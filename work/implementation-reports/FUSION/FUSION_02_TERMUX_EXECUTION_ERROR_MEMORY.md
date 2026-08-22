@@ -1646,3 +1646,62 @@ Conservation rule:
   validator was defective.
 
 This is demonstrated execution-error Evidence, not Canon.
+## FUSION-02 — continuation raw-source construction ordering defect
+
+Classification: PRODUCTION ORDERING DEFECT
+
+Observed browser failure:
+
+`raw conversation content must not be empty`
+
+Root cause:
+
+The explicit browser continuation correctly submitted an empty `question`
+because the durable interrupted HUMAN source already existed. However,
+`ask_repository()` attempted to construct a new HUMAN raw source from that
+empty request before recovering the preserved interrupted HUMAN turn.
+
+The raw-source invariant correctly rejected empty content.
+
+Required physiology:
+
+1. recover interrupted durable HUMAN turn first;
+2. when `resume_interrupted_turn=True`, use its preserved content;
+3. do not construct or append another HUMAN raw source;
+4. when this is a normal new turn, construct and append exactly one HUMAN
+   raw source normally.
+
+Conservation:
+
+The raw-source non-empty invariant remains unchanged.
+The durable HUMAN turn remains authoritative raw conversation history.
+No duplicate HUMAN source may be created during continuation.
+
+This is demonstrated execution-error Evidence, not Canon.
+## FUSION-02 — stale textual resume-contract acceptance
+
+Classification: TEST CONTRACT STALENESS
+
+Observed failure:
+
+The corrected production implementation passed compilation and the new
+raw-source-order acceptance, but an older browser-continuation test required
+the literal source substring:
+
+`resume_interrupted_turn and interrupted_turn is None`
+
+That textual shape ceased to exist after the continuation physiology was
+correctly reorganized into an explicit `if resume_interrupted_turn:` branch
+containing the `interrupted_turn is None` guard.
+
+Correction:
+
+Do not deform production code to satisfy obsolete textual assertions.
+Acceptance must inspect the structural AST contract:
+
+- explicit resume branch exists;
+- missing interrupted turn is rejected inside that branch;
+- preserved interrupted content is used;
+- continuation creates no duplicate HUMAN raw source.
+
+This is demonstrated execution-error Evidence, not Canon.
