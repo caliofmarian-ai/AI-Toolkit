@@ -191,3 +191,126 @@ def test_deployment_configuration_does_not_redefine_experience(tmp_path):
 
     assert repository.get(identity).experience_id == identity
     assert experience.experience_id == identity
+
+
+def test_default_experience_store_uses_durable_state_root_when_available(
+    tmp_path,
+):
+    state_root = tmp_path / "durable-state"
+
+    path = experience_store_path(
+        environment={
+            "AI_TOOLKIT_STATE_ROOT": str(state_root),
+        },
+        repository_root=tmp_path / "replaceable-repository",
+    )
+
+    assert path == (
+        state_root
+        / ".ai"
+        / "runtime"
+        / "state"
+        / "experience.json"
+    )
+
+
+def test_explicit_experience_store_remains_authoritative_over_state_root(
+    tmp_path,
+):
+    explicit_store = (
+        tmp_path
+        / "explicit"
+        / "experience.json"
+    )
+
+    path = experience_store_path(
+        environment={
+            "AI_TOOLKIT_STATE_ROOT": str(
+                tmp_path / "durable-state"
+            ),
+            EXPERIENCE_STORE_ENV: str(explicit_store),
+        },
+        repository_root=tmp_path / "repository",
+    )
+
+    assert path == explicit_store
+
+
+def test_explicit_relative_experience_store_preserves_repository_semantics(
+    tmp_path,
+):
+    repository_root = tmp_path / "repository"
+
+    path = experience_store_path(
+        environment={
+            "AI_TOOLKIT_STATE_ROOT": str(
+                tmp_path / "durable-state"
+            ),
+            EXPERIENCE_STORE_ENV: "custom/experience.json",
+        },
+        repository_root=repository_root,
+    )
+
+    assert path == (
+        repository_root
+        / "custom"
+        / "experience.json"
+    )
+
+
+def test_experience_survives_replaceable_repository_with_durable_state_root(
+    tmp_path,
+):
+    state_root = tmp_path / "railway-volume"
+
+    environment = {
+        "AI_TOOLKIT_STATE_ROOT": str(state_root),
+    }
+
+    repository_a = tmp_path / "deployment-a"
+
+    process_a = prepare_experience_repository(
+        environment=environment,
+        repository_root=repository_a,
+    )
+
+    experience = Experience.create().activate()
+    identity = experience.experience_id
+
+    process_a.add(experience)
+
+    repository_b = tmp_path / "deployment-b"
+
+    process_b = prepare_experience_repository(
+        environment=environment,
+        repository_root=repository_b,
+    )
+
+    recovered = process_b.get(identity)
+
+    assert recovered.experience_id == identity
+    assert recovered.state.value == "ACTIVE"
+
+    expected_store = (
+        state_root
+        / ".ai"
+        / "runtime"
+        / "state"
+        / "experience.json"
+    )
+
+    assert expected_store.is_file()
+    assert not (
+        repository_a
+        / ".ai"
+        / "runtime"
+        / "state"
+        / "experience.json"
+    ).exists()
+    assert not (
+        repository_b
+        / ".ai"
+        / "runtime"
+        / "state"
+        / "experience.json"
+    ).exists()

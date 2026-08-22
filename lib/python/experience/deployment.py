@@ -57,6 +57,28 @@ def experience_store_path(
     if path.is_absolute():
         return path
 
+    explicit_experience_store = (
+        EXPERIENCE_STORE_ENV in env
+    )
+
+    durable_state_root = env.get(
+        "AI_TOOLKIT_STATE_ROOT",
+        "",
+    ).strip()
+
+    if (
+        not explicit_experience_store
+        and durable_state_root
+    ):
+        return (
+            Path(durable_state_root)
+            .expanduser()
+            / ".ai"
+            / "runtime"
+            / "state"
+            / "experience.json"
+        )
+
     if repository_root is None:
         root_value = env.get(
             "AI_TOOLKIT_REPOSITORY_ROOT",
