@@ -373,7 +373,15 @@ class AIPlatformService:
             )
 
             if source_paths:
-                selected_source_path = source_paths[0]
+                # FUSION-02 productive bounded cognitive journey.
+                # This is a read-only composition of existing navigation,
+                # JourneyState, cognitive evaluation, and loop-guard organs.
+                # It does not confer authority or enable mutation organs.
+                max_cognitive_steps = 8
+                journey_source_paths = tuple(
+                    source_paths[:max_cognitive_steps]
+                )
+                selected_source_path = journey_source_paths[0]
 
                 def _bounded_repository_read(
                     repository_root,

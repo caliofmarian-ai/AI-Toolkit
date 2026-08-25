@@ -1705,3 +1705,307 @@ Acceptance must inspect the structural AST contract:
 - continuation creates no duplicate HUMAN raw source.
 
 This is demonstrated execution-error Evidence, not Canon.
+
+---
+
+## Demonstrated execution precedent — missing repository Python import root
+
+### Demonstrated observation
+
+During FUSION-02 Productive Bounded Cognitive Journey validation,
+pytest collection stopped before executing the targeted tests with:
+
+`ModuleNotFoundError: No module named 'python'`
+
+The affected tests imported production modules through:
+
+`from python.ai_platform...`
+
+The repository package anatomy places that package below:
+
+`lib/python/`
+
+The validation command had been invoked without making repository `lib`
+available as a Python import root.
+
+### Failure classification
+
+**EXECUTION ENVIRONMENT / VALIDATION ORCHESTRATION ERROR.**
+
+The failure occurred during pytest collection.
+
+Therefore it did not demonstrate failure of:
+
+- Productive Bounded Cognitive Journey behavior;
+- JourneyState;
+- cognitive step evaluation;
+- cognitive loop guards;
+- search/read physiology;
+- provider finalization.
+
+No cognitive test body had executed at the point of failure.
+
+### Demonstrated cause
+
+For this repository anatomy:
+
+`lib/python/...`
+
+combined with imports of:
+
+`python.ai_platform...`
+
+requires repository `lib` to be present on the Python import path when
+the project is executed directly from the Termux repository checkout.
+
+### Recovery rule
+
+Before invoking repository Python tests from Termux, establish the
+repository import root explicitly:
+
+`export PYTHONPATH="$REPOSITORY_ROOT/lib${PYTHONPATH:+:$PYTHONPATH}"`
+
+Then perform an import preflight before pytest:
+
+`import python`
+
+and import the exact production symbols required by the targeted test.
+
+### Prevention rule
+
+Future AI-Toolkit implementation Bash scripts that execute Python tests
+from the demonstrated Termux checkout MUST:
+
+1. determine the real Git repository root;
+2. place `<repository-root>/lib` on `PYTHONPATH`;
+3. verify importability before pytest;
+4. distinguish import/collection failure from test failure;
+5. never modify production imports merely to hide an execution-environment
+   configuration error;
+6. never declare PASS when pytest collected or executed zero tests.
+
+### Conservation boundary
+
+This precedent is demonstrated Error Memory Evidence.
+
+It is not:
+
+- Canon;
+- Human Authority;
+- permission for autonomous mutation;
+- permission to alter Python package anatomy;
+- permission to create a second environment/bootstrap system.
+
+Its purpose is to prevent recurrence of an already demonstrated execution
+failure.
+
+---
+
+## Demonstrated execution precedent — mixed repository Python import roots
+
+### Observation
+
+AI-Toolkit currently contains production/test imports from more than one
+repository-relative Python namespace.
+
+Demonstrated import probes established:
+
+- `<repo>/lib` resolves `python.*`;
+- `<repo>/lib/python` resolves top-level `epistemic.*`;
+- the combined environment resolves both families.
+
+The demonstrated combined Termux validation environment is therefore:
+
+`PYTHONPATH="$PWD:$PWD/lib:$PWD/lib/python${PYTHONPATH:+:$PYTHONPATH}"`
+
+### Prevention rule
+
+Before a repository-wide pytest invocation, validation orchestration MUST
+preflight every demonstrated package family required by that suite.
+
+A targeted suite may use a narrower import environment only when its complete
+import anatomy has been demonstrated.
+
+Production package code MUST NOT be rewritten merely to compensate for an
+incorrect test-runner import root.
+
+---
+
+## Demonstrated execution precedent — diagnostic script blocked by incidental diff hygiene
+
+### Observation
+
+A diagnostic-only FUSION-02 script successfully captured the required failure
+anatomy but terminated with code 2 because `git diff --check` detected:
+
+`new blank line at EOF`
+
+in the Error Memory artifact modified by the preceding run.
+
+### Classification
+
+This was not a cognitive-runtime failure and not a failure of the diagnostic
+evidence collection.
+
+It was orchestration ordering/hygiene failure.
+
+### Prevention rule
+
+When a script intentionally modifies a Markdown evidence/report artifact:
+
+1. normalize the artifact before `git diff --check`;
+2. run semantic/behavioral validation before final hygiene validation;
+3. do not allow an incidental whitespace defect to erase already captured
+   diagnostic evidence;
+4. still report and correct the whitespace defect before conservation;
+5. never convert a real non-zero behavioral test result into PASS.
+
+---
+
+## Demonstrated execution precedent — patch notation leaked into generated source
+
+### Observation
+
+A FUSION-02 recovery Bash embedded Python source intended for `conftest.py`,
+but the generated source retained leading `+` characters originating from
+patch notation.
+
+Python AST validation rejected the candidate before it was written.
+
+### Classification
+
+This was generator contamination in the orchestration Bash. It was not a CSL
+failure, UEM failure, pytest failure, or Productive Bounded Cognitive Journey
+regression.
+
+### Prevention rule
+
+1. Embedded generated source must be inspected for leaked diff prefixes.
+2. Bash syntax validation alone is insufficient when Bash generates another
+   programming language.
+3. The exact generated candidate must be parsed before it is written.
+4. Validation must precede mutation.
+
+
+---
+
+## Demonstrated execution precedent — recovery depended on an unverified download path
+
+### Observation
+
+A corrective command assumed that the recovery Bash existed in Android's
+shared `Download` directory. The Human had executed the Bash directly by
+copying it, so no downloaded script existed at that path.
+
+The recovery stopped before any mutation.
+
+### Classification
+
+This was an orchestration input-location assumption.
+
+### Prevention rule
+
+1. A recovery command must not assume that a previously delivered chat script
+   was saved as a local file.
+2. File-dependent recovery must first have evidence that the file exists.
+3. When the Human used direct copy-paste execution, the next recovery must also
+   be self-contained and directly executable.
+
+---
+
+## Demonstrated execution precedent — executable diagnostic collected as pytest
+
+### Observation
+
+The root-level `test_csl_semantic.py` was an executable historical diagnostic
+that ran compilation and UEM inspection during module import. Its filename
+caused pytest to collect it automatically.
+
+The diagnostic targeted `docs/canonical`, where no `.csl` source files
+existed. Compilation therefore did not produce a UEM, after which the
+diagnostic dereferenced `result.uem.statistics()`.
+
+### Classification
+
+This was a pytest collection-boundary failure combined with a stale
+diagnostic input contract. It was not proof of a production CSL/UEM failure.
+
+### Prevention rule
+
+1. Executable diagnostics must not enter automated pytest collection only
+   because their filename begins with `test_`.
+2. Preserved historical diagnostics should be excluded at the collection
+   boundary.
+3. Production CSL/UEM semantics must not be weakened to satisfy stale
+   diagnostics.
+4. Diagnostics must prove compilation success and UEM presence before using
+   UEM methods.
+
+---
+
+## Demonstrated execution precedent — focused tests discovered only by filename
+
+### Observation
+
+The CSL/UEM recovery validation searched for focused tests using only test
+filenames containing `csl`, `uem`, or `compiler`.
+
+No matching filenames were found, so the orchestration marked the focused
+verification as failed even though:
+
+- pytest collection succeeded;
+- Productive Bounded Cognitive Journey passed 28 tests;
+- the complete FUSION suite passed 317 tests;
+- the repository-wide suite passed 808 tests;
+- `git diff --check` passed.
+
+### Classification
+
+This was a false-negative test-discovery failure in the validation
+orchestration. It was not a product failure and not a CSL/UEM regression.
+
+### Prevention rule
+
+1. Focused tests must be discovered using test contents and collected node
+   identities, not filenames alone.
+2. A missing filename convention must not be treated as a failed physiology.
+3. A validation report must distinguish:
+   - test execution failure;
+   - no test discovered;
+   - test discovery defect;
+   - repository-wide regression success.
+4. Repository-wide green results do not erase a discovery defect, but the
+   discovery defect must not be misclassified as a production failure.
+
+---
+
+## Demonstrated execution precedent — unverified optional command dependency
+
+### Observation
+
+A FUSION-02 recovery Bash attempted to discover CSL/UEM-related tests using
+`rg`, but ripgrep was not installed in the Human's Termux environment.
+
+The command therefore returned no discovered tests and the validation stopped
+before branch creation, commit, or push.
+
+### Classification
+
+This was an orchestration dependency-assumption failure.
+
+It was not:
+
+- a CSL failure;
+- a UEM failure;
+- a Productive Bounded Cognitive Journey regression;
+- a FUSION regression;
+- a repository-wide regression.
+
+### Prevention rule
+
+1. A Bash must not assume an optional Termux package exists.
+2. Required commands must be preflighted before their first use.
+3. When the same operation can be performed with repository-required Python,
+   Python should be used instead of introducing an optional dependency.
+4. Absence of a discovery utility must not be reported as absence of tests.
+5. A failed discovery mechanism must be distinguished from a failed test.
