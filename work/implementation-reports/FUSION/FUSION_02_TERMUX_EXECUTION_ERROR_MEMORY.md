@@ -2335,3 +2335,38 @@ Generated analysis must never be represented as retrieved evidence.
 AI Partner remains supervised until exact branch access, exact commit
 access, real file retrieval, persistence and restart rediscovery are
 repeatedly demonstrated.
+
+## Demonstrated execution precedent — context reconstruction was certified from substituted organs
+
+### Observed contamination
+
+The context reconstruction acceptance replaced:
+
+- `EpistemicOrganismAccess.conversation_session`;
+- `EpistemicOrganismAccess.state`;
+- `AIContextBuilder.build`.
+
+It then treated generated session, Experience, organism and repository
+state as evidence for real context reconstruction.
+
+### Classification
+
+`SUBSTITUTED CONTEXT-RECONSTRUCTION PHYSIOLOGY`
+
+### Permanent rule
+
+Context reconstruction acceptance must begin with a session persisted by
+the real `AISessionEngine`, bound to an Experience through the real
+`ConversationExperienceBridge`, populated with real raw-source records
+and recovered through the real `EpistemicOrganismAccess`.
+
+Boundedness must be demonstrated by real chronological persistence and
+real truncation. Generated dictionaries cannot authorize Persistent
+Experience, Provenance, organism state or Human Authority.
+
+### Recovery
+
+The acceptance now persists three chronological raw conversation
+sources through production organs, reconstructs the latest two, verifies
+real truncation, Provenance, Experience identity, AI Partner identity,
+epistemic boundaries and Human Authority.

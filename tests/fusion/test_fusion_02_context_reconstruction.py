@@ -3,14 +3,12 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
 
 from python.ai_platform.context_builder import AIContextBuilder
 from python.ai_platform.conversation_context import (
     ConversationContextReconstructor,
 )
 from python.ai_platform.service import AIPlatformService
-from python.runtime.organism import EpistemicOrganismAccess
 
 
 def test_context_reconstructor_reuses_existing_anatomy():
@@ -29,124 +27,194 @@ def test_context_reconstructor_reuses_existing_anatomy():
 
 def test_context_is_bounded_serializable_and_inspectable(
     tmp_path,
-    monkeypatch,
 ):
+    service = AIPlatformService(
+        repository_root=str(tmp_path),
+        workspace_root=str(tmp_path),
+    )
+
+    session = service.sessions.create(
+        {
+            "id": "FUSION02-REAL-CONTEXT-SESSION",
+            "project": "AI-Toolkit",
+            "repository": "AI-Toolkit",
+            "selected_provider": "provider-alpha",
+            "selected_model": "model-alpha",
+        }
+    )
+
+    experience, binding = (
+        service.conversation_experience
+        .ensure_experience(session)
+    )
+
+    assert binding.session_id == session["id"]
+    assert (
+        str(binding.experience_id)
+        == str(experience.experience_id)
+    )
+
+    session = service.sessions.bind_experience(
+        session["id"],
+        str(experience.experience_id),
+    )
+
+    raw_inputs = (
+        (
+            "HUMAN",
+            "first",
+            "",
+            "",
+        ),
+        (
+            "AI",
+            "second",
+            "provider-alpha",
+            "model-alpha",
+        ),
+        (
+            "HUMAN",
+            "third-" + ("x" * 400),
+            "",
+            "",
+        ),
+    )
+
+    for sequence, (
+        actor,
+        content,
+        provider,
+        model,
+    ) in enumerate(raw_inputs, start=1):
+        source_item = (
+            service.conversation_experience.raw_source(
+                session=session,
+                experience=experience,
+                actor=actor,
+                content=content,
+                sequence=sequence,
+                provider=provider,
+                model=model,
+            )
+        )
+
+        session = service.sessions.append_raw_source(
+            session["id"],
+            source_item,
+        )
+
+    persisted = service.sessions.get(session["id"])
+
+    assert persisted["experience_id"] == str(
+        experience.experience_id
+    )
+    assert len(persisted["raw_sources"]) == 3
+
     reconstructor = ConversationContextReconstructor(
+        tmp_path,
         tmp_path,
         max_raw_sources=2,
         max_source_chars=256,
     )
 
-    recovered = {
-        "session_id": "session-1",
-        "project": "AI-Toolkit",
-        "repository": "AI-Toolkit",
-        "experience": {
-            "experience_id": "EXP-1",
-            "state": "ACTIVE",
-            "recovered": True,
-        },
-        "raw_sources": [
-            {
-                "event_id": "RAW-1",
-                "actor": "HUMAN",
-                "sequence": 1,
-                "timestamp": "2026-08-16T00:00:00+00:00",
-                "content": "first",
-                "source": {"identifier": "RAW-1"},
-                "epistemic_status": {
-                    "raw_source": True,
-                    "evidence": False,
-                    "canon": False,
-                },
-            },
-            {
-                "event_id": "RAW-2",
-                "actor": "AI",
-                "sequence": 2,
-                "timestamp": "2026-08-16T00:00:01+00:00",
-                "content": "second",
-                "provider": "test-provider",
-                "model": "test-model",
-                "source": {"identifier": "RAW-2"},
-                "epistemic_status": {
-                    "raw_source": True,
-                    "evidence": False,
-                    "canon": False,
-                },
-            },
-            {
-                "event_id": "RAW-3",
-                "actor": "HUMAN",
-                "sequence": 3,
-                "timestamp": "2026-08-16T00:00:02+00:00",
-                "content": "third",
-                "source": {"identifier": "RAW-3"},
-                "epistemic_status": {
-                    "raw_source": True,
-                    "evidence": False,
-                    "canon": False,
-                },
-            },
-        ],
+    context = reconstructor.build(
+        session["id"]
+    )
+
+    assert context["schema"] == (
+        "FUSION-02-CONVERSATION-CONTEXT-1"
+    )
+    assert context["bounded"] == {
+        "max_raw_sources": 2,
+        "max_source_chars": 256,
+        "raw_sources_included": 2,
     }
 
-    monkeypatch.setattr(
-        reconstructor.organism,
-        "conversation_session",
-        lambda session_id: recovered,
-    )
-    monkeypatch.setattr(
-        reconstructor.organism,
-        "state",
-        lambda: {
-            "schema": "organism",
-            "layered_memory": {"state": "AVAILABLE"},
-            "persistent_experience": {"runtime_reachable": True},
-            "provenance": {"runtime_reachable": True},
-            "error_memory": {"state": "AVAILABLE_AS_EVIDENCE"},
-            "human_authority": {"preserved": True},
-            "migration_boundaries": {
-                "pcc_06": "SUSPENDED_FOR_MIGRATION"
-            },
-        },
-    )
-    monkeypatch.setattr(
-        reconstructor.base_context_builder,
-        "build",
-        lambda: {
-            "repository_profile": {"name": "AI-Toolkit"},
-            "repository_health": {},
-            "current_branch": "fusion/test",
-            "current_sprint": "",
-            "current_epic": "",
-            "current_issue": "",
-            "runtime_status": {},
-            "workspace": {"workspace": "/workspace"},
-        },
-    )
+    sources = context["conversation"]["sources"]
 
-    context = reconstructor.build("session-1")
-
-    assert context["schema"] == "FUSION-02-CONVERSATION-CONTEXT-1"
-    assert len(context["conversation"]["sources"]) == 2
+    assert len(sources) == 2
     assert [
         item["sequence"]
-        for item in context["conversation"]["sources"]
+        for item in sources
     ] == [2, 3]
+    assert [
+        item["actor"]
+        for item in sources
+    ] == ["AI", "HUMAN"]
 
-    assert context["persistent_experience"]["experience_id"] == "EXP-1"
-    assert context["provenance"]["sources"][0]["event_id"] == "RAW-2"
+    assert sources[0]["content"] == "second"
+    assert sources[0]["content_truncated"] is False
+
+    assert len(sources[1]["content"]) == 256
+    assert sources[1]["content_truncated"] is True
+    assert sources[1]["original_content_chars"] > 256
+
+    assert context[
+        "persistent_experience"
+    ]["experience_id"] == str(
+        experience.experience_id
+    )
+
+    assert context["active_session"]["session_id"] == (
+        session["id"]
+    )
+
+    assert context["ai_partner"] == {
+        "provider": "provider-alpha",
+        "model": "model-alpha",
+    }
+
+    provenance = context["provenance"]["sources"]
+
+    assert [
+        item["sequence"]
+        for item in provenance
+    ] == [2, 3]
+    assert provenance[0]["event_id"] == (
+        sources[0]["event_id"]
+    )
+    assert provenance[1]["event_id"] == (
+        sources[1]["event_id"]
+    )
+
+    for item in provenance:
+        status = item["epistemic_status"]
+
+        assert status["raw_source"] is True
+        assert status["evidence"] is False
+        assert status["canon"] is False
+        assert status["automatic_authority"] is False
 
     boundaries = context["epistemic_boundaries"]
-    assert boundaries["raw_conversation_is_evidence"] is False
-    assert boundaries["raw_conversation_is_canon"] is False
-    assert boundaries["ai_statement_is_evidence"] is False
-    assert boundaries["automatic_sedimentation"] is False
-    assert boundaries["human_authority_preserved"] is True
 
-    json.dumps(context)
+    assert boundaries[
+        "raw_conversation_is_evidence"
+    ] is False
+    assert boundaries[
+        "raw_conversation_is_canon"
+    ] is False
+    assert boundaries[
+        "ai_statement_is_evidence"
+    ] is False
+    assert boundaries[
+        "automatic_sedimentation"
+    ] is False
+    assert boundaries[
+        "human_authority_preserved"
+    ] is True
 
+    assert context["organism"][
+        "human_authority"
+    ]["preserved"] is True
+
+    serialized = json.dumps(
+        context,
+        sort_keys=True,
+    )
+
+    assert "first" not in serialized
+    assert "second" in serialized
+    assert len(serialized) > 0
 
 def test_pipeline_can_receive_reconstructed_context():
     source = Path("lib/python/ai_platform/pipeline.py").read_text(
