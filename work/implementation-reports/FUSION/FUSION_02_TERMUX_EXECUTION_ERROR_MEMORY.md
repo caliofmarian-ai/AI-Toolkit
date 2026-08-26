@@ -2628,3 +2628,30 @@ Recovery rule:
   consume money;
 - never request that the Human paste a secret into repository files;
 - never convert absence of access into an invented PASS.
+
+## FUSION-02 — tracked contamination count was not a global audit
+
+After the previously tracked contaminated tests were recovered, the
+branch reported `REMAINING_CONTAMINATED_FILES=0`.
+
+A repository-wide byte and anatomy audit demonstrated that this verdict
+was premature. The previously untracked file
+`test_fusion_02_durable_conversation_experience.py` still replaced
+`service.pipeline.run` directly:
+
+- four tests injected fabricated successful provider results;
+- one test injected a fabricated provider failure;
+- the real Pipeline, Provider Registry and Adapter were bypassed.
+
+Recovery rule:
+
+- a tracked remediation list is not proof of global cleanliness;
+- zero contamination may be declared only after auditing every relevant
+  acceptance file;
+- assigning a replacement function directly to a production method is
+  substitution even without a mocking library;
+- successful physiology must traverse Service, Pipeline, Registry and
+  Adapter;
+- failure physiology must reach a real production failure boundary;
+- AI Partner must receive both the retraction and corrected evidence;
+- Human Authority remains the final acceptance authority.
