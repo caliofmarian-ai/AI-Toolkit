@@ -4,7 +4,7 @@ AI CTO Integration Scanner — Report Generator
 Generates AI_CTO_INTEGRATION_REPORT.md from scanner results.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -56,7 +56,7 @@ class AICTOReportGenerator:
     # ------------------------------------------------------------------
 
     def _header(self, r):
-        ts = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
+        ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
         return "\n".join([
             "# AI CTO Integration Report",
             "",

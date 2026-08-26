@@ -18,6 +18,55 @@ class AIContextBuilder:
         self.repository_root = Path(repository_root).resolve()
         self.workspace_root = Path(workspace_root).resolve() if workspace_root else self.repository_root.parent
 
+    @staticmethod
+    def _bounded_runtime_orientation(
+        runtime_payload: Any,
+    ) -> Dict[str, Any]:
+        """Expose runtime identity without materializing runtime state."""
+        if isinstance(runtime_payload, dict):
+            runtime = runtime_payload.get(
+                "runtime",
+                runtime_payload,
+            )
+        else:
+            runtime = {}
+
+        if not isinstance(runtime, dict):
+            runtime = {}
+
+        field_names = sorted(
+            str(key)
+            for key in runtime
+        )
+
+        state = runtime.get(
+            "state",
+            runtime.get(
+                "status",
+                "UNKNOWN",
+            ),
+        )
+
+        if not isinstance(
+            state,
+            (str, int, float, bool),
+        ):
+            state = "UNKNOWN"
+
+        visible_fields = field_names[:32]
+
+        return {
+            "available": bool(runtime),
+            "state": state,
+            "field_count": len(field_names),
+            "fields": visible_fields,
+            "fields_truncated": (
+                len(field_names)
+                > len(visible_fields)
+            ),
+            "values_materialized": False,
+        }
+
     def build_permanent_orientation(self) -> Dict[str, Any]:
         """Build bounded read-only orientation without repository profiling.
 
@@ -29,9 +78,15 @@ class AIContextBuilder:
         git = GitContextProvider(str(self.repository_root)).collect()
         development = DevelopmentContextProvider(str(self.repository_root)).collect()
         runtime_payload = self._read_json(
-            self.repository_root / ".ai" / "runtime" / "state" / "runtime_status.json"
+            self.repository_root
+            / ".ai"
+            / "runtime"
+            / "state"
+            / "runtime_status.json"
         )
-        runtime_status = runtime_payload.get("runtime", runtime_payload)
+        runtime_status = self._bounded_runtime_orientation(
+            runtime_payload
+        )
 
         return {
             "schema": "ai-toolkit/permanent-epistemic-orientation/v1",

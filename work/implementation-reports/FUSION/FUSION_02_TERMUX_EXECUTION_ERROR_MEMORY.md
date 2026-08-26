@@ -2534,3 +2534,52 @@ Recovery rule:
 - ensure invalid authentication fails closed;
 - ensure secrets do not enter HTML, JavaScript or API responses;
 - preserve Human Authority and all epistemic distinctions.
+
+## FUSION-02 — permanent orientation existed but was not connected
+
+The Permanent Epistemic Orientation organ existed in AIContextBuilder,
+but no production consumer invoked it. The inherited acceptance replaced
+Git, development state and runtime sources, then validated a generated
+orientation that AI Partner never actually received.
+
+Recovery rule:
+
+- execute orientation against the real repository;
+- preserve its bounded, read-only and deterministic contract;
+- connect it to the existing provider cognitive-context payload;
+- keep task-specific Working Context separate;
+- demonstrate receipt through real AIPlatformService and Pipeline;
+- never infer operational integration from an isolated builder test.
+
+## FUSION-02 — timezone-naive UTC warnings are production evidence
+
+Real Owner Chat execution exposed deprecated `datetime.utcnow()` usage in
+Semantic Repository Intelligence persistence and AI CTO report
+generation.
+
+Recovery rule:
+
+- treat warnings reached through real physiology as demonstrated
+  technical debt;
+- use timezone-aware `datetime.now(timezone.utc)`;
+- preserve existing serialized UTC formats;
+- execute focused acceptance with DeprecationWarning promoted to error.
+
+## FUSION-02 — runtime state overwhelmed Permanent Orientation
+
+Real-repository execution measured Permanent Epistemic Orientation at
+43,043 serialized bytes, despite its bounded contract. The cause was
+direct inclusion of the complete runtime-status payload.
+
+The fabricated predecessor tests returned a tiny generated runtime
+dictionary and therefore concealed the defect.
+
+Recovery rule:
+
+- never increase the orientation budget to accommodate unbounded state;
+- expose runtime structural identity, not runtime values;
+- retain availability, state, field count and a bounded field-name list;
+- prohibit nested runtime values and secrets from Permanent Orientation;
+- keep the complete runtime body available only through deliberate,
+  task-specific retrieval;
+- measure the real serialized orientation against its fixed budget.

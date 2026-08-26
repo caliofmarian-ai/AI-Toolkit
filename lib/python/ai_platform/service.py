@@ -661,6 +661,12 @@ class AIPlatformService:
             reconstructed_context
         )
         provider_cognitive_context[
+            "permanent_orientation"
+        ] = (
+            self.context_builder
+            .build_permanent_orientation()
+        )
+        provider_cognitive_context[
             "working_context"
         ] = working_context_data
 

@@ -8,7 +8,7 @@ and integration with the Development State Engine (CORE-009).
 """
 
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -50,7 +50,7 @@ class SemanticPersistence:
         snapshot = {
             "schema_version": self.SCHEMA_VERSION,
             "repository": str(self.root),
-            "captured_at": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "captured_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
             "analysis": self._compact(analysis_result),
         }
 
