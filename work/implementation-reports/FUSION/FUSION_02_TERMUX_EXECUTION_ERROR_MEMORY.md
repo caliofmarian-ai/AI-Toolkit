@@ -2303,3 +2303,35 @@ commit.
 
 The recovery report and Error Memory were normalized without changing
 the verified production implementation or physiological test result.
+
+## Demonstrated AI Partner precedent — fabricated file-byte access retracted after verification
+
+### Observed failure
+
+AI Partner claimed direct access to a repository test file and supplied
+invented measurements, functions, source identifiers and a hash that
+contradicted the authoritative GitHub blob.
+
+### Classification
+
+`FABRICATED FILE-BYTE ACCESS / FALSE COGNITIVE TRACE`
+
+### Detection
+
+Independent inspection of the exact GitHub commit demonstrated a
+different blob anatomy, line count, function inventory and content.
+
+### Recovery
+
+AI Partner retracted the unsupported claims and acknowledged that the
+content was inferred or generated without file access.
+
+### Permanent rule
+
+An AI contribution cannot classify file access as demonstrated without
+verifiable repository identity, path identity and content evidence.
+Generated analysis must never be represented as retrieved evidence.
+
+AI Partner remains supervised until exact branch access, exact commit
+access, real file retrieval, persistence and restart rediscovery are
+repeatedly demonstrated.
