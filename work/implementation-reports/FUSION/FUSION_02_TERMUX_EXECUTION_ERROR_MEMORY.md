@@ -2604,3 +2604,27 @@ Recovery rule:
 - treat characterization values as observations, not pass criteria;
 - verify that repeated characterization is deterministic and read-only;
 - use real measurements as the baseline for later bounded-context work.
+
+## FUSION-02 — external-provider success requires separate live authority
+
+The inherited provider acceptance fabricated credentials, HTTP
+transport, provider responses, timeout failures, HTTP errors, Registry,
+Model Manager, Context Builder and adapter results.
+
+The first real-live preflight stopped before mutation because
+`OPENAI_API_KEY` was absent from the Termux execution environment.
+
+Access classification: `NOT_AVAILABLE_CREDENTIAL_ABSENT`.
+
+Recovery rule:
+
+- remove all substituted provider behavior from default tests;
+- keep normal regression deterministic and network-free;
+- demonstrate registration, HTTPS anatomy and fail-closed behavior through
+  production code;
+- classify external success as NOT AVAILABLE until a real credentialed
+  call completes;
+- execute live acceptance separately so ordinary regression does not
+  consume money;
+- never request that the Human paste a secret into repository files;
+- never convert absence of access into an invented PASS.
