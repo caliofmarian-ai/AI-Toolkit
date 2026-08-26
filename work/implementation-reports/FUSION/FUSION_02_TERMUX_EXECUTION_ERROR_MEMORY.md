@@ -2009,3 +2009,40 @@ It was not:
    Python should be used instead of introducing an optional dependency.
 4. Absence of a discovery utility must not be reported as absence of tests.
 5. A failed discovery mechanism must be distinguished from a failed test.
+
+---
+
+## Demonstrated execution precedent — sequential rewrite invalidated a later match
+
+### Observation
+
+A test-recovery generator performed multiple in-memory string replacements.
+
+The first replacement changed the literal
+`SECOND-MUST-NOT-BE-READ` to `SECOND-SELECTED-SOURCE`.
+
+A later replacement then searched for an assertion containing the original
+literal. That anchor no longer existed in the already-modified in-memory text,
+so the generator stopped before writing either test file.
+
+The production service and coordinator mutations from preceding Bash stages
+had already been written and remained syntactically valid.
+
+### Classification
+
+This was an ordered text-transformation dependency failure in the Bash
+generator.
+
+It was not a failure of the multi-source production physiology and not a test
+execution failure.
+
+### Prevention rule
+
+1. Interdependent textual replacements must be applied from the same original
+   source or as one atomic block replacement.
+2. A replacement must not silently invalidate a later required anchor.
+3. Every generated candidate must be fully validated before writing.
+4. Recovery must certify which earlier mutations were written and which later
+   mutations were not.
+5. Already-valid production mutations must not be discarded merely because a
+   later test generator failed.

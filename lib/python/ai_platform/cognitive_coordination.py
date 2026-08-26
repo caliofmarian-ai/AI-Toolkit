@@ -919,6 +919,7 @@ class EpistemicCognitiveCoordinator:
         ).strip().upper()
 
         allowed_boundaries = {
+            "PARTIAL",
             "BLOCKED",
             "HUMAN_REQUIRED",
             "FORBIDDEN",

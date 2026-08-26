@@ -365,6 +365,9 @@ class AIPlatformService:
                 )
 
         read_navigation = None
+        read_navigations = []
+        cognitive_loop_guards = []
+        cognitive_step_evaluations = []
 
         if isinstance(retrieval, dict):
             source_paths = retrieval.get(
@@ -374,14 +377,13 @@ class AIPlatformService:
 
             if source_paths:
                 # FUSION-02 productive bounded cognitive journey.
-                # This is a read-only composition of existing navigation,
-                # JourneyState, cognitive evaluation, and loop-guard organs.
-                # It does not confer authority or enable mutation organs.
+                # Compose the existing read, evaluator, JourneyState, and
+                # loop-guard organs over a finite candidate-source set.
+                # The journey remains read-only and confers no authority.
                 max_cognitive_steps = 8
                 journey_source_paths = tuple(
                     source_paths[:max_cognitive_steps]
                 )
-                selected_source_path = journey_source_paths[0]
 
                 def _bounded_repository_read(
                     repository_root,
@@ -399,20 +401,165 @@ class AIPlatformService:
                         encoding="utf-8",
                     )
 
-                read_navigation = (
-                    self.cognitive_coordinator.execute_read_navigation(
-                        selected_source_path,
-                        read=_bounded_repository_read,
-                        repository_root=self.sessions.root,
+                for selected_source_path in journey_source_paths:
+                    observation_identity = (
+                        "read:" + selected_source_path
                     )
-                )
 
-                retrieval = (
-                    self.cognitive_coordinator.attach_read_evidence(
-                        retrieval=retrieval,
-                        read_navigation=read_navigation,
+                    loop_guard = (
+                        self.cognitive_coordinator
+                        .evaluate_cognitive_loop_guard(
+                            journey=journey_state,
+                            observation_identity=(
+                                observation_identity
+                            ),
+                            capability="read",
+                            epistemic_gain=True,
+                        )
                     )
-                )
+
+                    cognitive_loop_guards.append(
+                        loop_guard
+                    )
+
+                    if not loop_guard[
+                        "continue_navigation"
+                    ]:
+                        journey_state = (
+                            self.cognitive_coordinator
+                            .conserve_journey_boundary(
+                                journey=journey_state,
+                                boundary="PARTIAL",
+                                stopping_reason=(
+                                    loop_guard[
+                                        "stopping_reason"
+                                    ]
+                                    or "LOOP_GUARD_STOP"
+                                ),
+                            )
+                        )
+                        break
+
+                    current_read_navigation = (
+                        self.cognitive_coordinator
+                        .execute_read_navigation(
+                            selected_source_path,
+                            read=_bounded_repository_read,
+                            repository_root=(
+                                self.sessions.root
+                            ),
+                        )
+                    )
+
+                    read_navigations.append(
+                        current_read_navigation
+                    )
+
+                    retrieval = (
+                        self.cognitive_coordinator
+                        .attach_read_evidence(
+                            retrieval=retrieval,
+                            read_navigation=(
+                                current_read_navigation
+                            ),
+                        )
+                    )
+
+                    epistemic_gain = bool(
+                        current_read_navigation.get(
+                            "epistemic_gain",
+                            False,
+                        )
+                    )
+
+                    step_evaluation = (
+                        self.cognitive_coordinator
+                        .evaluate_cognitive_step(
+                            journey=journey_state,
+                            outcome=(
+                                "PARTIAL"
+                                if epistemic_gain
+                                else "UNKNOWN"
+                            ),
+                            observation_identity=(
+                                observation_identity
+                            ),
+                            epistemic_gain=(
+                                epistemic_gain
+                            ),
+                        )
+                    )
+
+                    cognitive_step_evaluations.append(
+                        step_evaluation
+                    )
+
+                    step_journey = (
+                        step_evaluation["journey"]
+                    )
+
+                    journey_state = JourneyState(
+                        schema=step_journey["schema"],
+                        journey_id=(
+                            step_journey["journey_id"]
+                        ),
+                        need_id=step_journey["need_id"],
+                        status=step_journey["status"],
+                        step_count=(
+                            step_journey["step_count"]
+                        ),
+                        epistemic_gain=(
+                            step_journey[
+                                "epistemic_gain"
+                            ]
+                        ),
+                        visited=tuple(
+                            step_journey["visited"]
+                        ),
+                        stopping_reason=(
+                            step_journey[
+                                "stopping_reason"
+                            ]
+                        ),
+                    )
+
+                    if not step_evaluation[
+                        "continue_navigation"
+                    ]:
+                        break
+
+                if read_navigations:
+                    # Preserve the existing singular response contract while
+                    # exposing the complete bounded journey separately.
+                    read_navigation = (
+                        read_navigations[0]
+                    )
+
+                    search_navigation = dict(
+                        search_navigation
+                    )
+                    search_navigation["retrieval"] = (
+                        retrieval
+                    )
+
+                if journey_state.status == "IN_PROGRESS":
+                    stopping_reason = (
+                        "COGNITIVE_STEP_BOUND_REACHED"
+                        if len(source_paths)
+                        > len(journey_source_paths)
+                        else "CANDIDATE_SOURCES_EXHAUSTED"
+                    )
+
+                    journey_state = (
+                        self.cognitive_coordinator
+                        .conserve_journey_boundary(
+                            journey=journey_state,
+                            boundary="PARTIAL",
+                            stopping_reason=(
+                                stopping_reason
+                            ),
+                        )
+                    )
 
         working_context = (
             self.cognitive_coordinator.materialize_working_context(
@@ -460,6 +607,23 @@ class AIPlatformService:
             provider_cognitive_context[
                 "read_navigation"
             ] = read_navigation
+
+        if read_navigations:
+            provider_cognitive_context[
+                "read_navigations"
+            ] = list(read_navigations)
+
+        if cognitive_loop_guards:
+            provider_cognitive_context[
+                "cognitive_loop_guards"
+            ] = list(cognitive_loop_guards)
+
+        if cognitive_step_evaluations:
+            provider_cognitive_context[
+                "cognitive_step_evaluations"
+            ] = list(
+                cognitive_step_evaluations
+            )
 
         _fusion02_log_context_anatomy(
             provider_cognitive_context
@@ -543,6 +707,15 @@ class AIPlatformService:
             "journey": journey_state.to_dict(),
             "search_navigation": search_navigation,
             "read_navigation": read_navigation,
+            "read_navigations": list(
+                read_navigations
+            ),
+            "cognitive_loop_guards": list(
+                cognitive_loop_guards
+            ),
+            "cognitive_step_evaluations": list(
+                cognitive_step_evaluations
+            ),
             "working_context": working_context_data,
             "context": provider_cognitive_context,
             "context_schema": provider_cognitive_context.get(

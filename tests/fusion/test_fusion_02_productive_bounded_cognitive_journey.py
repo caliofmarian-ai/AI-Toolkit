@@ -99,3 +99,34 @@ def test_production_service_does_not_create_parallel_organs():
 
     for token in forbidden:
         assert token not in service
+
+
+def test_production_service_composes_multi_source_journey():
+    service = Path(
+        "lib/python/ai_platform/service.py"
+    ).read_text()
+
+    required = (
+        "for selected_source_path in journey_source_paths:",
+        "evaluate_cognitive_loop_guard(",
+        "execute_read_navigation(",
+        "attach_read_evidence(",
+        "evaluate_cognitive_step(",
+        '"read_navigations"',
+        '"cognitive_loop_guards"',
+        '"cognitive_step_evaluations"',
+    )
+
+    for token in required:
+        assert token in service
+
+
+def test_productive_journey_no_longer_selects_only_index_zero():
+    service = Path(
+        "lib/python/ai_platform/service.py"
+    ).read_text()
+
+    assert (
+        "selected_source_path = journey_source_paths[0]"
+        not in service
+    )

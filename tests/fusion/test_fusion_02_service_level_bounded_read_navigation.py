@@ -4,7 +4,7 @@ from pathlib import Path
 from python.ai_platform.service import AIPlatformService
 
 
-def test_service_reads_only_first_selected_search_source(
+def test_service_reads_bounded_candidate_sources_productively(
     monkeypatch,
     tmp_path,
 ):
@@ -17,7 +17,7 @@ def test_service_reads_only_first_selected_search_source(
     )
 
     second.write_text(
-        "SECOND-MUST-NOT-BE-READ",
+        "SECOND-SELECTED-SOURCE",
         encoding="utf-8",
     )
 
@@ -191,7 +191,7 @@ def test_service_reads_only_first_selected_search_source(
     serialized = repr(result)
 
     assert "FIRST-SELECTED-SOURCE" in serialized
-    assert "SECOND-MUST-NOT-BE-READ" not in serialized
+    assert "SECOND-SELECTED-SOURCE" in serialized
 
     assert (
         result["search_navigation"]["retrieval"][
@@ -217,6 +217,55 @@ def test_service_reads_only_first_selected_search_source(
     assert read_observation["bounded"] is True
     assert read_observation["read_only"] is True
     assert read_observation["authority_conferred"] is False
+
+    read_navigations = result["read_navigations"]
+
+    assert [
+        item["source_path"]
+        for item in read_navigations
+    ] == [
+        "first.txt",
+        "second.txt",
+    ]
+
+    assert [
+        item["status"]
+        for item in read_navigations
+    ] == [
+        "RETRIEVED",
+        "RETRIEVED",
+    ]
+
+    assert len(result["cognitive_loop_guards"]) == 2
+    assert len(result["cognitive_step_evaluations"]) == 2
+
+    assert result["journey"]["step_count"] == 3
+    assert result["journey"]["status"] == "PARTIAL"
+
+    assert (
+        result["journey"]["stopping_reason"]
+        == "CANDIDATE_SOURCES_EXHAUSTED"
+    )
+
+    evidence = result["working_context"]["evidence"]
+
+    assert [
+        item.get("read_status")
+        for item in evidence
+    ] == [
+        "RETRIEVED",
+        "RETRIEVED",
+    ]
+
+    assert (
+        "FIRST-SELECTED-SOURCE"
+        in evidence[0]["content"]
+    )
+
+    assert (
+        "SECOND-SELECTED-SOURCE"
+        in evidence[1]["content"]
+    )
 
     assert (
         result["search_navigation"]["retrieval"][
