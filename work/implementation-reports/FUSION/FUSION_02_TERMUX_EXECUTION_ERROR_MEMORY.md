@@ -2046,3 +2046,260 @@ execution failure.
    mutations were not.
 5. Already-valid production mutations must not be discarded merely because a
    later test generator failed.
+
+## Demonstrated execution precedent — simulated acceptance was treated as organism physiology
+
+### Observed error
+
+A service acceptance replaced settings, sessions, Persistent Experience,
+context reconstruction, cognitive initialization, search navigation and
+the provider pipeline through runtime substitution.
+
+A provider suite called itself real while replacing HTTP transport,
+generating responses and using a credential explicitly identified as
+not real.
+
+### Classification
+
+SIMULATED-EVIDENCE CONTAMINATION
+
+### Consequence
+
+The affected green results cannot authorize organism physiology. They
+prove only the substituted test environment.
+
+### Permanent rule
+
+AI-Toolkit acceptance evidence must traverse the production organs being
+claimed. Runtime substitution, generated provider responses, fabricated
+retrievals, fabricated Journey state and source-token assertions cannot
+certify physiology.
+
+### Recovery
+
+Productive Multi-Source Journey now executes the real Evidence Engine
+against the checked-out repository, reads actual selected files,
+advances the real Journey and materializes the real Working Context
+before the provider boundary.
+
+Remaining inherited contamination blocks merge authority.
+
+## Demonstrated execution precedent — real search was invoked from a non-research Information Need
+
+### Observed failure
+
+The substitution-free Productive Journey acceptance called the real
+cognitive coordinator with the question `fusion 02 productive bounded
+cognitive journey`.
+
+The real Need Evaluator correctly classified that wording as not
+requiring repository research because it contained none of the
+established repository-navigation signals. The resulting navigation
+plan had `required=False`, so real search correctly returned no
+retrieval.
+
+### Classification
+
+`INFORMATION-NEED ACTIVATION CONTRACT MISMATCH`
+
+### Permanent rule
+
+An acceptance that exercises real repository navigation must formulate
+a Human question that explicitly requests repository, file, source,
+implementation, test, audit, evidence, branch, commit, code, trace,
+dependency, architecture, or another recognized research capability.
+
+A missing retrieval must first be examined through the Information Need
+and Navigation Plan. It must never be repaired by injecting fabricated
+search results or by bypassing the Need Evaluator.
+
+### Recovery
+
+The acceptance now asks to inspect the repository while preserving the
+specific Productive Bounded Cognitive Journey search terms. The real
+Need Evaluator must activate research and the real Evidence Engine must
+discover the repository sources.
+
+## Demonstrated execution precedent — broad real-source query crossed an unreadable candidate
+
+### Observed failure
+
+The real Evidence Engine activated correctly and returned multiple
+repository paths. During bounded traversal, at least one existing
+candidate was classified `UNKNOWN` by the real read organ rather than
+`RETRIEVED`.
+
+The acceptance incorrectly assumed that every candidate selected by a
+broad project-history query must be readable UTF-8 production evidence.
+
+### Classification
+
+`REAL-SOURCE ACCEPTANCE SELECTION INSTABILITY`
+
+### Permanent rule
+
+A physiological acceptance for a specific organ must query stable
+production identities relevant to that organ. It must not use a broad
+historical phrase whose ranking can include reports, execution evidence
+or other changing worktree material.
+
+`UNKNOWN` remains valid and must never be rewritten into `RETRIEVED`.
+
+### Recovery
+
+The Productive Journey acceptance now queries the real cognitive
+coordination and service organs. Their repository files are stable,
+versioned production sources and are read through the same Evidence
+Engine and bounded read physiology used by the application.
+
+## Demonstrated execution precedent — semantic engine identity violated repository-relative read contract
+
+### Observed failure
+
+The real Productive Journey search returned existing sources, but at
+least one bounded read produced `UNKNOWN`. The source still appeared to
+exist when inspected through `root / source_path`.
+
+### Demonstrated anatomy
+
+The Evidence Engine combines ranked filesystem results with identities
+returned by the Semantic Engine. Ranked filesystem results are
+repository-relative. Semantic identities could remain absolute.
+
+The combined retrieval nevertheless declared
+`source_identity_kind=repository-relative-path`.
+
+The bounded read organ correctly rejects absolute paths, so an existing
+absolute semantic source became `UNKNOWN`. In Python, joining a root to
+an absolute path preserves the absolute operand, explaining why the
+acceptance simultaneously observed that the source existed.
+
+### Classification
+
+`CROSS-ORGAN SOURCE-IDENTITY CONTRACT VIOLATION`
+
+This supersedes the earlier incomplete classification that attributed
+the failure only to broad source selection.
+
+### Permanent rule
+
+Every source emitted under the identity class
+`repository-relative-path` must be normalized relative to the certified
+repository root before it enters retrieval, Journey, provenance or
+Working Context.
+
+Absolute paths, parent traversal and paths outside the repository must
+be rejected before publication by the Evidence Engine. The read organ
+must remain fail-closed and must continue returning `UNKNOWN` for
+invalid identities.
+
+### Recovery
+
+Semantic identities are now resolved against the Evidence Engine root,
+validated as descendants of that root and serialized as POSIX
+repository-relative paths. Outside-root identities are excluded.
+
+## Demonstrated execution precedent — discoverable path was not certified as readable epistemic matter
+
+### Observed failure
+
+After semantic identities were normalized to repository-relative paths,
+a real candidate still produced `UNKNOWN` even though the corresponding
+path existed as a file.
+
+### Demonstrated boundary
+
+File existence and path validity do not prove that a candidate contains
+readable epistemic matter. A file may be empty or may not be decodable
+under the repository textual contract.
+
+The Evidence Engine previously ranked and published paths before
+certifying non-empty UTF-8 readability. The bounded read organ remained
+fail-closed and correctly returned `UNKNOWN`.
+
+### Classification
+
+`DISCOVERABILITY-TO-READABILITY CONTRACT GAP`
+
+### Permanent rule
+
+A source advertised by the Evidence Engine as textual repository
+evidence must be:
+
+- a real file;
+- inside the certified repository;
+- non-empty;
+- UTF-8 readable;
+- represented by a repository-relative identity.
+
+Candidates failing that contract must not enter textual retrieval.
+The read organ must remain fail-closed as an independent protection.
+
+### Recovery
+
+Filesystem-ranked and semantic candidates are now certified through one
+real readable-text boundary before publication. No content, status or
+retrieval result is fabricated.
+
+## Demonstrated execution precedent — repeated staging targeted a deletion already removed from the index
+
+### Observed failure
+
+All physiological and regression verifications passed:
+
+- focused real acceptance: 2 passed;
+- complete FUSION regression: 312 passed;
+- repository-wide regression: 803 passed;
+- CSL Level-3: all eight checks passed.
+
+Conservation then stopped because a previous execution had already
+performed `git rm` for the retired simulated acceptance. A later
+recovery attempted `git add -u --` against the same now-absent path and
+Git rejected the pathspec.
+
+### Classification
+
+`NON-IDEMPOTENT DELETION STAGING`
+
+### Permanent rule
+
+When an earlier interrupted execution may already have staged a
+deletion, recovery must inspect the index rather than restage the absent
+path. The exact staged file set is authoritative.
+
+A verified implementation must not rerun expensive physiological
+regressions solely because a later staging command was non-idempotent,
+provided HEAD and all verified source artifacts remain unchanged.
+
+### Recovery
+
+The deletion already present in the index is preserved. Existing files
+are staged explicitly, the complete staged set is compared against the
+authorized set, and only then may conservation continue.
+
+## Demonstrated execution precedent — generated Markdown contained trailing whitespace
+
+### Observed failure
+
+All physiological and regression verification layers were green, but
+`git diff --cached --check` stopped conservation because the generated
+recovery report contained trailing whitespace on a blank line.
+
+### Classification
+
+`GENERATED-ARTIFACT WHITESPACE HYGIENE FAILURE`
+
+### Permanent rule
+
+Every generated Markdown artifact and every modified Error Memory file
+must be normalized line by line before staging. Each line must have
+trailing whitespace removed, and the file must end with exactly one
+newline.
+
+`git diff --check` and `git diff --cached --check` must both pass before
+commit.
+
+### Recovery
+
+The recovery report and Error Memory were normalized without changing
+the verified production implementation or physiological test result.

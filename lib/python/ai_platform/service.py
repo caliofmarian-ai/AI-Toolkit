@@ -198,172 +198,14 @@ class AIPlatformService:
     def create_session(self, payload: Mapping[str, Any]) -> Dict[str, Any]:
         return self.sessions.create(payload)
 
-    def ask_repository(
+    def activate_productive_bounded_journey(
         self,
-        question: str,
         *,
-        session_id: str = "",
-        resume_interrupted_turn: bool = False,
-        provider_id: str = "",
-        model: str = "",
-        prompt_name: str = "",
-    ) -> Dict[str, Any]:
-        settings = self.settings.load()
-        prompt = self.prompt_library.resolve(
-            prompt_name,
-            fallback=question,
-        )
-        effective_question = question.strip() or prompt
-
-        if session_id:
-            session = self.sessions.get(session_id)
-            if not session:
-                raise ValueError(f"unknown session {session_id}")
-        else:
-            session = self.sessions.create(
-                {
-                    "project": self.sessions.root.name,
-                    "repository": self.sessions.root.name,
-                    "selected_provider": provider_id,
-                    "selected_model": model,
-                }
-            )
-
-        experience, binding = (
-            self.conversation_experience.ensure_experience(session)
-        )
-
-        session = self.sessions.bind_experience(
-            session["id"],
-            str(experience.experience_id),
-        )
-
-        interrupted_turn = recover_interrupted_human_turn(session)
-
-        if resume_interrupted_turn:
-            if interrupted_turn is None:
-                raise ValueError(
-                    "No interrupted human turn is available for continuation"
-                )
-            effective_question = interrupted_turn.content
-        else:
-            effective_question = question.strip() or prompt
-
-            human_sequence = len(
-                session.get("raw_sources", [])
-            ) + 1
-
-            human_source = self.conversation_experience.raw_source(
-                session=session,
-                experience=experience,
-                actor="HUMAN",
-                content=effective_question,
-                sequence=human_sequence,
-            )
-
-            session = self.sessions.append_raw_source(
-                session["id"],
-                human_source,
-            )
-
-        cognitive_coordination = self.cognitive_coordinator.initialize(
-            effective_question,
-            session_id=session["id"],
-        )
-
-        need_data = cognitive_coordination["information_need"]
-        journey_data = cognitive_coordination["journey"]
-        navigation_plan_data = cognitive_coordination.get(
-            "navigation_plan"
-        )
-
-        information_need = InformationNeed(
-            schema=need_data["schema"],
-            need_id=need_data["need_id"],
-            question=need_data["question"],
-            objective=need_data["objective"],
-            epistemic_status=need_data["epistemic_status"],
-            research_required=need_data["research_required"],
-            requested_capabilities=tuple(
-                need_data["requested_capabilities"]
-            ),
-            constraints=dict(need_data["constraints"]),
-        )
-
-        journey_state = JourneyState(
-            schema=journey_data["schema"],
-            journey_id=journey_data["journey_id"],
-            need_id=journey_data["need_id"],
-            status=journey_data["status"],
-            step_count=journey_data["step_count"],
-            epistemic_gain=journey_data["epistemic_gain"],
-            visited=tuple(journey_data["visited"]),
-            stopping_reason=journey_data["stopping_reason"],
-        )
-
-        search_navigation = None
-        retrieval = None
-
-        if (
-            navigation_plan_data is not None
-            and navigation_plan_data["required"] is True
-            and "search" in navigation_plan_data["capabilities"]
-        ):
-            navigation_plan = NavigationPlan(
-                schema=navigation_plan_data["schema"],
-                need_id=navigation_plan_data["need_id"],
-                required=navigation_plan_data["required"],
-                capabilities=tuple(
-                    navigation_plan_data["capabilities"]
-                ),
-                read_only=navigation_plan_data["read_only"],
-                authority_preserved=navigation_plan_data[
-                    "authority_preserved"
-                ],
-                working_context_materialized=(
-                    navigation_plan_data[
-                        "working_context_materialized"
-                    ]
-                ),
-                retrieval_executed=navigation_plan_data[
-                    "retrieval_executed"
-                ],
-                stopping_conditions=tuple(
-                    navigation_plan_data["stopping_conditions"]
-                ),
-            )
-
-            search_navigation = (
-                self.cognitive_coordinator.execute_search_navigation(
-                    plan=navigation_plan,
-                    journey=journey_state,
-                    keyword=effective_question,
-                    search=self.evidence_engine.find,
-                )
-            )
-
-            retrieval = search_navigation.get("retrieval")
-
-            navigation_journey = search_navigation.get("journey")
-
-            if navigation_journey is not None:
-                journey_state = JourneyState(
-                    schema=navigation_journey["schema"],
-                    journey_id=navigation_journey["journey_id"],
-                    need_id=navigation_journey["need_id"],
-                    status=navigation_journey["status"],
-                    step_count=navigation_journey["step_count"],
-                    epistemic_gain=navigation_journey[
-                        "epistemic_gain"
-                    ],
-                    visited=tuple(
-                        navigation_journey["visited"]
-                    ),
-                    stopping_reason=navigation_journey[
-                        "stopping_reason"
-                    ],
-                )
-
+        retrieval,
+        journey_state,
+        search_navigation=None,
+    ):
+        """Activate real bounded repository physiology before provider use."""
         read_navigation = None
         read_navigations = []
         cognitive_loop_guards = []
@@ -560,6 +402,212 @@ class AIPlatformService:
                             ),
                         )
                     )
+
+        return {
+            "retrieval": retrieval,
+            "journey_state": journey_state,
+            "search_navigation": search_navigation,
+            "read_navigation": read_navigation,
+            "read_navigations": list(read_navigations),
+            "cognitive_loop_guards": list(
+                cognitive_loop_guards
+            ),
+            "cognitive_step_evaluations": list(
+                cognitive_step_evaluations
+            ),
+        }
+
+    def ask_repository(
+        self,
+        question: str,
+        *,
+        session_id: str = "",
+        resume_interrupted_turn: bool = False,
+        provider_id: str = "",
+        model: str = "",
+        prompt_name: str = "",
+    ) -> Dict[str, Any]:
+        settings = self.settings.load()
+        prompt = self.prompt_library.resolve(
+            prompt_name,
+            fallback=question,
+        )
+        effective_question = question.strip() or prompt
+
+        if session_id:
+            session = self.sessions.get(session_id)
+            if not session:
+                raise ValueError(f"unknown session {session_id}")
+        else:
+            session = self.sessions.create(
+                {
+                    "project": self.sessions.root.name,
+                    "repository": self.sessions.root.name,
+                    "selected_provider": provider_id,
+                    "selected_model": model,
+                }
+            )
+
+        experience, binding = (
+            self.conversation_experience.ensure_experience(session)
+        )
+
+        session = self.sessions.bind_experience(
+            session["id"],
+            str(experience.experience_id),
+        )
+
+        interrupted_turn = recover_interrupted_human_turn(session)
+
+        if resume_interrupted_turn:
+            if interrupted_turn is None:
+                raise ValueError(
+                    "No interrupted human turn is available for continuation"
+                )
+            effective_question = interrupted_turn.content
+        else:
+            effective_question = question.strip() or prompt
+
+            human_sequence = len(
+                session.get("raw_sources", [])
+            ) + 1
+
+            human_source = self.conversation_experience.raw_source(
+                session=session,
+                experience=experience,
+                actor="HUMAN",
+                content=effective_question,
+                sequence=human_sequence,
+            )
+
+            session = self.sessions.append_raw_source(
+                session["id"],
+                human_source,
+            )
+
+        cognitive_coordination = self.cognitive_coordinator.initialize(
+            effective_question,
+            session_id=session["id"],
+        )
+
+        need_data = cognitive_coordination["information_need"]
+        journey_data = cognitive_coordination["journey"]
+        navigation_plan_data = cognitive_coordination.get(
+            "navigation_plan"
+        )
+
+        information_need = InformationNeed(
+            schema=need_data["schema"],
+            need_id=need_data["need_id"],
+            question=need_data["question"],
+            objective=need_data["objective"],
+            epistemic_status=need_data["epistemic_status"],
+            research_required=need_data["research_required"],
+            requested_capabilities=tuple(
+                need_data["requested_capabilities"]
+            ),
+            constraints=dict(need_data["constraints"]),
+        )
+
+        journey_state = JourneyState(
+            schema=journey_data["schema"],
+            journey_id=journey_data["journey_id"],
+            need_id=journey_data["need_id"],
+            status=journey_data["status"],
+            step_count=journey_data["step_count"],
+            epistemic_gain=journey_data["epistemic_gain"],
+            visited=tuple(journey_data["visited"]),
+            stopping_reason=journey_data["stopping_reason"],
+        )
+
+        search_navigation = None
+        retrieval = None
+
+        if (
+            navigation_plan_data is not None
+            and navigation_plan_data["required"] is True
+            and "search" in navigation_plan_data["capabilities"]
+        ):
+            navigation_plan = NavigationPlan(
+                schema=navigation_plan_data["schema"],
+                need_id=navigation_plan_data["need_id"],
+                required=navigation_plan_data["required"],
+                capabilities=tuple(
+                    navigation_plan_data["capabilities"]
+                ),
+                read_only=navigation_plan_data["read_only"],
+                authority_preserved=navigation_plan_data[
+                    "authority_preserved"
+                ],
+                working_context_materialized=(
+                    navigation_plan_data[
+                        "working_context_materialized"
+                    ]
+                ),
+                retrieval_executed=navigation_plan_data[
+                    "retrieval_executed"
+                ],
+                stopping_conditions=tuple(
+                    navigation_plan_data["stopping_conditions"]
+                ),
+            )
+
+            search_navigation = (
+                self.cognitive_coordinator.execute_search_navigation(
+                    plan=navigation_plan,
+                    journey=journey_state,
+                    keyword=effective_question,
+                    search=self.evidence_engine.find,
+                )
+            )
+
+            retrieval = search_navigation.get("retrieval")
+
+            navigation_journey = search_navigation.get("journey")
+
+            if navigation_journey is not None:
+                journey_state = JourneyState(
+                    schema=navigation_journey["schema"],
+                    journey_id=navigation_journey["journey_id"],
+                    need_id=navigation_journey["need_id"],
+                    status=navigation_journey["status"],
+                    step_count=navigation_journey["step_count"],
+                    epistemic_gain=navigation_journey[
+                        "epistemic_gain"
+                    ],
+                    visited=tuple(
+                        navigation_journey["visited"]
+                    ),
+                    stopping_reason=navigation_journey[
+                        "stopping_reason"
+                    ],
+                )
+
+        productive_journey = (
+            self.activate_productive_bounded_journey(
+                retrieval=retrieval,
+                journey_state=journey_state,
+                search_navigation=search_navigation,
+            )
+        )
+
+        retrieval = productive_journey["retrieval"]
+        journey_state = productive_journey["journey_state"]
+        search_navigation = productive_journey[
+            "search_navigation"
+        ]
+        read_navigation = productive_journey[
+            "read_navigation"
+        ]
+        read_navigations = productive_journey[
+            "read_navigations"
+        ]
+        cognitive_loop_guards = productive_journey[
+            "cognitive_loop_guards"
+        ]
+        cognitive_step_evaluations = productive_journey[
+            "cognitive_step_evaluations"
+        ]
 
         working_context = (
             self.cognitive_coordinator.materialize_working_context(

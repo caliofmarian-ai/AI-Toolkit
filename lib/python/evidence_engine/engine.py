@@ -139,6 +139,22 @@ class EvidenceEngine:
 
             yield file
 
+    @staticmethod
+    def _readable_text_source(path: Path) -> bool:
+        """Certify real non-empty UTF-8 matter before retrieval."""
+        try:
+            if not path.is_file():
+                return False
+
+            if path.stat().st_size <= 0:
+                return False
+
+            content = path.read_text(encoding="utf-8")
+        except (OSError, UnicodeError):
+            return False
+
+        return bool(content)
+
     def find(self, keyword):
 
         semantic = SemanticEngine(self.root).analyze()
@@ -161,6 +177,9 @@ class EvidenceEngine:
             )
 
             if score <= 0:
+                continue
+
+            if not self._readable_text_source(file):
                 continue
 
             ranked.append(
@@ -217,6 +236,39 @@ class EvidenceEngine:
                     score.append(("import", imp))
 
             if score:
-                evidence["semantic"][filename] = score
+                semantic_path = Path(str(filename))
+
+                try:
+                    if semantic_path.is_absolute():
+                        resolved_semantic_path = (
+                            semantic_path.resolve()
+                        )
+                    else:
+                        resolved_semantic_path = (
+                            self.root
+                            / semantic_path
+                        ).resolve()
+
+                    relative_semantic_path = (
+                        resolved_semantic_path
+                        .relative_to(self.root)
+                        .as_posix()
+                    )
+                except (OSError, ValueError):
+                    continue
+
+                semantic_source = (
+                    self.root
+                    / relative_semantic_path
+                )
+
+                if not self._readable_text_source(
+                    semantic_source
+                ):
+                    continue
+
+                evidence["semantic"][
+                    relative_semantic_path
+                ] = score
 
         return evidence
