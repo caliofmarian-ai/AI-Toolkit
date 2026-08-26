@@ -2513,3 +2513,24 @@ Recovery rule:
 - run diff hygiene before expensive regression suites;
 - classify whitespace rejection as orchestration hygiene, not production
   physiology failure.
+
+## FUSION-02 — Owner Chat requires real HTTP physiology
+
+The inherited Owner Chat acceptance mutated the process environment
+through monkeypatch and inspected private HTML rendering helpers
+directly. It demonstrated fragments of authentication and markup, but
+not the complete owner-operated HTTP physiology.
+
+Recovery rule:
+
+- configure OwnerAccessBoundary explicitly through its production token
+  argument;
+- start the existing RuntimeHttpServer on a real loopback socket;
+- exercise real HTTP redirects, Bearer authentication, chat POST and
+  session GET;
+- route the chat through the real Dashboard Service, AIPlatformService,
+  Pipeline and registered provider adapter;
+- verify durable Human and AI raw sources;
+- ensure invalid authentication fails closed;
+- ensure secrets do not enter HTML, JavaScript or API responses;
+- preserve Human Authority and all epistemic distinctions.
