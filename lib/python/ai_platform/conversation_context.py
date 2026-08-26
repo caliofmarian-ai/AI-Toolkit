@@ -35,10 +35,16 @@ class ConversationContextReconstructor:
         repository_root: str | Path = ".",
         workspace_root: str | Path | None = None,
         *,
+        state_root: str | Path | None = None,
         max_raw_sources: int = 12,
         max_source_chars: int = 6000,
     ) -> None:
         self.repository_root = Path(repository_root).resolve()
+        self.state_root = (
+            Path(state_root).expanduser().resolve()
+            if state_root is not None
+            else None
+        )
         self.workspace_root = (
             Path(workspace_root).resolve()
             if workspace_root
@@ -64,7 +70,10 @@ class ConversationContextReconstructor:
         # This is topology control, not a second organism.
         from python.runtime.organism import EpistemicOrganismAccess
 
-        self.organism = EpistemicOrganismAccess(self.repository_root)
+        self.organism = EpistemicOrganismAccess(
+            self.repository_root,
+            state_root=self.state_root,
+        )
 
     @staticmethod
     def _json_safe(value: Any) -> Any:

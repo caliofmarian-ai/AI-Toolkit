@@ -46,9 +46,31 @@ from python.ai_platform.historical_experience_recovery import (
 class ConversationExperienceBridge:
     """Connect existing AI Session physiology to existing Experience physiology."""
 
-    def __init__(self, repository_root: str | Path = ".") -> None:
+    def __init__(
+        self,
+        repository_root: str | Path = ".",
+        *,
+        state_root: str | Path | None = None,
+    ) -> None:
         self.repository_root = Path(repository_root).resolve()
+        self.state_root = (
+            Path(state_root).expanduser().resolve()
+            if state_root is not None
+            else None
+        )
+
+        deployment_environment = (
+            {
+                "AI_TOOLKIT_STATE_ROOT": str(
+                    self.state_root
+                )
+            }
+            if self.state_root is not None
+            else None
+        )
+
         self.experiences = prepare_experience_repository(
+            environment=deployment_environment,
             repository_root=self.repository_root,
         )
 

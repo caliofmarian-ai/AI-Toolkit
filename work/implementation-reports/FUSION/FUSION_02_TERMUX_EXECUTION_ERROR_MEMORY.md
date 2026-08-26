@@ -2370,3 +2370,84 @@ The acceptance now persists three chronological raw conversation
 sources through production organs, reconstructs the latest two, verifies
 real truncation, Provenance, Experience identity, AI Partner identity,
 epistemic boundaries and Human Authority.
+
+## FUSION-02 — isolated durable-session proof was insufficient
+
+The inherited durable-session acceptance demonstrated AISessionEngine
+directly but did not demonstrate that AIPlatformService, Persistent
+Experience and Conversation Context shared the same durable state root.
+
+Two tests also mutated process environment through monkeypatch. That
+could characterize environment resolution, but it could not serve as
+mock-free physiological acceptance for restart reconstruction.
+
+Recovery rule:
+
+- use an explicit state_root production contract;
+- propagate it through the existing Service, Session, Experience,
+  EpistemicOrganismAccess and Conversation Context organs;
+- instantiate two real services with different deployment roots;
+- require the second service to recover the session, Experience,
+  Journey reference, raw source and bounded context from the same
+  durable body;
+- preserve repository identity independently from storage identity;
+- do not infer takeover or persistence from an isolated session-engine
+  test.
+
+## FUSION-02 — self-referential hygiene detector false positive
+
+The durable-root implementation passed syntax preparation, but the Bash
+hygiene gate stopped before testing because the acceptance file contained
+a test that listed prohibited substitution identifiers as literal text.
+
+The external grep correctly found those literal identifiers, but they
+described the prohibition rather than an imported or executed
+substitution framework. This was an orchestration false positive, not a
+production or physiological failure.
+
+Recovery rule:
+
+- do not place prohibited-token inventories inside the physiological
+  acceptance file being scanned;
+- keep the acceptance focused on observable real-organ behavior;
+- perform substitution hygiene externally from Bash;
+- inspect imports, fixtures and executable calls separately from
+  explanatory strings;
+- never weaken the prohibition merely to make the detector green.
+
+## FUSION-02 — CSL Level-3 executable path must be repository-certified
+
+After focused, FUSION and repository-wide pytest acceptance passed, the
+conservation Bash invoked a fabricated root-level path named
+`test_csl_level3.py`.
+
+That file does not exist. The repository-owned Level-3 executable is:
+
+`tests/test_csl_level3_compiler.sh`
+
+The resulting return code was an orchestration failure, not a CSL,
+compiler, UEM or production failure.
+
+Recovery rule:
+
+- never reconstruct a test-executable path from memory;
+- certify the exact repository path before execution;
+- distinguish a missing runner from a red physiological result;
+- preserve already completed green suites when no source mutation
+  occurred after their execution;
+- run the repository-owned shell acceptance through Bash.
+
+## FUSION-02 — report existence must follow actual control flow
+
+A recovery Bash attempted to update the implementation report before
+that report had ever been generated. Earlier runs had stopped before
+their report-generation stage, so the file was correctly absent.
+
+This was a control-flow and precondition error.
+
+Recovery rule:
+
+- never assume a downstream artifact exists after an earlier stop;
+- certify file existence before reading;
+- create a missing report from preserved demonstrated evidence;
+- only update an artifact after its materialization is confirmed.

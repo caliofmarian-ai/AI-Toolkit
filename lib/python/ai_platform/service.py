@@ -139,16 +139,29 @@ def _fusion02_log_context_anatomy(context):
 
 
 class AIPlatformService:
-    def __init__(self, repository_root: str = ".", workspace_root: Optional[str] = None) -> None:
+    def __init__(
+        self,
+        repository_root: str = ".",
+        workspace_root: Optional[str] = None,
+        *,
+        state_root: Optional[str] = None,
+    ) -> None:
         self.settings = AISettingsStore(repository_root)
         self.registry = ProviderRegistry()
         self.model_manager = ModelManager()
         self.context_builder = AIContextBuilder(repository_root, workspace_root)
-        self.sessions = AISessionEngine(repository_root)
-        self.conversation_experience = ConversationExperienceBridge(repository_root)
+        self.sessions = AISessionEngine(
+            repository_root,
+            state_root=state_root,
+        )
+        self.conversation_experience = ConversationExperienceBridge(
+            repository_root,
+            state_root=state_root,
+        )
         self.conversation_context = ConversationContextReconstructor(
             repository_root,
             workspace_root,
+            state_root=state_root,
         )
         self.cognitive_coordinator = EpistemicCognitiveCoordinator()
         self.evidence_engine = EvidenceEngine(repository_root)

@@ -40,8 +40,18 @@ from python.epistemic.sedimentation import (
 class EpistemicOrganismAccess:
     """Controlled read-oriented Runtime access to existing epistemic physiology."""
 
-    def __init__(self, repository_root: str | Path = ".") -> None:
+    def __init__(
+        self,
+        repository_root: str | Path = ".",
+        *,
+        state_root: str | Path | None = None,
+    ) -> None:
         self.repository_root = Path(repository_root).resolve()
+        self.state_root = (
+            Path(state_root).expanduser().resolve()
+            if state_root is not None
+            else None
+        )
 
         self.persistent_experience_repository_class = (
             JsonFileExperienceRepository
@@ -248,7 +258,14 @@ class EpistemicOrganismAccess:
         Raw sources remain raw sources.
         No Evidence, Claim, Knowledge, Sedimentation, or Canon is created.
         """
-        sessions = AISessionEngine(str(self.repository_root))
+        sessions = AISessionEngine(
+            str(self.repository_root),
+            state_root=(
+                str(self.state_root)
+                if self.state_root is not None
+                else None
+            ),
+        )
         session = sessions.get(session_id)
 
         if not session:
@@ -261,7 +278,18 @@ class EpistemicOrganismAccess:
         experience_state: dict[str, Any]
 
         if experience_id:
+            deployment_environment = (
+                {
+                    "AI_TOOLKIT_STATE_ROOT": str(
+                        self.state_root
+                    )
+                }
+                if self.state_root is not None
+                else None
+            )
+
             repository = prepare_experience_repository(
+                environment=deployment_environment,
                 repository_root=self.repository_root,
             )
 
