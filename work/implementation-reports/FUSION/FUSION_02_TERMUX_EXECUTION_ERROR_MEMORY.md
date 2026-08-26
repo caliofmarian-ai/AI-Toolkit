@@ -2655,3 +2655,32 @@ Recovery rule:
 - failure physiology must reach a real production failure boundary;
 - AI Partner must receive both the retraction and corrected evidence;
 - Human Authority remains the final acceptance authority.
+
+## FUSION-02 — honest access refusal exposes missing checkpoint physiology
+
+After Handoff 010, AI Partner correctly refused to claim branch, commit or
+file-byte access. It could search the deployed checkout semantically, but it
+could not resolve an explicit GitHub repository checkpoint.
+
+Classification:
+
+`MISSING EXACT REPOSITORY CHECKPOINT ACCESS`
+
+The limitation was physiological, not merely a prompting problem. The
+existing Evidence Engine searched only the current local filesystem body.
+
+Recovery rule:
+
+- require explicit repository, full commit and repository-relative paths;
+- never guess missing coordinates;
+- resolve the immutable commit through the public GitHub API;
+- resolve the requested branch separately and report whether its current
+  head equals the requested commit;
+- retrieve real file bytes and blob identity;
+- bound path count and content size;
+- reject absolute paths and parent traversal;
+- attach repository, branch, commit, blob and byte provenance to the
+  existing Working Context;
+- keep retrieval read-only and authority-neutral;
+- preserve external failures as NOT AVAILABLE;
+- never transform retrieved evidence into Canon or Human Authority.

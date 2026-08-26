@@ -1,7 +1,12 @@
 from __future__ import annotations
 
+import base64
+import json
 import re
-from pathlib import Path
+import urllib.error
+import urllib.parse
+import urllib.request
+from pathlib import Path, PurePosixPath
 from typing import Iterable
 
 from python.semantic_engine.engine import SemanticEngine
@@ -154,6 +159,360 @@ class EvidenceEngine:
             return False
 
         return bool(content)
+
+    @staticmethod
+    def _checkpoint_request(question: str):
+        """Extract explicit GitHub coordinates without guessing."""
+        text = str(question or "")
+
+        def labelled(name: str) -> str:
+            match = re.search(
+                rf"(?im)^\s*(?:[-*]\s*)?{name}[^:\n]*:\s*"
+                r"[`\"']?([^`\"'\n]+)",
+                text,
+            )
+            return match.group(1).strip() if match else ""
+
+        repository = labelled("repository")
+        branch = labelled("branch")
+        commit = labelled("commit")
+
+        if not repository:
+            match = re.search(
+                r"\b([A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+)\b",
+                text,
+            )
+            repository = match.group(1) if match else ""
+
+        if not commit:
+            match = re.search(r"\b[0-9a-fA-F]{40}\b", text)
+            commit = match.group(0) if match else ""
+
+        repository = repository.strip(" `\"'")
+        branch = branch.strip(" `\"'")
+        commit = commit.strip(" `\"'").lower()
+
+        if not re.fullmatch(
+            r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+",
+            repository,
+        ):
+            return None
+
+        if not re.fullmatch(r"[0-9a-f]{40}", commit):
+            return None
+
+        paths = []
+
+        for candidate in re.findall(r"`([^`]+)`", text):
+            candidate = candidate.strip()
+
+            if not candidate.startswith(
+                (
+                    "audit/",
+                    "canon/",
+                    "docs/",
+                    "lib/",
+                    "standards/",
+                    "tests/",
+                    "tools/",
+                    "work/",
+                )
+            ):
+                continue
+
+            identity = PurePosixPath(candidate)
+
+            if identity.is_absolute() or ".." in identity.parts:
+                continue
+
+            normalized = identity.as_posix()
+
+            if normalized not in paths:
+                paths.append(normalized)
+
+            if len(paths) >= 4:
+                break
+
+        if not paths:
+            return None
+
+        return {
+            "repository": repository,
+            "branch": branch,
+            "commit": commit,
+            "paths": paths,
+        }
+
+    @staticmethod
+    def _github_json(url: str):
+        request = urllib.request.Request(
+            url,
+            headers={
+                "Accept": "application/vnd.github+json",
+                "User-Agent": "AI-Toolkit-EvidenceEngine/1",
+                "X-GitHub-Api-Version": "2022-11-28",
+            },
+            method="GET",
+        )
+
+        with urllib.request.urlopen(request, timeout=20) as response:
+            raw = response.read(2_000_000)
+
+        return json.loads(raw.decode("utf-8"))
+
+    @staticmethod
+    def _checkpoint_unknown(request, reason: str):
+        return {
+            "schema": "FUSION-02-GITHUB-CHECKPOINT-RETRIEVAL-1",
+            "capability": "read-checkpoint",
+            "keyword": "exact-github-checkpoint",
+            "read_only": True,
+            "authority_conferred": False,
+            "working_context_materialized": False,
+            "source_identity_kind": "repository-relative-path",
+            "source_paths": [],
+            "result": {
+                "python": [],
+                "shell": [],
+                "tests": [],
+                "docs": [],
+                "semantic": {},
+            },
+            "read_observations": [],
+            "epistemic_class": "COMMITTED_REPOSITORY_EVIDENCE",
+            "uncertainties": [reason],
+            "checkpoint_identity": {
+                "repository": request["repository"],
+                "requested_branch": request["branch"],
+                "requested_commit": request["commit"],
+                "resolved_commit": "",
+                "branch_head_commit": "",
+                "branch_head_matches_commit": False,
+                "status": "NOT_AVAILABLE",
+                "read_only": True,
+                "authority_conferred": False,
+                "human_authority_preserved": True,
+            },
+        }
+
+    def find_github_checkpoint(self, question: str):
+        """Read bounded bytes from one explicit immutable GitHub commit."""
+        request = self._checkpoint_request(question)
+
+        if request is None:
+            return None
+
+        repository = request["repository"]
+        branch = request["branch"]
+        commit = request["commit"]
+        encoded_repository = "/".join(
+            urllib.parse.quote(part, safe="")
+            for part in repository.split("/")
+        )
+        api_root = (
+            "https://api.github.com/repos/"
+            + encoded_repository
+        )
+
+        try:
+            commit_payload = self._github_json(
+                api_root
+                + "/commits/"
+                + urllib.parse.quote(commit, safe="")
+            )
+        except (
+            OSError,
+            UnicodeError,
+            ValueError,
+            urllib.error.URLError,
+        ) as exc:
+            return self._checkpoint_unknown(
+                request,
+                "commit-retrieval-unavailable:"
+                + type(exc).__name__,
+            )
+
+        resolved_commit = str(
+            commit_payload.get("sha", "")
+        ).lower()
+
+        if resolved_commit != commit:
+            return self._checkpoint_unknown(
+                request,
+                "commit-identity-mismatch",
+            )
+
+        branch_head = ""
+        uncertainties = []
+
+        if branch:
+            try:
+                branch_payload = self._github_json(
+                    api_root
+                    + "/branches/"
+                    + urllib.parse.quote(branch, safe="")
+                )
+                branch_head = str(
+                    branch_payload.get("commit", {}).get(
+                        "sha",
+                        "",
+                    )
+                ).lower()
+            except (
+                OSError,
+                UnicodeError,
+                ValueError,
+                urllib.error.URLError,
+            ) as exc:
+                uncertainties.append(
+                    "branch-retrieval-unavailable:"
+                    + type(exc).__name__
+                )
+
+            if branch_head and branch_head != commit:
+                uncertainties.append(
+                    "branch-head-differs-from-requested-commit"
+                )
+
+        observations = []
+        result = {
+            "python": [],
+            "shell": [],
+            "tests": [],
+            "docs": [],
+            "semantic": {},
+        }
+
+        for source_path in request["paths"]:
+            encoded_path = urllib.parse.quote(
+                source_path,
+                safe="/",
+            )
+            url = (
+                api_root
+                + "/contents/"
+                + encoded_path
+                + "?ref="
+                + urllib.parse.quote(commit, safe="")
+            )
+
+            try:
+                payload = self._github_json(url)
+                encoded = str(payload.get("content", ""))
+                raw = base64.b64decode(
+                    encoded,
+                    validate=False,
+                )
+                content = raw.decode("utf-8")
+            except (
+                OSError,
+                UnicodeError,
+                ValueError,
+                urllib.error.URLError,
+            ) as exc:
+                observations.append(
+                    {
+                        "source_path": source_path,
+                        "status": "UNKNOWN",
+                        "content": "",
+                        "epistemic_gain": False,
+                        "repository_identity": repository,
+                        "requested_branch": branch,
+                        "requested_commit": commit,
+                        "resolved_commit": resolved_commit,
+                        "branch_head_commit": branch_head,
+                        "blob_sha": "",
+                        "byte_count": 0,
+                        "content_complete": False,
+                        "uncertainty": (
+                            "file-retrieval-unavailable:"
+                            + type(exc).__name__
+                        ),
+                        "read_only": True,
+                        "bounded": True,
+                        "authority_conferred": False,
+                    }
+                )
+                continue
+
+            maximum_characters = 16_000
+            bounded_content = content[:maximum_characters]
+
+            observations.append(
+                {
+                    "source_path": source_path,
+                    "status": (
+                        "RETRIEVED" if bounded_content else "UNKNOWN"
+                    ),
+                    "content": bounded_content,
+                    "epistemic_gain": bool(bounded_content),
+                    "repository_identity": repository,
+                    "requested_branch": branch,
+                    "requested_commit": commit,
+                    "resolved_commit": resolved_commit,
+                    "branch_head_commit": branch_head,
+                    "blob_sha": str(payload.get("sha", "")),
+                    "byte_count": len(raw),
+                    "content_complete": (
+                        len(content) <= maximum_characters
+                    ),
+                    "read_only": True,
+                    "bounded": True,
+                    "authority_conferred": False,
+                }
+            )
+
+            suffix = PurePosixPath(source_path).suffix.casefold()
+
+            if suffix == ".py":
+                family = (
+                    "tests"
+                    if source_path.startswith("tests/")
+                    else "python"
+                )
+            elif suffix == ".sh":
+                family = "shell"
+            else:
+                family = "docs"
+
+            result[family].append(source_path)
+
+        source_paths = [
+            item["source_path"]
+            for item in observations
+            if item["status"] == "RETRIEVED"
+        ]
+
+        status = "RETRIEVED" if source_paths else "NOT_AVAILABLE"
+
+        return {
+            "schema": "FUSION-02-GITHUB-CHECKPOINT-RETRIEVAL-1",
+            "capability": "read-checkpoint",
+            "keyword": "exact-github-checkpoint",
+            "read_only": True,
+            "authority_conferred": False,
+            "working_context_materialized": False,
+            "source_identity_kind": "repository-relative-path",
+            "source_paths": source_paths,
+            "result": result,
+            "read_observations": observations,
+            "epistemic_class": "COMMITTED_REPOSITORY_EVIDENCE",
+            "uncertainties": uncertainties,
+            "checkpoint_identity": {
+                "repository": repository,
+                "requested_branch": branch,
+                "requested_commit": commit,
+                "resolved_commit": resolved_commit,
+                "branch_head_commit": branch_head,
+                "branch_head_matches_commit": bool(
+                    branch_head and branch_head == commit
+                ),
+                "status": status,
+                "read_only": True,
+                "authority_conferred": False,
+                "human_authority_preserved": True,
+            },
+        }
 
     def find(self, keyword):
 

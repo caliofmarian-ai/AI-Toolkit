@@ -536,7 +536,48 @@ class AIPlatformService:
         search_navigation = None
         retrieval = None
 
-        if (
+        checkpoint_retrieval = (
+            self.evidence_engine
+            .find_github_checkpoint(
+                effective_question
+            )
+        )
+
+        if checkpoint_retrieval is not None:
+            retrieval = checkpoint_retrieval
+            checkpoint_gain = bool(
+                retrieval.get("source_paths", ())
+            )
+
+            journey_state = JourneyState(
+                schema=journey_state.schema,
+                journey_id=journey_state.journey_id,
+                need_id=journey_state.need_id,
+                status=(
+                    "PARTIAL"
+                    if checkpoint_gain
+                    else "UNKNOWN"
+                ),
+                step_count=journey_state.step_count + 1,
+                epistemic_gain=checkpoint_gain,
+                visited=(
+                    journey_state.visited
+                    + ("evidence:github-checkpoint",)
+                ),
+                stopping_reason=(
+                    "CHECKPOINT_EVIDENCE_MATERIALIZED"
+                    if checkpoint_gain
+                    else "CHECKPOINT_EVIDENCE_UNAVAILABLE"
+                ),
+            )
+
+            search_navigation = {
+                "navigation_plan": navigation_plan_data,
+                "journey": journey_state.to_dict(),
+                "retrieval": retrieval,
+            }
+
+        elif (
             navigation_plan_data is not None
             and navigation_plan_data["required"] is True
             and "search" in navigation_plan_data["capabilities"]
@@ -596,31 +637,46 @@ class AIPlatformService:
                     ],
                 )
 
-        productive_journey = (
-            self.activate_productive_bounded_journey(
-                retrieval=retrieval,
-                journey_state=journey_state,
-                search_navigation=search_navigation,
+        if checkpoint_retrieval is not None:
+            read_navigations = list(
+                retrieval.get(
+                    "read_observations",
+                    (),
+                )
             )
-        )
+            read_navigation = (
+                read_navigations[0]
+                if read_navigations
+                else None
+            )
+            cognitive_loop_guards = []
+            cognitive_step_evaluations = []
+        else:
+            productive_journey = (
+                self.activate_productive_bounded_journey(
+                    retrieval=retrieval,
+                    journey_state=journey_state,
+                    search_navigation=search_navigation,
+                )
+            )
 
-        retrieval = productive_journey["retrieval"]
-        journey_state = productive_journey["journey_state"]
-        search_navigation = productive_journey[
-            "search_navigation"
-        ]
-        read_navigation = productive_journey[
-            "read_navigation"
-        ]
-        read_navigations = productive_journey[
-            "read_navigations"
-        ]
-        cognitive_loop_guards = productive_journey[
-            "cognitive_loop_guards"
-        ]
-        cognitive_step_evaluations = productive_journey[
-            "cognitive_step_evaluations"
-        ]
+            retrieval = productive_journey["retrieval"]
+            journey_state = productive_journey["journey_state"]
+            search_navigation = productive_journey[
+                "search_navigation"
+            ]
+            read_navigation = productive_journey[
+                "read_navigation"
+            ]
+            read_navigations = productive_journey[
+                "read_navigations"
+            ]
+            cognitive_loop_guards = productive_journey[
+                "cognitive_loop_guards"
+            ]
+            cognitive_step_evaluations = productive_journey[
+                "cognitive_step_evaluations"
+            ]
 
         working_context = (
             self.cognitive_coordinator.materialize_working_context(
@@ -669,6 +725,19 @@ class AIPlatformService:
         provider_cognitive_context[
             "working_context"
         ] = working_context_data
+
+        repository_checkpoint = (
+            retrieval.get(
+                "checkpoint_identity"
+            )
+            if isinstance(retrieval, Mapping)
+            else None
+        )
+
+        if repository_checkpoint is not None:
+            provider_cognitive_context[
+                "repository_checkpoint"
+            ] = dict(repository_checkpoint)
 
         if read_navigation is not None:
             provider_cognitive_context[
@@ -784,6 +853,7 @@ class AIPlatformService:
                 cognitive_step_evaluations
             ),
             "working_context": working_context_data,
+            "repository_checkpoint": repository_checkpoint,
             "context": provider_cognitive_context,
             "context_schema": provider_cognitive_context.get(
                 "schema"

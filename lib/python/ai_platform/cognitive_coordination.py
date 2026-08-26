@@ -746,6 +746,22 @@ class EpistemicCognitiveCoordinator:
                 item["bounded"] = True
                 item["authority_conferred"] = False
 
+                for metadata_key in (
+                    "repository_identity",
+                    "requested_branch",
+                    "requested_commit",
+                    "resolved_commit",
+                    "branch_head_commit",
+                    "blob_sha",
+                    "byte_count",
+                    "content_complete",
+                    "uncertainty",
+                ):
+                    if metadata_key in read_observation:
+                        item[metadata_key] = (
+                            read_observation[metadata_key]
+                        )
+
             evidence.append(item)
 
         provenance = tuple(
@@ -755,6 +771,40 @@ class EpistemicCognitiveCoordinator:
                 "retrieval_capability": retrieval.get("capability", ""),
                 "read_observed": "read_status" in item,
                 "authority_conferred": False,
+                **(
+                    {
+                        "repository_identity": item.get(
+                            "repository_identity",
+                            "",
+                        ),
+                        "requested_branch": item.get(
+                            "requested_branch",
+                            "",
+                        ),
+                        "requested_commit": item.get(
+                            "requested_commit",
+                            "",
+                        ),
+                        "resolved_commit": item.get(
+                            "resolved_commit",
+                            "",
+                        ),
+                        "blob_sha": item.get(
+                            "blob_sha",
+                            "",
+                        ),
+                        "byte_count": item.get(
+                            "byte_count",
+                            0,
+                        ),
+                        "content_complete": item.get(
+                            "content_complete",
+                            False,
+                        ),
+                    }
+                    if item.get("repository_identity")
+                    else {}
+                ),
             }
             for item in evidence
         )
