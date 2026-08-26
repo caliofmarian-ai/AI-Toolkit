@@ -2583,3 +2583,24 @@ Recovery rule:
 - keep the complete runtime body available only through deliberate,
   task-specific retrieval;
 - measure the real serialized orientation against its fixed budget.
+
+## FUSION-02 — T1 characterization must measure the real repository
+
+The inherited T1 baseline replaced RepositoryEngine,
+RepositoryProfileSerializer, Git, development context, workspace,
+runtime data, Registry, Model Manager and provider adapter. It generated
+500 artificial inventory entries so the fabricated Repository Profile
+would exceed 90 percent of the synthetic payload.
+
+That result characterized the test generator, not AI-Toolkit.
+
+Recovery rule:
+
+- build the legacy context from the real repository;
+- execute the real Pipeline with the existing Registry, Model Manager
+  and registered provider adapter;
+- preserve the real context-override boundary;
+- measure branch sizes without manufacturing a desired percentage;
+- treat characterization values as observations, not pass criteria;
+- verify that repeated characterization is deterministic and read-only;
+- use real measurements as the baseline for later bounded-context work.
