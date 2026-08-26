@@ -2451,3 +2451,65 @@ Recovery rule:
 - certify file existence before reading;
 - create a missing report from preserved demonstrated evidence;
 - only update an artifact after its materialization is confirmed.
+
+## FUSION-02 — failure/restart authority requires a real failure
+
+The inherited E19/T15 acceptance replaced `pipeline.run` with a local
+exception function. A separate test replaced session creation, session
+reads, Experience binding, raw-source persistence and context
+reconstruction with synthetic dictionaries and lambdas.
+
+Those tests could exercise control-flow branches, but they could not
+demonstrate organism physiology, durable interruption or restart
+authority.
+
+Recovery rule:
+
+- trigger failure through a real production boundary;
+- prefer deterministic configuration failure when external network
+  execution is not the subject under acceptance;
+- persist the Human raw source before the failure;
+- persist an INTERRUPTED Journey without fabricating an AI answer;
+- instantiate a second real Service against the same durable root;
+- recover the exact unmatched Human turn and bounded context;
+- ensure resume does not duplicate the Human raw source;
+- preserve Human Authority and prohibit automatic epistemic promotion.
+
+## FUSION-02 — mock removal exposed StaticProviderAdapter contract drift
+
+The first mock-free E19/T15 run reached the real provider pipeline and
+demonstrated a production contract mismatch:
+
+`AIRequestPipeline.run()` passes `provider_settings` to every adapter,
+while `StaticProviderAdapter.complete()` did not accept that argument.
+
+The blank provider request was resolved to a registered static adapter,
+so it did not produce the anticipated missing-adapter failure. The real
+pipeline instead raised TypeError at the incompatible adapter contract.
+
+Recovery rule:
+
+- treat unexpected failures reached through real organs as production
+  evidence rather than rewriting assertions around them;
+- keep every registered adapter compatible with the common pipeline
+  invocation contract;
+- use an explicit unregistered provider identity when testing the
+  missing-provider failure boundary;
+- demonstrate both the successful registered-provider path and the
+  interrupted unregistered-provider path;
+- never replace the provider or pipeline to manufacture either result.
+
+## FUSION-02 — generated source must have one terminal newline
+
+The provider-contract recovery stopped before test execution because the
+generated acceptance ended with an additional blank line. The source
+was syntactically valid, but `git diff --check` correctly rejected the
+new blank line at EOF.
+
+Recovery rule:
+
+- normalize generated source with `rstrip()` followed by exactly one
+  newline;
+- run diff hygiene before expensive regression suites;
+- classify whitespace rejection as orchestration hygiene, not production
+  physiology failure.

@@ -54,7 +54,13 @@ class StaticProviderAdapter:
             "error": "missing credentials" if not ok else "",
         }
 
-    def complete(self, question: str, context: Mapping[str, Any], model: str) -> Dict[str, Any]:
+    def complete(
+        self,
+        question: str,
+        context: Mapping[str, Any],
+        model: str,
+        provider_settings: Mapping[str, Any] | None = None,
+    ) -> Dict[str, Any]:
         start = time.perf_counter()
         profile = context.get("repository_profile", {})
         tech_stack = ", ".join(profile.get("tech_stack", [])[:5]) or "unknown stack"
