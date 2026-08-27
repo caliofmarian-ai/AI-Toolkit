@@ -2677,10 +2677,42 @@ Recovery rule:
 - resolve the requested branch separately and report whether its current
   head equals the requested commit;
 - retrieve real file bytes and blob identity;
-- bound path count and content size;
+- bound path count and page provider delivery without truncating content;
 - reject absolute paths and parent traversal;
 - attach repository, branch, commit, blob and byte provenance to the
   existing Working Context;
 - keep retrieval read-only and authority-neutral;
 - preserve external failures as NOT AVAILABLE;
 - never transform retrieved evidence into Canon or Human Authority.
+
+## FUSION-02 — a fixed character cap is not complete-file access
+
+Handoff 011 described exact checkpoint access after the provider received at
+most the first 16,000 characters of each source. Human Authority rejected that
+boundary: AI Partner must be able to read every character of every requested
+text file, independent of the file's size.
+
+Classification:
+
+`SILENT FILE TRUNCATION AND SELF-INVALIDATING LIVE ACCEPTANCE`
+
+The same acceptance fixed the historical commit as the expected mutable branch
+head. Pushing the implementation changed that head and made the live assertion
+non-repeatable.
+
+Recovery rule:
+
+- never describe a prefix as a complete file;
+- impose no AI-Toolkit character limit on a requested file;
+- retrieve the complete native Git blob and verify its Git blob identity;
+- preserve complete byte count, character count and SHA-256 provenance;
+- use sequential provider-safe windows when one context cannot hold the file;
+- verify that the ordered windows reconstruct the complete file exactly;
+- do not declare completion before every window has reached the provider;
+- treat intermediate AI reading receipts as Working Notes, not Evidence;
+- report mixed path outcomes as PARTIAL rather than RETRIEVED;
+- reject directory payloads without raising an uncontrolled exception;
+- test immutable commit recovery independently from mutable branch-head
+  equality;
+- keep Human Authority and the existing Evidence, Journey, Working Context and
+  Pipeline organs; do not create parallel physiology.

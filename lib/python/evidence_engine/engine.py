@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-import base64
+import hashlib
 import json
 import re
 import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path, PurePosixPath
-from typing import Iterable
+from typing import Iterable, Mapping
 
 from python.semantic_engine.engine import SemanticEngine
 
@@ -261,6 +261,99 @@ class EvidenceEngine:
         return json.loads(raw.decode("utf-8"))
 
     @staticmethod
+    def _github_raw(url: str) -> bytes:
+        """Read one complete native GitHub blob without application truncation."""
+        request = urllib.request.Request(
+            url,
+            headers={
+                "Accept": "application/vnd.github.raw+json",
+                "User-Agent": "AI-Toolkit-EvidenceEngine/1",
+                "X-GitHub-Api-Version": "2022-11-28",
+            },
+            method="GET",
+        )
+
+        chunks = []
+
+        with urllib.request.urlopen(request, timeout=30) as response:
+            while True:
+                chunk = response.read(1_048_576)
+
+                if not chunk:
+                    break
+
+                chunks.append(chunk)
+
+        return b"".join(chunks)
+
+    @staticmethod
+    def _git_blob_sha(raw: bytes) -> str:
+        header = f"blob {len(raw)}\0".encode("ascii")
+        return hashlib.sha1(header + raw).hexdigest()
+
+    @staticmethod
+    def _lossless_text_segments(content: str):
+        """Page complete text for cognition without limiting the file."""
+        page_characters = 12_000
+        pieces = [
+            content[offset:offset + page_characters]
+            for offset in range(0, len(content), page_characters)
+        ]
+
+        if not pieces:
+            pieces = [""]
+
+        segments = []
+        character_cursor = 0
+        byte_cursor = 0
+        segment_count = len(pieces)
+
+        for index, piece in enumerate(pieces, start=1):
+            encoded = piece.encode("utf-8")
+            character_end = character_cursor + len(piece)
+            byte_end = byte_cursor + len(encoded)
+
+            segments.append(
+                {
+                    "segment_index": index,
+                    "segment_count": segment_count,
+                    "character_start": character_cursor,
+                    "character_end": character_end,
+                    "byte_start": byte_cursor,
+                    "byte_end": byte_end,
+                    "content": piece,
+                    "content_sha256": hashlib.sha256(
+                        encoded
+                    ).hexdigest(),
+                }
+            )
+
+            character_cursor = character_end
+            byte_cursor = byte_end
+
+        if "".join(item["content"] for item in segments) != content:
+            raise ValueError("lossless-segmentation-failed")
+
+        return segments
+
+    @staticmethod
+    def _checkpoint_status(observations) -> str:
+        requested = len(observations)
+        retrieved = sum(
+            1
+            for item in observations
+            if item.get("status") == "RETRIEVED"
+        )
+
+        if requested and retrieved == requested:
+            return "RETRIEVED"
+
+        if retrieved:
+            return "PARTIAL"
+
+        return "NOT_AVAILABLE"
+
+    @staticmethod
     def _checkpoint_unknown(request, reason: str):
         return {
             "schema": "FUSION-02-GITHUB-CHECKPOINT-RETRIEVAL-1",
@@ -288,6 +381,9 @@ class EvidenceEngine:
                 "resolved_commit": "",
                 "branch_head_commit": "",
                 "branch_head_matches_commit": False,
+                "requested_path_count": len(request["paths"]),
+                "retrieved_path_count": 0,
+                "complete_files": False,
                 "status": "NOT_AVAILABLE",
                 "read_only": True,
                 "authority_conferred": False,
@@ -332,6 +428,12 @@ class EvidenceEngine:
                 + type(exc).__name__,
             )
 
+        if not isinstance(commit_payload, Mapping):
+            return self._checkpoint_unknown(
+                request,
+                "commit-response-invalid",
+            )
+
         resolved_commit = str(
             commit_payload.get("sha", "")
         ).lower()
@@ -352,8 +454,17 @@ class EvidenceEngine:
                     + "/branches/"
                     + urllib.parse.quote(branch, safe="")
                 )
+
+                if not isinstance(branch_payload, Mapping):
+                    raise ValueError("branch-response-invalid")
+
+                branch_commit = branch_payload.get("commit", {})
+
+                if not isinstance(branch_commit, Mapping):
+                    raise ValueError("branch-commit-invalid")
+
                 branch_head = str(
-                    branch_payload.get("commit", {}).get(
+                    branch_commit.get(
                         "sha",
                         "",
                     )
@@ -398,23 +509,51 @@ class EvidenceEngine:
 
             try:
                 payload = self._github_json(url)
-                encoded = str(payload.get("content", ""))
-                raw = base64.b64decode(
-                    encoded,
-                    validate=False,
+
+                if not isinstance(payload, Mapping):
+                    raise ValueError("requested-path-is-not-a-file")
+
+                if payload.get("type") != "file":
+                    raise ValueError("requested-path-is-not-a-file")
+
+                blob_sha = str(payload.get("sha", "")).lower()
+
+                if not re.fullmatch(r"[0-9a-f]{40}", blob_sha):
+                    raise ValueError("blob-identity-unavailable")
+
+                raw = self._github_raw(
+                    api_root
+                    + "/git/blobs/"
+                    + urllib.parse.quote(blob_sha, safe="")
                 )
+
+                declared_size = int(payload.get("size", len(raw)))
+
+                if declared_size != len(raw):
+                    raise ValueError("blob-byte-count-mismatch")
+
+                if self._git_blob_sha(raw) != blob_sha:
+                    raise ValueError("blob-identity-mismatch")
+
                 content = raw.decode("utf-8")
+                segments = self._lossless_text_segments(content)
             except (
                 OSError,
+                TypeError,
                 UnicodeError,
                 ValueError,
                 urllib.error.URLError,
             ) as exc:
+                uncertainty = (
+                    "file-retrieval-unavailable:"
+                    + str(exc or type(exc).__name__)
+                )
                 observations.append(
                     {
                         "source_path": source_path,
                         "status": "UNKNOWN",
                         "content": "",
+                        "content_segments": [],
                         "epistemic_gain": False,
                         "repository_identity": repository,
                         "requested_branch": branch,
@@ -423,39 +562,43 @@ class EvidenceEngine:
                         "branch_head_commit": branch_head,
                         "blob_sha": "",
                         "byte_count": 0,
+                        "character_count": 0,
+                        "segment_count": 0,
+                        "content_sha256": "",
+                        "blob_sha_verified": False,
+                        "complete_file": False,
                         "content_complete": False,
-                        "uncertainty": (
-                            "file-retrieval-unavailable:"
-                            + type(exc).__name__
-                        ),
+                        "uncertainty": uncertainty,
                         "read_only": True,
                         "bounded": True,
                         "authority_conferred": False,
                     }
                 )
+                uncertainties.append(
+                    source_path + ":" + uncertainty
+                )
                 continue
-
-            maximum_characters = 16_000
-            bounded_content = content[:maximum_characters]
 
             observations.append(
                 {
                     "source_path": source_path,
-                    "status": (
-                        "RETRIEVED" if bounded_content else "UNKNOWN"
-                    ),
-                    "content": bounded_content,
-                    "epistemic_gain": bool(bounded_content),
+                    "status": "RETRIEVED",
+                    "content": content,
+                    "content_segments": segments,
+                    "epistemic_gain": True,
                     "repository_identity": repository,
                     "requested_branch": branch,
                     "requested_commit": commit,
                     "resolved_commit": resolved_commit,
                     "branch_head_commit": branch_head,
-                    "blob_sha": str(payload.get("sha", "")),
+                    "blob_sha": blob_sha,
                     "byte_count": len(raw),
-                    "content_complete": (
-                        len(content) <= maximum_characters
-                    ),
+                    "character_count": len(content),
+                    "segment_count": len(segments),
+                    "content_sha256": hashlib.sha256(raw).hexdigest(),
+                    "blob_sha_verified": True,
+                    "complete_file": True,
+                    "content_complete": True,
                     "read_only": True,
                     "bounded": True,
                     "authority_conferred": False,
@@ -483,7 +626,10 @@ class EvidenceEngine:
             if item["status"] == "RETRIEVED"
         ]
 
-        status = "RETRIEVED" if source_paths else "NOT_AVAILABLE"
+        status = self._checkpoint_status(observations)
+
+        if branch and not branch_head and status == "RETRIEVED":
+            status = "PARTIAL"
 
         return {
             "schema": "FUSION-02-GITHUB-CHECKPOINT-RETRIEVAL-1",
@@ -506,6 +652,11 @@ class EvidenceEngine:
                 "branch_head_commit": branch_head,
                 "branch_head_matches_commit": bool(
                     branch_head and branch_head == commit
+                ),
+                "requested_path_count": len(request["paths"]),
+                "retrieved_path_count": len(source_paths),
+                "complete_files": (
+                    len(source_paths) == len(request["paths"])
                 ),
                 "status": status,
                 "read_only": True,

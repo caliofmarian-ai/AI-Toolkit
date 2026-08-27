@@ -854,6 +854,9 @@ class AIPlatformService:
             ),
             "working_context": working_context_data,
             "repository_checkpoint": repository_checkpoint,
+            "full_file_reading": result.get(
+                "full_file_reading"
+            ),
             "context": provider_cognitive_context,
             "context_schema": provider_cognitive_context.get(
                 "schema"

@@ -754,6 +754,11 @@ class EpistemicCognitiveCoordinator:
                     "branch_head_commit",
                     "blob_sha",
                     "byte_count",
+                    "character_count",
+                    "segment_count",
+                    "content_sha256",
+                    "blob_sha_verified",
+                    "complete_file",
                     "content_complete",
                     "uncertainty",
                 ):
@@ -796,6 +801,26 @@ class EpistemicCognitiveCoordinator:
                         "byte_count": item.get(
                             "byte_count",
                             0,
+                        ),
+                        "character_count": item.get(
+                            "character_count",
+                            0,
+                        ),
+                        "segment_count": item.get(
+                            "segment_count",
+                            0,
+                        ),
+                        "content_sha256": item.get(
+                            "content_sha256",
+                            "",
+                        ),
+                        "blob_sha_verified": item.get(
+                            "blob_sha_verified",
+                            False,
+                        ),
+                        "complete_file": item.get(
+                            "complete_file",
+                            False,
                         ),
                         "content_complete": item.get(
                             "content_complete",
