@@ -2716,3 +2716,170 @@ Recovery rule:
   equality;
 - keep Human Authority and the existing Evidence, Journey, Working Context and
   Pipeline organs; do not create parallel physiology.
+
+## FUSION-02 — Handoff 012 answer fabricated checkpoint identities
+
+AI Partner claimed that it had read four complete files from commit
+`d0b3d694cbb08ba5982e4ce8a3f746b7a40f7134`, but every reported blob SHA,
+byte count, SHA-256 digest, end marker and test-function inventory disagreed
+with the committed Git bytes.
+
+It also reported the nonexistent mode `full_commit_checkpoint`. Production
+code emitted only `SINGLE_CONTEXT_COMPLETE` or `SEQUENTIAL_COMPLETE`.
+
+Classification:
+
+`PROVIDER NARRATIVE FABRICATION — RAW SOURCE, NOT EVIDENCE`
+
+Recovery rule:
+
+- preserve the failed Human and AI conversation as forensic Raw Sources;
+- never delete failure evidence merely because the answer is false;
+- never treat a provider self-report as repository-access attestation;
+- generate checkpoint identity, blob identity, byte counts and hashes in the
+  deterministic Service boundary;
+- persist that system attestation beside, but never inside, model narrative;
+- render system attestation separately from model text in the Owner UI;
+- keep the model narrative outside Evidence, Canon and automatic authority.
+
+## FUSION-02 — static transport was mislabeled as semantic AI execution
+
+The live GitHub acceptance used provider id `anthropic`, but the registered
+Anthropic implementation was `StaticProviderAdapter`. It proved public GitHub
+retrieval and complete-file transport through the real Service, Pipeline and
+Registry. It did not prove external Anthropic execution or semantic reading.
+
+Classification:
+
+`REAL CHECKPOINT TRANSPORT — STATIC PROVIDER — NO EXTERNAL SEMANTIC PROOF`
+
+Recovery rule:
+
+- every provider result must expose its registered adapter identity;
+- distinguish `STATIC_DETERMINISTIC` from `EXTERNAL_HTTPS` execution;
+- expose external-network and semantic-model execution as separate booleans;
+- reserve external semantic PASS for a real credentialed adapter response;
+- validate semantic recovery with facts absent from the Human question;
+- do not infer semantic reading merely because complete bytes reached an
+  adapter boundary.
+
+## FUSION-02 — active runtime identity and access evidence were invisible
+
+The feature branch returned checkpoint metadata from `/api/ai/chat`, but the
+Owner UI reloaded persisted Raw Sources and displayed only `content`. It
+discarded the deterministic checkpoint and full-file-reading fields. The
+active Railway branch and commit were also absent from the chat result, so the
+Human could not distinguish deployed code from requested checkpoint code.
+
+Classification:
+
+`UNATTESTED ACTIVE RUNTIME AND UI EVIDENCE LOSS`
+
+Recovery rule:
+
+- derive active deployment identity from server-owned Railway variables;
+- include exact branch, commit, deployment, service, project and environment;
+- fail closed before provider execution when any requested file is partial;
+- persist a content-free access attestation with the AI Raw Source;
+- show that attestation as `SYSTEM-GENERATED ... NOT MODEL TEXT`;
+- require deployed runtime commit and branch to match the inspected checkpoint
+  for an overall `DEMONSTRATED` active-runtime verdict;
+- keep provider narrative factual grounding `NOT_DEMONSTRATED` unless an
+  independent verifier demonstrates the requested facts.
+
+## FUSION-02 — unbounded git pager interrupted noninteractive conservation
+
+The lossless-reading Bash invoked `git show` without disabling the configured
+pager. Termux entered an interactive `(END)` screen in the middle of the
+otherwise successful conservation summary.
+
+Classification:
+
+`NONINTERACTIVE SCRIPT ENTERED INTERACTIVE PAGER`
+
+Recovery rule:
+
+- export `GH_PAGER=cat`, `GIT_PAGER=cat` and `PAGER=cat` in generated Bash;
+- invoke display operations with `git --no-pager`;
+- never require a Human keystroke to finish an automated verification batch.
+
+## FUSION-02 — Codex validation runtime lacked pytest
+
+The clean detached validation worktree compiled successfully, but the local
+Codex Python runtime returned `No module named pytest` when focused tests were
+requested. Ten deterministic checks and three real GitHub checks were then
+executed directly without substitution; the absence of pytest was not called
+a pytest PASS.
+
+Classification:
+
+`LOCAL VALIDATION CAPABILITY NOT AVAILABLE`
+
+Recovery rule:
+
+- report the missing runner explicitly;
+- use syntax, diff hygiene and direct production-path checks locally;
+- run the complete focused, FUSION, global and CSL matrices in the authorized
+  Termux environment before commit, push or Railway preview deployment;
+- never transform a missing test runner into a green regression claim.
+
+## FUSION-02 — active-runtime preview execution stopped
+
+- Recorded: `2026-08-27T21:09:10.829347+00:00`
+- Step: `complete local verification matrix`
+- Return code: `1`
+- Classification: `EXECUTION_STOPPED_WITHOUT_FALSE_PASS`
+
+Recovery rule:
+
+- preserve this exact stopping point;
+- inspect the corresponding untracked run log;
+- never classify an incomplete Railway, provider or verification action as
+  successful;
+- keep production and `main` unchanged;
+- resume only under Human Authority.
+
+## FUSION-02 — grounded-preview timeout recovery stopped
+
+- Recorded: `2026-08-27T21:30:01.604947+00:00`
+- Step: `recovery preflight`
+- Return code: `1`
+- Classification: `EXECUTION_STOPPED_WITHOUT_FALSE_PASS`
+
+Recovery rule:
+
+- preserve the exact worktree and the corresponding untracked run log;
+- never rerun the original patch-applying Bash over this state;
+- keep production and `main` unchanged;
+- resume only after exact inspection under Human Authority.
+
+## FUSION-02 — Termux cold-start exceeded fixed owner-dashboard timeout
+
+- Conserved: `2026-08-27T21:43:18.287209+00:00`
+- Failed run: `20260827T204950Z`
+- Classification: `NONDETERMINISTIC_TEST_DEADLINE_RECOVERED`
+
+The live checkpoint tests, focused acceptance and complete FUSION suite had
+already passed. During the later repository-wide run, the authenticated local
+owner-dashboard request exceeded its fixed ten-second client deadline after
+more than one thousand preceding test executions. The client closed first;
+the server's later `BrokenPipeError` was therefore a consequence, not the
+initiating defect.
+
+The grounded-runtime patch did not add heavy computation to this route. The
+test coupled semantic HTTP correctness to an undocumented ten-second
+cold-start performance assumption that was not reliable on thermally loaded
+Termux hardware.
+
+Recovery rule:
+
+- do not reinterpret `BrokenPipeError` as the root cause when the client
+  timeout occurs first;
+- retain real localhost HTTP, authentication and complete dashboard rendering;
+- use the explicit 60-second cold-start budget only for the authenticated
+  dashboard surface whose semantics, not latency, are under acceptance;
+- keep fast API deadlines unchanged;
+- prove the recovered test repeatedly, then rerun live, focused, FUSION,
+  repository-wide and CSL Level-3 verification;
+- never reapply the original patch over its preserved dirty worktree;
+- keep production and `main` unchanged until the complete matrix is green.

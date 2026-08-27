@@ -1,5 +1,7 @@
 from __future__ import annotations
+import hashlib
 import logging
+import re
 
 from collections import defaultdict
 from typing import Any, Dict, Mapping, Optional
@@ -16,6 +18,7 @@ from .cognitive_coordination import (
     NavigationPlan,
 )
 from python.evidence_engine.engine import EvidenceEngine
+from python.runtime.railway import load_railway_metadata
 from .model_manager import ModelManager
 from .pipeline import AIRequestPipeline
 from .prompt_library import PromptLibrary
@@ -173,6 +176,277 @@ class AIPlatformService:
         )
         for adapter in builtin_adapters():
             self.registry.register(adapter)
+
+    @staticmethod
+    def runtime_deployment_identity() -> Dict[str, Any]:
+        """Expose active deployment identity without provider narration."""
+        metadata = load_railway_metadata()
+        git_commit = metadata.git_commit_sha.strip().lower()
+        git_branch = metadata.git_branch.strip()
+        complete = (
+            metadata.is_railway
+            and metadata.project_id not in {"", "local"}
+            and metadata.service_id not in {"", "local"}
+            and metadata.deployment_id not in {"", "local"}
+            and bool(git_branch)
+            and git_branch != "unknown"
+            and re.fullmatch(r"[0-9a-f]{40}", git_commit)
+            is not None
+        )
+
+        return {
+            "schema": "FUSION-02-ACTIVE-RUNTIME-IDENTITY-1",
+            "source": "SERVER_ENVIRONMENT_NOT_PROVIDER_TEXT",
+            "platform": "RAILWAY" if metadata.is_railway else "LOCAL",
+            "project_id": metadata.project_id,
+            "service_id": metadata.service_id,
+            "environment": metadata.environment,
+            "environment_id": metadata.environment_id,
+            "deployment_id": metadata.deployment_id,
+            "repository": metadata.git_repository,
+            "git_branch": git_branch,
+            "git_commit": git_commit,
+            "status": (
+                "DEMONSTRATED"
+                if complete
+                else "NOT_DEMONSTRATED"
+            ),
+            "identity_complete": complete,
+            "authority_conferred": False,
+            "human_authority_preserved": True,
+        }
+
+    @staticmethod
+    def checkpoint_integrity_issues(
+        retrieval: Mapping[str, Any],
+    ) -> list[str]:
+        """Return deterministic reasons an exact checkpoint is incomplete."""
+        checkpoint = retrieval.get("checkpoint_identity")
+
+        if not isinstance(checkpoint, Mapping):
+            return ["checkpoint-identity-missing"]
+
+        issues = []
+        requested_count = int(
+            checkpoint.get("requested_path_count", 0)
+            or 0
+        )
+        retrieved_count = int(
+            checkpoint.get("retrieved_path_count", 0)
+            or 0
+        )
+        observations = retrieval.get("read_observations", ())
+
+        if checkpoint.get("status") != "RETRIEVED":
+            issues.append("checkpoint-status-not-retrieved")
+
+        if checkpoint.get("complete_files") is not True:
+            issues.append("checkpoint-files-not-complete")
+
+        if requested_count < 1:
+            issues.append("checkpoint-request-empty")
+
+        if retrieved_count != requested_count:
+            issues.append("checkpoint-path-count-mismatch")
+
+        if not isinstance(observations, (list, tuple)):
+            return issues + ["checkpoint-observations-invalid"]
+
+        if len(observations) != requested_count:
+            issues.append("checkpoint-observation-count-mismatch")
+
+        for index, observation in enumerate(observations, start=1):
+            prefix = f"checkpoint-observation-{index}"
+
+            if not isinstance(observation, Mapping):
+                issues.append(prefix + "-invalid")
+                continue
+
+            content = observation.get("content")
+            content_sha256 = str(
+                observation.get("content_sha256", "")
+            ).lower()
+            blob_sha = str(
+                observation.get("blob_sha", "")
+            ).lower()
+
+            if observation.get("status") != "RETRIEVED":
+                issues.append(prefix + "-not-retrieved")
+
+            if observation.get("complete_file") is not True:
+                issues.append(prefix + "-file-incomplete")
+
+            if observation.get("content_complete") is not True:
+                issues.append(prefix + "-content-incomplete")
+
+            if observation.get("blob_sha_verified") is not True:
+                issues.append(prefix + "-blob-unverified")
+
+            if re.fullmatch(r"[0-9a-f]{40}", blob_sha) is None:
+                issues.append(prefix + "-blob-identity-invalid")
+
+            if not isinstance(content, str):
+                issues.append(prefix + "-content-invalid")
+                continue
+
+            encoded = content.encode("utf-8")
+
+            if observation.get("byte_count") != len(encoded):
+                issues.append(prefix + "-byte-count-mismatch")
+
+            if observation.get("character_count") != len(content):
+                issues.append(prefix + "-character-count-mismatch")
+
+            if (
+                re.fullmatch(r"[0-9a-f]{64}", content_sha256)
+                is None
+                or hashlib.sha256(encoded).hexdigest()
+                != content_sha256
+            ):
+                issues.append(prefix + "-content-hash-mismatch")
+
+        return sorted(set(issues))
+
+    @classmethod
+    def access_attestation(
+        cls,
+        *,
+        retrieval: Mapping[str, Any],
+        working_context: Mapping[str, Any],
+        pipeline_result: Mapping[str, Any],
+    ) -> Dict[str, Any]:
+        """Build a content-free system attestation for one AI raw source."""
+        runtime_identity = cls.runtime_deployment_identity()
+        checkpoint = dict(
+            retrieval.get("checkpoint_identity", {})
+        )
+        provider_execution = dict(
+            pipeline_result.get("provider_execution", {})
+        )
+        full_file_reading = dict(
+            pipeline_result.get("full_file_reading", {})
+        )
+        evidence = working_context.get("evidence", ())
+        manifests = []
+
+        if isinstance(evidence, (list, tuple)):
+            for item in evidence:
+                if not isinstance(item, Mapping):
+                    continue
+
+                manifests.append(
+                    {
+                        "source_path": str(
+                            item.get("source_path", "")
+                        ),
+                        "blob_sha": str(
+                            item.get("blob_sha", "")
+                        ),
+                        "byte_count": int(
+                            item.get("byte_count", 0) or 0
+                        ),
+                        "character_count": int(
+                            item.get("character_count", 0) or 0
+                        ),
+                        "content_sha256": str(
+                            item.get("content_sha256", "")
+                        ),
+                        "blob_sha_verified": (
+                            item.get("blob_sha_verified") is True
+                        ),
+                        "content_complete": (
+                            item.get("content_complete") is True
+                        ),
+                    }
+                )
+
+        checkpoint_issues = cls.checkpoint_integrity_issues(
+            retrieval
+        )
+        checkpoint_complete = not checkpoint_issues
+        manifests_verified = (
+            bool(manifests)
+            and len(manifests)
+            == int(checkpoint.get("requested_path_count", 0) or 0)
+            and all(
+                item["blob_sha_verified"]
+                and item["content_complete"]
+                and re.fullmatch(
+                    r"[0-9a-f]{40}",
+                    item["blob_sha"],
+                )
+                is not None
+                and re.fullmatch(
+                    r"[0-9a-f]{64}",
+                    item["content_sha256"],
+                )
+                is not None
+                for item in manifests
+            )
+        )
+        delivered_file_count = int(
+            full_file_reading.get(
+                "files_delivered",
+                len(
+                    full_file_reading.get(
+                        "delivered_by_path",
+                        {},
+                    )
+                ),
+            )
+            or 0
+        )
+        delivery_complete = (
+            full_file_reading.get("all_segments_delivered") is True
+            and full_file_reading.get("raw_content_truncated") is False
+            and delivered_file_count == len(manifests)
+        )
+        runtime_matches_checkpoint = (
+            runtime_identity["identity_complete"] is True
+            and runtime_identity["git_commit"]
+            == checkpoint.get("resolved_commit")
+            and runtime_identity["git_branch"]
+            == checkpoint.get("requested_branch")
+        )
+        access_demonstrated = (
+            checkpoint_complete
+            and manifests_verified
+            and delivery_complete
+            and runtime_matches_checkpoint
+        )
+        semantic_execution = bool(
+            provider_execution.get("semantic_model_execution")
+        )
+
+        return {
+            "schema": "FUSION-02-GROUNDED-ACCESS-ATTESTATION-1",
+            "generated_by": "AIPlatformService",
+            "status": (
+                "DEMONSTRATED"
+                if access_demonstrated
+                else "PARTIAL"
+            ),
+            "runtime_identity": runtime_identity,
+            "repository_checkpoint": checkpoint,
+            "file_manifests": manifests,
+            "full_file_reading": full_file_reading,
+            "provider_execution": provider_execution,
+            "verification": {
+                "checkpoint_complete": checkpoint_complete,
+                "checkpoint_integrity_issues": checkpoint_issues,
+                "file_manifests_verified": manifests_verified,
+                "provider_delivery_complete": delivery_complete,
+                "runtime_matches_checkpoint": runtime_matches_checkpoint,
+                "external_semantic_execution": semantic_execution,
+            },
+            "provider_narrative": {
+                "epistemic_status": "RAW_SOURCE_NOT_EVIDENCE",
+                "factual_grounding": "NOT_DEMONSTRATED",
+                "self_report_is_attestation": False,
+            },
+            "authority_conferred": False,
+            "human_authority_preserved": True,
+        }
 
     def configure_provider(self, provider_id: str, **kwargs: Any) -> Dict[str, Any]:
         settings = self.settings.configure_provider(provider_id, **kwargs)
@@ -678,6 +952,34 @@ class AIPlatformService:
                 "cognitive_step_evaluations"
             ]
 
+        if checkpoint_retrieval is not None:
+            checkpoint_issues = self.checkpoint_integrity_issues(
+                checkpoint_retrieval
+            )
+
+            if checkpoint_issues:
+                persisted_session = self.sessions.get(
+                    session["id"]
+                )
+
+                if persisted_session:
+                    self.sessions.bind_journey(
+                        session["id"],
+                        journey_state.to_dict(),
+                    )
+                    self.sessions.mark_journey_interruption(
+                        session["id"],
+                        reason=(
+                            "checkpoint-failure:"
+                            + ",".join(checkpoint_issues)
+                        ),
+                    )
+
+                raise ValueError(
+                    "repository checkpoint access is incomplete: "
+                    + ", ".join(checkpoint_issues)
+                )
+
         working_context = (
             self.cognitive_coordinator.materialize_working_context(
                 need=information_need,
@@ -800,6 +1102,15 @@ class AIPlatformService:
 
             raise
 
+        access_attestation = None
+
+        if checkpoint_retrieval is not None:
+            access_attestation = self.access_attestation(
+                retrieval=checkpoint_retrieval,
+                working_context=working_context_data,
+                pipeline_result=result,
+            )
+
         session = self.sessions.append_interaction(
             session["id"],
             effective_question,
@@ -819,6 +1130,7 @@ class AIPlatformService:
             sequence=ai_sequence,
             provider=result["provider"],
             model=result["model"],
+            access_attestation=access_attestation,
         )
 
         session = self.sessions.append_raw_source(
@@ -857,6 +1169,11 @@ class AIPlatformService:
             "full_file_reading": result.get(
                 "full_file_reading"
             ),
+            "provider_execution": result.get(
+                "provider_execution"
+            ),
+            "runtime_identity": self.runtime_deployment_identity(),
+            "access_attestation": access_attestation,
             "context": provider_cognitive_context,
             "context_schema": provider_cognitive_context.get(
                 "schema"

@@ -101,6 +101,27 @@ class ProviderRegistry:
                     "models": [item["id"] for item in models],
                     "latency": health.get("last_response_time_ms", 0),
                     "capabilities": list(adapter.descriptor.capabilities),
+                    "execution_kind": str(
+                        getattr(
+                            adapter,
+                            "execution_kind",
+                            "UNKNOWN",
+                        )
+                    ),
+                    "external_network_execution": bool(
+                        getattr(
+                            adapter,
+                            "external_network_execution",
+                            False,
+                        )
+                    ),
+                    "semantic_model_execution": bool(
+                        getattr(
+                            adapter,
+                            "semantic_model_execution",
+                            False,
+                        )
+                    ),
                     "token_limits": {item["id"]: item.get("token_limit", adapter.descriptor.token_limit) for item in models},
                     "estimated_cost": adapter.descriptor.estimated_cost_per_1k_tokens,
                     "health": health.get("health_status", "unknown"),

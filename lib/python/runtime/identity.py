@@ -20,6 +20,7 @@ class RuntimeIdentity:
     runtime_version: str
     build_version: str
     git_commit: str
+    git_branch: str
     deployment_id: str
     railway_deployment_id: str
     workspace_id: str
@@ -37,6 +38,7 @@ class RuntimeIdentity:
             runtime_version=os.environ.get("RUNTIME_VERSION", "3.0.0"),
             build_version=os.environ.get("BUILD_VERSION", "unknown"),
             git_commit=os.environ.get("RAILWAY_GIT_COMMIT_SHA", "unknown"),
+            git_branch=os.environ.get("RAILWAY_GIT_BRANCH", "unknown"),
             deployment_id=os.environ.get("RAILWAY_DEPLOYMENT_ID", "local"),
             railway_deployment_id=os.environ.get("RAILWAY_DEPLOYMENT_ID", "local"),
             workspace_id=os.environ.get("WORKSPACE_ID", "default"),
@@ -50,6 +52,7 @@ class RuntimeIdentity:
             "runtime_version": self.runtime_version,
             "build_version": self.build_version,
             "git_commit": self.git_commit,
+            "git_branch": self.git_branch,
             "deployment_id": self.deployment_id,
             "railway_deployment_id": self.railway_deployment_id,
             "workspace_id": self.workspace_id,

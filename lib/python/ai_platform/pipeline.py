@@ -828,6 +828,33 @@ class AIRequestPipeline:
             "error": "",
             "timestamp": datetime.now(timezone.utc).isoformat(),
         }
+        provider_execution = {
+            "schema": "FUSION-02-PROVIDER-EXECUTION-1",
+            "provider": str(selected_provider),
+            "model": str(selected_model),
+            "adapter": type(adapter).__name__,
+            "execution_kind": str(
+                getattr(
+                    adapter,
+                    "execution_kind",
+                    "UNKNOWN",
+                )
+            ),
+            "external_network_execution": bool(
+                getattr(
+                    adapter,
+                    "external_network_execution",
+                    False,
+                )
+            ),
+            "semantic_model_execution": bool(
+                getattr(
+                    adapter,
+                    "semantic_model_execution",
+                    False,
+                )
+            ),
+        }
         return {
             "question": question,
             "answer": completion["answer"],
@@ -836,6 +863,7 @@ class AIRequestPipeline:
             "context": context,
             "context_governance": context_governance,
             "full_file_reading": full_file_reading,
+            "provider_execution": provider_execution,
             "shadow_comparison": shadow_comparison,
             "usage": usage,
         }

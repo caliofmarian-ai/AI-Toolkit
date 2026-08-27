@@ -207,7 +207,9 @@ def test_pipeline_delivers_every_segment_when_one_context_cannot_hold_file(
     os.environ.get("AI_TOOLKIT_LIVE_GITHUB_CHECKPOINT") != "1",
     reason="separate live public GitHub acceptance",
 )
-def test_ai_partner_receives_complete_live_github_files(tmp_path):
+def test_complete_file_transport_reaches_registered_static_adapter(
+    tmp_path,
+):
     service = AIPlatformService(
         repository_root=str(tmp_path),
         workspace_root=str(tmp_path),
@@ -263,6 +265,18 @@ def test_ai_partner_receives_complete_live_github_files(tmp_path):
     assert reading["delivered_content_sha256_by_path"][LARGE_FILE] == (
         large["content_sha256"]
     )
+    assert result["provider_execution"] == {
+        "schema": "FUSION-02-PROVIDER-EXECUTION-1",
+        "provider": "anthropic",
+        "model": "claude-sonnet-4.5",
+        "adapter": "StaticProviderAdapter",
+        "execution_kind": "STATIC_DETERMINISTIC",
+        "external_network_execution": False,
+        "semantic_model_execution": False,
+    }
+    assert result["access_attestation"][
+        "verification"
+    ]["external_semantic_execution"] is False
 
 
 @pytest.mark.skipif(

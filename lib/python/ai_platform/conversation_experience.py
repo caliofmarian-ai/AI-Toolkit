@@ -116,6 +116,7 @@ class ConversationExperienceBridge:
         sequence: int,
         provider: str = "",
         model: str = "",
+        access_attestation: Mapping[str, Any] | None = None,
     ) -> dict[str, Any]:
         actor = actor.strip().upper()
         if actor not in {"HUMAN", "AI"}:
@@ -144,7 +145,7 @@ class ConversationExperienceBridge:
             ),
         )
 
-        return {
+        raw_source = {
             "event_id": event_id,
             "source": asdict(source),
             "source_semantics": "RAW_SOURCE_NOT_EVIDENCE",
@@ -168,6 +169,18 @@ class ConversationExperienceBridge:
                 "automatic_authority": False,
             },
         }
+
+        if access_attestation is not None:
+            if actor != "AI":
+                raise ValueError(
+                    "access attestation belongs only to an AI raw source"
+                )
+
+            raw_source["access_attestation"] = dict(
+                access_attestation
+            )
+
+        return raw_source
 
     def classify_historical_orphan(
         self,

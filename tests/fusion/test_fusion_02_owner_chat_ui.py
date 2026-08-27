@@ -17,6 +17,7 @@ from python.runtime.owner_access import (
 
 
 OWNER_SECRET = "fusion-02-owner-acceptance-secret"
+OWNER_DASHBOARD_COLD_START_TIMEOUT_SECONDS = 60
 
 
 def _owner_boundary():
@@ -211,7 +212,9 @@ def test_authenticated_real_http_owner_chat_surface(
 
         with urllib.request.urlopen(
             request,
-            timeout=10,
+            timeout=(
+                OWNER_DASHBOARD_COLD_START_TIMEOUT_SECONDS
+            ),
         ) as response:
             body = response.read().decode("utf-8")
 

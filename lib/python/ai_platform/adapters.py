@@ -26,6 +26,10 @@ class ProviderDescriptor:
 
 
 class StaticProviderAdapter:
+    execution_kind = "STATIC_DETERMINISTIC"
+    external_network_execution = False
+    semantic_model_execution = False
+
     def __init__(self, descriptor: ProviderDescriptor) -> None:
         self.descriptor = descriptor
 
@@ -112,6 +116,9 @@ class ProviderResponseError(ProviderExecutionError):
 
 
 class OpenAIProviderAdapter(StaticProviderAdapter):
+    execution_kind = "EXTERNAL_HTTPS"
+    external_network_execution = True
+    semantic_model_execution = True
     DEFAULT_BASE_URL = "https://api.openai.com/v1"
     DEFAULT_TIMEOUT_SECONDS = 60
 

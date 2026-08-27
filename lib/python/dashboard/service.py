@@ -1285,6 +1285,9 @@ class EngineeringDashboardService:
             ".chat-message{max-width:82%;padding:12px 14px;border-radius:12px;margin:10px 0;white-space:pre-wrap;word-break:break-word;}"
             ".chat-message.human{margin-left:auto;background:#1d4ed8;}"
             ".chat-message.ai{margin-right:auto;background:#1f2937;}"
+            ".chat-attestation{margin-top:10px;padding:9px;border:1px solid #475569;border-radius:8px;background:#0f172a;}"
+            ".chat-attestation summary{cursor:pointer;color:#93c5fd;font-size:12px;font-weight:700;}"
+            ".chat-attestation pre{max-height:260px;overflow:auto;margin:8px 0 0;color:#cbd5e1;font-size:11px;white-space:pre-wrap;}"
             ".chat-actor{font-size:11px;font-weight:700;text-transform:uppercase;opacity:.75;margin-bottom:5px;}"
             ".chat-empty,.chat-status{color:#9ca3af;}"
             ".chat-status.error{color:#fca5a5;}.chat-status.working{color:#93c5fd;}"
@@ -1459,11 +1462,15 @@ class EngineeringDashboardService:
                 ).lower()
             )
             name = escape(str(item.get("name", provider_id)))
+            execution_kind = escape(
+                str(item.get("execution_kind", "UNKNOWN"))
+            )
             models = item.get("models", []) or []
             model = escape(str(models[0] if models else ""))
             provider_options.append(
                 f'<option value="{provider_id}" '
-                f'data-model="{model}">{name}</option>'
+                f'data-model="{model}">{name} · '
+                f'{execution_kind}</option>'
             )
 
         options = "".join(provider_options)
@@ -1523,6 +1530,12 @@ class EngineeringDashboardService:
             'function actorName(v){'
             'return String(v||"").toUpperCase()==="HUMAN"'
             '?"You":"AI Partner";}'
+            'function renderAttestation(value){'
+            'if(!value)return "";'
+            'return "<details class=\\"chat-attestation\\">"'
+            '+"<summary>SYSTEM-GENERATED ACCESS ATTESTATION · "'
+            '+"NOT MODEL TEXT</summary><pre>"'
+            '+esc(JSON.stringify(value,null,2))+"</pre></details>";}'
             'function renderSources(items){'
             'if(!items||!items.length){history.innerHTML='
             '"<div class=\\"chat-empty\\">No messages yet.</div>";'
@@ -1532,7 +1545,9 @@ class EngineeringDashboardService:
             'const cls=actor==="HUMAN"?"human":"ai";'
             'return "<article class=\\"chat-message "+cls+"\\">"'
             '+"<div class=\\"chat-actor\\">"+esc(actorName(actor))'
-            '+"</div><div>"+esc(x.content||"")+"</div></article>";'
+            '+"</div><div>"+esc(x.content||"")+"</div>"'
+            '+(actor==="AI"?renderAttestation(x.access_attestation):"")'
+            '+"</article>";'
             '}).join("");history.scrollTop=history.scrollHeight;}'
             'async function jsonFetch(url,opts={}){'
             'const r=await fetch(url,{credentials:"same-origin",...opts});'
