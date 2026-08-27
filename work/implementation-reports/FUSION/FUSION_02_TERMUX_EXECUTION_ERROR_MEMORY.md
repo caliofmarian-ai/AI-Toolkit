@@ -2883,3 +2883,17 @@ Recovery rule:
   repository-wide and CSL Level-3 verification;
 - never reapply the original patch over its preserved dirty worktree;
 - keep production and `main` unchanged until the complete matrix is green.
+
+## FUSION-02 — grounded-preview timeout recovery stopped
+
+- Recorded: `2026-08-27T21:54:50.591372+00:00`
+- Step: `resolve isolated Railway preview environment`
+- Return code: `2`
+- Classification: `EXECUTION_STOPPED_WITHOUT_FALSE_PASS`
+
+Recovery rule:
+
+- preserve the exact worktree and the corresponding untracked run log;
+- never rerun the original patch-applying Bash over this state;
+- keep production and `main` unchanged;
+- resume only after exact inspection under Human Authority.
