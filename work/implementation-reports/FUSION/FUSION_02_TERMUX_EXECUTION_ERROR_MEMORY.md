@@ -3061,3 +3061,15 @@ Recovery rule:
 - keep secret command output inside an immediately removed private directory;
 - verify required values by equality without logging them;
 - connect source and deploy only after variable transfer is independently green.
+
+## FUSION-02 — active preview demonstration stopped
+
+- Recorded: `2026-08-29T16:06:36.164280+00:00`
+- Step: `connect feature branch only to preview service`
+- Return code: `1`
+- Source connected: `false`
+- Deployment attempted: `false`
+- Classification: `EXECUTION_STOPPED_WITHOUT_FALSE_PASS`
+
+No credential value was printed or committed. Production and `main` were not
+authorized for mutation. Resume only after exact Railway and GitHub audit.
