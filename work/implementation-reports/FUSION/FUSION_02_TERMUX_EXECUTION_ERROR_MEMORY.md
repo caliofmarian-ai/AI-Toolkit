@@ -2927,3 +2927,18 @@ Recovery rule:
 - verify the original production deployment and `main` before and after;
 - do not rerun the already-green local verification matrix for a docs-only
   Railway continuation.
+
+## FUSION-02 — linked-context preview recovery stopped
+
+- Recorded: `2026-08-29T13:57:01.548567+00:00`
+- Step: `copy variables to preview-only service without disclosure`
+- Return code: `127`
+- Classification: `EXECUTION_STOPPED_WITHOUT_FALSE_PASS`
+
+Recovery rule:
+
+- preserve the exact untracked run log;
+- preserve the isolated preview environment and preview-only service;
+- never expose copied variable values;
+- keep production and `main` unchanged;
+- resume only after exact inspection under Human Authority.
