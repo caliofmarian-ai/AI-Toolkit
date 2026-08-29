@@ -3031,3 +3031,33 @@ Recovery rule:
 - never expose copied variable values;
 - keep production and `main` unchanged;
 - resume only after exact inspection under Human Authority.
+
+## FUSION-02 — broad Railway variable cloning exceeded runtime need
+
+- Conserved: `2026-08-29T15:30:59.953166+00:00`
+- Production keys classified: `19`
+- Empty values found: `0`
+- Railway-reserved keys found: `14`
+- Values disclosed: `0`
+- Classification: `MINIMAL_REQUIRED_VARIABLE_TRANSFER_RECOVERED`
+
+The stopped continuation hid its CLI diagnostic to protect secret values, so
+the exact key that returned `1` is not retrospectively claimed. The recovered
+classification nevertheless demonstrated that broad cloning exceeded the
+active runtime need. Railway CLI 5.23.0 rejects empty stdin values, and
+platform-owned `RAILWAY_*` variables must be supplied by Railway rather than
+cloned by the application.
+
+Direct code inspection demonstrated that this preview acceptance requires only
+`AI_TOOLKIT_OWNER_TOKEN` and `OPENAI_API_KEY`. Both were non-empty, transferred
+through stdin, and compared byte-for-byte without printing or committing their
+values. Platform runtime identity remains Railway-owned.
+
+Recovery rule:
+
+- transfer only variables required by the active physiology;
+- never clone resolved platform variables into another service;
+- classify empty and reserved entries without displaying their values;
+- keep secret command output inside an immediately removed private directory;
+- verify required values by equality without logging them;
+- connect source and deploy only after variable transfer is independently green.
