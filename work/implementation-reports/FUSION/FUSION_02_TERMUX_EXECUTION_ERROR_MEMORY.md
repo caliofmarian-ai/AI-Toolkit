@@ -3016,3 +3016,18 @@ Recovery rule:
 - resume from the existing isolated environment and preview-only service;
 - never expose copied variable values;
 - do not rerun the already-green local verification matrix.
+
+## FUSION-02 — linked-context preview recovery stopped
+
+- Recorded: `2026-08-29T14:22:31.292186+00:00`
+- Step: `copy variables to preview-only service without disclosure`
+- Return code: `1`
+- Classification: `EXECUTION_STOPPED_WITHOUT_FALSE_PASS`
+
+Recovery rule:
+
+- preserve the exact untracked run log;
+- preserve the isolated preview environment and preview-only service;
+- never expose copied variable values;
+- keep production and `main` unchanged;
+- resume only after exact inspection under Human Authority.
