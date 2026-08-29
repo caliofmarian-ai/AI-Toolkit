@@ -2897,3 +2897,33 @@ Recovery rule:
 - never rerun the original patch-applying Bash over this state;
 - keep production and `main` unchanged;
 - resume only after exact inspection under Human Authority.
+
+## FUSION-02 — Railway CLI linked context and preview-service isolation
+
+- Conserved: `2026-08-29T13:56:30.915128+00:00`
+- Failed command: `railway environment list --project ... --json`
+- Railway CLI: `5.23.0`
+- Classification: `CLI_CONTRACT_AND_ISOLATION_RECOVERED`
+
+Railway CLI 5.23.0 does not accept `--project` on `environment list` or
+`environment new`. Those commands resolve their project from an explicitly
+linked directory context.
+
+The stopped Bash had not yet executed its later source-connection command.
+Inspection of the exact CLI implementation showed that `service source
+connect` mutates the selected service by service ID; its GraphQL mutation is
+not scoped by environment. Reusing the production service ID would therefore
+violate the promised preview isolation even if a production deployment did
+not immediately occur.
+
+Recovery rule:
+
+- target Railway through a temporary, exact linked context;
+- never pass unsupported project flags to environment commands;
+- create or reuse a distinct preview-only service inside the isolated preview
+  environment;
+- copy required variables through stdin without printing values;
+- connect the feature branch only to that preview-only service;
+- verify the original production deployment and `main` before and after;
+- do not rerun the already-green local verification matrix for a docs-only
+  Railway continuation.
