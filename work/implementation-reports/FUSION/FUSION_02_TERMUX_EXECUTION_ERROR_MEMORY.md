@@ -3073,3 +3073,35 @@ Recovery rule:
 
 No credential value was printed or committed. Production and `main` were not
 authorized for mutation. Resume only after exact Railway and GitHub audit.
+
+## FUSION-02 — empty preview service lacked a deployable source instance
+
+- Conserved: `2026-08-29T16:33:42.204926+00:00`
+- Preserved stop: `35333fa744f689aa847b637ed536e603d2804604`
+- Railway CLI: `5.23.0`
+- Backend diagnostic: `ServiceInstance not found`
+- Source connected: `false`
+- Deployment attempted: `false`
+- Classification: `EMPTY_SERVICE_SOURCE_MATERIALIZATION_FAILED`
+
+The preserved preview service resolved for variables and a Railway domain, but
+`railway service source connect` failed at the backend before source attachment.
+CLI 5.23.0 implements that command through the service-level `ServiceConnect`
+mutation. Repeating the same mutation cannot demonstrate a deployable instance.
+
+CLI 5.23.0 also provides an atomic recovery boundary: `railway add --repo`
+invokes `ServiceCreate` with project, exact environment, repository, branch and
+service name in one mutation. Recovery therefore preserves the stopped service,
+creates a distinct preview-only service atomically from the exact source, copies
+only the two previously verified runtime variables through stdin, and verifies
+the resulting immutable deployment identity.
+
+Recovery rule:
+
+- never retry an unchanged source-connect mutation after this diagnostic;
+- never delete the stopped service while its failure remains forensic evidence;
+- materialize source and environment instance atomically in a new preview service;
+- transfer only `AI_TOOLKIT_OWNER_TOKEN` and `OPENAI_API_KEY` through stdin;
+- do not display, log or commit either value;
+- require repository, branch, deployment, service and environment identity;
+- keep production and `main` outside mutation authority.
