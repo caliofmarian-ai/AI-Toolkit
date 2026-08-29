@@ -3105,3 +3105,15 @@ Recovery rule:
 - do not display, log or commit either value;
 - require repository, branch, deployment, service and environment identity;
 - keep production and `main` outside mutation authority.
+
+## FUSION-02 — active preview demonstration stopped
+
+- Recorded: `2026-08-29T16:42:33.516319+00:00`
+- Step: `execute real OpenAI lossless checkpoint request`
+- Return code: `1`
+- Source connected: `true`
+- Deployment attempted: `true`
+- Classification: `EXECUTION_STOPPED_WITHOUT_FALSE_PASS`
+
+No credential value was printed or committed. Production and `main` were not
+authorized for mutation. Resume only after exact Railway and GitHub audit.
