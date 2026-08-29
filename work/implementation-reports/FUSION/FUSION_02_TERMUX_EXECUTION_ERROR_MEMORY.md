@@ -2987,3 +2987,32 @@ Recovery rule:
 - never expose copied variable values;
 - keep production and `main` unchanged;
 - resume only after exact inspection under Human Authority.
+
+## FUSION-02 — direct-paste arithmetic delivery failure
+
+- Conserved: `2026-08-29T14:21:46.422768+00:00`
+- Failed step: `copy variables to preview-only service without disclosure`
+- Return code: `127`
+- Classification: `VALIDATED_ARTIFACT_CHANGED_DURING_CHAT_DELIVERY`
+
+The locally validated Bash contained the correct arithmetic assignment
+`variable_index=$((variable_index + 1))`. During final chat presentation,
+that line was manually reformatted into a multiline command substitution.
+Termux therefore tried to execute `variable_index` as a command and returned
+`127` before the first preview variable was copied.
+
+Because ERR traps were inherited by command substitutions and subshells, the
+same failure was conserved more than once. No source connection, preview
+deployment or external provider request occurred. The isolated environment
+and preview-only service remain reusable. Production and `main` remained
+outside mutation authority.
+
+Recovery rule:
+
+- deliver the exact validated Bash bytes without post-validation reformatting;
+- validate the final delivered bytes, not an earlier local representation;
+- keep arithmetic expansion as `variable_index=$((variable_index + 1))`;
+- allow only the top-level Bash process to conserve one failure record;
+- resume from the existing isolated environment and preview-only service;
+- never expose copied variable values;
+- do not rerun the already-green local verification matrix.
