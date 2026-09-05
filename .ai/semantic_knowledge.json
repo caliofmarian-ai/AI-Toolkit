@@ -1,39 +1,39 @@
 {
   "schema_version": "1.0.0",
   "repository": "/home/runner/work/AI-Toolkit/AI-Toolkit",
-  "captured_at": "2026-08-07T22:38:51Z",
+  "captured_at": "2026-09-05T14:10:35Z",
   "analysis": {
     "import_graph": {
-      "node_count": 376,
-      "edge_count": 1404,
+      "node_count": 559,
+      "edge_count": 2107,
       "circular_dependency_count": 0,
       "critical_modules": [
+        "lib/python/experience/identity.py",
+        "lib/python/experience/model.py",
+        "lib/python/ai_platform/cognitive_coordination.py",
+        "lib/python/experience/persistent_repository.py",
         "lib/python/workspace_index/__init__.py",
         "lib/python/canonical_entities/__init__.py",
+        "lib/python/experience/lifecycle.py",
         "lib/python/autonomous_planning_engine/models.py",
-        "lib/python/executive_briefing_engine/models.py",
-        "lib/python/semantic_repository_intelligence/models.py",
-        "lib/python/repository_engine/engine.py",
-        "lib/python/workspace_orchestrator/models.py",
-        "lib/python/engineering_engine/github_publish_engine.py",
-        "lib/python/engineering_engine/github_project_planner.py",
-        "lib/python/canonical_parser/__init__.py"
+        "lib/python/experience/protection.py",
+        "lib/python/experience/repository.py"
       ],
       "orphan_modules": [
+        ".ai/backups/core021a002/test_knowledge_engine_v2.py",
+        ".ai/backups/core021a002/test_repository_engine_v2.py",
+        "lib/__init__.py",
         "lib/python/__init__.py",
         "lib/python/agent_runtime/__init__.py",
         "lib/python/agents/__init__.py",
         "lib/python/agents/repository_inspector_agent.py",
-        "lib/python/audit_engine/__init__.py",
-        "lib/python/audit_engine/audit_diff.py",
-        "lib/python/audit_engine/audit_engine.py",
-        "lib/python/audit_engine/audit_history.py",
-        "lib/python/audit_engine/audit_registry.py",
-        "lib/python/audit_engine/audit_report.py"
+        "lib/python/ai_control_center/__init__.py",
+        "lib/python/ai_control_center/application.py",
+        "lib/python/ai_control_center/bootstrap.py"
       ]
     },
     "call_graph": {
-      "edge_count": 471,
+      "edge_count": 1437,
       "entry_points": [
         "lib/python/agent_runtime/base.py::run",
         "lib/python/agent_runtime/runtime.py::execute",
@@ -49,13 +49,13 @@
     },
     "architecture_graph": {
       "node_count": 15,
-      "edge_count": 64,
+      "edge_count": 65,
       "hotspots": [
-        "lib/python/workspace_index/__init__.py",
-        "lib/python/canonical_entities/__init__.py",
-        "lib/python/autonomous_planning_engine/models.py",
-        "lib/python/executive_briefing_engine/models.py",
-        "lib/python/semantic_repository_intelligence/models.py"
+        "lib/python/experience/identity.py",
+        "lib/python/experience/model.py",
+        "lib/python/ai_platform/cognitive_coordination.py",
+        "lib/python/experience/persistent_repository.py",
+        "lib/python/workspace_index/__init__.py"
       ],
       "extension_points": [
         "Agent Runtime",
@@ -68,28 +68,28 @@
     },
     "dependency_graph": {
       "external_dependency_count": 0,
-      "internal_module_count": 376
+      "internal_module_count": 559
     },
     "complexity": {
-      "total_files": 1007,
-      "total_symbols": 2446,
-      "total_imports": 1408,
-      "total_functions": 1865,
-      "total_classes": 581,
-      "avg_imports_per_module": 1.4,
-      "avg_functions_per_file": 1.85,
-      "max_imports_in_module": 30,
-      "max_functions_in_file": 60,
-      "cyclomatic_complexity_estimate": 2.27,
+      "total_files": 1604,
+      "total_symbols": 4059,
+      "total_imports": 2111,
+      "total_functions": 3264,
+      "total_classes": 795,
+      "avg_imports_per_module": 1.32,
+      "avg_functions_per_file": 2.03,
+      "max_imports_in_module": 32,
+      "max_functions_in_file": 63,
+      "cyclomatic_complexity_estimate": 2.18,
       "language_distribution": {
-        "json": 67,
-        "markdown": 560,
-        "python": 376,
+        "json": 96,
+        "markdown": 945,
+        "python": 559,
         "yaml": 4
       }
     },
     "recommendation_count": 10,
-    "injection_point_count": 277,
+    "injection_point_count": 350,
     "next_core": "CORE-009 — Development State Engine: Persist full development state for cross-session reasoning."
   }
 }

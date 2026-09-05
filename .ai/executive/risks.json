@@ -3,8 +3,8 @@
     {
       "affected_components": [
         "lib/python/workspace_index/__init__.py",
-        "lib/python/autonomous_planning_engine/models.py",
         "lib/python/canonical_entities/__init__.py",
+        "lib/python/autonomous_planning_engine/models.py",
         "lib/python/executive_briefing_engine/models.py",
         "lib/python/semantic_repository_intelligence/models.py"
       ],
@@ -12,8 +12,8 @@
       "description": "5 architecture hotspots indicate high coupling that may impede future changes.",
       "evidence": [
         "lib/python/workspace_index/__init__.py",
-        "lib/python/autonomous_planning_engine/models.py",
         "lib/python/canonical_entities/__init__.py",
+        "lib/python/autonomous_planning_engine/models.py",
         "lib/python/executive_briefing_engine/models.py",
         "lib/python/semantic_repository_intelligence/models.py"
       ],
@@ -25,17 +25,17 @@
     {
       "affected_components": [],
       "category": "regression",
-      "description": "With 942 files, changes carry elevated regression risk without comprehensive test coverage.",
+      "description": "With 1007 files, changes carry elevated regression risk without comprehensive test coverage.",
       "evidence": [
-        "total_files=942"
+        "total_files=1007"
       ],
       "id": "RISK-002",
       "remediation": "Increase test coverage and enforce CI/CD gates for large changesets.",
       "severity": "medium",
-      "title": "High codebase size increases regression risk (942 files)"
+      "title": "High codebase size increases regression risk (1007 files)"
     }
   ],
-  "briefing_id": "BRIEF-EA2B32738490",
+  "briefing_id": "BRIEF-3CB194F99A6B",
   "critical_risks": [],
-  "generated_at": "2026-08-07T22:38:39Z"
+  "generated_at": "2026-09-05T14:09:47Z"
 }
