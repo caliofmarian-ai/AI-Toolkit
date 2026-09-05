@@ -3,8 +3,8 @@
     {
       "affected_components": [
         "lib/python/workspace_index/__init__.py",
-        "lib/python/autonomous_planning_engine/models.py",
         "lib/python/canonical_entities/__init__.py",
+        "lib/python/autonomous_planning_engine/models.py",
         "lib/python/executive_briefing_engine/models.py",
         "lib/python/semantic_repository_intelligence/models.py"
       ],
@@ -12,8 +12,8 @@
       "description": "5 architecture hotspots indicate high coupling that may impede future changes.",
       "evidence": [
         "lib/python/workspace_index/__init__.py",
-        "lib/python/autonomous_planning_engine/models.py",
         "lib/python/canonical_entities/__init__.py",
+        "lib/python/autonomous_planning_engine/models.py",
         "lib/python/executive_briefing_engine/models.py",
         "lib/python/semantic_repository_intelligence/models.py"
       ],
@@ -25,22 +25,22 @@
     {
       "affected_components": [],
       "category": "regression",
-      "description": "With 942 files, changes carry elevated regression risk without comprehensive test coverage.",
+      "description": "With 1007 files, changes carry elevated regression risk without comprehensive test coverage.",
       "evidence": [
-        "total_files=942"
+        "total_files=1007"
       ],
       "id": "RISK-002",
       "remediation": "Increase test coverage and enforce CI/CD gates for large changesets.",
       "severity": "medium",
-      "title": "High codebase size increases regression risk (942 files)"
+      "title": "High codebase size increases regression risk (1007 files)"
     }
   ],
   "architecture_health": "healthy",
-  "briefing_id": "BRIEF-EA2B32738490",
+  "briefing_id": "BRIEF-3CB194F99A6B",
   "canonical_health": "healthy",
   "critical_risks": [],
   "current_batch": "BATCH-002",
-  "current_branch": "copilot/engineering-capability-audit",
+  "current_branch": "copilot/audit-general-proiect",
   "current_epic": "CORE-005",
   "current_issue": "CORE-005",
   "current_milestone": "PHASE 2 — CORE IMPLEMENTATION",
@@ -49,7 +49,7 @@
   "development_health": "healthy",
   "estimated_completion": "near completion",
   "executive_summary": "The caliofmarian-ai/AI-Toolkit repository is healthy.  Architecture health: healthy. Canonical health: healthy. Development health: healthy.  Repository health: healthy. Runtime health: unknown.  2 risk(s) identified.  3 recommendation(s) generated.",
-  "generated_at": "2026-08-07T22:38:39Z",
+  "generated_at": "2026-09-05T14:09:47Z",
   "owner_dashboard": {
     "blocked_items": [],
     "current_progress": "0/3 items completed (0%)",
@@ -118,8 +118,8 @@
     {
       "affected_components": [
         "lib/python/workspace_index/__init__.py",
-        "lib/python/autonomous_planning_engine/models.py",
         "lib/python/canonical_entities/__init__.py",
+        "lib/python/autonomous_planning_engine/models.py",
         "lib/python/executive_briefing_engine/models.py",
         "lib/python/semantic_repository_intelligence/models.py"
       ],
@@ -128,8 +128,8 @@
       "description": "5 high-coupling hotspots increase change risk.",
       "evidence": [
         "lib/python/workspace_index/__init__.py",
-        "lib/python/autonomous_planning_engine/models.py",
-        "lib/python/canonical_entities/__init__.py"
+        "lib/python/canonical_entities/__init__.py",
+        "lib/python/autonomous_planning_engine/models.py"
       ],
       "id": "REC-001",
       "impact": "Reduces coupling, improves testability and maintainability.",

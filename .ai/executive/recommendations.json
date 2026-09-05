@@ -1,6 +1,6 @@
 {
-  "briefing_id": "BRIEF-EA2B32738490",
-  "generated_at": "2026-08-07T22:38:39Z",
+  "briefing_id": "BRIEF-3CB194F99A6B",
+  "generated_at": "2026-09-05T14:09:47Z",
   "recommendations": [
     {
       "affected_components": [],
@@ -20,8 +20,8 @@
     {
       "affected_components": [
         "lib/python/workspace_index/__init__.py",
-        "lib/python/autonomous_planning_engine/models.py",
         "lib/python/canonical_entities/__init__.py",
+        "lib/python/autonomous_planning_engine/models.py",
         "lib/python/executive_briefing_engine/models.py",
         "lib/python/semantic_repository_intelligence/models.py"
       ],
@@ -30,8 +30,8 @@
       "description": "5 high-coupling hotspots increase change risk.",
       "evidence": [
         "lib/python/workspace_index/__init__.py",
-        "lib/python/autonomous_planning_engine/models.py",
-        "lib/python/canonical_entities/__init__.py"
+        "lib/python/canonical_entities/__init__.py",
+        "lib/python/autonomous_planning_engine/models.py"
       ],
       "id": "REC-001",
       "impact": "Reduces coupling, improves testability and maintainability.",

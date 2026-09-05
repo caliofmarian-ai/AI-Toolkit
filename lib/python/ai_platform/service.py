@@ -1,11 +1,16 @@
 from __future__ import annotations
+import json
 import logging
 
 from collections import defaultdict
-from typing import Any, Dict, Mapping, Optional
+from pathlib import Path
+from typing import Any, Dict, Mapping, Optional, Union
 
 from .adapters import builtin_adapters
+from .attachments import AttachmentStore
+from .chat_models import ChatMessage, ChatSession, ChatThread
 from .context_builder import AIContextBuilder
+from .context_csl import ContextCSLExporter
 from .conversation_experience import ConversationExperienceBridge
 from .conversation_context import ConversationContextReconstructor
 from .interrupted_turn import recover_interrupted_human_turn
@@ -18,7 +23,9 @@ from .cognitive_coordination import (
 from python.evidence_engine.engine import EvidenceEngine
 from .model_manager import ModelManager
 from .pipeline import AIRequestPipeline
+from .permissions import PermissionManager
 from .prompt_library import PromptLibrary
+from .provider_registry import ProviderRegistry as ChatProviderRegistry
 from .registry import ProviderRegistry
 from .sessions import AISessionEngine
 from .settings import AISettingsStore, masked_provider_settings
@@ -142,9 +149,13 @@ class AIPlatformService:
     def __init__(self, repository_root: str = ".", workspace_root: Optional[str] = None) -> None:
         self.settings = AISettingsStore(repository_root)
         self.registry = ProviderRegistry()
+        self.chat_provider_registry = ChatProviderRegistry()
         self.model_manager = ModelManager()
         self.context_builder = AIContextBuilder(repository_root, workspace_root)
         self.sessions = AISessionEngine(repository_root)
+        self.attachments = AttachmentStore(repository_root=repository_root)
+        self.permission_manager = PermissionManager()
+        self.context_exporter = ContextCSLExporter()
         self.conversation_experience = ConversationExperienceBridge(repository_root)
         self.conversation_context = ConversationContextReconstructor(
             repository_root,
@@ -550,6 +561,266 @@ class AIPlatformService:
                 "unknown_is_valid": True,
             },
         }
+
+    def _chat_store_root(self) -> Path:
+        root = self.sessions.root / ".ai" / "chat"
+        root.mkdir(parents=True, exist_ok=True)
+        return root
+
+    def _read_json_record(self, directory: Path, record_id: str) -> Optional[Dict[str, Any]]:
+        if not record_id:
+            return None
+        path = directory / f"{record_id}.json"
+        if not path.exists():
+            return None
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return None
+        return payload if isinstance(payload, dict) else None
+
+    def _write_json_record(self, directory: Path, record: Mapping[str, Any]) -> Dict[str, Any]:
+        directory.mkdir(parents=True, exist_ok=True)
+        record_id = str(record.get("id") or "").strip()
+        if not record_id:
+            raise ValueError("record id is required")
+        path = directory / f"{record_id}.json"
+        path.write_text(json.dumps(dict(record), indent=2, sort_keys=True), encoding="utf-8")
+        return dict(record)
+
+    def _sync_chat_session_to_ai_session_engine(self, session: ChatSession) -> Dict[str, Any]:
+        metadata = dict(session.metadata or {})
+        engine_payload = {
+            "id": session.id,
+            "project": metadata.get("project") or self.sessions.root.name,
+            "repository": metadata.get("repo") or metadata.get("repository") or self.sessions.root.name,
+            "branch": metadata.get("branch") or "",
+            "issue": metadata.get("issue") or "",
+            "epic": metadata.get("epic") or "",
+            "sprint": metadata.get("sprint") or "",
+            "workspace": metadata.get("workspace") or str(self.sessions.root),
+            "selected_provider": session.provider_id or "",
+            "selected_model": metadata.get("model_id") or "",
+            "engineering_context": {
+                "chat_session_id": session.id,
+                "chat_metadata": metadata,
+            },
+        }
+        return self.sessions.create(engine_payload)
+
+    def create_chat_session(self, payload: Optional[Mapping[str, Any]] = None) -> Dict[str, Any]:
+        session_payload = dict(payload or {})
+        metadata = dict(session_payload.get("metadata") or {})
+        metadata.setdefault("repo", session_payload.get("repo") or self.sessions.root.name)
+        metadata.setdefault("branch", session_payload.get("branch") or "")
+        metadata.setdefault("workspace", session_payload.get("workspace") or str(self.sessions.root))
+        session_payload["metadata"] = metadata
+        session = ChatSession.from_dict(session_payload)
+        self.context_exporter.register_session(session)
+        self._write_json_record(self._chat_store_root() / "sessions", session.to_dict())
+        self._sync_chat_session_to_ai_session_engine(session)
+        thread = self.create_chat_thread(session.id, payload={"messages": []})
+        session.active_thread_id = thread["id"]
+        session.metadata.setdefault("active_thread_id", thread["id"])
+        self._write_json_record(self._chat_store_root() / "sessions", session.to_dict())
+        return session.to_dict()
+
+    def update_chat_session(self, session_id: str, *, changes: Mapping[str, Any]) -> Optional[Dict[str, Any]]:
+        current = self.get_chat_session(session_id)
+        if current is None:
+            return None
+        updated = dict(current)
+        metadata = dict(updated.get("metadata") or {})
+        for key, value in dict(changes).items():
+            if key == "metadata":
+                metadata.update(dict(value or {}))
+            elif key == "provider_id":
+                updated["provider_id"] = value
+            elif key == "active_thread_id":
+                updated["active_thread_id"] = value
+            elif key == "owner":
+                updated["owner"] = value
+            else:
+                updated[key] = value
+        updated["metadata"] = metadata
+        session = ChatSession.from_dict(updated)
+        self.context_exporter.register_session(session)
+        self._write_json_record(self._chat_store_root() / "sessions", session.to_dict())
+        self._sync_chat_session_to_ai_session_engine(session)
+        return session.to_dict()
+
+    def delete_chat_session(self, session_id: str) -> bool:
+        root = self._chat_store_root() / "sessions"
+        path = root / f"{session_id}.json"
+        if not path.exists():
+            return False
+        path.unlink(missing_ok=True)
+        return True
+
+    def list_chat_sessions(self) -> list[Dict[str, Any]]:
+        root = self._chat_store_root() / "sessions"
+        if not root.exists():
+            return []
+        sessions: list[Dict[str, Any]] = []
+        for path in sorted(root.glob("*.json")):
+            payload = self._read_json_record(root, path.stem)
+            if payload:
+                sessions.append(payload)
+        return sessions
+
+    def get_chat_session(self, session_id: str) -> Optional[Dict[str, Any]]:
+        return self._read_json_record(self._chat_store_root() / "sessions", session_id)
+
+    def ensure_chat_session(self, payload: Mapping[str, Any]) -> ChatSession:
+        session = ChatSession.from_dict(dict(payload))
+        self.context_exporter.register_session(session)
+        self._write_json_record(self._chat_store_root() / "sessions", session.to_dict())
+        return session
+
+    def create_chat_thread(self, session_id: str, *, payload: Optional[Mapping[str, Any]] = None) -> Dict[str, Any]:
+        session = self.get_chat_session(session_id)
+        if session is None:
+            session = self.ensure_chat_session({"id": session_id, "metadata": {}}).to_dict()
+        thread_payload = dict(payload or {})
+        thread_payload.setdefault("session_id", session_id)
+        thread = ChatThread.from_dict(thread_payload)
+        self._write_json_record(self._chat_store_root() / "threads", thread.to_dict())
+        return thread.to_dict()
+
+    def list_chat_threads(self, session_id: Optional[str] = None) -> list[Dict[str, Any]]:
+        root = self._chat_store_root() / "threads"
+        if not root.exists():
+            return []
+        threads: list[Dict[str, Any]] = []
+        for path in sorted(root.glob("*.json")):
+            payload = self._read_json_record(root, path.stem)
+            if not payload:
+                continue
+            if session_id and payload.get("session_id") != session_id:
+                continue
+            threads.append(payload)
+        return threads
+
+    def get_chat_thread(self, thread_id: str) -> Optional[Dict[str, Any]]:
+        return self._read_json_record(self._chat_store_root() / "threads", thread_id)
+
+    def update_chat_thread(self, thread_id: str, *, changes: Mapping[str, Any]) -> Optional[Dict[str, Any]]:
+        current = self.get_chat_thread(thread_id)
+        if current is None:
+            return None
+        updated = dict(current)
+        for key, value in dict(changes).items():
+            updated[key] = value
+        thread = ChatThread.from_dict(updated)
+        self._write_json_record(self._chat_store_root() / "threads", thread.to_dict())
+        return thread.to_dict()
+
+    def delete_chat_thread(self, thread_id: str) -> bool:
+        root = self._chat_store_root() / "threads"
+        path = root / f"{thread_id}.json"
+        if not path.exists():
+            return False
+        path.unlink(missing_ok=True)
+        return True
+
+    def create_chat_message(
+        self,
+        *,
+        thread_id: str,
+        author: str,
+        content: str,
+        attachments: Optional[list[str]] = None,
+        metadata: Optional[Mapping[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        thread = self.get_chat_thread(thread_id)
+        if thread is None:
+            raise ValueError(f"unknown chat thread '{thread_id}'")
+        message = ChatMessage(
+            id="",
+            thread_id=thread_id,
+            author=str(author or "user"),
+            content=str(content),
+            attachments=list(attachments or []),
+            metadata=dict(metadata or {}),
+        )
+        self._write_json_record(self._chat_store_root() / "messages", message.to_dict())
+        thread["messages"] = list(thread.get("messages") or []) + [message.id]
+        self._write_json_record(self._chat_store_root() / "threads", thread)
+        return message.to_dict()
+
+    def list_chat_messages(self, thread_id: Optional[str] = None) -> list[Dict[str, Any]]:
+        root = self._chat_store_root() / "messages"
+        if not root.exists():
+            return []
+        messages: list[Dict[str, Any]] = []
+        for path in sorted(root.glob("*.json")):
+            payload = self._read_json_record(root, path.stem)
+            if not payload:
+                continue
+            if thread_id and payload.get("thread_id") != thread_id:
+                continue
+            messages.append(payload)
+        return messages
+
+    def get_chat_message(self, message_id: str) -> Optional[Dict[str, Any]]:
+        return self._read_json_record(self._chat_store_root() / "messages", message_id)
+
+    def update_chat_message(self, message_id: str, *, changes: Mapping[str, Any]) -> Optional[Dict[str, Any]]:
+        current = self.get_chat_message(message_id)
+        if current is None:
+            return None
+        updated = dict(current)
+        for key, value in dict(changes).items():
+            updated[key] = value
+        message = ChatMessage.from_dict(updated)
+        self._write_json_record(self._chat_store_root() / "messages", message.to_dict())
+        return message.to_dict()
+
+    def delete_chat_message(self, message_id: str) -> bool:
+        root = self._chat_store_root() / "messages"
+        path = root / f"{message_id}.json"
+        if not path.exists():
+            return False
+        path.unlink(missing_ok=True)
+        return True
+
+    def add_attachment(
+        self,
+        *,
+        session_id: str,
+        original_name: str,
+        content: Any,
+        mime_type: str = "application/octet-stream",
+        linked_thread_id: Optional[str] = None,
+        metadata: Optional[Mapping[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        attachment = self.attachments.add_attachment(
+            session_id=session_id,
+            original_name=original_name,
+            content=content,
+            mime_type=mime_type,
+            linked_thread_id=linked_thread_id,
+            metadata=dict(metadata or {}),
+        )
+        return attachment.to_dict()
+
+    def check_permission(
+        self,
+        *,
+        user: Optional[str] = None,
+        operation: str,
+        session: Optional[str] = None,
+        provider: Optional[str] = None,
+    ) -> bool:
+        return self.permission_manager.is_allowed(
+            user=user,
+            op=operation,
+            session=session,
+            provider=provider,
+        )
+
+    def export_session_context(self, session: Union[Mapping[str, Any], ChatSession], **kwargs: Any) -> Dict[str, Any]:
+        return self.context_exporter.export_csl(session, **kwargs)
 
     def usage_summary(self) -> Dict[str, Any]:
         sessions = self.sessions.list_sessions()
