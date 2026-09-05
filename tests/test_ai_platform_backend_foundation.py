@@ -97,8 +97,14 @@ def main() -> None:
             metadata={"type": "question"},
         )
         assert message["content"] == "hello from CRUD"
+        updated = service.update_chat_message(message["id"], changes={"content": "updated content"})
+        assert updated["content"] == "updated content"
         assert service.get_chat_message(message["id"])["id"] == message["id"]
         assert service.list_chat_messages(thread["id"])[0]["id"] == message["id"]
+        assert service.delete_chat_message(message["id"]) is True
+        edited_session = service.update_chat_session(session_payload["id"], changes={"metadata": {"branch": "feature/chat"}})
+        assert edited_session["metadata"]["branch"] == "feature/chat"
+        assert service.delete_chat_session(session_payload["id"]) is True
 
     exporter = ContextCSLExporter()
     snapshot = exporter.context_snapshot(
