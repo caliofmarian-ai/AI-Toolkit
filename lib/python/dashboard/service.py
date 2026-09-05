@@ -340,6 +340,15 @@ class EngineeringDashboardService:
             workspace_root=str(self.workspace_root),
         )
 
+    @property
+    def chat_crud_enabled(self) -> bool:
+        return os.environ.get("AI_TOOLKIT_CHAT_CRUD_ENABLED", "true").lower() in {
+            "1",
+            "true",
+            "yes",
+            "on",
+        }
+
     def build(self, refresh: bool = False) -> Dict[str, Any]:
         now = time.time()
         if (
@@ -489,9 +498,15 @@ class EngineeringDashboardService:
             "AI Control Center",
             data,
             [
-                self._section(
-                    "Owner AI Chat",
-                    self._owner_ai_chat_panel(control),
+                *(
+                    [
+                        self._section(
+                            "Owner AI Chat",
+                            self._owner_ai_chat_panel(control),
+                        )
+                    ]
+                    if self.chat_crud_enabled
+                    else []
                 ),
                 self._summary_grid(
                     [
