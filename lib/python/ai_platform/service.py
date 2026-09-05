@@ -2,10 +2,13 @@ from __future__ import annotations
 import logging
 
 from collections import defaultdict
-from typing import Any, Dict, Mapping, Optional
+from typing import Any, Dict, Mapping, Optional, Union
 
 from .adapters import builtin_adapters
+from .attachments import AttachmentStore
+from .chat_models import ChatSession
 from .context_builder import AIContextBuilder
+from .context_csl import ContextCSLExporter
 from .conversation_experience import ConversationExperienceBridge
 from .conversation_context import ConversationContextReconstructor
 from .interrupted_turn import recover_interrupted_human_turn
@@ -18,7 +21,9 @@ from .cognitive_coordination import (
 from python.evidence_engine.engine import EvidenceEngine
 from .model_manager import ModelManager
 from .pipeline import AIRequestPipeline
+from .permissions import PermissionManager
 from .prompt_library import PromptLibrary
+from .provider_registry import ProviderRegistry as ChatProviderRegistry
 from .registry import ProviderRegistry
 from .sessions import AISessionEngine
 from .settings import AISettingsStore, masked_provider_settings
@@ -142,9 +147,13 @@ class AIPlatformService:
     def __init__(self, repository_root: str = ".", workspace_root: Optional[str] = None) -> None:
         self.settings = AISettingsStore(repository_root)
         self.registry = ProviderRegistry()
+        self.chat_provider_registry = ChatProviderRegistry()
         self.model_manager = ModelManager()
         self.context_builder = AIContextBuilder(repository_root, workspace_root)
         self.sessions = AISessionEngine(repository_root)
+        self.attachments = AttachmentStore(repository_root=repository_root)
+        self.permission_manager = PermissionManager()
+        self.context_exporter = ContextCSLExporter()
         self.conversation_experience = ConversationExperienceBridge(repository_root)
         self.conversation_context = ConversationContextReconstructor(
             repository_root,
@@ -550,6 +559,49 @@ class AIPlatformService:
                 "unknown_is_valid": True,
             },
         }
+
+    def ensure_chat_session(self, payload: Mapping[str, Any]) -> ChatSession:
+        session = ChatSession.from_dict(dict(payload))
+        self.context_exporter.register_session(session)
+        return session
+
+    def add_attachment(
+        self,
+        *,
+        session_id: str,
+        original_name: str,
+        content: Any,
+        mime_type: str = "application/octet-stream",
+        linked_thread_id: Optional[str] = None,
+        metadata: Optional[Mapping[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        attachment = self.attachments.add_attachment(
+            session_id=session_id,
+            original_name=original_name,
+            content=content,
+            mime_type=mime_type,
+            linked_thread_id=linked_thread_id,
+            metadata=dict(metadata or {}),
+        )
+        return attachment.to_dict()
+
+    def check_permission(
+        self,
+        *,
+        user: Optional[str] = None,
+        operation: str,
+        session: Optional[str] = None,
+        provider: Optional[str] = None,
+    ) -> bool:
+        return self.permission_manager.is_allowed(
+            user=user,
+            op=operation,
+            session=session,
+            provider=provider,
+        )
+
+    def export_session_context(self, session: Union[Mapping[str, Any], ChatSession], **kwargs: Any) -> Dict[str, Any]:
+        return self.context_exporter.export_csl(session, **kwargs)
 
     def usage_summary(self) -> Dict[str, Any]:
         sessions = self.sessions.list_sessions()
