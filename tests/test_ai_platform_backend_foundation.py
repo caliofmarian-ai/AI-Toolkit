@@ -82,6 +82,15 @@ def main() -> None:
 
     with tempfile.TemporaryDirectory() as tmp:
         service = AIPlatformService(tmp)
+        service.chat_provider_registry.register_provider(
+            ProviderConnection(
+                id="local-provider",
+                display_name="Local Provider",
+                state=ProviderConnectionState.CONNECTED,
+            )
+        )
+        service.permission_manager.grant("owner", PermissionOp.USE_PROVIDER)
+        service.permission_manager.grant("owner", PermissionOp.SEND_MESSAGE)
         session_payload = service.create_chat_session({
             "id": "chat-session-crud",
             "owner": "owner",

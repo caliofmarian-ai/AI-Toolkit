@@ -111,6 +111,23 @@ def test_ai_control_center_contains_real_chat_surface(tmp_path):
     assert "Evidence or Canon" in html
 
 
+def test_ai_control_center_hides_chat_when_crud_is_disabled(
+    tmp_path,
+    monkeypatch,
+):
+    monkeypatch.setenv("AI_TOOLKIT_CHAT_CRUD_ENABLED", "false")
+    service = EngineeringDashboardService(
+        repository_root=str(tmp_path),
+        workspace_root=str(tmp_path),
+    )
+    payload = service.build()
+
+    html = service.render_ai_control_center(payload)
+
+    assert 'id="owner-ai-chat"' not in html
+    assert "/api/ai/chat" not in html
+
+
 def test_chat_ui_does_not_embed_owner_secret(
     tmp_path,
     monkeypatch,

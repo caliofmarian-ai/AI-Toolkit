@@ -8,7 +8,13 @@ from typing import Any, Dict, Mapping, Optional, Union
 
 from .adapters import builtin_adapters
 from .attachments import AttachmentStore
-from .chat_models import ChatMessage, ChatSession, ChatThread
+from .chat_models import (
+    ChatMessage,
+    ChatSession,
+    ChatThread,
+    PermissionOp,
+    ProviderConnectionState,
+)
 from .context_builder import AIContextBuilder
 from .context_csl import ContextCSLExporter
 from .conversation_experience import ConversationExperienceBridge
@@ -608,6 +614,46 @@ class AIPlatformService:
         }
         return self.sessions.create(engine_payload)
 
+    def _require_chat_permission(
+        self,
+        *,
+        user: str,
+        operation: PermissionOp,
+        session_id: str,
+        provider_id: Optional[str] = None,
+    ) -> None:
+        if not self.check_permission(
+            user=user,
+            operation=operation.value,
+            session=session_id,
+            provider=provider_id,
+        ):
+            raise PermissionError(
+                f"'{user}' is not permitted to {operation.value} for chat session "
+                f"'{session_id}'"
+            )
+
+    def _require_connected_chat_provider(
+        self,
+        *,
+        user: str,
+        session_id: str,
+        provider_id: Optional[str],
+    ) -> None:
+        if not provider_id:
+            return
+        provider = self.chat_provider_registry.get_provider(provider_id)
+        if provider is None:
+            raise ValueError(f"unknown chat provider '{provider_id}'")
+        if provider.state is not ProviderConnectionState.CONNECTED:
+            raise ValueError(f"chat provider '{provider_id}' is not connected")
+        self._require_chat_permission(
+            user=user,
+            operation=PermissionOp.USE_PROVIDER,
+            session_id=session_id,
+            provider_id=provider_id,
+        )
+
     def create_chat_session(self, payload: Optional[Mapping[str, Any]] = None) -> Dict[str, Any]:
         session_payload = dict(payload or {})
         metadata = dict(session_payload.get("metadata") or {})
@@ -616,6 +662,11 @@ class AIPlatformService:
         metadata.setdefault("workspace", session_payload.get("workspace") or str(self.sessions.root))
         session_payload["metadata"] = metadata
         session = ChatSession.from_dict(session_payload)
+        self._require_connected_chat_provider(
+            user=session.owner,
+            session_id=session.id,
+            provider_id=session.provider_id,
+        )
         self.context_exporter.register_session(session)
         self._write_json_record(self._chat_store_root() / "sessions", session.to_dict())
         self._sync_chat_session_to_ai_session_engine(session)
@@ -644,6 +695,11 @@ class AIPlatformService:
                 updated[key] = value
         updated["metadata"] = metadata
         session = ChatSession.from_dict(updated)
+        self._require_connected_chat_provider(
+            user=session.owner,
+            session_id=session.id,
+            provider_id=session.provider_id,
+        )
         self.context_exporter.register_session(session)
         self._write_json_record(self._chat_store_root() / "sessions", session.to_dict())
         self._sync_chat_session_to_ai_session_engine(session)
@@ -735,6 +791,15 @@ class AIPlatformService:
         thread = self.get_chat_thread(thread_id)
         if thread is None:
             raise ValueError(f"unknown chat thread '{thread_id}'")
+        session = self.get_chat_session(str(thread.get("session_id") or ""))
+        if session is None:
+            raise ValueError(f"unknown chat session for thread '{thread_id}'")
+        self._require_chat_permission(
+            user=str(session.get("owner") or "owner"),
+            operation=PermissionOp.SEND_MESSAGE,
+            session_id=str(session["id"]),
+            provider_id=session.get("provider_id"),
+        )
         message = ChatMessage(
             id="",
             thread_id=thread_id,
@@ -794,6 +859,15 @@ class AIPlatformService:
         linked_thread_id: Optional[str] = None,
         metadata: Optional[Mapping[str, Any]] = None,
     ) -> Dict[str, Any]:
+        session = self.get_chat_session(session_id)
+        if session is None:
+            raise ValueError(f"unknown chat session '{session_id}'")
+        self._require_chat_permission(
+            user=str(session.get("owner") or "owner"),
+            operation=PermissionOp.ATTACH_FILE,
+            session_id=session_id,
+            provider_id=session.get("provider_id"),
+        )
         attachment = self.attachments.add_attachment(
             session_id=session_id,
             original_name=original_name,

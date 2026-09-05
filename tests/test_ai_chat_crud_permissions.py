@@ -30,6 +30,19 @@ from python.ai_platform.permissions import PermissionManager
 from python.ai_platform.service import AIPlatformService
 
 
+def _configure_chat_access(service: AIPlatformService, session_id: str) -> None:
+    service.chat_provider_registry.register_provider(
+        {
+            "id": "local-provider",
+            "display_name": "Local Provider",
+            "state": ProviderConnectionState.CONNECTED.value,
+        }
+    )
+    service.permission_manager.grant("owner", PermissionOp.USE_PROVIDER)
+    service.permission_manager.grant("owner", PermissionOp.SEND_MESSAGE)
+    service.permission_manager.grant("owner", PermissionOp.ATTACH_FILE)
+
+
 def test_serialization_round_trips() -> None:
     session = ChatSession(
         id="round-trip-session",
@@ -75,6 +88,7 @@ def test_serialization_round_trips() -> None:
 def test_chat_crud_lifecycle_and_persistence() -> None:
     with tempfile.TemporaryDirectory() as tmp:
         service = AIPlatformService(tmp)
+        _configure_chat_access(service, "chat-session-lifecycle")
 
         session = service.create_chat_session(
             {
@@ -143,6 +157,7 @@ def test_chat_crud_lifecycle_and_persistence() -> None:
 def test_chat_session_syncs_into_ai_session_engine() -> None:
     with tempfile.TemporaryDirectory() as tmp:
         service = AIPlatformService(tmp)
+        _configure_chat_access(service, "chat-session-sync")
         session = service.create_chat_session(
             {
                 "id": "chat-session-sync",
@@ -200,6 +215,7 @@ def test_permission_grant_and_deny() -> None:
 def test_context_export_reflects_session_metadata() -> None:
     with tempfile.TemporaryDirectory() as tmp:
         service = AIPlatformService(tmp)
+        _configure_chat_access(service, "chat-session-context")
         session = service.create_chat_session(
             {
                 "id": "chat-session-context",
@@ -234,12 +250,56 @@ def test_context_export_reflects_session_metadata() -> None:
     print("context export reflects session metadata OK")
 
 
+def test_chat_crud_enforces_provider_and_permissions() -> None:
+    with tempfile.TemporaryDirectory() as tmp:
+        service = AIPlatformService(tmp)
+        try:
+            service.create_chat_session(
+                {"id": "untrusted", "owner": "owner", "provider_id": "unknown"}
+            )
+        except ValueError as exc:
+            assert "unknown chat provider" in str(exc)
+        else:
+            raise AssertionError("unknown provider was accepted")
+
+        _configure_chat_access(service, "secured")
+        session = service.create_chat_session(
+            {"id": "secured", "owner": "owner", "provider_id": "local-provider"}
+        )
+        thread = service.get_chat_thread(session["active_thread_id"])
+        assert thread is not None
+
+        service.permission_manager = PermissionManager()
+        try:
+            service.create_chat_message(
+                thread_id=thread["id"], author="owner", content="blocked"
+            )
+        except PermissionError:
+            pass
+        else:
+            raise AssertionError("message permission was not enforced")
+
+        try:
+            service.add_attachment(
+                session_id=session["id"],
+                original_name="blocked.txt",
+                content="blocked",
+            )
+        except PermissionError:
+            pass
+        else:
+            raise AssertionError("attachment permission was not enforced")
+
+    print("chat CRUD provider and permission enforcement OK")
+
+
 def main() -> None:
     test_serialization_round_trips()
     test_chat_crud_lifecycle_and_persistence()
     test_chat_session_syncs_into_ai_session_engine()
     test_permission_grant_and_deny()
     test_context_export_reflects_session_metadata()
+    test_chat_crud_enforces_provider_and_permissions()
     print("ai chat CRUD/permissions/context export tests OK")
 
 
