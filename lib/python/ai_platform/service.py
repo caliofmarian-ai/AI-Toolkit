@@ -1,12 +1,14 @@
 from __future__ import annotations
+import json
 import logging
 
 from collections import defaultdict
+from pathlib import Path
 from typing import Any, Dict, Mapping, Optional, Union
 
 from .adapters import builtin_adapters
 from .attachments import AttachmentStore
-from .chat_models import ChatSession
+from .chat_models import ChatMessage, ChatSession, ChatThread
 from .context_builder import AIContextBuilder
 from .context_csl import ContextCSLExporter
 from .conversation_experience import ConversationExperienceBridge
@@ -560,10 +562,136 @@ class AIPlatformService:
             },
         }
 
+    def _chat_store_root(self) -> Path:
+        root = self.sessions.root / ".ai" / "chat"
+        root.mkdir(parents=True, exist_ok=True)
+        return root
+
+    def _read_json_record(self, directory: Path, record_id: str) -> Optional[Dict[str, Any]]:
+        if not record_id:
+            return None
+        path = directory / f"{record_id}.json"
+        if not path.exists():
+            return None
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return None
+        return payload if isinstance(payload, dict) else None
+
+    def _write_json_record(self, directory: Path, record: Mapping[str, Any]) -> Dict[str, Any]:
+        directory.mkdir(parents=True, exist_ok=True)
+        record_id = str(record.get("id") or "").strip()
+        if not record_id:
+            raise ValueError("record id is required")
+        path = directory / f"{record_id}.json"
+        path.write_text(json.dumps(dict(record), indent=2, sort_keys=True), encoding="utf-8")
+        return dict(record)
+
+    def create_chat_session(self, payload: Optional[Mapping[str, Any]] = None) -> Dict[str, Any]:
+        session_payload = dict(payload or {})
+        metadata = dict(session_payload.get("metadata") or {})
+        metadata.setdefault("repo", session_payload.get("repo") or self.sessions.root.name)
+        metadata.setdefault("branch", session_payload.get("branch") or "")
+        metadata.setdefault("workspace", session_payload.get("workspace") or str(self.sessions.root))
+        session_payload["metadata"] = metadata
+        session = ChatSession.from_dict(session_payload)
+        self.context_exporter.register_session(session)
+        self._write_json_record(self._chat_store_root() / "sessions", session.to_dict())
+        thread = self.create_chat_thread(session.id, payload={"messages": []})
+        session.active_thread_id = thread["id"]
+        session.metadata.setdefault("active_thread_id", thread["id"])
+        self._write_json_record(self._chat_store_root() / "sessions", session.to_dict())
+        return session.to_dict()
+
+    def list_chat_sessions(self) -> list[Dict[str, Any]]:
+        root = self._chat_store_root() / "sessions"
+        if not root.exists():
+            return []
+        sessions: list[Dict[str, Any]] = []
+        for path in sorted(root.glob("*.json")):
+            payload = self._read_json_record(root, path.stem)
+            if payload:
+                sessions.append(payload)
+        return sessions
+
+    def get_chat_session(self, session_id: str) -> Optional[Dict[str, Any]]:
+        return self._read_json_record(self._chat_store_root() / "sessions", session_id)
+
     def ensure_chat_session(self, payload: Mapping[str, Any]) -> ChatSession:
         session = ChatSession.from_dict(dict(payload))
         self.context_exporter.register_session(session)
+        self._write_json_record(self._chat_store_root() / "sessions", session.to_dict())
         return session
+
+    def create_chat_thread(self, session_id: str, *, payload: Optional[Mapping[str, Any]] = None) -> Dict[str, Any]:
+        session = self.get_chat_session(session_id)
+        if session is None:
+            session = self.ensure_chat_session({"id": session_id, "metadata": {}}).to_dict()
+        thread_payload = dict(payload or {})
+        thread_payload.setdefault("session_id", session_id)
+        thread = ChatThread.from_dict(thread_payload)
+        self._write_json_record(self._chat_store_root() / "threads", thread.to_dict())
+        return thread.to_dict()
+
+    def list_chat_threads(self, session_id: Optional[str] = None) -> list[Dict[str, Any]]:
+        root = self._chat_store_root() / "threads"
+        if not root.exists():
+            return []
+        threads: list[Dict[str, Any]] = []
+        for path in sorted(root.glob("*.json")):
+            payload = self._read_json_record(root, path.stem)
+            if not payload:
+                continue
+            if session_id and payload.get("session_id") != session_id:
+                continue
+            threads.append(payload)
+        return threads
+
+    def get_chat_thread(self, thread_id: str) -> Optional[Dict[str, Any]]:
+        return self._read_json_record(self._chat_store_root() / "threads", thread_id)
+
+    def create_chat_message(
+        self,
+        *,
+        thread_id: str,
+        author: str,
+        content: str,
+        attachments: Optional[list[str]] = None,
+        metadata: Optional[Mapping[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        thread = self.get_chat_thread(thread_id)
+        if thread is None:
+            raise ValueError(f"unknown chat thread '{thread_id}'")
+        message = ChatMessage(
+            id="",
+            thread_id=thread_id,
+            author=str(author or "user"),
+            content=str(content),
+            attachments=list(attachments or []),
+            metadata=dict(metadata or {}),
+        )
+        self._write_json_record(self._chat_store_root() / "messages", message.to_dict())
+        thread["messages"] = list(thread.get("messages") or []) + [message.id]
+        self._write_json_record(self._chat_store_root() / "threads", thread)
+        return message.to_dict()
+
+    def list_chat_messages(self, thread_id: Optional[str] = None) -> list[Dict[str, Any]]:
+        root = self._chat_store_root() / "messages"
+        if not root.exists():
+            return []
+        messages: list[Dict[str, Any]] = []
+        for path in sorted(root.glob("*.json")):
+            payload = self._read_json_record(root, path.stem)
+            if not payload:
+                continue
+            if thread_id and payload.get("thread_id") != thread_id:
+                continue
+            messages.append(payload)
+        return messages
+
+    def get_chat_message(self, message_id: str) -> Optional[Dict[str, Any]]:
+        return self._read_json_record(self._chat_store_root() / "messages", message_id)
 
     def add_attachment(
         self,

@@ -10,6 +10,7 @@ from python.ai_platform.chat_models import ChatSession, ChatThread, ChatMessage,
 from python.ai_platform.context_csl import ContextCSLExporter
 from python.ai_platform.permissions import PermissionManager
 from python.ai_platform.provider_registry import ProviderRegistry
+from python.ai_platform.service import AIPlatformService
 
 
 def main() -> None:
@@ -78,6 +79,26 @@ def main() -> None:
     assert permission_manager.is_allowed("owner", PermissionOp.SEND_MESSAGE)
     assert permission_manager.is_allowed("owner", PermissionOp.SEND_MESSAGE, session="session-1")
     assert not permission_manager.is_allowed("guest", PermissionOp.SEND_MESSAGE)
+
+    with tempfile.TemporaryDirectory() as tmp:
+        service = AIPlatformService(tmp)
+        session_payload = service.create_chat_session({
+            "id": "chat-session-crud",
+            "owner": "owner",
+            "metadata": {"repo": "AI-Toolkit", "branch": "main"},
+            "provider_id": "local-provider",
+        })
+        assert session_payload["id"] == "chat-session-crud"
+        thread = service.create_chat_thread(session_payload["id"], payload={"messages": []})
+        message = service.create_chat_message(
+            thread_id=thread["id"],
+            author="user",
+            content="hello from CRUD",
+            metadata={"type": "question"},
+        )
+        assert message["content"] == "hello from CRUD"
+        assert service.get_chat_message(message["id"])["id"] == message["id"]
+        assert service.list_chat_messages(thread["id"])[0]["id"] == message["id"]
 
     exporter = ContextCSLExporter()
     snapshot = exporter.context_snapshot(
