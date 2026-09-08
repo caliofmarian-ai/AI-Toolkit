@@ -6,6 +6,7 @@ from pathlib import Path
 from python.ai_platform.conversation_context import (
     ConversationContextReconstructor,
 )
+from python.ai_platform.service import AIPlatformService
 from python.ai_platform.sessions import AISessionEngine
 
 
@@ -186,6 +187,111 @@ def test_reconstructor_refuses_unverified_handoff_content(
     assert source["integrity_verified"] is False
     assert source["integrity_error"] == "CONTENT_SHA256_MISMATCH"
     assert source["content"] == ""
+
+
+def test_service_delivers_verified_handoff_to_provider_boundary(
+    tmp_path,
+    monkeypatch,
+):
+    marker = "HANDOFF-PROVIDER-BOUNDARY-MARKER"
+    content = (
+        "# AI Partner handoff\n\n"
+        "Human final authority is preserved.\n"
+        f"{marker}\n"
+    )
+    _write_handoff(tmp_path, content)
+
+    service = AIPlatformService(
+        repository_root=str(tmp_path),
+        workspace_root=str(tmp_path),
+    )
+
+    # Keep repository/runtime projection deterministic while preserving the
+    # real durable session -> Experience -> handoff -> reconstructor path.
+    monkeypatch.setattr(
+        service.conversation_context.base_context_builder,
+        "build",
+        lambda: {
+            "repository_profile": {},
+            "repository_health": {},
+            "current_branch": "main",
+            "current_sprint": "",
+            "current_epic": "FUSION-02",
+            "current_issue": "",
+            "runtime_status": {},
+            "workspace": {"workspace": str(tmp_path)},
+        },
+    )
+    monkeypatch.setattr(
+        service.conversation_context.organism,
+        "state",
+        lambda: {
+            "schema": "organism",
+            "layered_memory": {},
+            "persistent_experience": {},
+            "provenance": {},
+            "error_memory": {},
+            "human_authority": {"preserved": True},
+            "migration_boundaries": {},
+        },
+    )
+
+    captured = {}
+
+    def provider_boundary(
+        question,
+        settings,
+        *,
+        provider_id="",
+        model="",
+        context_override=None,
+    ):
+        captured["context"] = context_override
+        return {
+            "answer": "acknowledged",
+            "provider": provider_id or "test-provider",
+            "model": model or "test-model",
+            "usage": {},
+        }
+
+    monkeypatch.setattr(service.pipeline, "run", provider_boundary)
+
+    result = service.ask_repository(
+        "acknowledge the inherited handoff",
+        provider_id="test-provider",
+        model="test-model",
+    )
+
+    provider_context = captured["context"]
+    handoff = provider_context["handoff"]
+
+    assert result["answer"] == "acknowledged"
+    assert handoff["source_count"] == 1
+    assert marker in handoff["sources"][0]["content"]
+    assert handoff["sources"][0]["integrity_verified"] is True
+    assert handoff["epistemic_status"]["canon"] is False
+    assert handoff["epistemic_status"]["layered_memory"] is False
+    assert handoff["epistemic_status"]["automatic_authority"] is False
+    assert (
+        provider_context["epistemic_boundaries"][
+            "handoff_context_grants_authority"
+        ]
+        is False
+    )
+    assert (
+        provider_context["epistemic_boundaries"][
+            "human_authority_preserved"
+        ]
+        is True
+    )
+
+    sessions = service.sessions.list_sessions()
+    assert len(sessions) == 1
+    references = sessions[0]["engineering_context"]["handoff_sources"]
+    assert marker not in repr(references)
+    assert references[0]["content_sha256"] == hashlib.sha256(
+        content.encode("utf-8")
+    ).hexdigest()
 
 
 def test_existing_service_sequence_attaches_before_context_reconstruction():
