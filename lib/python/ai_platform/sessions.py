@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 from datetime import datetime, timezone
@@ -38,6 +39,83 @@ class AISessionEngine:
             / ".ai"
             / "ai_sessions"
         )
+
+    def _discover_repository_handoffs(self) -> List[Dict[str, Any]]:
+        """Discover bounded handoff evidence without creating another store."""
+        handoff_root = (
+            self.root
+            / "work"
+            / "implementation-reports"
+            / "FUSION"
+        )
+
+        if not handoff_root.exists():
+            return []
+
+        paths = sorted(
+            handoff_root.glob("FUSION_02_*AI_PARTNER_HANDOFF_*.md")
+        )
+
+        sources: List[Dict[str, Any]] = []
+        for path in paths[-8:]:
+            try:
+                content = path.read_text(encoding="utf-8")
+                relative = str(path.relative_to(self.root))
+            except (OSError, ValueError):
+                continue
+
+            sources.append(
+                {
+                    "path": relative,
+                    "content_sha256": hashlib.sha256(
+                        content.encode("utf-8")
+                    ).hexdigest(),
+                    "content_chars": len(content),
+                    "classification": "PROVENANCE_BEARING_HANDOFF_EVIDENCE",
+                    "source_semantics": "EVIDENCE_INPUT_NOT_AUTHORITY",
+                    "human_authority_preserved": True,
+                    "automatic_sedimentation": False,
+                    "automatic_canon_promotion": False,
+                    "automatic_memory_promotion": False,
+                }
+            )
+
+        return sources
+
+    def _attach_repository_handoffs(
+        self,
+        session: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        """Attach handoff references to the existing durable session anatomy."""
+        discovered = self._discover_repository_handoffs()
+        if not discovered:
+            return session
+
+        engineering_context = dict(
+            session.get("engineering_context", {}) or {}
+        )
+        existing = {
+            str(item.get("path", "")): dict(item)
+            for item in engineering_context.get("handoff_sources", [])
+            if isinstance(item, Mapping) and item.get("path")
+        }
+
+        for source in discovered:
+            existing[source["path"]] = source
+
+        engineering_context["handoff_sources"] = [
+            existing[path]
+            for path in sorted(existing)
+        ]
+        engineering_context["handoff_semantics"] = {
+            "persistence_is_authority": False,
+            "context_inclusion_is_authority": False,
+            "human_authority_preserved": True,
+            "parallel_memory_created": False,
+            "parallel_session_created": False,
+        }
+        session["engineering_context"] = engineering_context
+        return session
 
     def create(self, payload: Mapping[str, Any]) -> Dict[str, Any]:
         now = datetime.now(timezone.utc).isoformat()
@@ -98,6 +176,7 @@ class AISessionEngine:
             )
 
         session["experience_id"] = experience_id
+        session = self._attach_repository_handoffs(session)
         session["updated_at"] = datetime.now(timezone.utc).isoformat()
         self._save(session)
         return session

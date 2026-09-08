@@ -18,6 +18,7 @@ Knowledge, Sedimentation, or Canon.
 
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 from typing import Any, Mapping
@@ -37,6 +38,8 @@ class ConversationContextReconstructor:
         *,
         max_raw_sources: int = 12,
         max_source_chars: int = 6000,
+        max_handoff_sources: int = 4,
+        max_handoff_chars: int = 12000,
     ) -> None:
         self.repository_root = Path(repository_root).resolve()
         self.workspace_root = (
@@ -46,6 +49,8 @@ class ConversationContextReconstructor:
         )
         self.max_raw_sources = max(1, int(max_raw_sources))
         self.max_source_chars = max(256, int(max_source_chars))
+        self.max_handoff_sources = max(1, int(max_handoff_sources))
+        self.max_handoff_chars = max(512, int(max_handoff_chars))
 
         self.base_context_builder = AIContextBuilder(
             str(self.repository_root),
@@ -87,6 +92,68 @@ class ConversationContextReconstructor:
                 item["original_content_chars"] = len(content)
             else:
                 item["content_truncated"] = False
+
+            bounded.append(item)
+
+        return bounded
+
+    def _bounded_handoff_sources(
+        self,
+        recovered: Mapping[str, Any],
+    ) -> list[dict[str, Any]]:
+        engineering_context = recovered.get("engineering_context", {})
+        if not isinstance(engineering_context, Mapping):
+            return []
+
+        references = engineering_context.get("handoff_sources", [])
+        if not isinstance(references, list):
+            return []
+
+        bounded: list[dict[str, Any]] = []
+
+        for reference in references[-self.max_handoff_sources:]:
+            if not isinstance(reference, Mapping):
+                continue
+
+            relative = str(reference.get("path", "")).strip()
+            if not relative:
+                continue
+
+            target = (self.repository_root / relative).resolve()
+            try:
+                target.relative_to(self.repository_root)
+            except ValueError:
+                continue
+
+            if not target.is_file():
+                continue
+
+            try:
+                content = target.read_text(encoding="utf-8")
+            except OSError:
+                continue
+
+            digest = hashlib.sha256(content.encode("utf-8")).hexdigest()
+            expected = str(reference.get("content_sha256", "")).strip()
+            integrity_verified = not expected or digest == expected
+
+            item = dict(reference)
+            item["content_sha256_observed"] = digest
+            item["integrity_verified"] = integrity_verified
+            item["content_truncated"] = False
+
+            if not integrity_verified:
+                item["content"] = ""
+                item["integrity_error"] = "CONTENT_SHA256_MISMATCH"
+                bounded.append(item)
+                continue
+
+            if len(content) > self.max_handoff_chars:
+                item["content"] = content[: self.max_handoff_chars]
+                item["content_truncated"] = True
+                item["original_content_chars"] = len(content)
+            else:
+                item["content"] = content
 
             bounded.append(item)
 
@@ -145,6 +212,7 @@ class ConversationContextReconstructor:
         raw_sources = self._bounded_raw_sources(
             list(recovered.get("raw_sources", []))
         )
+        handoff_sources = self._bounded_handoff_sources(recovered)
 
         base = self.base_context_builder.build()
         organism_state = self.organism.state()
@@ -171,6 +239,9 @@ class ConversationContextReconstructor:
                 "max_raw_sources": self.max_raw_sources,
                 "max_source_chars": self.max_source_chars,
                 "raw_sources_included": len(raw_sources),
+                "max_handoff_sources": self.max_handoff_sources,
+                "max_handoff_chars": self.max_handoff_chars,
+                "handoff_sources_included": len(handoff_sources),
             },
             "active_project": {
                 "project": recovered.get("project", ""),
@@ -193,6 +264,20 @@ class ConversationContextReconstructor:
                 "semantics": "RAW_SOURCE_NOT_EVIDENCE",
                 "sources": raw_sources,
             },
+            "handoff": {
+                "semantics": "PROVENANCE_BEARING_EVIDENCE_INPUT_NOT_AUTHORITY",
+                "sources": handoff_sources,
+                "source_count": len(handoff_sources),
+                "epistemic_status": {
+                    "evidence_input": True,
+                    "canon": False,
+                    "layered_memory": False,
+                    "persistent_experience": False,
+                    "automatic_sedimentation": False,
+                    "automatic_authority": False,
+                    "human_authority_preserved": True,
+                },
+            },
             "persistent_experience": recovered.get("experience", {}),
             "provenance": {
                 "semantics": (
@@ -211,6 +296,18 @@ class ConversationContextReconstructor:
                         ),
                     }
                     for source in raw_sources
+                ],
+                "handoff_sources": [
+                    {
+                        "path": source.get("path"),
+                        "content_sha256": source.get("content_sha256"),
+                        "integrity_verified": source.get(
+                            "integrity_verified", False
+                        ),
+                        "classification": source.get("classification"),
+                        "source_semantics": source.get("source_semantics"),
+                    }
+                    for source in handoff_sources
                 ],
             },
             "error_memory": self._error_memory_context(),
@@ -247,6 +344,9 @@ class ConversationContextReconstructor:
                 "raw_conversation_is_evidence": False,
                 "raw_conversation_is_canon": False,
                 "ai_statement_is_evidence": False,
+                "handoff_context_is_canon": False,
+                "handoff_context_is_memory": False,
+                "handoff_context_grants_authority": False,
                 "context_inclusion_grants_authority": False,
                 "automatic_sedimentation": False,
                 "human_authority_preserved": True,
