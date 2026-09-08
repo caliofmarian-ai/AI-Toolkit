@@ -307,6 +307,9 @@ class EpistemicOrganismAccess:
             "raw_sources": list(
                 session.get("raw_sources", [])
             ),
+            "engineering_context": dict(
+                session.get("engineering_context", {}) or {}
+            ),
             "epistemic_boundaries": {
                 "raw_source_is_evidence": False,
                 "raw_source_is_canon": False,
