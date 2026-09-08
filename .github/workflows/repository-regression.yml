@@ -1,0 +1,45 @@
+name: Repository Regression Gate
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install test runner
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pytest
+          if [ -s requirements.txt ]; then
+            python -m pip install -r requirements.txt
+          fi
+
+      - name: Compile production Python
+        run: python -m compileall -q lib/python
+
+      - name: Run repository-wide pytest regression
+        env:
+          PYTHONPATH: lib:lib/python
+        run: python -m pytest -q
+
+      - name: Run authoritative CSL Level-3 compiler contract
+        env:
+          PYTHONPATH: lib:lib/python
+        run: bash tests/test_csl_level3_compiler.sh
