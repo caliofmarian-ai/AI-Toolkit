@@ -117,13 +117,25 @@ def test_service_reads_bounded_candidate_sources_productively(
         ),
     )
 
+    # The service consumes the Journey returned by execute_search_navigation,
+    # not the pre-search Journey returned by initialize(). Keep this test
+    # double faithful to that existing contract: search is cognitive step 1.
+    search_journey = deepcopy(cognitive_state["journey"])
+    search_journey.update(
+        {
+            "status": "IN_PROGRESS",
+            "step_count": 1,
+            "epistemic_gain": True,
+            "visited": ["evidence:search"],
+            "stopping_reason": "",
+        }
+    )
+
     search_navigation = {
         "navigation_plan": deepcopy(
             cognitive_state["navigation_plan"]
         ),
-        "journey": deepcopy(
-            cognitive_state["journey"]
-        ),
+        "journey": search_journey,
         "retrieval": {
             "schema": "FUSION-02-READ-ONLY-SEARCH-1",
             "capability": "search",
